@@ -12,7 +12,7 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
   };
 
   return (
-    <div className="border-t border-[#ddeeff] pt-4">
+    <div className="border-t border-[#ddeeff] pt-2 max-w-xs">
       <h3 className="font-semibold text-lg">{title}</h3>
       <div className="flex flex-col space-y-2">
         {options.map((option, index) => (
