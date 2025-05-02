@@ -27,7 +27,7 @@ const Modal = ({ content, isOpen, close }) => {
                 <div className={`translate duration-600 h-full ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-10'}`}>
                     {/* Apply max height and scroll */}
                     <div className="w-full max-h-[80vh] rounded-xl relative flex flex-col bg-white overflow-y-auto">
-                        <header className="h-[60px] flex p-6 rounded-t justify-between relative">
+                        <header className=" flex p-2 rounded-t justify-between relative">
                             <div onClick={handleClose} className="pt-0 absolute right-3 hover:bg-n-2 rounded-full cursor-pointer">
                                 <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
