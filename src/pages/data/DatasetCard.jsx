@@ -37,7 +37,7 @@ const DatasetCard = ({
   };
 
   return (
-    <div className="border border-[#ADA8C3] p-4 rounded-lg w-86 hover:shadow-lg transition transform hover:translate-y-[3px]">
+    <div className="border border-[#ADA8C3] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
         <p className="bg-[#ddeeff] text-[#0E0C15] text-sm px-2 rounded-md">
           {dataset.is_premium ? `$${dataset.price}` : "Free"}
@@ -157,7 +157,7 @@ const DatasetCard = ({
 
         <button
           onClick={() => handleDownloadDataClick(dataset)}
-          className="py-1 px-2 h-10 rounded bg-gradient-to-b from-[#0d4637] to-[#26A37E] text-[#ffffff] flex items-center space-x-1 transition transform hover:translate-y-[3px] hover:shadow-outer"
+          className="py-1 px-2 h-10 rounded bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#ffffff] flex items-center space-x-1 transition transform hover:translate-y-[3px] hover:shadow-outer"
 
         >
           <img src={download_arrow_icon} alt="Download" className="w-4 h-4 invert " />
