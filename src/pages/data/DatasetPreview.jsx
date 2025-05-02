@@ -52,7 +52,7 @@ const DatasetPreview = ({ dataFiles }) => {
                         <thead className='sticky top-0 z-10'>
                             <tr>
                                 {Object.keys(csvData[0]).map((header, index) => (
-                                    <th key={index} className='bg-[#0E0C15] font-bold text-left border border-[#CAC6DD] border-r border-l text-[#ddeeff] px-4 py-1 last:border-r-0'>
+                                    <th key={index} className='bg-[#188366] font-bold text-left border border-[#CAC6DD] border-r border-l text-[#ddeeff] px-4 py-1 last:border-r-0'>
                                         {header}
                                     </th>
                                 ))}
