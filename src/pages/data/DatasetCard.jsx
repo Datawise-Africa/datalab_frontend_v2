@@ -37,9 +37,9 @@ const DatasetCard = ({
   };
 
   return (
-    <div className="border border-[#ADA8C3] p-4 rounded-lg shadow-md w-76 p-6 ">
+    <div className="border border-[#ADA8C3] p-4 rounded-lg w-86 hover:shadow-lg transition transform hover:translate-y-[3px]">
       <div className="flex justify-between">
-        <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
+        <p className="bg-[#ddeeff] text-[#0E0C15] text-sm px-2 rounded-md">
           {dataset.is_premium ? `$${dataset.price}` : "Free"}
         </p>
       </div>
@@ -128,20 +128,19 @@ const DatasetCard = ({
           </span>
         </div>
          
-      <div className="mt-1">
-        <h4 className="text-xs">Dataset Review:</h4>
-        {dataset.review_count > 0 ? (
-          <div className="flex items-center space-x-1">
-            <div className="flex">
+      <div className="mt-1 flex flex-row items-center justify-between">
+        <h4 className="text-xs">Dataset Review: {dataset.review_count > 0 ? (
+          <span className="flex items-center space-x-1">
+            <span className="flex">
               {renderStars(Math.round(dataset.average_review) || 0)}
-            </div>
+            </span>
             {/* <p className="text-[#4B5563] text-md">
               ( {dataset.review_count} ratings)
             </p> */}
-          </div>
+          </span>
         ) : (
           <p className="text-gray-500 text-xs">No ratings yet</p>
-        )}
+        )}</h4>
       </div>
       </div>
 
