@@ -131,7 +131,7 @@ import { Menu, Upload, Compass, Bookmark, FilePlus, User } from "lucide-react";
 import CollapseIcon from "/assets/datalab/collapseicon.png";
 import user_icon from "/assets/user.svg"; // Ensure this import exists
 import { useAuth } from "../../storage/AuthProvider";
-
+import { X } from "lucide-react";
 
 
 export default function Sidebar({ handleAuthModalToggle }) {
@@ -174,7 +174,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
 
       <aside
   className={`bg-[#FFFFFF] font-Sora text-[#0F4539] h-[calc(100vh-3rem)] p-4 transition-all duration-300 z-10
-  ${collapsed ? "w-16" : "w-64"}
+  ${collapsed ? "w-16" : "w-72"}
   ${isOpen ? "block" : "hidden"} fixed lg:static top-12 left-0 
   lg:block`}
 >
@@ -231,7 +231,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
             </button>
           )}
 
-          <button className="bg-[#26A37E] text-white px-4 py-2 rounded mb-8 w-full flex items-center justify-center">
+          <button className=" bg-gradient-to-b from-[#115443] to-[#26A37E] text-white px-4 py-2 rounded mb-8 w-full flex items-center justify-center">
             <Upload size={18} className="mr-2" />
             {!collapsed && "Upload Dataset"}
           </button>
@@ -256,6 +256,38 @@ export default function Sidebar({ handleAuthModalToggle }) {
             collapsed={collapsed}
           />
         </nav>
+       {/* <div className="mt-90" >
+        <h4> Become a Dataset Creator </h4>
+        <p>
+        Share your data with the world, track engagement, and earn from premium datasets. Apply now to get started!
+        </p>
+       <button
+          className="mt-auto  bg-gradient-to-b from-[#115443] to-[#26A37E] text-white px-4 py-2 rounded mb-4 w-full flex items-center justify-center"
+        >
+          <FilePlus size={18} className="mr-2" />
+          {!collapsed && "Become A Dataset Creator"}
+        </button>
+       </div> */}
+       {!collapsed && (
+  <div className="relative bg-[#E6FAF0] p-4 rounded mt-12">
+    <button
+      className="absolute top-2 right-2 text-gray-600 hover:text-black"
+      onClick={() => console.log("Dismiss clicked")}
+    >
+      <X size={18} />
+    </button>
+    <h4 className="text-base  text-[#188366] font-semibold mb-2">Become a Dataset Creator</h4>
+    <p className="text-sm mb-4">
+      Share your data with the world, track engagement, and earn from premium datasets. Apply now to get started!
+    </p>
+    <button className="bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#188366] px-4 py-2 rounded w-full flex items-center justify-center">
+      <FilePlus size={18} className="mr-2" />
+      Become A Dataset Creator
+    </button>
+  </div>
+)}
+
+       
       </aside>
 
       {isOpen && (
