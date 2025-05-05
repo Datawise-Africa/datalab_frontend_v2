@@ -39,40 +39,40 @@ const FilterPanel = ({ filters, setFilters }) => {
   };
 
   return (
-    <div className="lg:col-span-1 p-4 max-w-xs">
-     <div className="flex flex-row space-x-2">
-        <FilterSection 
-          title="Access Level" 
-          options={Object.values(optionMappings.accessLevel)} 
-          category="accessLevel" 
-          filters={filters} 
-          setFilters={setFilters} 
-        />
-        <FilterSection 
-          title="Data Type" 
-          options={Object.values(optionMappings.dataType)} 
-          category="dataType" 
-          filters={filters} 
-          setFilters={setFilters} 
-        />
-        <FilterSection 
-          title="Region" 
-          options={Object.values(optionMappings.region)} 
-          category="region" 
-          filters={filters} 
-          setFilters={setFilters} 
-        />
-        <FilterSection 
-          title="Timeframe" 
-          options={Object.values(optionMappings.timeframe)} 
-          category="timeframe" 
-          filters={filters} 
-          setFilters={setFilters} 
-        />
-        
-        <button 
-          onClick={handleManualReset} 
-          className="mt-8 p-2 bg-[#26A37E]  text-[#E5E7EB] rounded-lg shadow-md hover:bg-[#2a4e43] transition w-1/2">
+    <div className="grid grid-cols-5 gap-4 w-full p-2 ">
+      <FilterSection
+        title="Access Level"
+        options={Object.values(optionMappings.accessLevel)}
+        category="accessLevel"
+        filters={filters}
+        setFilters={setFilters}
+      />
+      <FilterSection
+        title="Data Type"
+        options={Object.values(optionMappings.dataType)}
+        category="dataType"
+        filters={filters}
+        setFilters={setFilters}
+      />
+      <FilterSection
+        title="Region"
+        options={Object.values(optionMappings.region)}
+        category="region"
+        filters={filters}
+        setFilters={setFilters}
+      />
+      <FilterSection
+        title="Timeframe"
+        options={Object.values(optionMappings.timeframe)}
+        category="timeframe"
+        filters={filters}
+        setFilters={setFilters}
+      />
+      <div className="flex items-center justify-center">
+        <button
+          onClick={handleManualReset}
+          className="p-2 bg-[#26A37E] text-[#E5E7EB] rounded shadow-md hover:bg-[#2a4e43] transition w-full"
+        >
           Reset Filters
         </button>
       </div>
@@ -83,6 +83,6 @@ const FilterPanel = ({ filters, setFilters }) => {
 FilterPanel.propTypes = {
   filters: PropTypes.object.isRequired,
   setFilters: PropTypes.func.isRequired,
-}
+};
 
 export default FilterPanel;
