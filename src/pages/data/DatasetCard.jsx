@@ -39,7 +39,7 @@ const DatasetCard = ({
   return (
     <div className="border border-[#ADA8C3] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
-        <p className="bg-[#ddeeff] text-[#0E0C15] text-sm px-2 rounded-md">
+        <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded">
           {dataset.is_premium ? `$${dataset.price}` : "Free"}
         </p>
       </div>
@@ -149,9 +149,9 @@ const DatasetCard = ({
       <div className="mt-4 flex justify-between">
         <button
           onClick={() => handleSingleDataModal(dataset)}
-          className=" py-2 px-3 h-10 rounded border border-[#D9D9D9] border-2 bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  text-xs flex items-center space-x-1"
+          className=" py-2 px-3 h-10 rounded border border-[#D9D9D9] border-2 bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
         >
-          <img src={view_icon} alt="View" className="w-3 h-3" />
+          <img src={view_icon} alt="View" className="w-4 h-4" />
           <span className="font-bold">View Details</span>
         </button>
 

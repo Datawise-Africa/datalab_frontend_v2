@@ -55,13 +55,15 @@ const SingleDataModal = ({ dataset }) => {
       isOpen={dataModal.isOpen}
       close={dataModal.close}
       content={
-        <div className="border border-[#ADA8C3] p-6 rounded-xl  bg-[#FFFFFF] shadow-md">
-          {/* Title and Pricing */}
+        <div className=" p-6 rounded-xl  bg-[#FFFFFF] ">
+          <div className="flex justify-between mb-2 ">
+          <p className="bg-[#EEFBF5] text-md font-bold text-[#188366] px-4 rounded ">
+            {is_premium ? `$${price}` : "Free"}
+          </p>
+          </div>
+          {/* Title */}
           <div className="flex justify-between">
-            <h3 className="font-bold text-[#4B5563] text-xl">{title}</h3>
-            <p className="bg-[#F3F4F6] text-[#101827] px-2 rounded-md">
-              {is_premium ? `$${price}` : "Free"}
-            </p>
+            <h3 className="font-bold text-black text-2xl mb-2">{title}</h3>
           </div>
 
           {/* Author Details */}
@@ -116,7 +118,9 @@ const SingleDataModal = ({ dataset }) => {
           </div>
           {/* ⭐ Star Rating Display */}
           <div className="mt-4">
-            <h4 className="text-lg text-[#0F2542] font-semibold">Dataset Rating:</h4>
+            <h4 className="text-lg text-[#0F2542] font-semibold">
+              Dataset Rating:
+            </h4>
             {review_count > 0 ? (
               <div className="flex items-center space-x-2">
                 <div className="flex">
@@ -144,27 +148,37 @@ const SingleDataModal = ({ dataset }) => {
             />
           </div>
 
-          <hr className="mt-8 border-t border-[#ADA8C3] -mx-6" />
           <div className="grid grid-cols-2 gap-4">
-  <div>
-    <h4 className="text-lg text-[#0F2542] font-semibold">Covered Regions</h4>
-    <p className="pt-2 text-[#0F2542]">
-      {covered_regions.map((regionObj) => regionObj.region).join(", ")}
-    </p>
-  </div>
-  <div>
-    <h4 className="text-lg  text-[#0F2542] font-semibold">Keywords</h4>
-<p className="text-[#0F2542]">    {keywords.map((keywordObj) => keywordObj.keyword).join(", ")} </p>
-  </div>
-</div>
+            <div>
+              <h4 className="text-lg text-[#0F2542] font-semibold">
+                Covered Regions
+              </h4>
+              <p className="pt-2 text-[#0F2542]">
+                {covered_regions
+                  .map((regionObj) => regionObj.region)
+                  .join(", ")}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-lg  text-[#0F2542] font-semibold">
+                Keywords
+              </h4>
+              <p className="text-[#0F2542]">
+                {" "}
+                {keywords
+                  .map((keywordObj) => keywordObj.keyword)
+                  .join(", ")}{" "}
+              </p>
+            </div>
+          </div>
 
           {/* Dataset Preview */}
-          <Section >
-            <h4 className="text-lg text-[#0F2542] font-semibold">Dataset Review</h4>
+          <Section>
+            <h4 className="text-lg text-[#0F2542] font-semibold">
+              Dataset Review
+            </h4>
             <DatasetPreview dataFiles={data_files} />
           </Section>
-
-          <hr className="mt-8 border-t border-[#ADA8C3] -mx-6" />
         </div>
       }
     />
@@ -209,10 +223,9 @@ SingleDataModal.propTypes = {
       PropTypes.shape({ keyword: PropTypes.string.isRequired })
     ).isRequired,
     data_files: PropTypes.array.isRequired,
-    review_count: PropTypes.number.isRequired, 
-  average_review: PropTypes.number.isRequired, 
+    review_count: PropTypes.number.isRequired,
+    average_review: PropTypes.number.isRequired,
   }).isRequired,
-  
 };
 MetadataItem.propTypes = {
   icon: PropTypes.string.isRequired,
