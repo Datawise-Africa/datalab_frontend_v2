@@ -38,7 +38,7 @@ const SearchDatasets = ({ className, onSearchResults, onSearchReset }) => {
     };
 
     return (
-        <div className={`p-2 flex flex-col bg-n-7 rounded-xl border border-2 border-[#E5E7EB] ${className}`}>
+        <div className={`p-2 flex flex-col bg-n-7 rounded border border-2 border-[#E5E7EB] ${className}`}>
             <div className="flex items-center">
                 <input 
                     type="text" 

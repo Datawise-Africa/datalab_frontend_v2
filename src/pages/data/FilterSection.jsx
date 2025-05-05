@@ -14,20 +14,21 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
   };
 
   return (
-    <div className="w-full p-4">
+    <div className="max-w-6xl p-4">
 
-      {/* Dropdown Toggle Button */}
+     
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+        className="w-full bg-white border border-gray-300 rounded px-4 py-2 shadow-sm text-left text-md font-semibold text-gray-500 hover:bg-gray-50"
       >
         {title}
       </button>
 
       {/* Dropdown Checklist */}
       {isOpen && (
-        <div className="mt-2 border border-gray-200 rounded-lg shadow-md p-3 bg-white max-h-60 overflow-y-auto">
+        <div className="mt-2 border border-gray-200 rounded-lg shadow-md p-3 bg-white max-h-80 overflow-y-auto">
+
           {options.map((option, index) => (
             <label key={index} className="flex items-center space-x-2 mb-1 cursor-pointer">
               <input
@@ -36,7 +37,7 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
                 onChange={() => handleFilterChange(option)}
                 checked={filters[category].includes(option)}
               />
-              <span className="text-sm text-gray-800">{option}</span>
+              <span className="text-md text-gray-800">{option}</span>
             </label>
           ))}
         </div>
