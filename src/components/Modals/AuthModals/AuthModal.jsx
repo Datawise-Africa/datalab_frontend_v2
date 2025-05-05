@@ -83,9 +83,9 @@ const AuthModal = ({ navUrl }) => {
   const content = (
     <>
       {isSignUp ? (
-        <form action={submitLogin} className="space-y-4">
-          <div className="space-y-2">
-            <h5>Hi, Welcome to Datalab</h5>
+        <form action={submitLogin} className="space-y-4 ">
+          <div className="space-y-2 ">
+            <h5 >Hi, Welcome to Datalab</h5>
             <p>
               Create an account or{" "}
               <span
@@ -140,7 +140,7 @@ const AuthModal = ({ navUrl }) => {
             return (
               <div
                 key={`error_${index}`}
-                className="p-5 bg-n-17 text-n-1 rounded-xl opacity-80"
+                className="p-5 bg-white text-n-1 rounded-xl opacity-80"
               >
                 {error}
               </div>
@@ -150,7 +150,7 @@ const AuthModal = ({ navUrl }) => {
           <CustomButton label="Sign up" onClick={submitSignUp} />
         </form>
       ) : (
-        <form action={submitLogin} className="space-y-8">
+        <form action={submitLogin} className="space-y-8 bg-white">
           <div className="space-y-2">
             <h5>Hi, Welcome to Datalab</h5>
             <p>
@@ -189,7 +189,7 @@ const AuthModal = ({ navUrl }) => {
               return (
                 <div
                   key={`error_${index}`}
-                  className="p-5 bg-n-17 text-n-1 rounded-xl opacity-80"
+                  className="p-5 bg-white text-n-1 rounded-xl opacity-80"
                 >
                   {error.message || error}{" "}
                   {/* Handle both object or string errors */}
@@ -218,6 +218,7 @@ const AuthModal = ({ navUrl }) => {
 
   return (
     <Modal
+    className="bg-white"
       isOpen={authModal.isOpen}
       close={authModal.close}
       content={content}
