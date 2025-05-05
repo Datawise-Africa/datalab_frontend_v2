@@ -194,7 +194,7 @@ const DataCatalog = () => {
 
 // export default DataCatalog;
 return (
-  <div className="flex h-[calc(100vh-3rem)] mt-[3rem] bg-gray-100">
+  <div className="flex h-[calc(100vh-3rem)] mt-[3rem] bg-white">
     
     {/* Sidebar (fixed height, no scroll) */}
     <Sidebar handleAuthModalToggle={handleAuthModalToggle} />

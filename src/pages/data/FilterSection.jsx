@@ -1,7 +1,9 @@
+import { useState } from "react";
 import PropTypes from "prop-types";
 
 const FilterSection = ({ title, options, category, filters, setFilters }) => {
-  // Handle checkbox toggle
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleFilterChange = (value) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
@@ -12,22 +14,33 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
   };
 
   return (
-    <div className="border-t border-[#ddeeff] pt-2 max-w-xs">
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <div className="flex flex-col space-y-2">
-        {options.map((option, index) => (
-          <label key={index} className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              className="form-checkbox "
-              onChange={() => handleFilterChange(option)}
-              checked={filters[category].includes(option)}
-            />
+    <div className="w-full p-4">
 
-            <span>{option}</span>
-          </label>
-        ))}
-      </div>
+      {/* Dropdown Toggle Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm text-left text-sm font-semibold text-gray-700 hover:bg-gray-50"
+      >
+        {title}
+      </button>
+
+      {/* Dropdown Checklist */}
+      {isOpen && (
+        <div className="mt-2 border border-gray-200 rounded-lg shadow-md p-3 bg-white max-h-60 overflow-y-auto">
+          {options.map((option, index) => (
+            <label key={index} className="flex items-center space-x-2 mb-1 cursor-pointer">
+              <input
+                type="checkbox"
+                className="form-checkbox text-blue-600"
+                onChange={() => handleFilterChange(option)}
+                checked={filters[category].includes(option)}
+              />
+              <span className="text-sm text-gray-800">{option}</span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
