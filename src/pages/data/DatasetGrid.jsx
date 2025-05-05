@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import DatasetCard from './DatasetCard';
 
 const DatasetGrid = ({ datasets, handleSingleDataModal, handleDownloadDataClick }) => {
-  const datasetsPerPage = 6; // Set the number of items per page
+  const datasetsPerPage = 8; // Set the number of items per page
   const [currentPage, setCurrentPage] = useState(1);
 
   // Calculate the start and end indices for slicing the datasets array
@@ -22,8 +22,8 @@ const DatasetGrid = ({ datasets, handleSingleDataModal, handleDownloadDataClick 
   };
 
   return (
-    <div className='md:col-span-3 lg:col-span-3 lg:mt-4'>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
+    <div className='md:col-span-4 lg:col-span-4 lg:mt-4'>
+      <div className='grid grid-cols-1 md:grid-cols-4 gap-10'>
         {currentDatasets.map((dataset, index) => (
           <DatasetCard
             key={index}

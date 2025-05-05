@@ -37,7 +37,7 @@ const DatasetCard = ({
   };
 
   return (
-    <div className="border border-[#ADA8C3] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
+    <div className="border border-[#ddeeff] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
         <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded">
           {dataset.is_premium ? `$${dataset.price}` : "Free"}
