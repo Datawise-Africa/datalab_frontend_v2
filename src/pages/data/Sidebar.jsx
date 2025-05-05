@@ -173,11 +173,12 @@ export default function Sidebar({ handleAuthModalToggle }) {
       </div>
 
       <aside
-        className={`bg-[#FFFFFF] mt-12 font-Sora text-[#0F4539] h-screen p-4 transition-all duration-300 z-10
-        ${collapsed ? "w-16" : "w-64"}
-        ${isOpen ? "block" : "hidden"} fixed top-0 left-0 
-        lg:block`}
-      >
+  className={`bg-[#FFFFFF] font-Sora text-[#0F4539] h-[calc(100vh-3rem)] p-4 transition-all duration-300 z-10
+  ${collapsed ? "w-16" : "w-64"}
+  ${isOpen ? "block" : "hidden"} fixed lg:static top-12 left-0 
+  lg:block`}
+>
+
         {/* Toggle Collapse Button */}
         <button
           onClick={toggleSidebar}

@@ -125,71 +125,137 @@ const DataCatalog = () => {
     return <Loader />;
   }
 
-  return (
-    <div className="flex min-h-screen mt-18 bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar 
-      handleAuthModalToggle={handleAuthModalToggle}
+//   return (
+//     <div className="flex min-h-screen mt-18 bg-gray-100">
+     
 
+//       {/* Main Content */}
+//       <main className="ml-16 md:ml-64 w-full px-4 py-16 lg:py-8">
+//         <DatasetHeader
+//           // handleAuthModalToggle={handleAuthModalToggle}
+//           onSearchResults={handleSearchResults}
+//           onSearchReset={handleSearchReset}
+//         />
+
+//         <NoDataset
+//           isOpen={isModalOpen}
+//           onClose={() => setIsModalOpen(false)}
+//           message={modalMessage}
+//         />
+
+//         <div className="flex items-center justify-end pt-2">
+//           <SortData
+//             sortIsOpen={sortIsOpen}
+//             toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
+//             onSort={handleSort}
+//           />
+//         </div>
+//           {/* Sidebar */}
+//       <Sidebar 
+//       handleAuthModalToggle={handleAuthModalToggle}
+
+//       />
+//         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+//           <DatasetGrid
+//             datasets={
+//               sortedData.length > 0
+//                 ? sortedData
+//                 : searchedDatasets.length > 0
+//                 ? searchedDatasets
+//                 : filteredData.length > 0
+//                 ? filteredData
+//                 : datasets
+//             }
+//             handleSingleDataModal={handleSingleDataModal}
+//             handleDownloadDataClick={handleDownloadDataClick}
+//           />
+//         </div>
+//       </main>
+
+//       <AuthModal navUrl={navUrl} />
+//       {selectedDataset && (
+//         <SingleDataModal
+//           dataset={selectedDataset}
+//           isOpen={dataModal.isOpen}
+//           close={dataModal.close}
+//           handleDownloadDataClick={handleDownloadDataClick}
+//         />
+//       )}
+//       {downloadDataset && (
+//         <DownloadDataModal
+//           dataset={downloadDataset}
+//           isOpen={downloadDataModal.isOpen}
+//           close={downloadDataModal.close}
+//         />
+//       )}
+//     </div>
+//   );
+// };
+
+// export default DataCatalog;
+return (
+  <div className="flex h-[calc(100vh-3rem)] mt-[3rem] bg-gray-100">
+    
+    {/* Sidebar (fixed height, no scroll) */}
+    <Sidebar handleAuthModalToggle={handleAuthModalToggle} />
+
+    {/* Main Content */}
+    <main className="flex-1 overflow-y-auto px-4 py-6">
+      <DatasetHeader
+        onSearchResults={handleSearchResults}
+        onSearchReset={handleSearchReset}
       />
 
-      {/* Main Content */}
-      <main className="ml-16 md:ml-64 w-full px-4 py-16 lg:py-8">
-        <DatasetHeader
-          // handleAuthModalToggle={handleAuthModalToggle}
-          onSearchResults={handleSearchResults}
-          onSearchReset={handleSearchReset}
+      <NoDataset
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        message={modalMessage}
+      />
+
+      <div className="flex items-center justify-end pt-2">
+        <SortData
+          sortIsOpen={sortIsOpen}
+          toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
+          onSort={handleSort}
         />
+      </div>
 
-        <NoDataset
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          message={modalMessage}
-        />
-
-        <div className="flex items-center justify-end pt-2">
-          <SortData
-            sortIsOpen={sortIsOpen}
-            toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
-            onSort={handleSort}
-          />
-        </div>
-
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <DatasetGrid
-            datasets={
-              sortedData.length > 0
-                ? sortedData
-                : searchedDatasets.length > 0
-                ? searchedDatasets
-                : filteredData.length > 0
-                ? filteredData
-                : datasets
-            }
-            handleSingleDataModal={handleSingleDataModal}
-            handleDownloadDataClick={handleDownloadDataClick}
-          />
-        </div>
-      </main>
-
-      <AuthModal navUrl={navUrl} />
-      {selectedDataset && (
-        <SingleDataModal
-          dataset={selectedDataset}
-          isOpen={dataModal.isOpen}
-          close={dataModal.close}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <DatasetGrid
+          datasets={
+            sortedData.length > 0
+              ? sortedData
+              : searchedDatasets.length > 0
+              ? searchedDatasets
+              : filteredData.length > 0
+              ? filteredData
+              : datasets
+          }
+          handleSingleDataModal={handleSingleDataModal}
           handleDownloadDataClick={handleDownloadDataClick}
         />
-      )}
-      {downloadDataset && (
-        <DownloadDataModal
-          dataset={downloadDataset}
-          isOpen={downloadDataModal.isOpen}
-          close={downloadDataModal.close}
-        />
-      )}
-    </div>
-  );
+      </div>
+    </main>
+
+    {/* Modals */}
+    <AuthModal navUrl={navUrl} />
+    {selectedDataset && (
+      <SingleDataModal
+        dataset={selectedDataset}
+        isOpen={dataModal.isOpen}
+        close={dataModal.close}
+        handleDownloadDataClick={handleDownloadDataClick}
+      />
+    )}
+    {downloadDataset && (
+      <DownloadDataModal
+        dataset={downloadDataset}
+        isOpen={downloadDataModal.isOpen}
+        close={downloadDataModal.close}
+      />
+    )}
+  </div>
+);
 };
 
 export default DataCatalog;
