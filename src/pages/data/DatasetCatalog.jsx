@@ -237,7 +237,11 @@ const DataCatalog = () => {
           handleAuthModalToggle={handleAuthModalToggle}
           onSearchResults={handleSearchResults}
           onSearchReset={handleSearchReset}
+          
         />
+         <div className="hidden lg:block">
+            <FilterPanel filters={filters} setFilters={setFilters} />
+          </div>
 
         <NoDataset
           isOpen={isModalOpen}
@@ -258,9 +262,7 @@ const DataCatalog = () => {
           </div>
         </div>
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div className="hidden lg:block">
-            <FilterPanel filters={filters} setFilters={setFilters} />
-          </div>
+         
 
           <DatasetGrid
             // datasets={filteredData.length > 0 ? filteredData : datasets}

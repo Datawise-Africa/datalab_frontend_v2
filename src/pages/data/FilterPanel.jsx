@@ -40,7 +40,7 @@ const FilterPanel = ({ filters, setFilters }) => {
 
   return (
     <div className="lg:col-span-1 p-4 max-w-xs">
-      <div className="flex flex-col mt-5">
+     <div className="flex flex-row space-x-2">
         <FilterSection 
           title="Access Level" 
           options={Object.values(optionMappings.accessLevel)} 
