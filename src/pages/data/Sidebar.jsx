@@ -23,7 +23,7 @@
 //       <aside
 //         className={`bg-[#FFFFFF] mt-12 font-Sora text-[#0F4539] h-screen p-4 transition-all duration-300 z-10
 //         ${collapsed ? "w-16" : "w-64"}
-//         ${isOpen ? "block" : "hidden"} fixed top-0 left-0 
+//         ${isOpen ? "block" : "hidden"} fixed top-0 left-0
 //         lg:block`}
 //       >
 //         {/* Toggle Collapse Button */}
@@ -35,7 +35,7 @@
 //             <img src={CollapseIcon} alt="Collapse" className="w-6 h-6" />
 //           ) : (
 //             <>
-//               <img src={CollapseIcon} alt="Collapse" className="w-6 h-6"  />    <span>Collapse</span> 
+//               <img src={CollapseIcon} alt="Collapse" className="w-6 h-6"  />    <span>Collapse</span>
 
 //             </>
 //           )}
@@ -66,7 +66,7 @@
 //     <button
 //       onClick={handleAuthModalToggle}
 
-//       className={`${ 
+//       className={`${
 //         collapsed ? "p-2" : "px-4 py-2"
 //       } bg-[#FAFAFA] text-[#0F4539] rounded mb-4 w-full flex items-center justify-center flex-col`}
 //     >
@@ -126,19 +126,22 @@
 //     </div>
 //   );
 // }
-import { useState } from "react";
-import { Menu, Upload, Compass, Bookmark, FilePlus, User } from "lucide-react";
+import {useState} from "react";
+import {Menu, Upload, Compass, Bookmark, FilePlus, User} from "lucide-react";
 import CollapseIcon from "/assets/datalab/collapseicon.png";
 import user_icon from "/assets/user.svg"; // Ensure this import exists
-import { useAuth } from "../../storage/AuthProvider";
-import { X } from "lucide-react";
+import {useAuth} from "../../storage/AuthProvider";
+import {X} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import Button from "../../components/designs/Button.js";
 
 
-export default function Sidebar({ handleAuthModalToggle }) {
+export default function Sidebar({handleAuthModalToggle}) {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { state, dispatch, actions } = useAuth();
-  
+  const {state, dispatch, actions} = useAuth();
+  const navigate = useNavigate()
+
   console.log("Sidebar Rendered");
   console.log("Auth State:", state);
 
@@ -163,32 +166,37 @@ export default function Sidebar({ handleAuthModalToggle }) {
     dispatch(actions.LOGOUT());
   };
 
+  const handleBecomeDatasetCreator = () => {
+    handleAuthModalToggle()
+    navigate('/become-dataset-creator')
+  }
+
   return (
     <>
       {/* Mobile Toggle Button */}
       <div className="lg:hidden fixed top-4 left-4 z-20">
         <button onClick={toggleMobileSidebar} className="text-black bg-red p-2 rounded">
-          <Menu size={24} />
+          <Menu size={24}/>
         </button>
       </div>
 
       <aside
-  className={`bg-[#FFFFFF] font-Sora text-[#0F4539] h-[calc(100vh-3rem)] p-4 transition-all duration-300 z-10
+        className={`bg-[#FFFFFF] font-Sora text-[#0F4539] h-[calc(100vh-3rem)] p-4 transition-all duration-300 z-10
   ${collapsed ? "w-16" : "w-72"}
-  ${isOpen ? "block" : "hidden"} fixed lg:static top-12 left-0 
+  ${isOpen ? "block" : "hidden"} fixed lg:static top-12 left-0
   lg:block`}
->
+      >
 
         {/* Toggle Collapse Button */}
         <button
           onClick={toggleSidebar}
-          className="text-[#BBBBBB] mt-6 mb-6 self-end md:self-start"
+          className="text-[#BBBBBB] mt-6 mb-6 self-end md:self-start inline-flex items-center gap-2"
         >
           {collapsed ? (
-            <img src={CollapseIcon} alt="Collapse" className="w-6 h-6" />
+            <img src={CollapseIcon} alt="Collapse" className="w-6 h-6"/>
           ) : (
             <>
-              <img src={CollapseIcon} alt="Collapse" className="w-6 h-6" /> <span>Collapse</span>
+              <img src={CollapseIcon} alt="Collapse" className="w-6 h-6"/> <span>Collapse</span>
             </>
           )}
         </button>
@@ -201,7 +209,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
                 collapsed ? "p-2" : "px-4 py-2"
               } bg-[#FAFAFA] text-[#0F4539] rounded mb-4 w-full flex items-center justify-center flex-col`}
             >
-              <User size={24} />
+              <User size={24}/>
               {!collapsed && (
                 <>
                   <span className="mt-2">Welcome, {state.firstName}</span>
@@ -221,7 +229,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
                 collapsed ? "p-2" : "px-4 py-2"
               } bg-[#FAFAFA] text-[#0F4539] rounded mb-4 w-full flex items-center justify-center flex-col`}
             >
-              <img src={user_icon} alt="User Icon" className="w-6 h-6" />
+              <img src={user_icon} alt="User Icon" className="w-6 h-6"/>
               {!collapsed && (
                 <>
                   <span className="mt-2">Log In / Sign Up</span>
@@ -231,8 +239,9 @@ export default function Sidebar({ handleAuthModalToggle }) {
             </button>
           )}
 
-          <button className=" bg-gradient-to-b from-[#115443] to-[#26A37E] text-white px-4 py-2 rounded mb-8 w-full flex items-center justify-center">
-            <Upload size={18} className="mr-2" />
+          <button
+            className=" bg-gradient-to-b from-[#115443] to-[#26A37E] text-white px-4 py-2 rounded mb-8 w-full flex items-center justify-center">
+            <Upload size={18} className="mr-2"/>
             {!collapsed && "Upload Dataset"}
           </button>
         </div>
@@ -241,22 +250,22 @@ export default function Sidebar({ handleAuthModalToggle }) {
         <nav className="flex flex-col gap-4">
           <SidebarItem
             className="bg-[#FFFFFF] hover:bg-[#E6FAF0]"
-            icon={<Compass size={20} />}
+            icon={<Compass size={20}/>}
             label="Discover"
             collapsed={collapsed}
           />
           <SidebarItem
-            icon={<Bookmark size={20} />}
+            icon={<Bookmark size={20}/>}
             label="Saved Items"
             collapsed={collapsed}
           />
           <SidebarItem
-            icon={<FilePlus size={20} />}
+            icon={<FilePlus size={20}/>}
             label="Dataset Creator"
             collapsed={collapsed}
           />
         </nav>
-       {/* <div className="mt-90" >
+        {/* <div className="mt-90" >
         <h4> Become a Dataset Creator </h4>
         <p>
         Share your data with the world, track engagement, and earn from premium datasets. Apply now to get started!
@@ -268,26 +277,32 @@ export default function Sidebar({ handleAuthModalToggle }) {
           {!collapsed && "Become A Dataset Creator"}
         </button>
        </div> */}
-       {!collapsed && (
-  <div className="relative bg-[#E6FAF0] p-4 rounded mt-12">
-    <button
-      className="absolute top-2 right-2 text-gray-600 hover:text-black"
-      onClick={() => console.log("Dismiss clicked")}
-    >
-      <X size={18} />
-    </button>
-    <h4 className="text-base  text-[#188366] font-semibold mb-2">Become a Dataset Creator</h4>
-    <p className="text-sm mb-4">
-      Share your data with the world, track engagement, and earn from premium datasets. Apply now to get started!
-    </p>
-    <button className="bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#188366] px-4 py-2 rounded w-full flex items-center justify-center">
-      <FilePlus size={18} className="mr-2" />
-      Become A Dataset Creator
-    </button>
-  </div>
-)}
+        {!collapsed && (
+          <div className="relative bg-[#E6FAF0]  rounded mt-12">
+            <button
+              className="absolute top-2 right-2 text-gray-600 hover:text-black"
+              onClick={() => console.log("Dismiss clicked")}
+            >
+              <X size={18}/>
+            </button>
+            <div className='py-4 px-2'>
 
-       
+              <h4 className="text-base  text-[#188366] font-semibold mb-2">Become a Dataset Creator</h4>
+              <p className="text-sm mb-4">
+                Share your data with the world, track engagement, and earn from premium datasets. Apply now to get
+                started!
+              </p>
+            </div>
+            <Button
+              onClick={handleBecomeDatasetCreator}
+              className="rounded w-full flex items-center justify-center gap-2">
+              {/*<FilePlus size={18} className="" />*/}
+              Become A Dataset Creator
+            </Button>
+          </div>
+        )}
+
+
       </aside>
 
       {isOpen && (
@@ -300,7 +315,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
   );
 }
 
-function SidebarItem({ icon, label, collapsed }) {
+function SidebarItem({icon, label, collapsed}) {
   return (
     <div className="flex items-center bg-[#FFFFFF] text-sm hover:bg-[#E6FAF0] p-2 rounded cursor-pointer">
       {icon}
