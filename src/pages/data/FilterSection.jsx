@@ -14,7 +14,7 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
   };
 
   return (
-    <div className="max-w-6xl p-4">
+    <div className="max-w-24xl ">
 
      
       <button

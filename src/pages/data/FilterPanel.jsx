@@ -39,7 +39,7 @@ const FilterPanel = ({ filters, setFilters }) => {
   };
 
   return (
-    <div className="grid grid-cols-5 gap-4 w-full p-2 ">
+    <div className="grid grid-cols-5 gap-4 w-full  ">
       <FilterSection
         title="Access Level"
         options={Object.values(optionMappings.accessLevel)}
@@ -71,7 +71,7 @@ const FilterPanel = ({ filters, setFilters }) => {
       <div className="flex items-center justify-center">
         <button
           onClick={handleManualReset}
-          className="p-2 bg-[#26A37E] text-[#E5E7EB] rounded shadow-md hover:bg-[#2a4e43] transition w-full"
+          className="p-2 bg-white text-gray-600 rounded font-semibold "
         >
           Reset Filters
         </button>

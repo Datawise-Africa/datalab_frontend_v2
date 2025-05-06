@@ -246,17 +246,28 @@ const DataCatalog = () => {
 
   return (
     <div className="flex h-[calc(100vh-3rem)] mt-[3rem] bg-white">
-     
       <Sidebar handleAuthModalToggle={handleAuthModalToggle} />
 
-     
-      <main className="flex-1 overflow-y-auto px-4 py-6">
-        <DatasetHeader
-          onSearchResults={handleSearchResults}
-          onSearchReset={handleSearchReset}
-        />
+      <main className="flex-1 overflow-y-auto px-6 py-6 ">
 
-        <div className=" lg:flex flex-grow max-w-6xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mb-4 max-w-24xl ">
+          <DatasetHeader
+            onSearchResults={handleSearchResults}
+            onSearchReset={handleSearchReset}
+            
+          
+          />
+
+          <div className="items-center justify-center hidden lg:flex w-24 mr-0">
+            <SortData
+              sortIsOpen={sortIsOpen}
+              toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
+              onSort={handleSort}
+            />
+          </div>
+        </div>
+
+        <div className=" lg:flex flex-grow max-w-24xl">
           <FilterPanel filters={filters} setFilters={setFilters} />
         </div>
 
@@ -265,14 +276,6 @@ const DataCatalog = () => {
           onClose={() => setIsModalOpen(false)}
           message={modalMessage}
         />
-
-        <div className="flex items-center justify-end pt-2">
-          <SortData
-            sortIsOpen={sortIsOpen}
-            toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
-            onSort={handleSort}
-          />
-        </div>
 
         <div className=" grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           <DatasetGrid

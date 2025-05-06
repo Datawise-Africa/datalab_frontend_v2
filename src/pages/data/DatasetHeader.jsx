@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 import SearchDatasets from "./SearchDatasets";
 // import { useAuth } from "../../storage/AuthProvider";
@@ -6,30 +6,31 @@ import SearchDatasets from "./SearchDatasets";
 // import user_icon from "/assets/user.svg";
 
 const DatasetHeader = ({
-  
   // handleAuthModalToggle,
 
-   onSearchResults, onSearchReset }) => {
-  // const { 
+  onSearchResults,
+  onSearchReset,
+}) => {
+  // const {
   //   // state,
   //   //  dispatch,
   //   //   actions }
   //      = useAuth();
 
   return (
-    <div className='flex items-center justify-between gap-12'>
-
-
+    <div className="flex items-center justify-between gap-4">
       {/* <div className='flex items-center space-x-1'>
         <img src={datalab} alt="Datalab Logo" className="w-6 h-8" />
         <h2 className="h4 text-xl font-bold ">Datalab</h2>
       </div> */}
 
-
-      <div className="hidden lg:flex flex-grow max-w-6xl mt-2">
-        <SearchDatasets onSearchResults={onSearchResults} onSearchReset={onSearchReset} className="w-full" />
+      <div className="hidden lg:flex flex-grow  mt-2">
+        <SearchDatasets
+          onSearchResults={onSearchResults}
+          onSearchReset={onSearchReset}
+          className="w-full"
+        />
       </div>
-
 
       <div className="">
         {/* {state.userId ? (
@@ -54,12 +55,12 @@ const DatasetHeader = ({
       </div>
     </div>
   );
-}
+};
 
 DatasetHeader.propTypes = {
   handleAuthModalToggle: PropTypes.func.isRequired,
   onSearchResults: PropTypes.func.isRequired,
   onSearchReset: PropTypes.func.isRequired,
-}
+};
 
 export default DatasetHeader;
