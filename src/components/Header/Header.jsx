@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import datawise_logo from "/assets/datawise-logo-dark.png";
+import datawise_logo from '/assets/datawise-logo-dark.png';
 // import dwise_logo from "/assets/datawise-logo-icon-dark.svg";
-import { navigation } from "../../constants";
+import { navigation } from '../../constants';
 
 const Header = () => {
   const [openNavigation, setOpenNavigation] = useState(false);
@@ -18,9 +18,9 @@ const Header = () => {
         setIsNavItemDropdown(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownRef]);
 
@@ -43,10 +43,10 @@ const Header = () => {
   // max-w-7xl mx-auto
 
   return (
-    <div className="bg-[#0F2542] text-[#E5E7EB]">
+    <div>
       <div
-        className={`fixed top-0 left-0 w-full z-50 lg:backdrop-blur-sm ${
-          openNavigation ? "bg-[#0F2542]" : "bg-[#0F2542]/90 backdrop-blur-sm"
+        className={`fixed top-0 left-0 w-full z-50 lg:backdrop-blur-sm border-b border-[#DDDDDD]  ${
+          openNavigation ? 'bg-[]' : 'bg-[]'
         }`}
       >
         <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4">
@@ -100,14 +100,16 @@ const Header = () => {
           </button>
 
           {/* Navigation and button container */}
-          <div className={`
-            ${openNavigation ? "flex" : "hidden"} 
+          <div
+            className={`
+            ${openNavigation ? 'flex' : 'hidden'} 
             lg:flex lg:items-center lg:justify-between lg:flex-1
             fixed lg:static top-[4rem] left-0 right-0 bottom-0 
             bg-[#0F2542] lg:bg-transparent
             flex-col lg:flex-row
             pt-8 lg:pt-0
-          `}>
+          `}
+          >
             <nav className="flex flex-col lg:flex-row items-center lg:mx-auto">
               <div
                 className="relative z-2 flex flex-col items-center lg:flex-row"
@@ -117,13 +119,18 @@ const Header = () => {
                   <div key={item.id} className="relative group mb-4 lg:mb-0">
                     <Link
                       to={item.url}
-                      className={`text-white px-4 py-2 ${
+                      className={`text-[#0F4539] px-4 py-2 font-semibold text-lg border-b-4  ${
                         item.url === pathname
-                          ? "text-white"
-                          : "text-gray-400 hover:text-gray-300"
-                      } group-hover:text-gray-300`}
+                          ? 'border-[#188366] text-[#188366] rounded'
+                          : 'border-transparent'
+                      } group-hover:text-[#188366]`}
                       onClick={(e) => handleNavItemClick(e, item)}
                     >
+                      <img
+                        src={item.icon}
+                        alt={`${item.title} icon`}
+                        className="inline-block w-4 h-4 mr-2"
+                      />
                       {item.title}
                     </Link>
                   </div>
