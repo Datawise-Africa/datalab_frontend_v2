@@ -18,11 +18,9 @@ const formSchema = z.object({
 })
 
 
-const schema = z.object({})
-
 function BecomeDatasetCreatorPage() {
   const [requestSent, setRequestSent] = useState(false)
-  const [fileSelected, setFileSelected] = useState<string | null>(null)
+  const [fileSelected, setFileSelected] = useState(null)
   const navigate = useNavigate()
 
   const {
@@ -45,8 +43,11 @@ function BecomeDatasetCreatorPage() {
     setRequestSent(true)
     // Here you would typically send the data to your API
   }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+/**
+ * Handle file input change event
+ * @param { React.ChangeEvent<HTMLInputElement>} e - The event object
+ */
+  const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       setFileSelected(e.target.files[0].name)
     } else {
