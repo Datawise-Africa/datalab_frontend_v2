@@ -6,7 +6,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { socials } from "../../constants";
 import { Link } from "react-router-dom";
-import datawise_logo from "/assets/datawise-logo-dark.png";
+import datawise_logo from "/assets/Datawise.svg";
 
 const socialIcons = {
   LinkedIn: faLinkedin,
@@ -16,11 +16,11 @@ const socialIcons = {
 
 const Footer = () => {
   return (
-    <div className="bg-[#0F2542] text-[#E5E7EB]">
+    <div className="bg-[#ffffff] text-[#0F4539] border-t-2 border-[#DDDDDD] ">
       <div className="container mx-auto px-5 lg:px-8 py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <div>
-            <div className="py-3">
+          <div className="border-r border-[#DDDDDD] h-full">
+            <div className="py-3 ">
               <a
                 href="https://datawiseafrica.com"
                 className="block w-[12rem]"
@@ -42,7 +42,7 @@ const Footer = () => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    fill="#fff"
+                    fill="#0F4539"
                     className="size-6"
                   >
                     <path
@@ -61,7 +61,7 @@ const Footer = () => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    fill="#fff"
+                    fill="#0F4539"
                     className="size-6"
                   >
                     <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
@@ -77,7 +77,7 @@ const Footer = () => {
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
-                    fill="#fff"
+                    fill="#0F4539"
                     className="size-6"
                   >
                     <path
@@ -91,50 +91,53 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div>
+          <div className="border-r border-[#DDDDDD] " >
             <h4 className="lora-font font-bold text-[24px] leading-[167%] tracking-[-0.02em] mb-4">
               Company
             </h4>
             <div className="grid grid-cols-2 gap-6">
               <div className="flex flex-col space-y-2">
-                <Link to="/" className="hover:text-white transition-colors">
+                <Link to="/" className="hover:text-[#188366] transition-colors">
                   Home
                 </Link>
                 <Link
                   to="/datalab"
-                  className="hover:text-white transition-colors"
+                  className="hover:hover:text-[#188366] transition-colors"
                 >
                   Datalab
                 </Link>
                 <Link
                   to="/about-us"
-                  className="hover:text-white transition-colors"
+                  className="hover:hover:text-[#188366]transition-colors"
                 >
                   About Us
                 </Link>
                 <Link
                   to="/projects"
-                  className="hover:text-white transition-colors"
+                  className="hover:hover:text-[#188366] transition-colors"
                 >
                   Projects
                 </Link>
               </div>
-              <div className="flex flex-col space-y-2">
-                <Link to="/jobs" className="hover:text-white transition-colors">
+              <div className="flex flex-col space-y-2 ">
+                <Link to="/jobs" className="hover:hover:text-[#188366] transition-colors">
                   Jobs
                 </Link>
-                <Link to="#" className="hover:text-white transition-colors">
+                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
                   Blogs
                 </Link>
-                <Link to="#" className="hover:text-white transition-colors">
+                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
                   Contact Us
                 </Link>
-                <Link to="#" className="hover:text-white transition-colors">
+                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
                   Privacy Policy
                 </Link>
               </div>
             </div>
           </div>
+
+
+
           <div>
             <h4 className="lora-font font-bold text-[24px] leading-[167%] tracking-[-0.02em] mb-4">
               Stay Connected
@@ -144,15 +147,15 @@ const Footer = () => {
               opportunities.
             </p>
             <form className="mt-4 space-y-4">
-              <div className="flex flex-col">
-                <label htmlFor="full-name" className="text-sm font-medium">
+              <div className="flex flex-col ">
+                <label htmlFor="full-name" className="text-sm font-medium ">
                   Full Name
                 </label>
                 <input
                   type="text"
                   id="full-name"
                   name="full-name"
-                  className="mt-1 p-2 border rounded-md bg-[#FFFFFF] text-[#0F2542] focus:outline-none focus:ring-2 focus:ring-[#26A37E]"
+                  className="mt-1 p-2 border rounded-md bg-[#FFFFFF] text-[#0F4539] focus:outline-none focus:ring-2 focus:ring-[#26A37E] border-2 border-[#0F4539]"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -164,7 +167,7 @@ const Footer = () => {
                   type="email"
                   id="email"
                   name="email"
-                  className="mt-1 p-2 border rounded-md bg-[#FFFFFF] text-[#0F2542] focus:outline-none focus:ring-2 focus:ring-[#26A37E]"
+                  className="mt-1 p-2 border rounded-md bg-[#FFFFFF] text-[#0F2542] focus:outline-none focus:ring-2 focus:ring-[#26A37E] border-2 border-[#0F4539]"
                   placeholder="Enter your email address"
                 />
               </div>

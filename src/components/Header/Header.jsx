@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import datawise_logo from '/assets/datawise-logo-dark.png';
+import datawise_logo from '/assets/Datawise.svg';
 // import dwise_logo from "/assets/datawise-logo-icon-dark.svg";
 import { navigation } from '../../constants';
 
@@ -49,7 +49,7 @@ const Header = () => {
           openNavigation ? 'bg-[]' : 'bg-[]'
         }`}
       >
-        <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4">
+        <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4 p-2">
           <Link to="/" className="w-[12rem]">
             <img
               src={datawise_logo}
