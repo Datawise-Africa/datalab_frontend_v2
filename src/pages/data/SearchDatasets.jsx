@@ -38,11 +38,11 @@ const SearchDatasets = ({ className, onSearchResults, onSearchReset }) => {
     };
 
     return (
-        <div className={`p-2 flex flex-col bg-n-7 rounded border border-2 border-[#E5E7EB]  ${className}`}>
-            <div className="flex items-center">
+        <div className={`p-2 flex flex-col bg-n-7 rounded border border-2  border-[#E5E7EB]  ${className}`}>
+            <div className="flex items-center ">
                 <input 
                     type="text" 
-                    className="flex-grow rounded-full p-2 w-18xl" 
+                    className="flex-grow rounded-full p-2 " 
                     placeholder="Search datasets..."
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}

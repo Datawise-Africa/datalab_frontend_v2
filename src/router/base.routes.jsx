@@ -1,6 +1,7 @@
 import DataCatalog from "../pages/data/DatasetCatalog";
 import DataDashboards from "../pages/data_dashboards/DataDashboards";
 import Reports from "../pages/reports/Reports";
+import BecomeDatasetCreatorPage from "../pages/data/BecomeDatasetCreatorPage.js";
 
 const baseRoutes = [
     {
@@ -14,6 +15,10 @@ const baseRoutes = [
     {
         path: "/reports",
         element: <Reports />
+    },
+    {
+        path: "/become-dataset-creator",
+        element: <BecomeDatasetCreatorPage />
     }
 ]
 

@@ -1,16 +1,21 @@
-import PropTypes from "prop-types";
-import { FaRegUser, FaCheck, FaTimes, FaStar } from "react-icons/fa";
+import PropTypes from 'prop-types';
+import { FaRegUser, FaCheck, FaTimes, FaStar, FaRegSave } from 'react-icons/fa';
+import { Menu } from '@headlessui/react';
+import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
 
 // Importing icons
-import non_profit_icon from "/assets/datalab/non-profit-icon.svg";
-import company_icon from "/assets/datalab/company-icon.svg";
-import student_icon from "/assets/datalab/student-icon.svg";
-import public_icon from "/assets/datalab/public2-icon.svg";
-import spinning_timer_icon from "/assets/datalab/spinning-timer.svg";
-import database_icon from "/assets/datalab/db-icon.svg";
-import download_icon from "/assets/datalab/download-icon.svg";
-import download_arrow_icon from "/assets/datalab/download-arrow-icon.svg";
-import view_icon from "/assets/datalab/view-icon.svg";
+import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
+import company_icon from '/assets/datalab/company-icon.svg';
+import student_icon from '/assets/datalab/student-icon.svg';
+import public_icon from '/assets/datalab/public2-icon.svg';
+import spinning_timer_icon from '/assets/datalab/spinning-timer.svg';
+import database_icon from '/assets/datalab/db-icon.svg';
+import download_icon from '/assets/datalab/download-icon.svg';
+import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
+import view_icon from '/assets/datalab/view-icon.svg';
+
+import save_icon from '/assets/datalab/save_icon.svg';
+import copy_link_icon from '/assets/datalab/copy_link_icon.svg';
 
 const DatasetCard = ({
   dataset,
@@ -31,7 +36,7 @@ const DatasetCard = ({
     return [...Array(5)].map((_, index) => (
       <FaStar
         key={index}
-        className={index < rating ? "text-[#757185]" : "text-gray-300"}
+        className={index < rating ? 'text-[#757185]' : 'text-gray-300'}
       />
     ));
   };
@@ -39,16 +44,64 @@ const DatasetCard = ({
   return (
     <div className="border border-[#ddeeff] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
-        <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded">
-          {dataset.is_premium ? `$${dataset.price}` : "Free"}
+        <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded mt-2">
+          {dataset.is_premium ? `$${dataset.price}` : 'Free'}
         </p>
+
+        {/* Dropdown menu */}
+        <Menu as="div" className="relative inline-block text-left">
+          <Menu.Button className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#188366]">
+            <EllipsisVerticalIcon className="h-5 w-5 text-gray-600" />
+          </Menu.Button>
+
+          <Menu.Items className="absolute left-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg  focus:outline-none divide-y divide-gray-100 border border-gray-200">
+            <div className="px-1 py-1">
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() => console.log('Save')}
+                    className={`${
+                      active ? 'bg-gray-100' : ''
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
+                  >
+                    <img
+                      src={save_icon}
+                      alt="Download"
+                      className="w-3 h-3 mr-2 "
+                    />
+                    Save
+                  </button>
+                )}
+              </Menu.Item>
+
+              <Menu.Item>
+                {({ active }) => (
+                  <button
+                    onClick={() =>
+                      navigator.clipboard.writeText(window.location.href)
+                    }
+                    className={`${
+                      active ? 'bg-gray-100' : ''
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
+                  >
+                    <img
+                      src={copy_link_icon}
+                      alt="Download"
+                      className="w-4 h-4 mr-2 "
+                    />
+
+                    Copy Link
+                  </button>
+                )}
+              </Menu.Item>
+            </div>
+          </Menu.Items>
+        </Menu>
       </div>
 
-    
       <div className="flex justify-between mt-2">
         <h3 className="font-semibold text-lg">{dataset.title}</h3>
       </div>
-      
 
       <div className="flex flex-wrap items-center space-x-2 mt-2">
         <FaRegUser className="text-[#757185] w-4 h-4 " />
@@ -60,9 +113,9 @@ const DatasetCard = ({
       </div>
 
       <p className="pt-2 text-sm text-[#4B5563] mt-1">
-  {dataset.description.split(' ').slice(0, 10).join(' ')}{dataset.description.split(' ').length > 10 ? '...' : ''}
-</p>
-
+        {dataset.description.split(' ').slice(0, 10).join(' ')}
+        {dataset.description.split(' ').length > 10 ? '...' : ''}
+      </p>
 
       <div className="pt-2 flex flex-wrap gap-2">
         {dataset.tags.map((tag, index) => (
@@ -76,7 +129,9 @@ const DatasetCard = ({
       </div>
 
       <div>
-        <p className="text-[#333333] font-semibold text-xs mt-2">Available to:</p>
+        <p className="text-[#333333] font-semibold text-xs mt-2">
+          Available to:
+        </p>
       </div>
 
       <div className="pt-2 flex flex-wrap gap-2">
@@ -103,11 +158,8 @@ const DatasetCard = ({
           )
         )}
       </div>
-     
-
 
       <div className="pt-5 flex flex-col space-y-2">
-      
         <div className="flex items-center">
           <img src={spinning_timer_icon} alt="timer" className="w-4 h-4" />
           <span className="ml-1 text-[#101827] text-xs">
@@ -127,21 +179,24 @@ const DatasetCard = ({
             {dataset.download_count} downloads
           </span>
         </div>
-         
-      <div className="mt-1 flex flex-row items-center justify-between">
-        <h4 className="text-xs">Dataset Review: {dataset.review_count > 0 ? (
-          <span className="flex items-center space-x-1">
-            <span className="flex">
-              {renderStars(Math.round(dataset.average_review) || 0)}
-            </span>
-            {/* <p className="text-[#4B5563] text-md">
+
+        <div className="mt-1 flex flex-row items-center justify-between">
+          <h4 className="text-xs">
+            Dataset Review:{' '}
+            {dataset.review_count > 0 ? (
+              <span className="flex items-center space-x-1">
+                <span className="flex">
+                  {renderStars(Math.round(dataset.average_review) || 0)}
+                </span>
+                {/* <p className="text-[#4B5563] text-md">
               ( {dataset.review_count} ratings)
             </p> */}
-          </span>
-        ) : (
-          <p className="text-gray-500 text-xs">No ratings yet</p>
-        )}</h4>
-      </div>
+              </span>
+            ) : (
+              <p className="text-gray-500 text-xs">No ratings yet</p>
+            )}
+          </h4>
+        </div>
       </div>
 
       <hr className=" mt-2 border-t border-[#ddeeff] -mx-6" />
@@ -158,9 +213,12 @@ const DatasetCard = ({
         <button
           onClick={() => handleDownloadDataClick(dataset)}
           className="py-1 px-2 h-10 rounded bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#ffffff] flex items-center space-x-1 transition transform hover:translate-y-[3px] hover:shadow-outer"
-
         >
-          <img src={download_arrow_icon} alt="Download" className="w-4 h-4 invert " />
+          <img
+            src={download_arrow_icon}
+            alt="Download"
+            className="w-4 h-4 invert "
+          />
           <span className="font-bold">Download</span>
         </button>
       </div>

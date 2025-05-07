@@ -6,7 +6,9 @@ export const navigation = [
         "url": "/",
         isLoggedIn: false,
         requiresAuth: false,
-        dropdownItems: []
+        dropdownItems: [],
+        "icon" : "/assets/datalab/Group.svg"
+        
     },
     {
         id: "1",
@@ -14,7 +16,8 @@ export const navigation = [
         "url": "/data-dashboards",
         isLoggedIn: false,
         requiresAuth: false,
-        dropdownItems: []
+        dropdownItems: [],
+        "icon" : "/assets/datalab/Icon.svg"
     },
     {
         id: "2",
@@ -22,7 +25,8 @@ export const navigation = [
         "url": "/reports",
         isLoggedIn: false,
         requiresAuth: false,
-        dropdownItems: []
+        dropdownItems: [],
+        "icon" : "/assets/datalab/Vector.svg"
     }
 ]
 

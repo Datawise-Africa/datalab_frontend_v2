@@ -22,8 +22,8 @@ const DatasetGrid = ({ datasets, handleSingleDataModal, handleDownloadDataClick 
   };
 
   return (
-    <div className='md:col-span-4 lg:col-span-4 lg:mt-4'>
-      <div className='grid grid-cols-1 md:grid-cols-4 gap-10'>
+    <div className=' md:col-span-2 lg:col-span-4 lg:mt-4'>
+      <div className='grid grid-cols-2 md:grid-cols-4 lg:col-span-4  gap-10'>
         {currentDatasets.map((dataset, index) => (
           <DatasetCard
             key={index}

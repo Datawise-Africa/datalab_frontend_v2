@@ -10,7 +10,7 @@ import apiService from "../../services/apiService";
 import AuthModal from "../../components/Modals/AuthModals/AuthModal";
 import SingleDataModal from "./SingleDataModal";
 import useDataModal from "../../hooks/useDataModal";
-import useAuthModal from "../../hooks/useAuthModal";
+import {useAuthModal} from "../../hooks/useAuthModal";
 import useDownloadDataModal from "../../hooks/useDownloadDataModal";
 import DownloadDataModal from "./DownloadDataModal";
 import { useAuth } from "../../storage/AuthProvider";
