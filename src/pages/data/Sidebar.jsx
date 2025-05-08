@@ -37,7 +37,13 @@ export default function Sidebar({ handleAuthModalToggle }) {
   const handleLogout = () => {
     console.log('Logging out...');
     dispatch(actions.LOGOUT());
+
   };
+  // useEffect(() => {
+  //   if (!state.userId) {
+  //     console.log("User is logged out");
+  //   }
+  // }, [state.userId]); 
 
   const handleBecomeDatasetCreator = () => {
     handleAuthModalToggle();
@@ -225,6 +231,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
         )}
       </aside>
 
+      {/* Overlay for mobile */}
       {/* Overlay for mobile */}
       {isOpen && (
         <div
