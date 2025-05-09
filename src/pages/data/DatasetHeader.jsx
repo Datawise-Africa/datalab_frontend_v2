@@ -28,11 +28,11 @@ const DatasetHeader = ({
         <SearchDatasets
           onSearchResults={onSearchResults}
           onSearchReset={onSearchReset}
-          className="w-full"
+          className="w-[200%]"
         />
       </div>
 
-      <div className="">
+     
         {/* {state.userId ? (
           <>
             <span className='mr-4'>Welcome, {state.firstName}</span>
@@ -52,7 +52,9 @@ const DatasetHeader = ({
             Login
           </button>
         )} */}
-      </div>
+ 
+
+      
     </div>
   );
 };

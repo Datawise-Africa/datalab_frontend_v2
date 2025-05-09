@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "./Modal";
-import useAuthModal from "../../../hooks/useAuthModal";
+import {useAuthModal} from "../../../hooks/useAuthModal";
 import CustomButton from "./CustomButton";
 import apiService from "../../../services/apiService";
 import { useAuth } from "../../../storage/AuthProvider";
@@ -39,7 +39,8 @@ const AuthModal = ({ navUrl }) => {
           response.user_role,
           response.access_token,
           response.refresh_token,
-          response.first_name
+          response.first_name,
+          response.last_name
         )
       );
       authModal.close();
@@ -60,7 +61,7 @@ const AuthModal = ({ navUrl }) => {
     };
 
     const response = await apiService.post("/auth/login/", formData);
-
+    console.log("Login response:", response); 
     if (response.access_token) {
       dispatch(
         actions.LOGIN(
@@ -68,7 +69,8 @@ const AuthModal = ({ navUrl }) => {
           response.user_role,
           response.access_token,
           response.refresh_token,
-          response.first_name
+          response.first_name,
+          response.last_name
         )
       );
       authModal.close();

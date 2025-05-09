@@ -1,6 +1,7 @@
-import { useContext, createContext, useReducer, useCallback, useEffect } from "react";
+import { useContext, createContext, useReducer, useCallback, useEffect ,useMemo} from "react";
 import PropTypes from 'prop-types';
 import { Cookie } from "../lib/auth/actions";
+import { useAuthModal } from "../hooks/useAuthModal";
 
 /**@type {import('./../lib/auth/actions').AuthState} */
 const initialState = {
@@ -9,6 +10,7 @@ const initialState = {
   accessToken: Cookie.get("session_access_token") ?? null,
   refreshToken: Cookie.get("session_refresh_token") ?? null,
   firstName: Cookie.get("session_first_name") ?? null,
+  lastName: Cookie.get("session_last_name") ?? null,
 };
 
 const actions = {
@@ -19,9 +21,10 @@ const actions = {
    * @param {string} accessToken
    * @param {string} refreshToken
    * @param {string} firstName
+   * @param {string} lastName
    * @returns
    */
-  LOGIN: (userId, userRole, accessToken, refreshToken, firstName) =>
+  LOGIN: (userId, userRole, accessToken, refreshToken, firstName,lastName) =>
     /** @type {const} */ ({
       type: "LOGIN",
       payload: {
@@ -30,6 +33,7 @@ const actions = {
         accessToken,
         refreshToken,
         firstName,
+        lastName
       },
     }),
 
@@ -39,7 +43,7 @@ const actions = {
     }),
 };
 /**
- * @type {React.Context<{state:typeof initialState,actions:typeof actions,dispatch:React.Dispatch<ReturnType<(typeof actions)[keyof typeof actions]>>}>,ReturnType<(typeof actions)[keyof typeof actions]>>}
+ * @type {React.Context<{state:typeof initialState,authModal:typeof useAuthModal,actions:typeof actions,dispatch:React.Dispatch<ReturnType<(typeof actions)[keyof typeof actions]>>}>,ReturnType<(typeof actions)[keyof typeof actions]>>}
  */
 const AuthContext = createContext({});
 /**
@@ -56,9 +60,12 @@ function authReducer(state, action) {
       };
     }
     case "LOGOUT": {
-      return {
-        ...initialState,
-      };
+      
+      return Object.keys(state).reduce((acc, key) => {
+        acc[key] = null;
+        return acc;
+      }
+      , {});
     }
     default:
       return state;
@@ -67,6 +74,7 @@ function authReducer(state, action) {
 
 const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const authModal = useAuthModal();
 
   const syncState = useCallback(() => {
     Cookie.set("session_user_id", state.userId);
@@ -74,14 +82,19 @@ const AuthProvider = ({ children }) => {
     Cookie.set("session_access_token", state.accessToken);
     Cookie.set("session_refresh_token", state.refreshToken);
     Cookie.set("session_first_name", state.firstName);
+    Cookie.set("session_last_name", state.lastName);
   }, [state]);
+  const isAuthenticated = useMemo(() => {
+    return !!state.userId && !!state.accessToken;
+  }
+  , [state.userId, state.accessToken]);
 
   useEffect(() => {
     syncState();
   }, [state, syncState]);
 
   return (
-    <AuthContext.Provider value={{ state, dispatch, actions }}>
+    <AuthContext.Provider value={{ state, dispatch, actions,authModal,isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
