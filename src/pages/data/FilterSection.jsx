@@ -16,7 +16,7 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
   return (
     <div className="max-w-24xl ">
 
-     
+
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

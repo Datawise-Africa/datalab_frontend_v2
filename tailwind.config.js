@@ -14,6 +14,7 @@ export default {
           4: "#7ADB78",
           5: "#858DFF",
           6: "#FF98E2",
+          subtle:'#E5E7EB'
         },
         stroke: {
           1: "#26242C",
@@ -40,6 +41,7 @@ export default {
           19: "#002306",
           20: "#3C82F6"
         },
+
       },
       fontFamily: {
         sans: ["var(--font-sora)", ...fontFamily.sans],

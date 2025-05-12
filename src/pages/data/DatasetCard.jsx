@@ -42,7 +42,7 @@ const DatasetCard = ({
   };
 
   return (
-    <div className="border border-[#ddeeff] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
+    <div className="basis-[25rem] border border-[#ddeeff] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
         <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded mt-2">
           {dataset.is_premium ? `$${dataset.price}` : 'Free'}
@@ -199,7 +199,7 @@ const DatasetCard = ({
         </div>
       </div>
 
-      <hr className=" mt-2 border-t border-[#ddeeff] -mx-6" />
+      <hr className=" mt-2 border-t border-[#ddeeff] " />
 
       <div className="mt-4 flex justify-between">
         <button

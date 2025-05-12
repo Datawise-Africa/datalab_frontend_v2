@@ -4,8 +4,10 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import datawise_logo from '/assets/Datawise.svg';
 // import dwise_logo from "/assets/datawise-logo-icon-dark.svg";
 import { navigation } from '../../constants';
+import MaxWidth from '../designs/MaxWidth';
+import { Database, FileText, LayoutDashboard, Menu } from 'lucide-react';
 
-const Header = () => {
+const Header = ({onToggleMobileMenu}) => {
   const [openNavigation, setOpenNavigation] = useState(false);
   const [isNavItemDropdown, setIsNavItemDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -43,104 +45,61 @@ const Header = () => {
   // max-w-7xl mx-auto
 
   return (
-    <div>
-      <div
-        className={`fixed top-0 left-0 w-full z-50 lg:backdrop-blur-sm border-b border-[#DDDDDD]  ${
-          openNavigation ? 'bg-[]' : 'bg-[]'
-        }`}
-      >
-        <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4 p-2">
-          <Link to="/" className="w-[12rem]">
-            <img
-              src={datawise_logo}
-              alt="Datawise logo"
-              loading="lazy"
-              width={180}
-              height={20}
-            />
-          </Link>
+        <header className="flex h-14 items-center justify-between border-b border-[#E5E7EB] bg-white px-4 md:px-6">
+      <div className="flex items-center">
+        {/* Mobile menu trigger */}
+        <button
+          className="flex md:hidden items-center justify-center w-8 h-8 mr-2 rounded-md hover:bg-gray-100"
+          onClick={onToggleMobileMenu}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Open menu</span>
+        </button>
 
-          {/* Mobile hamburger menu */}
-          <button
-            className="lg:hidden text-white"
-            onClick={toggleNavigation}
-            aria-label="Toggle navigation menu"
-          >
-            {openNavigation ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-            )}
-          </button>
-
-          {/* Navigation and button container */}
-          <div
-            className={`
-            ${openNavigation ? 'flex' : 'hidden'} 
-            lg:flex lg:items-center lg:justify-between lg:flex-1
-            fixed lg:static top-[4rem] left-0 right-0 bottom-0 
-            bg-[#0F2542] lg:bg-transparent
-            flex-col lg:flex-row
-            pt-8 lg:pt-0
-          `}
-          >
-            <nav className="flex flex-col lg:flex-row items-center lg:mx-auto">
-              <div
-                className="relative z-2 flex flex-col items-center lg:flex-row"
-                ref={dropdownRef}
-              >
-                {navigation.map((item) => (
-                  <div key={item.id} className="relative group mb-4 lg:mb-0">
-                    <Link
-                      to={item.url}
-                      className={`text-[#0F4539] px-4 py-2 font-semibold text-lg border-b-4  ${
-                        item.url === pathname
-                          ? 'border-[#188366] text-[#188366] rounded'
-                          : 'border-transparent'
-                      } group-hover:text-[#188366]`}
-                      onClick={(e) => handleNavItemClick(e, item)}
-                    >
-                      <img
-                        src={item.icon}
-                        alt={`${item.title} icon`}
-                        className="inline-block w-4 h-4 mr-2"
-                      />
-                      {item.title}
-                    </Link>
-                  </div>
+        <Link to="/" className="flex items-center">
+          <div className="relative h-8 w-8 mr-2">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="grid grid-cols-3 gap-0.5">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full"
+                    style={{
+                      backgroundColor: [
+                        "#FF5733",
+                        "#33FF57",
+                        "#3357FF",
+                        "#FF33A8",
+                        "#33FFF5",
+                        "#F5FF33",
+                        "#FF8333",
+                        "#33FF83",
+                        "#8333FF",
+                      ][i % 9],
+                    }}
+                  />
                 ))}
               </div>
-            </nav>
+            </div>
           </div>
-        </div>
+          <span className="font-semibold text-lg">Datawise Africa</span>
+        </Link>
       </div>
-    </div>
+      <nav className="hidden md:flex items-center space-x-8">
+        <Link to="/datasets" className="flex items-center text-gray-700 hover:text-gray-900">
+          <Database className="mr-2 h-5 w-5" />
+          <span>Datasets</span>
+        </Link>
+        <Link to="/dashboards" className="flex items-center text-gray-700 hover:text-gray-900">
+          <LayoutDashboard className="mr-2 h-5 w-5" />
+          <span>Dashboards</span>
+        </Link>
+        <Link to="/reports" className="flex items-center text-gray-700 hover:text-gray-900">
+          <FileText className="mr-2 h-5 w-5" />
+          <span>Reports</span>
+        </Link>
+      </nav>
+    </header>
   );
 };
 

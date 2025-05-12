@@ -43,7 +43,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
   //   if (!state.userId) {
   //     console.log("User is logged out");
   //   }
-  // }, [state.userId]); 
+  // }, [state.userId]);
 
   const handleBecomeDatasetCreator = () => {
     handleAuthModalToggle();
@@ -51,7 +51,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
   };
 
   return (
-    <>
+    <div className='border-r border-[#E5E7EB] fixed'>
       {/* Mobile Toggle Button */}
       <div className="lg:hidden fixed top-4 left-4 z-20">
         <button
@@ -239,7 +239,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
           onClick={toggleMobileSidebar}
         />
       )}
-    </>
+    </div>
   );
 }
 
