@@ -1,0 +1,481 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: var(--theme-background);
+  --foreground: var(--theme-foreground);
+  --card: var(--theme-background);
+  --card-foreground: var(--theme-foreground);
+  --popover: var(--theme-background);
+  --popover-foreground: var(--theme-foreground);
+  --primary: var(--theme-primary);
+  --primary-foreground: var(--theme-primary-foreground);
+  --secondary: var(--theme-secondary);
+  --secondary-foreground: var(--theme-secondary-foreground);
+  --muted: var(--theme-secondary);
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: var(--theme-secondary);
+  --accent-foreground: var(--theme-secondary-foreground);
+  --destructive: var(--theme-destructive);
+  --destructive-foreground: var(--theme-destructive-foreground);
+  --border: var(--theme-border);
+  --input: var(--theme-border);
+  --ring: var(--theme-primary);
+  --radius: 0rem;
+  --chart-1: var(--theme-chart-1);
+  --chart-2: var(--theme-chart-2);
+  --chart-3: var(--theme-chart-3);
+  --chart-4: var(--theme-chart-4);
+  --chart-5: var(--theme-chart-5);
+  /* Editor-specific variables */
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --gray-1: #f8f9fa;
+  --gray-2: rgba(0, 0, 0, 0.1);
+  --gray-3: #dee2e6;
+  --purple: #6366f1;
+  --purple-light: rgba(99, 102, 241, 0.1);
+}
+
+.dark {
+  --background: var(--theme-background-dark);
+  --foreground: var(--theme-foreground-dark);
+  --card: var(--theme-card-dark);
+  --card-foreground: var(--theme-card-foreground-dark);
+  --popover: var(--theme-popover-dark);
+  --popover-foreground: var(--theme-card-foreground-dark);
+  --primary: var(--theme-primary-dark);
+  --primary-foreground: var(--theme-primary-foreground);
+  --secondary: var(--theme-secondary-dark);
+  --secondary-foreground: var(--theme-destructive-foreground);
+  --muted: var(--theme-muted-dark);
+  --muted-foreground: var(--theme-muted-foreground-dark);
+  --accent: var(--theme-accent-dark);
+  --accent-foreground: var(--theme-destructive-foreground);
+  --destructive: var(--theme-destructive-dark);
+  --destructive-foreground: var(--theme-destructive-foreground);
+  --border: var(--theme-secondary-dark);
+  --input: var(--theme-secondary-dark);
+  --ring: var(--theme-primary-dark);
+  --chart-1: var(--theme-chart-1-dark);
+  --chart-2: var(--theme-chart-2-dark);
+  --chart-3: var(--theme-chart-3-dark);
+  --chart-4: var(--theme-chart-4-dark);
+  --chart-5: var(--theme-chart-5-dark);
+  /* Editor-specific variables for dark mode */
+  --black: #ffffff;
+  --white: #0d0d0d;
+  --gray-1: #2d2d2d;
+  --gray-2: rgba(255, 255, 255, 0.1);
+  --gray-3: #4d4d4d;
+  --purple: #8183f4;
+  --purple-light: rgba(129, 131, 244, 0.1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  input,
+  textarea,
+  select,
+  button {
+    /* Make placeholder dim */
+    &::placeholder {
+      @apply text-muted;
+    }
+  }
+}
+
+/* Theme color utility classes */
+.bg-theme-primary {
+  background-color: var(--theme-primary);
+}
+
+.text-theme-primary {
+  color: var(--theme-primary);
+}
+
+.border-theme-primary {
+  border-color: var(--theme-primary);
+}
+
+.bg-theme-primary-light {
+  background-color: var(--theme-primary-light);
+}
+
+.bg-theme-primary-dark {
+  background-color: var(--theme-primary-dark);
+}
+
+.dark .bg-theme-primary-light {
+  background-color: var(--theme-primary-dark);
+}
+
+.dark .text-theme-primary {
+  color: var(--theme-primary-light);
+}
+
+/* Button theme variants */
+.btn-theme-primary {
+  background-color: var(--theme-primary);
+  color: white;
+}
+
+.btn-theme-primary:hover {
+  background-color: var(--theme-primary-dark);
+}
+
+.btn-theme-outline {
+  background-color: transparent;
+  border: 1px solid var(--theme-primary);
+  color: var(--theme-primary);
+}
+
+.btn-theme-outline:hover {
+  background-color: var(--theme-primary-light);
+}
+
+.dark .btn-theme-outline:hover {
+  background-color: var(--theme-primary-dark);
+  opacity: 0.2;
+}
+
+/* Badge theme variants */
+.badge-theme {
+  background-color: var(--theme-primary-light);
+  color: var(--theme-primary);
+}
+
+.dark .badge-theme {
+  background-color: var(--theme-primary-dark);
+  color: white;
+}
+
+/* Active navigation item */
+.nav-item-active {
+  background-color: var(--theme-primary-light);
+  color: var(--theme-primary);
+}
+
+.dark .nav-item-active {
+  background-color: var(--theme-primary-dark);
+  color: white;
+}
+
+/* Theme transitions */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Rich text editor styles */
+[contenteditable] {
+  outline: none;
+}
+
+[contenteditable][placeholder]:empty:before {
+  content: attr(placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+/* Mention styles */
+.mention {
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.user-mention {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--theme-primary);
+}
+
+.task-mention {
+  background-color: rgba(234, 88, 12, 0.1);
+  color: #ea580c;
+}
+
+.dark .user-mention {
+  background-color: rgba(79, 70, 229, 0.2);
+  color: #a5b4fc;
+}
+
+.dark .task-mention {
+  background-color: rgba(234, 88, 12, 0.2);
+  color: #fdba74;
+}
+
+/* Chat message styles */
+.chat-message a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dark .chat-message a {
+  color: #60a5fa;
+}
+
+.chat-message ul,
+.chat-message ol {
+  padding-left: 1.5rem;
+}
+
+.chat-message ul {
+  list-style-type: disc;
+}
+
+.chat-message ol {
+  list-style-type: decimal;
+}
+
+/* Comment content styles */
+.comment-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.dark .comment-content a {
+  color: #60a5fa;
+}
+
+.comment-content ul,
+.comment-content ol {
+  padding-left: 1.5rem;
+}
+
+.comment-content ul {
+  list-style-type: disc;
+}
+
+.comment-content ol {
+  list-style-type: decimal;
+}
+
+/* Add these styles at the end of the file */
+
+/* Calendar styles */
+.rbc-calendar {
+  width: 100%;
+  border-radius: 0.5rem;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.rbc-header {
+  padding: 10px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.rbc-month-row + .rbc-month-row,
+.rbc-day-bg + .rbc-day-bg {
+  border-color: var(--border);
+}
+
+.rbc-off-range-bg {
+  background-color: var(--muted);
+}
+
+.rbc-off-range {
+  color: var(--muted-foreground);
+}
+
+.rbc-today {
+  background-color: var(--theme-primary-light);
+}
+
+.dark .rbc-today {
+  background-color: rgba(var(--theme-primary-dark), 0.2);
+}
+
+.rbc-event {
+  border-radius: 4px;
+  padding: 2px 5px;
+  background-color: var(--theme-primary);
+  color: white;
+  font-size: 0.875rem;
+}
+
+.rbc-event.rbc-selected {
+  background-color: var(--theme-primary-dark);
+}
+
+.rbc-slot-selecting .rbc-day-bg {
+  background-color: rgba(var(--theme-primary), 0.1);
+}
+
+.rbc-toolbar button {
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--background);
+}
+
+.rbc-toolbar button:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: var(--theme-primary);
+  color: white;
+}
+
+.rbc-toolbar button.rbc-active:hover {
+  background-color: var(--theme-primary-dark);
+  color: white;
+}
+
+.rbc-time-content,
+.rbc-time-header-content {
+  border-color: var(--border);
+}
+
+.rbc-time-content > * + * > * {
+  border-color: var(--border);
+}
+
+.rbc-timeslot-group {
+  border-color: var(--border);
+}
+
+.rbc-agenda-table {
+  border-color: var(--border);
+}
+
+.rbc-agenda-table thead {
+  border-color: var(--border);
+}
+
+.rbc-agenda-table tbody > tr > td {
+  border-color: var(--border);
+}
+
+.rbc-agenda-view table.rbc-agenda-table tbody > tr > td + td {
+  border-color: var(--border);
+}
+
+.rbc-agenda-view table.rbc-agenda-table {
+  border-color: var(--border);
+}
+
+/* Collapsible animation */
+@keyframes collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+[data-state="open"] > [data-radix-collapsible-content] {
+  animation: collapsible-down 300ms ease-out;
+  overflow: hidden;
+}
+
+[data-state="closed"] > [data-radix-collapsible-content] {
+  animation: collapsible-up 300ms ease-out;
+  overflow: hidden;
+}
+
+/* Sidebar specific styles */
+.ui-open\:rotate-180[data-state="open"] {
+  transform: rotate(180deg);
+}
+
+/* Sidebar specific styles */
+.dark .bg-theme-primary-dark {
+  background-color: rgba(
+    55,
+    48,
+    163,
+    0.2
+  ); /* Slightly transparent dark theme color */
+}
+
+/* Improve active state visibility */
+.dark button[data-state="open"] {
+  background-color: var(--theme-primary-dark);
+  color: white;
+}
+
+/* Ensure hover states work in both modes */
+.dark .hover\:bg-muted:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Add this to the end of the file */
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}

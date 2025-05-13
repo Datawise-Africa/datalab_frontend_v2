@@ -12,7 +12,15 @@
   color-scheme: light;
   --color-subtle: #e5e7eb;
 }
-
+@theme inline {
+  --font-sora: 'Sora', sans-serif;
+  --font-code: 'Source Code Pro', monospace;
+  --font-grotesk: 'Space Grotesk', sans-serif;
+  --font-sans: 'Sora', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --color-scheme: light;
+  --color-subtle: #e5e7eb;
+}
 
 * {
   scroll-behavior: smooth;
@@ -23,76 +31,67 @@
     @apply font-sans bg-white  text-[#101827] text-base;
   }
   .rotate-45 {
-  @apply rotate-[45deg];
+    @apply rotate-[45deg];
+  }
+
+  .rotate-90 {
+    @apply rotate-[90deg];
+  }
+
+  .rotate-135 {
+    @apply rotate-[135deg];
+  }
+
+  .rotate-180 {
+    @apply rotate-[180deg];
+  }
+
+  .rotate-225 {
+    @apply rotate-[225deg];
+  }
+
+  .rotate-270 {
+    @apply rotate-[270deg];
+  }
+
+  .rotate-315 {
+    @apply rotate-[315deg];
+  }
+
+  .rotate-360 {
+    @apply rotate-[360deg];
+  }
+
+  .-rotate-45 {
+    @apply rotate-[-45deg];
+  }
+
+  .-rotate-90 {
+    @apply rotate-[-90deg];
+  }
+
+  .-rotate-135 {
+    @apply rotate-[-135deg];
+  }
+
+  .-rotate-180 {
+    @apply rotate-[-180deg];
+  }
+
+  .-rotate-225 {
+    @apply rotate-[-225deg];
+  }
+
+  .-rotate-270 {
+    @apply rotate-[-270deg];
+  }
+
+  .-rotate-315 {
+    @apply rotate-[-315deg];
+  }
+
+  .-rotate-360 {
+    @apply rotate-[-360deg];
+  }
 }
 
-.rotate-90 {
-  @apply rotate-[90deg];
-}
-
-.rotate-135 {
-  @apply rotate-[135deg];
-}
-
-.rotate-180 {
-  @apply rotate-[180deg];
-}
-
-.rotate-225 {
-  @apply rotate-[225deg];
-}
-
-.rotate-270 {
-  @apply rotate-[270deg];
-}
-
-.rotate-315 {
-  @apply rotate-[315deg];
-}
-
-.rotate-360 {
-  @apply rotate-[360deg];
-}
-
-.-rotate-45 {
-  @apply rotate-[-45deg];
-}
-
-.-rotate-90 {
-  @apply rotate-[-90deg];
-}
-
-.-rotate-135 {
-  @apply rotate-[-135deg];
-}
-
-.-rotate-180 {
-  @apply rotate-[-180deg];
-}
-
-.-rotate-225 {
-  @apply rotate-[-225deg];
-}
-
-.-rotate-270 {
-  @apply rotate-[-270deg];
-}
-
-.-rotate-315 {
-  @apply rotate-[-315deg];
-}
-
-.-rotate-360 {
-  @apply rotate-[-360deg];
-}
-
-}
-@theme {
-    --font-sora: 'Sora', sans-serif;
-  --font-code: 'Source Code Pro', monospace;
-  --font-grotesk: 'Space Grotesk', sans-serif;
-  --font-sans: 'Sora', sans-serif;
-  --font-inter: 'Inter', sans-serif;
-  color-scheme: light;
-  --color-subtle: #e5e7eb;
-}
