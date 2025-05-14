@@ -14,7 +14,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
   const addAuthor = () => {
     setAuthors([...authors, { id: Date.now() }]);
   };
-  
 
   // if (!isOpen) return null;
 
@@ -75,7 +74,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
     switch (step) {
       case 1:
         return (
-          <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md">
+          <div className=" bg-white p-6 rounded-xl">
             <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
             {/* Step Indicators */}
             <div className="flex justify-between mb-6">
@@ -196,7 +195,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               <div className="flex justify-end mt-8">
                 <button
                   className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white rounded"
-                
                   onClick={nextStep}
                 >
                   Continue
@@ -347,485 +345,485 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         return (
           <div>
             <div>
-            <h2 className="text-xl font-semibold mb-4">
-              Attribution & Citation
-            </h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Add authors and choose an appropriate license.
-            </p>
-
-            <div className="border border-[#E5E7EB] p-4 rounded-md mb-6 bg-white">
-              <div className="flex justify-between items-center mb-4">
-                <label className="font-semibold text-gray-700">
-                  Dataset Authors <span className="text-red-500">*</span>
-                </label>
-                <button
-                  onClick={addAuthor}
-                  className="text-md text-[#136954] font-semibold hover:underline"
-                >
-                  + Add Author
-                </button>
-              </div>
-
-              {authors.map((author, index) => (
-                <div
-                  key={author.id}
-                  className="border border-[#E5E7EB] rounded-md p-4 mb-4 bg-gray-50 relative"
-                >
-                  <p className="font-medium mb-4 text-gray-800">
-                    Author {index + 1}
-                  </p>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">
-                        Title <span className="text-red-500">*</span>
-                      </label>
-                      <select className="w-full mt-1 border border-[#E5E7EB] rounded p-2">
-                        <option value="">Select title</option>
-                        <option value="Dr.">Dr.</option>
-                        <option value="Prof.">Prof.</option>
-                        <option value="Mr.">Mr.</option>
-                        <option value="Ms.">Ms.</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        First Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="First name"
-                        className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Last Name <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Last name"
-                        className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">
-                        Email <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="email@example.com"
-                        className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="text-sm font-medium">
-                        Affiliation <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="University, organization, or company"
-                        className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
-                      />
-                    </div>
-                  </div>
-
-                  {authors.length > 1 && (
-                    <button
-                      onClick={() => removeAuthor(author.id)}
-                      className="absolute top-4 right-4 text-red-500 hover:text-red-700"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* DOI Citation */}
-            <div className="mb-6">
-              <label className="text-sm font-medium block mb-1">
-                DOI Citation
-              </label>
-              <input
-                type="text"
-                placeholder="e.g., https://doi.org/10.1000/xyz123"
-                value={doi}
-                onChange={(e) => setDoi(e.target.value)}
-                className="w-full border border-[#E5E7EB] rounded p-2"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Optional: Add a DOI if your dataset has already been published
-                elsewhere
+              <h2 className="text-xl font-semibold mb-4">
+                Attribution & Citation
+              </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Add authors and choose an appropriate license.
               </p>
-            </div>
 
-            <div className="space-y-6">
-              <label className="text-md font-semibold">
-                License <span className="text-red-500">*</span>
-              </label>
-
-              {/* Creative Commons Attribution 4.0 */}
-              <div className="bg-white rounded-md shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      name="license"
-                      id="cc-by-4.0"
-                      className="mr-2"
-                    />
-                    <label htmlFor="cc-by-4.0" className="font-semibold">
-                      Creative Commons Attribution 4.0
-                    </label>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500 cursor-pointer"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+              <div className="border border-[#E5E7EB] p-4 rounded-md mb-6 bg-white">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="font-semibold text-gray-700">
+                    Dataset Authors <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    onClick={addAuthor}
+                    className="text-md text-[#136954] font-semibold hover:underline"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
+                    + Add Author
+                  </button>
                 </div>
-                <p className="text-sm text-gray-700 mb-3">
-                  Users must give credit, but can otherwise use freely
-                </p>
-                <div className="flex space-x-2 mb-4">
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Commercial Use
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Modification Allowed
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-sky-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Attribution Required
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 mb-4">
-                  This license allows reusers to distribute, remix, adapt, and
-                  build upon the material in any medium or format, so long as
-                  attribution is given to the creator. The license allows for
-                  commercial use.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
+
+                {authors.map((author, index) => (
+                  <div
+                    key={author.id}
+                    className="border border-[#E5E7EB] rounded-md p-4 mb-4 bg-gray-50 relative"
+                  >
+                    <p className="font-medium mb-4 text-gray-800">
+                      Author {index + 1}
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">
+                          Title <span className="text-red-500">*</span>
+                        </label>
+                        <select className="w-full mt-1 border border-[#E5E7EB] rounded p-2">
+                          <option value="">Select title</option>
+                          <option value="Dr.">Dr.</option>
+                          <option value="Prof.">Prof.</option>
+                          <option value="Mr.">Mr.</option>
+                          <option value="Ms.">Ms.</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">
+                          First Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="First name"
+                          className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
                         />
-                      </svg>
-                      Advantages
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">
+                          Last Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Last name"
+                          className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">
+                          Email <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          placeholder="email@example.com"
+                          className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="text-sm font-medium">
+                          Affiliation <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="University, organization, or company"
+                          className="w-full mt-1 border border-[#E5E7EB] rounded p-2"
+                        />
+                      </div>
                     </div>
-                    <ul className="list-disc pl-5">
-                      <li>Maximizes distribution & use</li>
-                      <li>Widely recognized standard</li>
-                      <li>Easy for users to understand</li>
-                    </ul>
+
+                    {authors.length > 1 && (
+                      <button
+                        onClick={() => removeAuthor(author.id)}
+                        className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-red-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                      Considerations
+                ))}
+              </div>
+
+              {/* DOI Citation */}
+              <div className="mb-6">
+                <label className="text-sm font-medium block mb-1">
+                  DOI Citation
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., https://doi.org/10.1000/xyz123"
+                  value={doi}
+                  onChange={(e) => setDoi(e.target.value)}
+                  className="w-full border border-[#E5E7EB] rounded p-2"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Optional: Add a DOI if your dataset has already been published
+                  elsewhere
+                </p>
+              </div>
+
+              <div className="space-y-6">
+                <label className="text-md font-semibold">
+                  License <span className="text-red-500">*</span>
+                </label>
+
+                {/* Creative Commons Attribution 4.0 */}
+                <div className="bg-white rounded-md shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        name="license"
+                        id="cc-by-4.0"
+                        className="mr-2"
+                      />
+                      <label htmlFor="cc-by-4.0" className="font-semibold">
+                        Creative Commons Attribution 4.0
+                      </label>
                     </div>
-                    <ul className="list-disc pl-5">
-                      <li>Cannot restrict commercial use</li>
-                      <li>Cannot control modifications</li>
-                    </ul>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">
+                    Users must give credit, but can otherwise use freely
+                  </p>
+                  <div className="flex space-x-2 mb-4">
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Commercial Use
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Modification Allowed
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-sky-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Attribution Required
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">
+                    This license allows reusers to distribute, remix, adapt, and
+                    build upon the material in any medium or format, so long as
+                    attribution is given to the creator. The license allows for
+                    commercial use.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Advantages
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>Maximizes distribution & use</li>
+                        <li>Widely recognized standard</li>
+                        <li>Easy for users to understand</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        Considerations
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>Cannot restrict commercial use</li>
+                        <li>Cannot control modifications</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CC0 1.0 Universal (Public Domain) */}
+                <div className="bg-white rounded-md shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        name="license"
+                        id="cc0-1.0"
+                        className="mr-2"
+                      />
+                      <label htmlFor="cc0-1.0" className="font-semibold">
+                        CC0 1.0 Universal (Public Domain)
+                      </label>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">
+                    No restrictions, public domain dedication
+                  </p>
+                  <div className="flex space-x-2 mb-4">
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      No Restrictions
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      No Attribution Required
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">
+                    The person who associated a work with this deed has
+                    dedicated the work to the public domain by waiving all of
+                    their rights to the work worldwide under copyright law,
+                    including all related and neighboring rights, to the extent
+                    allowed by law.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Advantages
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>Maximum freedom for users</li>
+                        <li>Simplest license to understand</li>
+                        <li>Ideal for public datasets</li>
+                        <li>Best for data integration projects</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        Considerations
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>No attribution requirement</li>
+                        <li>No control over usage</li>
+                        <li>Cannot track dataset impact easily</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* MIT License */}
+                <div className="bg-white rounded-md shadow-md p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        name="license"
+                        id="mit"
+                        className="mr-2"
+                      />
+                      <label htmlFor="mit" className="font-semibold">
+                        MIT License
+                      </label>
+                    </div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-gray-500 cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">
+                    A permissive license with minimal restrictions
+                  </p>
+                  <div className="flex space-x-2 mb-4">
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Commercial Use
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Modification Allowed
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                      <svg
+                        className="-ml-0.5 mr-1.5 h-2 w-2 text-blue-400"
+                        fill="currentColor"
+                        viewBox="0 0 8 8"
+                      >
+                        <circle cx={4} cy={4} r={3} />
+                      </svg>
+                      Private Use
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-4">
+                    A short and simple permissive license with conditions only
+                    requiring preservation of copyright and license notices.
+                    Licensed works, modifications, and larger works may be
+                    distributed under different terms and without source code.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-green-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Advantages
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>Very permissive and flexible</li>
+                        <li>Widely used and understood</li>
+                        <li>Compatible with many other licenses</li>
+                        <li>
+                          Encourages use in both open and closed source projects
+                        </li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="font-semibold mb-1">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4 inline mr-1 text-red-500"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        Considerations
+                      </div>
+                      <ul className="list-disc pl-5">
+                        <li>Limited protection for the author</li>
+                        <li>Does not require sharing modifications</li>
+                        <li>May be too permissive for some purposes</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* CC0 1.0 Universal (Public Domain) */}
-              <div className="bg-white rounded-md shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      name="license"
-                      id="cc0-1.0"
-                      className="mr-2"
-                    />
-                    <label htmlFor="cc0-1.0" className="font-semibold">
-                      CC0 1.0 Universal (Public Domain)
-                    </label>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500 cursor-pointer"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-700 mb-3">
-                  No restrictions, public domain dedication
-                </p>
-                <div className="flex space-x-2 mb-4">
-                  <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    No Restrictions
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    No Attribution Required
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 mb-4">
-                  The person who associated a work with this deed has dedicated
-                  the work to the public domain by waiving all of their rights
-                  to the work worldwide under copyright law, including all
-                  related and neighboring rights, to the extent allowed by law.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Advantages
-                    </div>
-                    <ul className="list-disc pl-5">
-                      <li>Maximum freedom for users</li>
-                      <li>Simplest license to understand</li>
-                      <li>Ideal for public datasets</li>
-                      <li>Best for data integration projects</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-red-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                      Considerations
-                    </div>
-                    <ul className="list-disc pl-5">
-                      <li>No attribution requirement</li>
-                      <li>No control over usage</li>
-                      <li>Cannot track dataset impact easily</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* MIT License */}
-              <div className="bg-white rounded-md shadow-md p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      name="license"
-                      id="mit"
-                      className="mr-2"
-                    />
-                    <label htmlFor="mit" className="font-semibold">
-                      MIT License
-                    </label>
-                  </div>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-gray-500 cursor-pointer"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-                <p className="text-sm text-gray-700 mb-3">
-                  A permissive license with minimal restrictions
-                </p>
-                <div className="flex space-x-2 mb-4">
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Commercial Use
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Modification Allowed
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                    <svg
-                      className="-ml-0.5 mr-1.5 h-2 w-2 text-blue-400"
-                      fill="currentColor"
-                      viewBox="0 0 8 8"
-                    >
-                      <circle cx={4} cy={4} r={3} />
-                    </svg>
-                    Private Use
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 mb-4">
-                  A short and simple permissive license with conditions only
-                  requiring preservation of copyright and license notices.
-                  Licensed works, modifications, and larger works may be
-                  distributed under different terms and without source code.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-green-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Advantages
-                    </div>
-                    <ul className="list-disc pl-5">
-                      <li>Very permissive and flexible</li>
-                      <li>Widely used and understood</li>
-                      <li>Compatible with many other licenses</li>
-                      <li>
-                        Encourages use in both open and closed source projects
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="font-semibold mb-1">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 inline mr-1 text-red-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                      Considerations
-                    </div>
-                    <ul className="list-disc pl-5">
-                      <li>Limited protection for the author</li>
-                      <li>Does not require sharing modifications</li>
-                      <li>May be too permissive for some purposes</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             </div>
 
             {/* Navigation Buttons */}
@@ -1043,9 +1041,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         return (
           <div className="p-6 max-w-3xl mx-auto">
             <div className="mb-6">
-              <h2 className="text-sm text-gray-500 uppercase">
-                Upload Your Dataset
-              </h2>
               <h1 className="text-2xl font-bold text-gray-900">
                 Review & Finalize
               </h1>
