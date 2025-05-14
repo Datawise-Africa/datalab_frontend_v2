@@ -1,12 +1,5 @@
 import { useState } from 'react';
-import {
-  Menu,
-  Compass,
-  Bookmark,
-  FilePlus,
-  ChevronRight,
-  ChevronDown,
-} from 'lucide-react';
+import { Menu, Compass, Bookmark, FilePlus, ChevronRight } from 'lucide-react';
 import CollapseIcon from '/assets/datalab/collapseicon.png';
 import { useAuth } from '../../storage/AuthProvider';
 import { X } from 'lucide-react';
@@ -14,12 +7,17 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/designs/Button.js';
 import user_icon from '/assets/datalab/AuthIcon.png'; // ✅ Custom user icon
 import upload_icon from '/assets/datalab/uploadicon.png'; // ✅ Your custom upload icon
+import { useLocation } from 'react-router-dom';
+
+
+
 
 export default function Sidebar({ handleAuthModalToggle }) {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const { state, dispatch, actions } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const toggleSidebar = () => {
@@ -37,13 +35,12 @@ export default function Sidebar({ handleAuthModalToggle }) {
   const handleLogout = () => {
     console.log('Logging out...');
     dispatch(actions.LOGOUT());
-
   };
   // useEffect(() => {
   //   if (!state.userId) {
   //     console.log("User is logged out");
   //   }
-  // }, [state.userId]); 
+  // }, [state.userId]);
 
   const handleBecomeDatasetCreator = () => {
     handleAuthModalToggle();
@@ -158,18 +155,27 @@ export default function Sidebar({ handleAuthModalToggle }) {
             </button>
           )}
 
-          <button
-            className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
-              collapsed ? 'p-2' : 'px-4 py-2'
-            }`}
-          >
-            <img
-              src={upload_icon}
-              alt="Upload Icon"
-              className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
-            />
-            {!collapsed && 'Upload Dataset'}
-          </button>
+          {location.pathname !== '/dataset-creator-dashboard' && (
+            <button
+              onClick={() => {
+                if (state.userId) {
+                  navigate('/dataset-creator-dashboard');
+                } else {
+                  handleAuthModalToggle();
+                }
+              }}
+              className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
+                collapsed ? 'p-2' : 'px-4 py-2'
+              }`}
+            >
+              <img
+                src={upload_icon}
+                alt="Upload Icon"
+                className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
+              />
+              {!collapsed && 'Upload Dataset'}
+            </button>
+          )}
         </div>
 
         {/* Menu Items */}
@@ -204,7 +210,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
         </button>
        </div> */}
         {!collapsed && (
-          <div className="relative bg-[#E6FAF0]  rounded mt-12">
+          <div className="relative bg-[#E6FAF0]  rounded mt-40">
             <button
               className="absolute top-2 right-2 text-gray-600 hover:text-black"
               onClick={() => console.log('Dismiss clicked')}
