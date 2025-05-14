@@ -53,9 +53,9 @@ const DatasetCreatorsDashboard = () => {
             to manage, license, and share it from your dashboard.
           </p>
 
-          <button className="px-5 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#ffffff]  rounded font-medium hover:bg-green-700 transition">
+          {/* <button className="px-5 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#ffffff]  rounded font-medium hover:bg-green-700 transition">
             + Add Dataset
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

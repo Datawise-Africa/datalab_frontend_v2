@@ -1,5 +1,7 @@
 // src/components/DataUploadModal.jsx
 import React, { useState } from 'react';
+import confetti from 'canvas-confetti';
+//import { Save, Upload } from 'lucide-react';
 
 const DataUploadModal = ({ isOpen, onClose }) => {
   const [step, setStep] = useState(1);
@@ -12,12 +14,35 @@ const DataUploadModal = ({ isOpen, onClose }) => {
   const addAuthor = () => {
     setAuthors([...authors, { id: Date.now() }]);
   };
+  
+
+  // if (!isOpen) return null;
+
+  const handleCelebrate = () => {
+    confetti({
+      particleCount: 400,
+      spread: 400,
+      origin: { y: 0.6 },
+    });
+  };
 
   const removeAuthor = (id) => {
     setAuthors(authors.filter((author) => author.id !== id));
   };
 
-  if (!isOpen) return null;
+  const [checkedItems, setCheckedItems] = useState({
+    dataAccuracy: false,
+    responsibleUse: false,
+    privacyCompliance: false,
+    rightsOwnership: false,
+  });
+
+  const handleCheck = (key) => {
+    setCheckedItems((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   const nextStep = () => {
     if (step < 5) {
@@ -37,6 +62,13 @@ const DataUploadModal = ({ isOpen, onClose }) => {
   const handleClose = () => {
     onClose();
     setStep(1);
+  };
+
+  if (!isOpen) return null;
+
+  const handleClick = () => {
+    handleCelebrate();
+    handleClose(); // now this truly closes the modal
   };
 
   const renderStep = () => {
@@ -161,12 +193,15 @@ const DataUploadModal = ({ isOpen, onClose }) => {
                 />
               </div>
 
-              <button
-                className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-                onClick={nextStep}
-              >
-                Continue
-              </button>
+              <div className="flex justify-end mt-8">
+                <button
+                  className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white rounded"
+                
+                  onClick={nextStep}
+                >
+                  Continue
+                </button>
+              </div>
             </form>
           </div>
         );
@@ -301,7 +336,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={nextStep}
-                className="px-4 py-2 bg-green-600 text-white rounded"
+                className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white rounded"
               >
                 Continue
               </button>
@@ -311,6 +346,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
       case 3:
         return (
           <div>
+            <div>
             <h2 className="text-xl font-semibold mb-4">
               Attribution & Citation
             </h2>
@@ -790,8 +826,10 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               </div>
             </div>
 
+            </div>
+
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-6">
+            <div className=" sticky flex justify-between mt-6">
               <button
                 onClick={prevStep}
                 className="px-4 py-2 bg-gray-300 rounded"
@@ -800,7 +838,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={nextStep}
-                className="px-4 py-2 bg-green-600 text-white rounded"
+                className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white rounded"
               >
                 Continue
               </button>
@@ -820,7 +858,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
                   Make your dataset discoverable with keywords and regions.
                 </p>
               </div>
-              <button className="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md py-2 px-4">
+              {/* <button className="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-md py-2 px-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-2"
@@ -836,7 +874,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
                   />
                 </svg>
                 Save Draft
-              </button>
+              </button> */}
             </div>
 
             {/* Keywords */}
@@ -994,7 +1032,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={nextStep}
-                className="px-4 py-2 bg-green-600 text-white rounded"
+                className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white rounded"
               >
                 Continue
               </button>
@@ -1003,22 +1041,119 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         );
       case 5:
         return (
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Review & Finalize</h2>
-            {/* Review checklist */}
-            <div className="flex justify-between">
+          <div className="p-6 max-w-3xl mx-auto">
+            <div className="mb-6">
+              <h2 className="text-sm text-gray-500 uppercase">
+                Upload Your Dataset
+              </h2>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Review & Finalize
+              </h1>
+              <p className="text-sm text-gray-500 mt-1">
+                Review your information and agree to platform terms.
+              </p>
+            </div>
+
+            <p className="text-sm font-medium text-red-600 mb-2">Keywords *</p>
+
+            <div className="space-y-4">
+              {/* Data Accuracy */}
+              <div className="border rounded-lg p-4 flex items-start gap-3 bg-white shadow-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-5 w-5"
+                  checked={checkedItems.dataAccuracy}
+                  onChange={() => handleCheck('dataAccuracy')}
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-800">Data Accuracy</h3>
+                  <p className="text-gray-600 text-sm">
+                    I confirm that I have made reasonable efforts to ensure the
+                    accuracy of this dataset, but I don't guarantee absolute
+                    correctness of all data points.
+                  </p>
+                </div>
+              </div>
+
+              {/* Responsible Use */}
+              <div className="border rounded-lg p-4 flex items-start gap-3 bg-white shadow-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-5 w-5"
+                  checked={checkedItems.responsibleUse}
+                  onChange={() => handleCheck('responsibleUse')}
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    Responsible Use
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    I acknowledge that this dataset should be used responsibly
+                    and ethically, with consideration for potential impacts.
+                  </p>
+                </div>
+              </div>
+
+              {/* Privacy Compliance */}
+              <div className="border rounded-lg p-4 flex items-start gap-3 bg-white shadow-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-5 w-5"
+                  checked={checkedItems.privacyCompliance}
+                  onChange={() => handleCheck('privacyCompliance')}
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    Privacy Compliance
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    I confirm that this dataset has been properly anonymized or
+                    all necessary consents have been obtained if it contains any
+                    personal or sensitive information.
+                  </p>
+                </div>
+              </div>
+
+              {/* Rights & Ownership */}
+              <div className="border rounded-lg p-4 flex items-start gap-3 bg-white shadow-sm">
+                <input
+                  type="checkbox"
+                  className="mt-1 h-5 w-5"
+                  checked={checkedItems.rightsOwnership}
+                  onChange={() => handleCheck('rightsOwnership')}
+                />
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    Rights & Ownership
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    I confirm that I have the necessary rights and permissions
+                    to share this dataset.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between mt-6">
               <button
                 onClick={prevStep}
                 className="px-4 py-2 bg-gray-300 rounded"
               >
                 Previous
               </button>
-              <button
-                onClick={nextStep}
-                className="px-4 py-2 bg-green-600 text-white rounded"
-              >
-                Publish Dataset
-              </button>
+
+              <div className="flex gap-3">
+                {/* <button className="flex items-center gap-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+            <Save className="h-4 w-4" />
+            Save Draft
+          </button> */}
+                <button
+                  onClick={handleClick}
+                  className="flex items-center gap-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300"
+                >
+                  Publish Dataset
+                </button>
+              </div>
             </div>
           </div>
         );
