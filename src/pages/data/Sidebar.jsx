@@ -8,8 +8,8 @@ import Button from '../../components/designs/Button.js';
 import user_icon from '/assets/datalab/AuthIcon.png'; // ✅ Custom user icon
 import upload_icon from '/assets/datalab/uploadicon.png'; // ✅ Your custom upload icon
 import { useLocation } from 'react-router-dom';
-
-
+import DataCatalog from './DatasetCatalog.jsx';
+import datasetcreator_icon from '/assets/datasetcreator.png';
 
 
 export default function Sidebar({ handleAuthModalToggle }) {
@@ -191,11 +191,13 @@ export default function Sidebar({ handleAuthModalToggle }) {
             label="Saved Items"
             collapsed={collapsed}
           />
-          <SidebarItem
-            icon={<FilePlus size={20} />}
-            label="Dataset Creator"
-            collapsed={collapsed}
-          />
+       <SidebarItem
+  label="Dataset Creator"
+  collapsed={collapsed}
+  icon={<img src={datasetcreator_icon} alt="User Icon" className="w-5 h-5 mt-1" />}
+/>
+
+
         </nav>
         {/* <div className="mt-90" >
         <h4> Become a Dataset Creator </h4>
