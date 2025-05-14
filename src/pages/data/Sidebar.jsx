@@ -10,6 +10,9 @@ import upload_icon from '/assets/datalab/uploadicon.png'; // ✅ Your custom upl
 import { useLocation } from 'react-router-dom';
 import DataCatalog from './DatasetCatalog.jsx';
 import datasetcreator_icon from '/assets/datasetcreator.png';
+import mydatasets_icon from '/assets/mydatasets.png';
+import analytics_icon from '/assets/analytics.png';
+import reports_icon from '/assets/reports.png';
 
 
 export default function Sidebar({ handleAuthModalToggle }) {
@@ -36,12 +39,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
     console.log('Logging out...');
     dispatch(actions.LOGOUT());
   };
-  // useEffect(() => {
-  //   if (!state.userId) {
-  //     console.log("User is logged out");
-  //   }
-  // }, [state.userId]);
-
+  
   const handleBecomeDatasetCreator = () => {
     handleAuthModalToggle();
     navigate('/become-dataset-creator');
@@ -186,31 +184,47 @@ export default function Sidebar({ handleAuthModalToggle }) {
             label="Discover"
             collapsed={collapsed}
           />
-          <SidebarItem
+          <SidebarItem className="bg-[#FFFFFF] hover:bg-[#E6FAF0]"
             icon={<Bookmark size={20} />}
             label="Saved Items"
             collapsed={collapsed}
           />
-       <SidebarItem
+       <SidebarItem className="bg-[#FFFFFF]hover:bg-[#E6FAF0]"
   label="Dataset Creator"
   collapsed={collapsed}
-  icon={<img src={datasetcreator_icon} alt="User Icon" className="w-5 h-5 mt-1" />}
-/>
+  icon={<img src={datasetcreator_icon} alt="Dataset Creator Icon" className="w-5 h-5 mt-1" />}
+>
+  <div className="ml-10 flex flex-col gap-2 mt-2">
+    <div
+      className="flex items-center  text-sm gap-2 cursor-pointer bg-[#FFFFFF] hover:bg-[#E6FAF0]"
+      onClick={() => navigate('/my-datasets')}
+    >
+      <img src={mydatasets_icon} alt="My Datasets Icon" className="w-5 h-5 mt-2 " />
+      <span>My Datasets</span>
+    </div>
+
+    <div
+      className="flex items-center bg-[#FFFFFF] hover:bg-[#E6FAF0] text-sm gap-2 cursor-pointer "
+      onClick={() => navigate('/analytics')}
+    >
+      <img src={analytics_icon} alt="Analytics Icon" className="w-5 h-5 mt-1" />
+      <span>Analytics</span>
+    </div>
+
+    <div
+      className="flex items-center text-sm gap-2 bg-[#FFFFFF] hover:bg-[#E6FAF0] cursor-pointer "
+      onClick={() => navigate('/reports')}
+    >
+      <img src={reports_icon} alt="Reports Icon" className="w-5 h-5 mt-1" />
+      <span>Reports</span>
+    </div>
+  </div>
+</SidebarItem>
+
 
 
         </nav>
-        {/* <div className="mt-90" >
-        <h4> Become a Dataset Creator </h4>
-        <p>
-        Share your data with the world, track engagement, and earn from premium datasets. Apply now to get started!
-        </p>
-       <button
-          className="mt-auto  bg-gradient-to-b from-[#115443] to-[#26A37E] text-white px-4 py-2 rounded mb-4 w-full flex items-center justify-center"
-        >
-          <FilePlus size={18} className="mr-2" />
-          {!collapsed && "Become A Dataset Creator"}
-        </button>
-       </div> */}
+      
         {!collapsed && (
           <div className="relative bg-[#E6FAF0]  rounded mt-40">
             <button
@@ -251,11 +265,27 @@ export default function Sidebar({ handleAuthModalToggle }) {
   );
 }
 
-function SidebarItem({ icon, label, collapsed }) {
+// function SidebarItem({ icon, label, collapsed }) {
+//   return (
+//     <div className="flex items-center bg-[#FFFFFF] text-sm hover:bg-[#E6FAF0] p-2 rounded cursor-pointer">
+//       {icon}
+//       {!collapsed && <span className="ml-3">{label}</span>}
+//     </div>
+//   );
+// }
+function SidebarItem({ icon, label, collapsed, onClick, children }) {
   return (
-    <div className="flex items-center bg-[#FFFFFF] text-sm hover:bg-[#E6FAF0] p-2 rounded cursor-pointer">
-      {icon}
-      {!collapsed && <span className="ml-3">{label}</span>}
+    <div className="flex flex-col">
+      <div
+        onClick={onClick}
+        className="flex items-center text-sm p-2 rounded cursor-pointer hover:bg-[#E6FAF0]"
+      >
+        {icon}
+        {!collapsed && <span className="ml-3">{label}</span>}
+      </div>
+
+      {/* Children rendered below, not part of the hover area */}
+      {!collapsed && children}
     </div>
   );
 }
