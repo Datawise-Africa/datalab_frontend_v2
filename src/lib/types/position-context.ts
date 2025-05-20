@@ -1,7 +1,7 @@
 import type {
   PositionAction,
   positionProviderActions,
-} from '@/storage/actions/position-actions';
+} from '@/context/actions/position-actions';
 
 export type PositionState = {
   selectedPosition: string | null;

@@ -1,7 +1,7 @@
 import type {
   AuthAction,
   authProviderActions,
-} from '@/storage/actions/auth-actions';
+} from '@/context/actions/auth-actions';
 
 export type AuthState = {
   userId: string | null;
