@@ -9,7 +9,9 @@ describe('Error404 Component', () => {
     // Check if the main elements are rendered
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByText('Page not found')).toBeInTheDocument();
-    expect(screen.getByText(/Sorry, we couldn't find the page you're looking for./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sorry, we couldn't find the page you're looking for./i),
+    ).toBeInTheDocument();
 
     // Check if the home link is rendered
     const homeLink = screen.getByRole('link', { name: /go back home/i });
