@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { PositionProvider } from './storage/PositionProvider';
+import { PositionProvider } from './context/PositionProvider';
 import App from './App';
 import './index.css';
 
