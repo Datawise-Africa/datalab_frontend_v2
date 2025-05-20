@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '../../test/test-utils';
+import { render, screen } from '@/test/test-utils';
 import Header from './Header';
 
 // Mock react-router-dom modules
@@ -34,16 +34,17 @@ describe('Header Component', () => {
     render(<Header />);
 
     // Find and click the hamburger menu button
-    const menuButton = screen.getByRole('button', { name: /toggle navigation/i }) ||
-                      screen.getByLabelText(/toggle navigation/i) ||
-                      screen.getByTestId('menu-button');
+    const menuButton =
+      screen.getByRole('button', { name: /toggle navigation/i }) ||
+      screen.getByLabelText(/toggle navigation/i) ||
+      screen.getByTestId('menu-button');
 
     // Click to open the menu
     await menuButton.click();
 
     // Check if the navigation menu is visible
-    const navMenu = screen.getByRole('navigation') ||
-                   screen.getByTestId('navigation-menu');
+    const navMenu =
+      screen.getByRole('navigation') || screen.getByTestId('navigation-menu');
     expect(navMenu).toHaveClass('open'); // Adjust class name based on your implementation
   });
 });

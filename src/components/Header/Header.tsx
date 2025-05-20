@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-
-import datawise_logo from '/assets/Datawise.svg';
-// import dwise_logo from "/assets/datawise-logo-icon-dark.svg";
-import { navigation } from '../../constants';
+import { navigation, type NavigationItem } from '@/constants';
 
 const Header = () => {
   const [openNavigation, setOpenNavigation] = useState(false);
   const [isNavItemDropdown, setIsNavItemDropdown] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsNavItemDropdown(false);
       }
     };
@@ -28,10 +28,13 @@ const Header = () => {
     setOpenNavigation(!openNavigation);
   };
 
-  const handleNavItemClick = (e, item) => {
+  const handleNavItemClick = (e: React.MouseEvent, item: NavigationItem) => {
     e.preventDefault();
 
-    if (item.hasDropdown) {
+    if (
+      // item.hasDropdown
+      item.dropdownItems.length > 0
+    ) {
       setIsNavItemDropdown(!isNavItemDropdown);
     } else {
       navigate(item.url);
@@ -52,7 +55,7 @@ const Header = () => {
         <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4 p-2">
           <Link to="/" className="w-[12rem]">
             <img
-              src={datawise_logo}
+              src={'/assets/Datawise.svg'}
               alt="Datawise logo"
               loading="lazy"
               width={180}
@@ -102,9 +105,9 @@ const Header = () => {
           {/* Navigation and button container */}
           <div
             className={`
-            ${openNavigation ? 'flex' : 'hidden'} 
+            ${openNavigation ? 'flex' : 'hidden'}
             lg:flex lg:items-center lg:justify-between lg:flex-1
-            fixed lg:static top-[4rem] left-0 right-0 bottom-0 
+            fixed lg:static top-[4rem] left-0 right-0 bottom-0
             bg-[#0F2542] lg:bg-transparent
             flex-col lg:flex-row
             pt-8 lg:pt-0
