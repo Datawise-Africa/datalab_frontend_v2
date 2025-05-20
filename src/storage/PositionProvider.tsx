@@ -1,46 +1,47 @@
-import { createContext, useReducer, useEffect } from 'react';
-import PropTypes from 'prop-types';
-const positionProviderActions = {
-  SET_POSITION: 'SET_POSITION',
-  RESET_POSITION: 'RESET_POSITION',
-};
+import { createContext, useReducer, useEffect, useContext } from 'react';
+import { positionProviderActions } from './actions/position-actions';
+import type {
+  PositionContextType,
+  PositionProviderProps,
+  PositionState,
+} from '@/lib/types/position-context';
+import { positionReducer } from './reducers/position-reducers';
 
 const POSITION_KEY = 'selected_position_key';
 
-const initialState = JSON.parse(localStorage.getItem(POSITION_KEY))
-  ? JSON.parse(localStorage.getItem(POSITION_KEY))
-  : {
-      selectedPosition: null,
-    };
+const initialState = (
+  JSON.parse(localStorage.getItem(POSITION_KEY)!)
+    ? JSON.parse(localStorage.getItem(POSITION_KEY)!)
+    : {
+        selectedPosition: null,
+      }
+) as PositionState;
 
-const positionReducer = (state, action) => {
-  const { type, payload } = action;
-  switch (type) {
-    case positionProviderActions.SET_POSITION:
-      return { ...state, selectedPosition: payload };
-    case positionProviderActions.RESET_POSITION:
-      return { ...state, selectedPosition: null };
-    default:
-      return state;
-  }
-};
 // Create context
-export const PositionContext = createContext(initialState);
+export const PositionContext = createContext<PositionContextType | undefined>(
+  undefined,
+);
 
 // Create provider
-export const PositionProvider = ({ children }) => {
+export const PositionProvider = ({ children }: PositionProviderProps) => {
   const [state, dispatch] = useReducer(positionReducer, initialState);
   useEffect(() => {
     localStorage.setItem(POSITION_KEY, JSON.stringify(state));
   }, [state]);
 
   return (
-    <PositionContext.Provider value={{ state, dispatch }}>
+    <PositionContext.Provider
+      value={{ state, dispatch, actions: positionProviderActions }}
+    >
       {children}
     </PositionContext.Provider>
   );
 };
 
-PositionProvider.propTypes = {
-  children: PropTypes.node.isRequired,
+export const usePosition = () => {
+  const context = useContext(PositionContext);
+  if (context === undefined) {
+    throw new Error('usePosition must be used within a PositionProvider');
+  }
+  return context;
 };
