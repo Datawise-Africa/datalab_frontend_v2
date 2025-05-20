@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import { type ReactElement } from 'react';
+import { render, type RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from '../storage/AuthProvider';
 import { PositionProvider } from '../storage/PositionProvider';
@@ -12,17 +12,12 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {}
  * @param ui - The React component to render
  * @param options - Additional render options
  */
-function customRender(
-  ui: ReactElement,
-  options?: CustomRenderOptions
-) {
+function customRender(ui: ReactElement, options?: CustomRenderOptions) {
   return render(ui, {
     wrapper: ({ children }) => (
       <BrowserRouter>
         <AuthProvider>
-          <PositionProvider>
-            {children}
-          </PositionProvider>
+          <PositionProvider>{children}</PositionProvider>
         </AuthProvider>
       </BrowserRouter>
     ),
