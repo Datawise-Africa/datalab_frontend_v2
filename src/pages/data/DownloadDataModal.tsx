@@ -1,11 +1,11 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
-import Modal from "../../components/Modals/DataModals/Modal";
-import useDownloadDataModal from "../../hooks/useDownloadDataModal";
-import CustomButton from "../../components/Modals/DataModals/CustomButton";
-import { getAccessToken } from "../../lib/auth/actions";
-import { REACT_PUBLIC_API_HOST } from "../../constants";
-import { Toaster, toast } from "react-hot-toast";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
+import Modal from '../../components/Modals/DataModals/Modal';
+import useDownloadDataModal from '../../hooks/useDownloadDataModal';
+import CustomButton from '../../components/Modals/DataModals/CustomButton';
+import { getAccessToken } from '../../lib/auth/actions';
+import { REACT_PUBLIC_API_HOST } from '../../constants';
+import { Toaster, toast } from 'react-hot-toast';
 
 import {
   FaUserGraduate,
@@ -14,48 +14,48 @@ import {
   FaCheck,
   FaBuilding,
   FaTimes,
-} from "react-icons/fa";
-import { AiOutlineInfoCircle } from "react-icons/ai";
+} from 'react-icons/fa';
+import { AiOutlineInfoCircle } from 'react-icons/ai';
 
-import non_profit_icon from "/assets/datalab/non-profit-icon-dark.svg";
-import company_icon from "/assets/datalab/company-icon-dark.svg";
-import student_icon from "/assets/datalab/student-icon-dark.svg";
-import public_icon from "/assets/datalab/public2-icon-dark.svg";
+import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
+import company_icon from '/assets/datalab/company-icon-dark.svg';
+import student_icon from '/assets/datalab/student-icon-dark.svg';
+import public_icon from '/assets/datalab/public2-icon-dark.svg';
 
 const DownloadDataModal = ({ dataset }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const downloadDataModal = useDownloadDataModal();
   const [agreed, setAgreed] = useState(true);
-  const [selectedFormat, setSelectedFormat] = useState("csv");
+  const [selectedFormat, setSelectedFormat] = useState('csv');
   const [downloading] = useState(false);
 
-  const [selectedCard, setSelectedCard] = useState("");
-  const [email, setEmail] = useState("");
+  const [selectedCard, setSelectedCard] = useState('');
+  const [email, setEmail] = useState('');
   const [codeSent, setCodeSent] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationCode, setVerificationCode] = useState('');
   // const [emailVerified, setEmailVerified] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
   const [isResendEnabled, setIsResendEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const [formFields, setFormFields] = useState({
-    intended_use: "",
+    intended_use: '',
     project_description: false,
   });
 
   const [formData, setFormData] = useState({
     dataset: dataset.id,
-    intended_use: "", // For the select box
-    project_description: "", // For the textarea
-    profiteer: "",
-    email_address: "", // For the email input
+    intended_use: '', // For the select box
+    project_description: '', // For the textarea
+    profiteer: '',
+    email_address: '', // For the email input
   });
 
   const handleInputChange = (event) => {
     const { name, value } = event.target; // Destructure name and value
 
-    if (name === "email_address") {
+    if (name === 'email_address') {
       // Check if it's the email input
       setEmail(value);
     }
@@ -78,19 +78,19 @@ const DownloadDataModal = ({ dataset }) => {
   };
 
   const areAllFieldsFilled =
-    formFields.intended_use !== "" && formFields.project_description;
+    formFields.intended_use !== '' && formFields.project_description;
 
   const downloadStep = [
-    "Overview",
-    "Verification",
-    "License",
-    "Payment",
-    "Download",
+    'Overview',
+    'Verification',
+    'License',
+    'Payment',
+    'Download',
   ];
 
   const displayStep = dataset?.is_premium
     ? downloadStep
-    : downloadStep.filter((step) => step !== "Payment");
+    : downloadStep.filter((step) => step !== 'Payment');
 
   const profiteerIcons = {
     non_profit: non_profit_icon,
@@ -112,7 +112,7 @@ const DownloadDataModal = ({ dataset }) => {
   };
 
   const [availableFormats] = useState([
-    { name: "CSV", size: "...", value: "csv" },
+    { name: 'CSV', size: '...', value: 'csv' },
     //  { name: "XLSX", size: "...", value: "xlsx" },
     //  { name: "PDF", size: "...", value: "pdf" },
   ]);
@@ -128,14 +128,14 @@ const DownloadDataModal = ({ dataset }) => {
       !dataset.data_files[0] ||
       !dataset.data_files[0].file_url
     ) {
-      console.error("Invalid dataset object:", dataset);
-      alert("Invalid dataset selected.");
+      console.error('Invalid dataset object:', dataset);
+      alert('Invalid dataset selected.');
       return;
     }
     console.log(formData);
     const accessToken = await getAccessToken();
     if (!accessToken) {
-      setErrorMessage("Failed to retrieve access token.");
+      setErrorMessage('Failed to retrieve access token.');
       return;
     }
 
@@ -143,18 +143,18 @@ const DownloadDataModal = ({ dataset }) => {
       const response = await fetch(
         `${REACT_PUBLIC_API_HOST}/data/dataset_downloads/`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
             Authorization: `JWT ${accessToken}`,
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (response.ok) {
-        console.log("Data sent successfully!");
+        console.log('Data sent successfully!');
         downloadDataModal.close();
       } else {
         console.error(`Error: ${response.status} - ${response.statusText}`);
@@ -164,9 +164,9 @@ const DownloadDataModal = ({ dataset }) => {
       const fileUrl = dataset.data_files[0].file_url;
 
       // Create a temporary anchor element
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = fileUrl;
-      link.setAttribute("download", ""); // This helps with download behavior
+      link.setAttribute('download', ''); // This helps with download behavior
 
       // Append to the document, trigger the click, and remove the element
       document.body.appendChild(link);
@@ -174,10 +174,10 @@ const DownloadDataModal = ({ dataset }) => {
       document.body.removeChild(link);
     } catch (error) {
       console.log(formData);
-      console.log("Access Token:", accessToken);
+      console.log('Access Token:', accessToken);
 
-      console.error("Error downloading data:", error);
-      alert("Failed to download data. Please try again.");
+      console.error('Error downloading data:', error);
+      alert('Failed to download data. Please try again.');
       console.log(formData);
     }
   };
@@ -185,8 +185,8 @@ const DownloadDataModal = ({ dataset }) => {
   const validateEmail = () => {
     const emailTypeValidation = {
       Company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
-      "Non-Profit": email.endsWith(".org"),
-      Student: email.endsWith(".edu"),
+      'Non-Profit': email.endsWith('.org'),
+      Student: email.endsWith('.edu'),
       Public: true,
     };
     return emailTypeValidation[selectedCard];
@@ -194,51 +194,51 @@ const DownloadDataModal = ({ dataset }) => {
 
   const handleAction = async () => {
     if (!email) {
-      setErrorMessage("Please enter your email.");
+      setErrorMessage('Please enter your email.');
       return;
     }
 
     if (!validateEmail()) {
-      setErrorMessage("Invalid email for selected category.");
+      setErrorMessage('Invalid email for selected category.');
       return;
     }
 
     setLoading(true);
-    setErrorMessage("");
+    setErrorMessage('');
 
     try {
       const accessToken = await getAccessToken();
       console.log({ accessToken });
 
       if (!accessToken) {
-        setErrorMessage("Failed to retrieve access token.");
-        console.log(" Error: Access token not available");
+        setErrorMessage('Failed to retrieve access token.');
+        console.log(' Error: Access token not available');
         return;
       }
 
       if (!codeSent) {
-        console.log("📨 Sending OTP to:", email);
+        console.log('📨 Sending OTP to:', email);
 
         try {
           const response = await fetch(
             `${REACT_PUBLIC_API_HOST}/data/generate-otp/`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
                 Authorization: `JWT ${accessToken}`,
               },
               body: JSON.stringify({ email }),
-            }
+            },
           );
 
-          console.log(" OTP Request Response:", response.status);
+          console.log(' OTP Request Response:', response.status);
           const data = await response.json();
-          console.log(" Response Body:", data);
+          console.log(' Response Body:', data);
 
           if (!response.ok)
-            throw new Error(data?.detail || "Failed to send OTP.");
+            throw new Error(data?.detail || 'Failed to send OTP.');
 
           setCodeSent(true);
           toast.success(`Verification code sent to ${email}`);
@@ -246,79 +246,79 @@ const DownloadDataModal = ({ dataset }) => {
           setTimeout(() => setIsResendEnabled(true), 60000);
         } catch (error) {
           setErrorMessage(error.message);
-          toast.error("Failed to send OTP. Try again.");
-          console.error(" Error Sending OTP:", error);
+          toast.error('Failed to send OTP. Try again.');
+          console.error(' Error Sending OTP:', error);
         }
       } else {
-        console.log("✅ Verifying OTP:", verificationCode);
+        console.log('✅ Verifying OTP:', verificationCode);
 
         try {
           const response = await fetch(
             `${REACT_PUBLIC_API_HOST}/data/verify-otp/`,
             {
-              method: "POST",
+              method: 'POST',
               headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({ email, code: verificationCode }),
-            }
+            },
           );
 
-          console.log("📡 OTP Verification Response:", response.status);
+          console.log('📡 OTP Verification Response:', response.status);
           const data = await response.json();
-          console.log("📡 Verification Response Body:", data);
+          console.log('📡 Verification Response Body:', data);
 
           if (
             response.ok &&
-            data.message.toLowerCase().includes("otp validated successfully")
+            data.message.toLowerCase().includes('otp validated successfully')
           ) {
-            console.log(" OTP Verified Successfully");
+            console.log(' OTP Verified Successfully');
             setIsVerified(true);
-            toast.success("OTP Validated Successfully");
+            toast.success('OTP Validated Successfully');
           } else {
-            setErrorMessage("Incorrect OTP. Try again.");
-            toast.error("Incorrect OTP. Try again.");
+            setErrorMessage('Incorrect OTP. Try again.');
+            toast.error('Incorrect OTP. Try again.');
           }
         } catch (error) {
-          setErrorMessage("An error occurred. Please try again.");
-          toast.error("An error occurred. Please try again.");
-          console.error(" Error Verifying OTP:", error);
+          setErrorMessage('An error occurred. Please try again.');
+          toast.error('An error occurred. Please try again.');
+          console.error(' Error Verifying OTP:', error);
         }
       }
     } catch (error) {
-      console.error("❌ General Error:", error);
-      setErrorMessage(error.message || "An unexpected error occurred.");
-      toast.error("An unexpected error occurred.");
+      console.error('❌ General Error:', error);
+      setErrorMessage(error.message || 'An unexpected error occurred.');
+      toast.error('An unexpected error occurred.');
     }
 
     setLoading(false);
-    console.log("🔄 handleAction completed");
+    console.log('🔄 handleAction completed');
   };
 
   const [rating, setRating] = useState(0);
-  const [message, setMessage] = useState(""); // For success/error messages
+  const [message, setMessage] = useState(''); // For success/error messages
 
   const handleStarClick = async (value) => {
     if (!dataset?.id) {
-      setMessage("Error: Dataset ID is missing.");
+      setMessage('Error: Dataset ID is missing.');
       return;
     }
 
     setRating(value);
-    setMessage("Submitting..."); // Show loading state
+    setMessage('Submitting...'); // Show loading state
 
     try {
       const accessToken = await getAccessToken();
       if (!accessToken) {
-        setMessage("Error: Authentication required.");
+        setMessage('Error: Authentication required.');
         return;
       }
 
       const response = await fetch(`${REACT_PUBLIC_API_HOST}/data/reviews/`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `JWT ${accessToken}`,
         },
         body: JSON.stringify({
@@ -328,26 +328,26 @@ const DownloadDataModal = ({ dataset }) => {
       });
 
       const data = await response.json(); // Read response body
-      console.log("Response:", response.status, data); // Log details
+      console.log('Response:', response.status, data); // Log details
 
       if (response.ok) {
-        setMessage("Thank you for your rating!");
+        setMessage('Thank you for your rating!');
       } else {
         setMessage(
-          `Failed to submit rating: ${data.detail || "Unknown error"}`
+          `Failed to submit rating: ${data.detail || 'Unknown error'}`,
         );
       }
     } catch (error) {
-      console.error("Fetch error:", error);
-      setMessage("Error submitting rating.");
+      console.error('Fetch error:', error);
+      setMessage('Error submitting rating.');
     }
 
-    setTimeout(() => setMessage(""), 3000);
+    setTimeout(() => setMessage(''), 3000);
   };
 
   const contentMap = {
     Overview: {
-      title: "Overview",
+      title: 'Overview',
       details: (
         <>
           <div className="p-4 rounded-md shadow bg-white">
@@ -357,7 +357,7 @@ const DownloadDataModal = ({ dataset }) => {
               </h3>
               <div>
                 <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
-                  {dataset?.is_premium ? `$${dataset?.price}` : "Free"}
+                  {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
@@ -384,7 +384,7 @@ const DownloadDataModal = ({ dataset }) => {
                       <FaTimes className="text-red-500" />
                     )}
                   </div>
-                )
+                ),
               )}
             </div>
 
@@ -470,8 +470,8 @@ const DownloadDataModal = ({ dataset }) => {
                   disabled={!areAllFieldsFilled}
                   className={`py-2 px-3 rounded-lg ${
                     agreed
-                      ? "bg-[#ddeeff] text-[#0E0C15]"
-                      : "bg-gray-400 text-[#0E0C15] cursor-not-allowed"
+                      ? 'bg-[#ddeeff] text-[#0E0C15]'
+                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -484,7 +484,7 @@ const DownloadDataModal = ({ dataset }) => {
     },
 
     Verification: {
-      title: "Verification",
+      title: 'Verification',
       details: (
         <>
           <Toaster />
@@ -495,7 +495,7 @@ const DownloadDataModal = ({ dataset }) => {
               </h3>
               <div>
                 <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
-                  {dataset?.is_premium ? `$${dataset?.price}` : "Free"}
+                  {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
@@ -522,7 +522,7 @@ const DownloadDataModal = ({ dataset }) => {
                       <FaTimes className="text-red-500" />
                     )}
                   </div>
-                )
+                ),
               )}
             </div>
 
@@ -548,31 +548,31 @@ const DownloadDataModal = ({ dataset }) => {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 {[
                   {
-                    type: "Company",
+                    type: 'Company',
                     icon: <FaBuilding />,
-                    description: "Business Email Required.",
+                    description: 'Business Email Required.',
                   },
                   {
-                    type: "Non-Profit",
+                    type: 'Non-Profit',
                     icon: <FaHandsHelping />,
-                    description: "NGO or .org Email Required.",
+                    description: 'NGO or .org Email Required.',
                   },
                   {
-                    type: "Student",
+                    type: 'Student',
                     icon: <FaUserGraduate />,
-                    description: "University/Educational Email Required.",
+                    description: 'University/Educational Email Required.',
                   },
                   {
-                    type: "Public",
+                    type: 'Public',
                     icon: <FaUsers />,
-                    description: "Personal Email Required.",
+                    description: 'Personal Email Required.',
                   },
                 ].map((card, index) => (
                   <div
                     key={index}
                     onClick={() => handleCardClick(card.type)}
                     className={`p-4 border ${
-                      selectedCard === card.type ? "bg-blue-300" : "bg-gray-100"
+                      selectedCard === card.type ? 'bg-blue-300' : 'bg-gray-100'
                     } border-[#ADA8C3] rounded-md text-center cursor-pointer`}
                   >
                     <div className="text-2xl mb-2 text-[#4B5563]">
@@ -630,10 +630,10 @@ const DownloadDataModal = ({ dataset }) => {
                   className="px-4 py-2 bg-[#ddeeff] text-[#0E0C15] rounded-md"
                 >
                   {loading
-                    ? "Processing..."
+                    ? 'Processing...'
                     : codeSent
-                    ? "Verify OTP"
-                    : "Send OTP"}
+                      ? 'Verify OTP'
+                      : 'Send OTP'}
                 </button>
 
                 {codeSent && !isVerified && (
@@ -662,8 +662,8 @@ const DownloadDataModal = ({ dataset }) => {
                   disabled={!isVerified}
                   className={`py-2 px-3 rounded-lg ${
                     isVerified
-                      ? "bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]"
-                      : "bg-gray-400 text-[#0E0C15] cursor-not-allowed"
+                      ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
+                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -676,7 +676,7 @@ const DownloadDataModal = ({ dataset }) => {
     },
 
     License: {
-      title: "License",
+      title: 'License',
       details: (
         <>
           <div className="bg-white p-4 rounded-md shadow">
@@ -687,7 +687,7 @@ const DownloadDataModal = ({ dataset }) => {
               </h3>
               <div>
                 <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
-                  {dataset?.is_premium ? `$${dataset?.price}` : "Free"}
+                  {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
@@ -714,7 +714,7 @@ const DownloadDataModal = ({ dataset }) => {
                       <FaTimes className="text-red-500" />
                     )}
                   </div>
-                )
+                ),
               )}
             </div>
 
@@ -751,12 +751,18 @@ const DownloadDataModal = ({ dataset }) => {
                     ❌ Restricted Uses
                   </h5>
                   <ul className="mt-2 text-sm text-red-700 space-y-1">
-                    <li className="flex items-center">✖ Commercial Products</li>
-                    <li className="flex items-center">✖ Data Redistribution</li>
+                    <li className="flex items-center">
+                      ✖ Commercial Products
+                    </li>
+                    <li className="flex items-center">
+                      ✖ Data Redistribution
+                    </li>
                     <li className="flex items-center">
                       ✖ Derivative Databases
                     </li>
-                    <li className="flex items-center">✖ Resale or Licensing</li>
+                    <li className="flex items-center">
+                      ✖ Resale or Licensing
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -771,7 +777,7 @@ const DownloadDataModal = ({ dataset }) => {
                   checked={agreed}
                   onChange={() => {
                     setAgreed(!agreed);
-                    console.log("Agreed state:", !agreed);
+                    console.log('Agreed state:', !agreed);
                   }}
                 />
                 I understand and agree to these terms, and acknowledge that
@@ -793,8 +799,8 @@ const DownloadDataModal = ({ dataset }) => {
                   disabled={!agreed}
                   className={`py-2 px-3 rounded-lg ${
                     agreed
-                      ? "bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]"
-                      : "bg-gray-400 text-[#0E0C15] cursor-not-allowed"
+                      ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
+                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -807,7 +813,7 @@ const DownloadDataModal = ({ dataset }) => {
     },
 
     Payment: {
-      title: "Payment",
+      title: 'Payment',
       details: (
         <div>
           <p>Please make your payment</p>
@@ -816,7 +822,7 @@ const DownloadDataModal = ({ dataset }) => {
     },
 
     Download: {
-      title: "Download",
+      title: 'Download',
       details: (
         <>
           <div className="bg-white p-4 rounded-md shadow">
@@ -827,7 +833,7 @@ const DownloadDataModal = ({ dataset }) => {
               </h3>
               <div>
                 <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
-                  {dataset?.is_premium ? `$${dataset?.price}` : "Free"}
+                  {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
@@ -854,7 +860,7 @@ const DownloadDataModal = ({ dataset }) => {
                       <FaTimes className="text-red-500" />
                     )}
                   </div>
-                )
+                ),
               )}
             </div>
 
@@ -898,8 +904,8 @@ const DownloadDataModal = ({ dataset }) => {
                     key={format.value}
                     className={`flex items-center p-3 border rounded-md cursor-pointer ${
                       selectedFormat === format.value
-                        ? "bg-gray-200"
-                        : "bg-gray-100"
+                        ? 'bg-gray-200'
+                        : 'bg-gray-100'
                     }`}
                   >
                     <input
@@ -927,7 +933,7 @@ const DownloadDataModal = ({ dataset }) => {
                     key={star}
                     onClick={() => handleStarClick(star)}
                     className={`h-8 w-8 cursor-pointer ${
-                      star <= rating ? "text-yellow-500" : "text-gray-400"
+                      star <= rating ? 'text-yellow-500' : 'text-gray-400'
                     }`}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="currentColor"
@@ -958,11 +964,11 @@ const DownloadDataModal = ({ dataset }) => {
                 disabled={downloading}
                 className={`py-2 px-4 rounded-lg ${
                   downloading
-                    ? "bg-[#0E0C15] text-gray-200 cursor-not-allowed"
-                    : "bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]"
+                    ? 'bg-[#0E0C15] text-gray-200 cursor-not-allowed'
+                    : 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
                 }`}
               >
-                {downloading ? "Downloading..." : "⬇ Download"}
+                {downloading ? 'Downloading...' : '⬇ Download'}
               </CustomButton>
 
               {currentStep < displayStep.length && (
@@ -970,8 +976,8 @@ const DownloadDataModal = ({ dataset }) => {
                   disabled={!agreed}
                   className={`py-2 px-3 rounded-lg ${
                     agreed
-                      ? "bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]"
-                      : "bg-gray-400 text-[#0E0C15]cursor-not-allowed"
+                      ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
+                      : 'bg-gray-400 text-[#0E0C15]cursor-not-allowed'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -1001,14 +1007,14 @@ const DownloadDataModal = ({ dataset }) => {
         <div key={index} className="flex items-center">
           <div
             className={`flex flex-col items-center ${
-              index + 1 === currentStep ? "text-[#0E0C15]" : "text-[#0E0C15]"
+              index + 1 === currentStep ? 'text-[#0E0C15]' : 'text-[#0E0C15]'
             }`}
           >
             <div
               className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                 index + 1 === currentStep
-                  ? "text-[#0E0C15] border-[#004176]"
-                  : "text-[#0E0C15] border-[#0E0C15]"
+                  ? 'text-[#0E0C15] border-[#004176]'
+                  : 'text-[#0E0C15] border-[#0E0C15]'
               }`}
             >
               {index + 1}

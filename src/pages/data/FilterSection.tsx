@@ -1,5 +1,5 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
+import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 const FilterSection = ({ title, options, category, filters, setFilters }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,8 +15,6 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
 
   return (
     <div className="max-w-24xl ">
-
-     
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -28,9 +26,11 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
       {/* Dropdown Checklist */}
       {isOpen && (
         <div className="mt-2 border border-gray-200 rounded-lg shadow-md p-3 bg-white max-h-80 overflow-y-auto">
-
           {options.map((option, index) => (
-            <label key={index} className="flex items-center space-x-2 mb-1 cursor-pointer">
+            <label
+              key={index}
+              className="flex items-center space-x-2 mb-1 cursor-pointer"
+            >
               <input
                 type="checkbox"
                 className="form-checkbox text-blue-600"

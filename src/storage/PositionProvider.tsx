@@ -1,11 +1,11 @@
-import { createContext, useReducer, useEffect } from "react";
-import PropTypes from "prop-types";
+import { createContext, useReducer, useEffect } from 'react';
+import PropTypes from 'prop-types';
 const positionProviderActions = {
-  SET_POSITION: "SET_POSITION",
-  RESET_POSITION: "RESET_POSITION",
+  SET_POSITION: 'SET_POSITION',
+  RESET_POSITION: 'RESET_POSITION',
 };
 
-const POSITION_KEY = "selected_position_key";
+const POSITION_KEY = 'selected_position_key';
 
 const initialState = JSON.parse(localStorage.getItem(POSITION_KEY))
   ? JSON.parse(localStorage.getItem(POSITION_KEY))

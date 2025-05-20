@@ -1,5 +1,5 @@
-import PropTypes from "prop-types";
-import PlusSvg from "./PlusSvg";
+import PropTypes from 'prop-types';
+import PlusSvg from './PlusSvg';
 
 const SectionSvg = ({ crossesOffset }) => {
   return (
@@ -21,6 +21,6 @@ const SectionSvg = ({ crossesOffset }) => {
 
 SectionSvg.propTypes = {
   crossesOffset: PropTypes.string,
-}
+};
 
 export default SectionSvg;

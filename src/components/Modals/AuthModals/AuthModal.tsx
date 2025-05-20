@@ -1,18 +1,18 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import PropTypes from "prop-types";
-import Modal from "./Modal";
-import {useAuthModal} from "../../../hooks/useAuthModal";
-import CustomButton from "./CustomButton";
-import apiService from "../../../services/apiService";
-import { useAuth } from "../../../storage/AuthProvider";
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import PropTypes from 'prop-types';
+import Modal from './Modal';
+import { useAuthModal } from '../../../hooks/useAuthModal';
+import CustomButton from './CustomButton';
+import apiService from '../../../services/apiService';
+import { useAuth } from '../../../storage/AuthProvider';
 
 const AuthModal = ({ navUrl }) => {
   const navigate = useNavigate();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [errors, setErrors] = useState([]);
   const [isSignUp, setIsSignUp] = useState(false);
 
@@ -30,7 +30,7 @@ const AuthModal = ({ navUrl }) => {
       password: password,
     };
 
-    const response = await apiService.post("/auth/register/", formData);
+    const response = await apiService.post('/auth/register/', formData);
 
     if (response.access_token) {
       dispatch(
@@ -40,8 +40,8 @@ const AuthModal = ({ navUrl }) => {
           response.access_token,
           response.refresh_token,
           response.first_name,
-          response.last_name
-        )
+          response.last_name,
+        ),
       );
       authModal.close();
       if (navUrl) {
@@ -60,8 +60,8 @@ const AuthModal = ({ navUrl }) => {
       password: password,
     };
 
-    const response = await apiService.post("/auth/login/", formData);
-    console.log("Login response:", response); 
+    const response = await apiService.post('/auth/login/', formData);
+    console.log('Login response:', response);
     if (response.access_token) {
       dispatch(
         actions.LOGIN(
@@ -70,8 +70,8 @@ const AuthModal = ({ navUrl }) => {
           response.access_token,
           response.refresh_token,
           response.first_name,
-          response.last_name
-        )
+          response.last_name,
+        ),
       );
       authModal.close();
       if (navUrl) {
@@ -87,9 +87,9 @@ const AuthModal = ({ navUrl }) => {
       {isSignUp ? (
         <form action={submitLogin} className="space-y-4 ">
           <div className="space-y-2 ">
-            <h5 >Hi, Welcome to Datalab</h5>
+            <h5>Hi, Welcome to Datalab</h5>
             <p>
-              Create an account or{" "}
+              Create an account or{' '}
               <span
                 className="underline cursor-pointer hover:underline"
                 onClick={() => setIsSignUp(!isSignUp)}
@@ -156,7 +156,7 @@ const AuthModal = ({ navUrl }) => {
           <div className="space-y-2">
             <h5>Hi, Welcome to Datalab</h5>
             <p>
-              Sign in to your account or{" "}
+              Sign in to your account or{' '}
               <span
                 className="underline cursor-pointer hover:underline"
                 onClick={() => setIsSignUp(!isSignUp)}
@@ -193,7 +193,7 @@ const AuthModal = ({ navUrl }) => {
                   key={`error_${index}`}
                   className="p-5 bg-white text-n-1 rounded-xl opacity-80"
                 >
-                  {error.message || error}{" "}
+                  {error.message || error}{' '}
                   {/* Handle both object or string errors */}
                 </div>
               );
@@ -220,7 +220,7 @@ const AuthModal = ({ navUrl }) => {
 
   return (
     <Modal
-    className="bg-white"
+      className="bg-white"
       isOpen={authModal.isOpen}
       close={authModal.close}
       content={content}

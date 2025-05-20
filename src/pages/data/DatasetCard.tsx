@@ -89,7 +89,6 @@ const DatasetCard = ({
                       alt="Download"
                       className="w-4 h-4 mr-2 "
                     />
-
                     Copy Link
                   </button>
                 )}
@@ -155,7 +154,7 @@ const DatasetCard = ({
                 <FaTimes className="text-red-500" />
               )}
             </div>
-          )
+          ),
         )}
       </div>
 
@@ -236,7 +235,7 @@ DatasetCard.propTypes = {
       PropTypes.shape({
         first_name: PropTypes.string,
         last_name: PropTypes.string,
-      })
+      }),
     ).isRequired,
     description: PropTypes.string.isRequired,
     tags: PropTypes.arrayOf(PropTypes.string).isRequired,

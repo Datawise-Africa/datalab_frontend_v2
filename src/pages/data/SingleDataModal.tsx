@@ -1,15 +1,15 @@
-import PropTypes from "prop-types";
-import { FaUser, FaCheck, FaTimes, FaStar } from "react-icons/fa";
-import Modal from "../../components/Modals/DataModals/Modal";
-import useDataModal from "../../hooks/useDataModal";
-import non_profit_icon from "/assets/datalab/non-profit-icon.svg";
-import company_icon from "/assets/datalab/company-icon.svg";
-import student_icon from "/assets/datalab/student-icon.svg";
-import public_icon from "/assets/datalab/public2-icon.svg";
-import spinning_timer_icon from "/assets/datalab/spinning-timer.svg";
-import database_icon from "/assets/datalab/db-icon.svg";
-import download_icon from "/assets/datalab/download-icon.svg";
-import DatasetPreview from "./DatasetPreview";
+import PropTypes from 'prop-types';
+import { FaUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
+import Modal from '../../components/Modals/DataModals/Modal';
+import useDataModal from '../../hooks/useDataModal';
+import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
+import company_icon from '/assets/datalab/company-icon.svg';
+import student_icon from '/assets/datalab/student-icon.svg';
+import public_icon from '/assets/datalab/public2-icon.svg';
+import spinning_timer_icon from '/assets/datalab/spinning-timer.svg';
+import database_icon from '/assets/datalab/db-icon.svg';
+import download_icon from '/assets/datalab/download-icon.svg';
+import DatasetPreview from './DatasetPreview';
 
 const profiteerIcons = {
   non_profit: non_profit_icon,
@@ -26,7 +26,7 @@ const renderStars = (rating) => {
   return [...Array(5)].map((_, index) => (
     <FaStar
       key={index}
-      className={index < rating ? "text-yellow-500" : "text-gray-300"}
+      className={index < rating ? 'text-yellow-500' : 'text-gray-300'}
     />
   ));
 };
@@ -57,9 +57,9 @@ const SingleDataModal = ({ dataset }) => {
       content={
         <div className=" p-6 rounded-xl  bg-[#FFFFFF] ">
           <div className="flex justify-between mb-2 ">
-          <p className="bg-[#EEFBF5] text-md font-bold text-[#188366] px-4 rounded ">
-            {is_premium ? `$${price}` : "Free"}
-          </p>
+            <p className="bg-[#EEFBF5] text-md font-bold text-[#188366] px-4 rounded ">
+              {is_premium ? `$${price}` : 'Free'}
+            </p>
           </div>
           {/* Title */}
           <div className="flex justify-between">
@@ -113,7 +113,7 @@ const SingleDataModal = ({ dataset }) => {
                     <FaTimes className="text-red-500" />
                   )}
                 </div>
-              )
+              ),
             )}
           </div>
           {/* ⭐ Star Rating Display */}
@@ -156,7 +156,7 @@ const SingleDataModal = ({ dataset }) => {
               <p className="pt-2 text-[#0F2542]">
                 {covered_regions
                   .map((regionObj) => regionObj.region)
-                  .join(", ")}
+                  .join(', ')}
               </p>
             </div>
             <div>
@@ -164,10 +164,10 @@ const SingleDataModal = ({ dataset }) => {
                 Keywords
               </h4>
               <p className="text-[#0F2542]">
-                {" "}
+                {' '}
                 {keywords
                   .map((keywordObj) => keywordObj.keyword)
-                  .join(", ")}{" "}
+                  .join(', ')}{' '}
               </p>
             </div>
           </div>
@@ -208,7 +208,7 @@ SingleDataModal.propTypes = {
       PropTypes.shape({
         first_name: PropTypes.string.isRequired,
         last_name: PropTypes.string.isRequired,
-      })
+      }),
     ).isRequired,
     description: PropTypes.string.isRequired,
     tags: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -217,10 +217,10 @@ SingleDataModal.propTypes = {
     size_bytes: PropTypes.string.isRequired,
     download_count: PropTypes.number.isRequired,
     covered_regions: PropTypes.arrayOf(
-      PropTypes.shape({ region: PropTypes.string.isRequired })
+      PropTypes.shape({ region: PropTypes.string.isRequired }),
     ).isRequired,
     keywords: PropTypes.arrayOf(
-      PropTypes.shape({ keyword: PropTypes.string.isRequired })
+      PropTypes.shape({ keyword: PropTypes.string.isRequired }),
     ).isRequired,
     data_files: PropTypes.array.isRequired,
     review_count: PropTypes.number.isRequired,

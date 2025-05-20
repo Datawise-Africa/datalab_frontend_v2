@@ -76,9 +76,8 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         return (
           <div className=" bg-white p-6 rounded-xl">
             <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-            
+
             <form className="space-y-5">
-              
               <p className="text-sm text-gray-600">
                 Provide essential information about your dataset.
               </p>
@@ -184,8 +183,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
           <div>
             <h2 className="text-xl font-semibold mb-4">Dataset Files</h2>
 
-            
-
             {/* Data Files Upload */}
             <div className="mb-6 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <div className="flex justify-center mb-2">
@@ -219,7 +216,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
                     >
                       {type}
                     </span>
-                  )
+                  ),
                 )}
               </div>
               <p className="text-xs text-gray-400 mt-2">
@@ -323,7 +320,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         return (
           <div>
             <div>
-             
               <h2 className="text-xl font-semibold mb-4">
                 Attribution & Citation
               </h2>
@@ -828,7 +824,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
             {/* Header */}
             <div className="flex justify-between items-center mb-6">
               <div>
-               
                 <h2 className="text-xl font-semibold text-gray-800">
                   Discovery Information
                 </h2>
@@ -1021,7 +1016,6 @@ const DataUploadModal = ({ isOpen, onClose }) => {
         return (
           <div className="p-6 max-w-3xl mx-auto">
             <div className="mb-6">
-              
               <h1 className="text-2xl font-bold text-gray-900">
                 Review & Finalize
               </h1>
@@ -1140,46 +1134,49 @@ const DataUploadModal = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(48,53,61,0.5)]">
-   <div className="relative  flex justify-center items-start w-[90%] md:w-[80%] lg:w-[700px] my-6 mx-auto h-auto mb-20">
-  {/* Step Indicator */}
-  <div className="absolute  top-10 pb-10 z-20">
-    <div className="flex space-x-10 -top-2 px-4 py-2 rounded-full bg-white">
-      {['Basic Info', 'Files', 'Attribution', 'Discovery', 'Terms'].map(
-        (label, idx) => (
-          <div
-            key={idx}
-            className={`flex flex-col items-center ${
-              step === idx + 1 ? 'text-[#188366]' : 'text-gray-400'
-            }`}
-          >
-            <div
-              className={`w-6 h-6 flex items-center justify-center rounded-full border text-sm font-medium ${
-                step === idx + 1
-                  ? 'bg-[#188366] text-white border-[#188366]'
-                  : 'bg-white border-gray-300'
-              }`}
-            >
-              {idx + 1}
-            </div>
-            <span className="text-xs mt-1 whitespace-nowrap">{label}</span>
+      <div className="relative  flex justify-center items-start w-[90%] md:w-[80%] lg:w-[700px] my-6 mx-auto h-auto mb-20">
+        {/* Step Indicator */}
+        <div className="absolute  top-10 pb-10 z-20">
+          <div className="flex space-x-10 -top-2 px-4 py-2 rounded-full bg-white">
+            {['Basic Info', 'Files', 'Attribution', 'Discovery', 'Terms'].map(
+              (label, idx) => (
+                <div
+                  key={idx}
+                  className={`flex flex-col items-center ${
+                    step === idx + 1 ? 'text-[#188366]' : 'text-gray-400'
+                  }`}
+                >
+                  <div
+                    className={`w-6 h-6 flex items-center justify-center rounded-full border text-sm font-medium ${
+                      step === idx + 1
+                        ? 'bg-[#188366] text-white border-[#188366]'
+                        : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    {idx + 1}
+                  </div>
+                  <span className="text-xs mt-1 whitespace-nowrap">
+                    {label}
+                  </span>
+                </div>
+              ),
+            )}
           </div>
-        )
-      )}
+        </div>
+
+        {/* Modal */}
+        <div className="relative bg-white p-6 mt-26 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto mt-10">
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl"
+          >
+            &times;
+          </button>
+
+          {renderStep()}
+        </div>
+      </div>
     </div>
-  </div>
-
-  {/* Modal */}
-  <div className="relative bg-white p-6 mt-26 rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto mt-10">
-    <button
-      onClick={handleClose}
-      className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-4xl"
-    >
-      &times;
-    </button>
-
-    {renderStep()}
-  </div>
-</div></div>
   );
 };
 

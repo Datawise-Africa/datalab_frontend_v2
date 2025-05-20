@@ -1,31 +1,31 @@
-import PropTypes from "prop-types";
-import FilterSection from "./FilterSection";
+import PropTypes from 'prop-types';
+import FilterSection from './FilterSection';
 
 const FilterPanel = ({ filters, setFilters }) => {
   // Mapping of original option values to user-friendly names
   const optionMappings = {
     accessLevel: {
-      public: "Public Access",
-      non_profit: "Non-Profit",
-      commercial: "Commercial",
-      students: "Student",
+      public: 'Public Access',
+      non_profit: 'Non-Profit',
+      commercial: 'Commercial',
+      students: 'Student',
     },
     dataType: {
-      education: "Education",
-      healthcare: "Healthcare",
-      agriculture: "Agricultural",
-      environmental: "Environmental",
+      education: 'Education',
+      healthcare: 'Healthcare',
+      agriculture: 'Agricultural',
+      environmental: 'Environmental',
     },
     region: {
-      "East Africa": "East African ",
-      "West Africa": "West African ",
-      "North Africa": "North African ",
-      "Southern Africa": "Southern African ",
+      'East Africa': 'East African ',
+      'West Africa': 'West African ',
+      'North Africa': 'North African ',
+      'Southern Africa': 'Southern African ',
     },
     timeframe: {
-      "Last Year": "Past Year",
-      "Last 5 Years": "Past 5 Years",
-      "5+ Years": "More than 5 Years",
+      'Last Year': 'Past Year',
+      'Last 5 Years': 'Past 5 Years',
+      '5+ Years': 'More than 5 Years',
     },
   };
 

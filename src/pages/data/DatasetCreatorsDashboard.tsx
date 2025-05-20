@@ -1,9 +1,9 @@
-import React , {useState} from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 
 import datasetIllustration from '/assets/datalab/datasetcreatorsimage.svg';
 import { useAuth } from '../../storage/AuthProvider';
-import DatasetUploadModal from "./DataUploadModal";
+import DatasetUploadModal from './DataUploadModal';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
@@ -26,9 +26,10 @@ const DatasetCreatorsDashboard = () => {
             <button className="px-4 py-2 border border-[#115443] text-[#115443] transition transform hover:translate-y-[3px]  rounded font-medium hover:bg-green-50 duration-300 transition">
               Explore Datasets
             </button>
-            <button className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium transition"
-              onClick={() => setModalOpen(true)} >
-              
+            <button
+              className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium transition"
+              onClick={() => setModalOpen(true)}
+            >
               + Add Dataset
             </button>
 

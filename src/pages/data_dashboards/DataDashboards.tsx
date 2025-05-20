@@ -1,16 +1,15 @@
-import { useState } from "react";
-import AfyakenDashboard from "../../components/Dashboards/AfyakenDashboard";
-import EdukenDashboard from "../../components/Dashboards/EdukenDashboard";
+import { useState } from 'react';
+import AfyakenDashboard from '../../components/Dashboards/AfyakenDashboard';
+import EdukenDashboard from '../../components/Dashboards/EdukenDashboard';
 
 const DataDashboards = () => {
   const [componentToRender, setComponentToRender] = useState(null);
 
-  const renderEdukenDashboard = () => setComponentToRender("EdukenDashboard");
-  const renderAfyakenDashboard = () => setComponentToRender("AfyakenDashboard");
+  const renderEdukenDashboard = () => setComponentToRender('EdukenDashboard');
+  const renderAfyakenDashboard = () => setComponentToRender('AfyakenDashboard');
 
   return (
     <div className="text-center mt-40">
-
       <div id="Buttons" className=" ">
         <button
           onClick={renderEdukenDashboard}
@@ -28,8 +27,8 @@ const DataDashboards = () => {
       </div>
 
       <div id="dashboards" className="child-container ">
-        {componentToRender === "EdukenDashboard" && <EdukenDashboard />}
-        {componentToRender === "AfyakenDashboard" && <AfyakenDashboard />}
+        {componentToRender === 'EdukenDashboard' && <EdukenDashboard />}
+        {componentToRender === 'AfyakenDashboard' && <AfyakenDashboard />}
       </div>
     </div>
   );

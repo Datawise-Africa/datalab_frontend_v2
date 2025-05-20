@@ -1,6 +1,6 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
-import SearchDatasets from "./SearchDatasets";
+import SearchDatasets from './SearchDatasets';
 // import { useAuth } from "../../storage/AuthProvider";
 // import datalab from "/assets/datalab-logo-dark.svg";
 // import user_icon from "/assets/user.svg";
@@ -32,8 +32,7 @@ const DatasetHeader = ({
         />
       </div>
 
-     
-        {/* {state.userId ? (
+      {/* {state.userId ? (
           <>
             <span className='mr-4'>Welcome, {state.firstName}</span>
             <button
@@ -52,9 +51,6 @@ const DatasetHeader = ({
             Login
           </button>
         )} */}
- 
-
-      
     </div>
   );
 };

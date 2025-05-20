@@ -1,6 +1,6 @@
-import PropTypes from "prop-types";
+import PropTypes from 'prop-types';
 
-const PlusSvg = ({ className = "" }) => {
+const PlusSvg = ({ className = '' }) => {
   return (
     <svg className={`${className} || ""`} width="11" height="11" fill="none">
       <path
@@ -13,6 +13,6 @@ const PlusSvg = ({ className = "" }) => {
 
 PlusSvg.propTypes = {
   className: PropTypes.string,
-}
+};
 
 export default PlusSvg;

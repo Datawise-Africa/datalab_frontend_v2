@@ -1,12 +1,12 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faLinkedin,
   faGithub,
   faXTwitter,
-} from "@fortawesome/free-brands-svg-icons";
-import { socials } from "../../constants";
-import { Link } from "react-router-dom";
-import datawise_logo from "/assets/Datawise.svg";
+} from '@fortawesome/free-brands-svg-icons';
+import { socials } from '../../constants';
+import { Link } from 'react-router-dom';
+import datawise_logo from '/assets/Datawise.svg';
 
 const socialIcons = {
   LinkedIn: faLinkedin,
@@ -91,7 +91,7 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div className="border-r border-[#DDDDDD] " >
+          <div className="border-r border-[#DDDDDD] ">
             <h4 className="lora-font font-bold text-[24px] leading-[167%] tracking-[-0.02em] mb-4">
               Company
             </h4>
@@ -120,23 +120,33 @@ const Footer = () => {
                 </Link>
               </div>
               <div className="flex flex-col space-y-2 ">
-                <Link to="/jobs" className="hover:hover:text-[#188366] transition-colors">
+                <Link
+                  to="/jobs"
+                  className="hover:hover:text-[#188366] transition-colors"
+                >
                   Jobs
                 </Link>
-                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
+                <Link
+                  to="#"
+                  className="hover:hover:text-[#188366] transition-colors"
+                >
                   Blogs
                 </Link>
-                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
+                <Link
+                  to="#"
+                  className="hover:hover:text-[#188366] transition-colors"
+                >
                   Contact Us
                 </Link>
-                <Link to="#" className="hover:hover:text-[#188366] transition-colors">
+                <Link
+                  to="#"
+                  className="hover:hover:text-[#188366] transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </div>
             </div>
           </div>
-
-
 
           <div>
             <h4 className="lora-font font-bold text-[24px] leading-[167%] tracking-[-0.02em] mb-4">

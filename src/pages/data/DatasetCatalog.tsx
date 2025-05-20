@@ -1,31 +1,31 @@
-import { useState, useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import DatasetHeader from "./DatasetHeader";
-import SortData from "./SortData";
-import DatasetGrid from "./DatasetGrid";
-import FilterPanel from "./FilterPanel";
+import { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
+import DatasetHeader from './DatasetHeader';
+import SortData from './SortData';
+import DatasetGrid from './DatasetGrid';
+import FilterPanel from './FilterPanel';
 
-import Loader from "./Loader";
-import apiService from "../../services/apiService";
-import AuthModal from "../../components/Modals/AuthModals/AuthModal";
-import SingleDataModal from "./SingleDataModal";
-import useDataModal from "../../hooks/useDataModal";
-import {useAuthModal} from "../../hooks/useAuthModal";
-import useDownloadDataModal from "../../hooks/useDownloadDataModal";
-import DownloadDataModal from "./DownloadDataModal";
-import { useAuth } from "../../storage/AuthProvider";
-import NoDataset from "../../components/Modals/DataModals/NoDataset";
-import Sidebar from "./Sidebar";
+import Loader from './Loader';
+import apiService from '../../services/apiService';
+import AuthModal from '../../components/Modals/AuthModals/AuthModal';
+import SingleDataModal from './SingleDataModal';
+import useDataModal from '../../hooks/useDataModal';
+import { useAuthModal } from '../../hooks/useAuthModal';
+import useDownloadDataModal from '../../hooks/useDownloadDataModal';
+import DownloadDataModal from './DownloadDataModal';
+import { useAuth } from '../../storage/AuthProvider';
+import NoDataset from '../../components/Modals/DataModals/NoDataset';
+import Sidebar from './Sidebar';
 
 const DataCatalog = () => {
   const [datasets, setDatasets] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [navUrl, setNavUrl] = useState("");
+  const [navUrl, setNavUrl] = useState('');
   const [sortIsOpen, setSortIsOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState(null);
   const [downloadDataset, setDownloadDataset] = useState(null);
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalMessage, setModalMessage] = useState('');
   const [searchedDatasets, setSearchedDatasets] = useState([]);
   const [, setHasSearched] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,9 +46,9 @@ const DataCatalog = () => {
           datasets;
 
     let sorted = [...dataToSort];
-    if (option === "Popular") {
+    if (option === 'Popular') {
       sorted.sort((a, b) => b.download_count - a.download_count);
-    } else if (option === "Most Recent") {
+    } else if (option === 'Most Recent') {
       sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
 
@@ -60,8 +60,8 @@ const DataCatalog = () => {
       searchedDatasets.length > 0
         ? searchedDatasets
         : filteredData.length > 0
-        ? filteredData
-        : datasets
+          ? filteredData
+          : datasets,
     );
   }, [searchedDatasets, filteredData, datasets]);
 
@@ -76,39 +76,39 @@ const DataCatalog = () => {
   const optionMappings = useMemo(
     () => ({
       accessLevel: {
-        public: "Public Access",
-        non_profit: "Non-Profit",
-        commercial: "Commercial",
-        students: "Student",
+        public: 'Public Access',
+        non_profit: 'Non-Profit',
+        commercial: 'Commercial',
+        students: 'Student',
       },
       dataType: {
-        education: "Education",
-        healthcare: "Healthcare",
-        agriculture: "Agricultural",
-        environmental: "Environmental",
+        education: 'Education',
+        healthcare: 'Healthcare',
+        agriculture: 'Agricultural',
+        environmental: 'Environmental',
       },
       region: {
-        "East Africa": "East African ",
-        "West Africa": "West African ",
-        "North Africa": "North African ",
-        "Southern Africa": "Southern African ",
+        'East Africa': 'East African ',
+        'West Africa': 'West African ',
+        'North Africa': 'North African ',
+        'Southern Africa': 'Southern African ',
       },
       timeframe: {
-        "Last Year": "Past Year",
-        "Last 5 Years": "Past 5 Years",
-        "5+ Years": "More than 5 Years",
+        'Last Year': 'Past Year',
+        'Last 5 Years': 'Past 5 Years',
+        '5+ Years': 'More than 5 Years',
       },
     }),
-    []
+    [],
   );
   // Fetch data based on filters
   useEffect(() => {
     const fetchDatasets = async () => {
       try {
-        const response = await apiService.get("/data/local/");
+        const response = await apiService.get('/data/local/');
         setDatasets(response);
       } catch (error) {
-        console.log("Failed to fetch datasets", error);
+        console.log('Failed to fetch datasets', error);
       } finally {
         setIsLoading(false);
       }
@@ -123,18 +123,18 @@ const DataCatalog = () => {
 
         // Correct API endpoints for each category
         const endpoints = {
-          accessLevel: "/data/filter/access-level/",
-          dataType: "/data/filter/datatype/",
-          region: "/data/filter/region/",
-          timeframe: "/data/filter/timeframe/",
+          accessLevel: '/data/filter/access-level/',
+          dataType: '/data/filter/datatype/',
+          region: '/data/filter/region/',
+          timeframe: '/data/filter/timeframe/',
         };
 
         // Correct query parameter mappings
         const queryKeys = {
-          accessLevel: "access_level",
-          dataType: "datatype",
-          region: "region",
-          timeframe: "timeframe",
+          accessLevel: 'access_level',
+          dataType: 'datatype',
+          region: 'region',
+          timeframe: 'timeframe',
         };
 
         for (const [category, values] of Object.entries(filters)) {
@@ -144,14 +144,14 @@ const DataCatalog = () => {
             // Reverse map user-friendly values back to original values
             const originalValues = values.map((userFriendlyValue) => {
               const mapping = Object.entries(
-                optionMappings[category] || {}
+                optionMappings[category] || {},
               ).find(([, value]) => value === userFriendlyValue);
               return mapping ? mapping[0] : userFriendlyValue;
             });
 
             const queryString = originalValues
               .map((value) => `${queryKey}=${encodeURIComponent(value)}`)
-              .join("&");
+              .join('&');
 
             const url = `${endpoints[category]}?${queryString}`;
 
@@ -163,7 +163,7 @@ const DataCatalog = () => {
                   // Condition to check if 'item' matches 'responseDataItem'
                   // Example: Assuming your items have an 'id' property
                   return item.id === responseDataItem.id; // Adjust as needed
-                })
+                }),
               );
             } else {
               const noDataMessage = `No data available under category ${values} yet`;
@@ -176,7 +176,7 @@ const DataCatalog = () => {
         setFilteredData(filteredData.length > 0 ? filteredData : datasets);
       } catch (error) {
         const noDataMessage = `No data available under this category yet`;
-        console.error("Error fetching filtered data:", error);
+        console.error('Error fetching filtered data:', error);
         showModal(noDataMessage);
       }
     };
@@ -187,10 +187,10 @@ const DataCatalog = () => {
   useEffect(() => {
     const fetchDatasets = async () => {
       try {
-        const response = await apiService.get("/data/local/");
+        const response = await apiService.get('/data/local/');
         setDatasets(response);
       } catch (error) {
-        console.log("Failed to fetch datasets", error);
+        console.log('Failed to fetch datasets', error);
       } finally {
         setIsLoading(false);
       }
@@ -207,7 +207,7 @@ const DataCatalog = () => {
     setSearchedDatasets(results);
     setHasSearched(true);
     if (results.length === 0) {
-      showModal("No datasets found for your search");
+      showModal('No datasets found for your search');
     }
   };
 
@@ -249,13 +249,10 @@ const DataCatalog = () => {
       <Sidebar handleAuthModalToggle={handleAuthModalToggle} />
 
       <main className="flex-1 overflow-y-auto px-6 py-6 ">
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mb-4 max-w-24xl ">
           <DatasetHeader
             onSearchResults={handleSearchResults}
             onSearchReset={handleSearchReset}
-            
-          
           />
 
           <div className="items-center justify-center hidden lg:flex w-24 mr-0">
@@ -283,10 +280,10 @@ const DataCatalog = () => {
               sortedData.length > 0
                 ? sortedData
                 : searchedDatasets.length > 0
-                ? searchedDatasets
-                : // : filteredData.length > 0
-                  // ? filteredData
-                  datasets
+                  ? searchedDatasets
+                  : // : filteredData.length > 0
+                    // ? filteredData
+                    datasets
             }
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}

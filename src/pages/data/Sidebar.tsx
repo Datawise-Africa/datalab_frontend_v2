@@ -11,7 +11,6 @@ import { useLocation } from 'react-router-dom';
 import DataCatalog from './DatasetCatalog.jsx';
 import datasetcreator_icon from '/assets/datasetcreator.png';
 
-
 export default function Sidebar({ handleAuthModalToggle }) {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -191,13 +190,17 @@ export default function Sidebar({ handleAuthModalToggle }) {
             label="Saved Items"
             collapsed={collapsed}
           />
-       <SidebarItem
-  label="Dataset Creator"
-  collapsed={collapsed}
-  icon={<img src={datasetcreator_icon} alt="User Icon" className="w-5 h-5 mt-1" />}
-/>
-
-
+          <SidebarItem
+            label="Dataset Creator"
+            collapsed={collapsed}
+            icon={
+              <img
+                src={datasetcreator_icon}
+                alt="User Icon"
+                className="w-5 h-5 mt-1"
+              />
+            }
+          />
         </nav>
         {/* <div className="mt-90" >
         <h4> Become a Dataset Creator </h4>
