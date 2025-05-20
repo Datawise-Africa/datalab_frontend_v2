@@ -1,4 +1,14 @@
-export const navigation = [
+export type NavigationItem = {
+  id: string;
+  title: string;
+  url: string;
+  isLoggedIn: boolean;
+  requiresAuth: boolean;
+  dropdownItems: NavigationItem[];
+  icon: string;
+};
+
+export const navigation: NavigationItem[] = [
   {
     id: '0',
     title: 'Datasets',
@@ -28,7 +38,13 @@ export const navigation = [
   },
 ];
 
-export const socials = [
+type SocialLink = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+export const socials: SocialLink[] = [
   {
     id: '0',
     name: 'LinkedIn',
