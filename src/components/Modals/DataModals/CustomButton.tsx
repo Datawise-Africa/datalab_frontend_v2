@@ -1,6 +1,15 @@
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-const CustomButton = ({ disabled, label, className, onClick }) => {
+type CustomButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  label: string;
+};
+
+const CustomButton = ({
+  disabled,
+  label,
+  className,
+  onClick,
+}: CustomButtonProps) => {
   return (
     <button
       onClick={onClick}
@@ -10,13 +19,6 @@ const CustomButton = ({ disabled, label, className, onClick }) => {
       {label}
     </button>
   );
-};
-
-CustomButton.propTypes = {
-  disabled: PropTypes.bool,
-  label: PropTypes.string.isRequired,
-  className: PropTypes.string,
-  onClick: PropTypes.func.isRequired,
 };
 
 export default CustomButton;

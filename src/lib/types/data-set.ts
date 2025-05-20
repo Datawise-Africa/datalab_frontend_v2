@@ -11,6 +11,7 @@ export interface IDatasetAuthor {
   first_name: string;
   last_name: string;
   email: string | null;
+  affiliation?: string | null;
 }
 
 export interface IDatasetProfiteers {
@@ -21,10 +22,10 @@ export interface IDatasetProfiteers {
   public: boolean;
 }
 
-export interface IDatasetTerm {
-  id: number;
-  term: string;
-}
+// export interface IDatasetTerm {
+//   id: number;
+//   term: string;
+// }
 
 export interface IDatasetRegion {
   id: number;
@@ -41,13 +42,27 @@ export interface IDatasetDataFile {
   file_url: string;
 }
 
+export interface IDatasetOriginRegion {
+  id: number;
+  code: string;
+  name: string;
+}
+
+export interface IDatasetTermsAndConditions {
+  id: number;
+  title: string;
+  description: string;
+}
 export interface IDataset {
   id: number;
   category: IDatasetCategory;
   title: string;
   description: string;
+  dataset_image?: string | null;
+  doi?: string | null;
+  status?: 'PB' | 'AR' | 'DF'; // 'PB' = Published, 'AR' = Archive, 'DF' = Draft
   dataset_region: string;
-  license: string;
+  license: string | null;
   metadata_file: string | null;
   datasheet_file: string | null;
   doi_citation: string | null;
@@ -56,10 +71,12 @@ export interface IDataset {
   is_private: boolean;
   data_file_types: string;
   price: number | null;
-  dataset_author: IDatasetAuthor[];
-  profiteers: IDatasetProfiteers;
-  accepted_term: IDatasetTerm;
-  restricted_term: IDatasetTerm;
+  origin_region?: IDatasetOriginRegion;
+  authors: IDatasetAuthor[];
+  intended_audience: IDatasetProfiteers;
+  // accepted_term: IDatasetTerm;
+  // restricted_term: IDatasetTerm;
+  terms_and_conditions?: IDatasetTermsAndConditions;
   created_at: string;
   updated_at: string;
   tags: string[];

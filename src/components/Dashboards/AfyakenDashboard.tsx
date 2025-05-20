@@ -1,4 +1,4 @@
-import Section from '../../components/HomePage/Section';
+import Section from '@/components/HomePage/Section';
 
 const AfyakenDashboard = () => {
   return (

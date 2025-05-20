@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Sidebar from './Sidebar';
 
-import datasetIllustration from '/assets/datalab/datasetcreatorsimage.svg';
-import { useAuth } from '../../storage/AuthProvider';
+import { useAuth } from '@/context/AuthProvider';
 import DatasetUploadModal from './DataUploadModal';
 
 const DatasetCreatorsDashboard = () => {
@@ -43,7 +42,7 @@ const DatasetCreatorsDashboard = () => {
         {/* Center Card */}
         <div className="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm   mt-20">
           <img
-            src={datasetIllustration}
+            src={'/assets/datalab/datasetcreatorsimage.svg'}
             alt="No datasets"
             className="mx-auto mb-6 max-h-48 object-contain"
           />

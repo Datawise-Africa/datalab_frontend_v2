@@ -1,9 +1,7 @@
-import PropTypes from 'prop-types';
-import { FaRegUser, FaCheck, FaTimes, FaStar, FaRegSave } from 'react-icons/fa';
-import { Menu } from '@headlessui/react';
+import { FaRegUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-
-// Importing icons
+import type { IDataset } from '@/lib/types/data-set';
 import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
 import company_icon from '/assets/datalab/company-icon.svg';
 import student_icon from '/assets/datalab/student-icon.svg';
@@ -14,21 +12,24 @@ import download_icon from '/assets/datalab/download-icon.svg';
 import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
 import view_icon from '/assets/datalab/view-icon.svg';
 
-import save_icon from '/assets/datalab/save_icon.svg';
-import copy_link_icon from '/assets/datalab/copy_link_icon.svg';
+type DatasetCardProps = {
+  dataset: IDataset;
+  handleSingleDataModal: (dataset: IDataset) => void;
+  handleDownloadDataClick: (dataset: IDataset) => void;
+};
 
 const DatasetCard = ({
   dataset,
   handleSingleDataModal,
   handleDownloadDataClick,
-}) => {
-  const profiteerIcons = {
+}: DatasetCardProps) => {
+  const intendedAudienceIcons = {
     non_profit: non_profit_icon,
     company: company_icon,
     students: student_icon,
     public: public_icon,
   };
-  const renderStars = (rating) => {
+  const renderStars = (rating: number | null) => {
     if (rating === null || rating === 0) {
       return <span className="text-gray-500">No ratings yet</span>;
     }
@@ -50,13 +51,13 @@ const DatasetCard = ({
 
         {/* Dropdown menu */}
         <Menu as="div" className="relative inline-block text-left">
-          <Menu.Button className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#188366]">
+          <MenuButton className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#188366]">
             <EllipsisVerticalIcon className="h-5 w-5 text-gray-600" />
-          </Menu.Button>
+          </MenuButton>
 
-          <Menu.Items className="absolute left-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg  focus:outline-none divide-y divide-gray-100 border border-gray-200">
+          <MenuItems className="absolute left-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg  focus:outline-none divide-y divide-gray-100 border border-gray-200">
             <div className="px-1 py-1">
-              <Menu.Item>
+              <MenuItem>
                 {({ active }) => (
                   <button
                     onClick={() => console.log('Save')}
@@ -65,16 +66,16 @@ const DatasetCard = ({
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
                   >
                     <img
-                      src={save_icon}
+                      src={'/assets/datalab/save_icon.svg'}
                       alt="Download"
                       className="w-3 h-3 mr-2 "
                     />
                     Save
                   </button>
                 )}
-              </Menu.Item>
+              </MenuItem>
 
-              <Menu.Item>
+              <MenuItem>
                 {({ active }) => (
                   <button
                     onClick={() =>
@@ -85,16 +86,16 @@ const DatasetCard = ({
                     } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
                   >
                     <img
-                      src={copy_link_icon}
+                      src={'/assets/datalab/copy_link_icon.svg'}
                       alt="Download"
                       className="w-4 h-4 mr-2 "
                     />
                     Copy Link
                   </button>
                 )}
-              </Menu.Item>
+              </MenuItem>
             </div>
-          </Menu.Items>
+          </MenuItems>
         </Menu>
       </div>
 
@@ -104,7 +105,7 @@ const DatasetCard = ({
 
       <div className="flex flex-wrap items-center space-x-2 mt-2">
         <FaRegUser className="text-[#757185] w-4 h-4 " />
-        {dataset.dataset_author.map((author, index) => (
+        {(dataset?.authors ?? []).map((author, index) => (
           <small key={index} className="text-[#4B5563] text-xs font-bold">
             {author?.first_name} {author?.last_name}
           </small>
@@ -134,14 +135,18 @@ const DatasetCard = ({
       </div>
 
       <div className="pt-2 flex flex-wrap gap-2">
-        {Object.entries(dataset?.profiteers || {}).map(
+        {Object.entries(dataset?.intended_audience || {}).map(
           ([profiteer, status], index) => (
             <div
               key={index}
               className="bg-[#EFFDF4] rounded px-2 py-1 text-xs font-bold text-[#101827] flex items-center gap-1"
             >
               <img
-                src={profiteerIcons[profiteer]}
+                src={
+                  intendedAudienceIcons[
+                    profiteer as keyof typeof intendedAudienceIcons
+                  ]
+                }
                 alt={`${profiteer} icon`}
                 className="w-1 h-1 "
               />
@@ -203,7 +208,7 @@ const DatasetCard = ({
       <div className="mt-4 flex justify-between">
         <button
           onClick={() => handleSingleDataModal(dataset)}
-          className=" py-2 px-3 h-10 rounded border border-[#D9D9D9] border-2 bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
+          className=" py-2 px-3 h-10 rounded  border-[#D9D9D9] border-2 bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
         >
           <img src={view_icon} alt="View" className="w-4 h-4" />
           <span className="font-bold">View Details</span>
@@ -223,32 +228,6 @@ const DatasetCard = ({
       </div>
     </div>
   );
-};
-
-// Adding PropTypes for validation
-DatasetCard.propTypes = {
-  dataset: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    is_premium: PropTypes.bool.isRequired,
-    price: PropTypes.number,
-    dataset_author: PropTypes.arrayOf(
-      PropTypes.shape({
-        first_name: PropTypes.string,
-        last_name: PropTypes.string,
-      }),
-    ).isRequired,
-    description: PropTypes.string.isRequired,
-    tags: PropTypes.arrayOf(PropTypes.string).isRequired,
-    profiteers: PropTypes.object.isRequired,
-    created_at: PropTypes.string.isRequired,
-    updated_at: PropTypes.string.isRequired,
-    size_bytes: PropTypes.string.isRequired,
-    download_count: PropTypes.number.isRequired,
-    review_count: PropTypes.number,
-    average_review: PropTypes.number,
-  }).isRequired,
-  handleSingleDataModal: PropTypes.func.isRequired,
-  handleDownloadDataClick: PropTypes.func.isRequired,
 };
 
 export default DatasetCard;

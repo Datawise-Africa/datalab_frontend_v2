@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import Papa from 'papaparse';
 
 import apiService from '../../services/apiService';
+import type { IDatasetDataFile } from '@/lib/types/data-set';
 
-const DatasetPreview = ({ dataFiles }) => {
-  const [csvData, setCsvData] = useState([]);
+type DatasetPreviewProps = {
+  dataFiles: IDatasetDataFile[];
+};
+
+const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
+  const [csvData, setCsvData] = useState<any[]>([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -16,7 +21,7 @@ const DatasetPreview = ({ dataFiles }) => {
         const getDataFile = async () => {
           try {
             const response = await apiService.getDataFile(csvFileUrl);
-            const csvText = await response.text();
+            const csvText = await (response as any).text();
             const parsed = Papa.parse(csvText, {
               header: true,
               skipEmptyLines: true,
@@ -31,7 +36,7 @@ const DatasetPreview = ({ dataFiles }) => {
               // );
             }
             setCsvData(parsed.data);
-          } catch (error) {
+          } catch (error: any) {
             setError(error.message);
             console.error('Error fetching the data file:', error);
           }
@@ -67,7 +72,7 @@ const DatasetPreview = ({ dataFiles }) => {
                       key={cellIndex}
                       className="border border-[#CAC6DD] text-black border-r border-l px-4 py-2 last:border-r-0"
                     >
-                      {value}
+                      {value as any}
                     </td>
                   ))}
                 </tr>
@@ -82,14 +87,6 @@ const DatasetPreview = ({ dataFiles }) => {
       )}
     </div>
   );
-};
-
-DatasetPreview.propTypes = {
-  dataFiles: PropTypes.arrayOf(
-    PropTypes.shape({
-      file_url: PropTypes.string.isRequired,
-    }),
-  ).isRequired,
 };
 
 export default DatasetPreview;

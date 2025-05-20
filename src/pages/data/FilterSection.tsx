@@ -1,10 +1,25 @@
+import type { DatasetFilterOptions } from '@/lib/types/data-set';
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-const FilterSection = ({ title, options, category, filters, setFilters }) => {
+type FilterSectionProps = {
+  title: string;
+  options: string[];
+  category: string;
+  filters: DatasetFilterOptions;
+  setFilters: React.Dispatch<React.SetStateAction<DatasetFilterOptions>>;
+};
+
+const FilterSection = ({
+  title,
+  options,
+  category,
+  filters,
+  setFilters,
+}: FilterSectionProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleFilterChange = (value) => {
+  const handleFilterChange = (value: string) => {
     setFilters((prevFilters) => ({
       ...prevFilters,
       [category]: prevFilters[category].includes(value)
@@ -44,14 +59,6 @@ const FilterSection = ({ title, options, category, filters, setFilters }) => {
       )}
     </div>
   );
-};
-
-FilterSection.propTypes = {
-  title: PropTypes.string.isRequired,
-  options: PropTypes.arrayOf(PropTypes.string).isRequired,
-  category: PropTypes.string.isRequired,
-  filters: PropTypes.object.isRequired,
-  setFilters: PropTypes.func.isRequired,
 };
 
 export default FilterSection;

@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-const Modal = ({ content, isOpen, close }) => {
+type ModalProps = {
+  content: React.ReactNode;
+  isOpen: boolean;
+  close: () => void;
+};
+
+const Modal = ({ content, isOpen, close }: ModalProps) => {
   const [showModal, setShowModal] = useState(isOpen);
 
   useEffect(() => {
@@ -56,12 +62,6 @@ const Modal = ({ content, isOpen, close }) => {
       </div>
     </div>
   );
-};
-
-Modal.propTypes = {
-  content: PropTypes.node.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  close: PropTypes.func.isRequired,
 };
 
 export default Modal;

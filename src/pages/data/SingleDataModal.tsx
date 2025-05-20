@@ -1,24 +1,17 @@
-import PropTypes from 'prop-types';
 import { FaUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
-import Modal from '../../components/Modals/DataModals/Modal';
-import useDataModal from '../../hooks/useDataModal';
-import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
-import company_icon from '/assets/datalab/company-icon.svg';
-import student_icon from '/assets/datalab/student-icon.svg';
-import public_icon from '/assets/datalab/public2-icon.svg';
-import spinning_timer_icon from '/assets/datalab/spinning-timer.svg';
-import database_icon from '/assets/datalab/db-icon.svg';
-import download_icon from '/assets/datalab/download-icon.svg';
+import Modal from '@/components/Modals/DataModals/Modal';
+import useDataModal from '@/store/useDataModal';
 import DatasetPreview from './DatasetPreview';
+import type { IDataset } from '@/lib/types/data-set';
 
-const profiteerIcons = {
-  non_profit: non_profit_icon,
-  company: company_icon,
-  students: student_icon,
-  public: public_icon,
+const profiteerIcons: Record<string, any> = {
+  non_profit: '/assets/datalab/non-profit-icon.svg',
+  company: '/assets/datalab/company-icon.svg',
+  students: '/assets/datalab/student-icon.svg',
+  public: '/assets/datalab/public2-icon.svg',
 };
 
-const renderStars = (rating) => {
+const renderStars = (rating: number | null) => {
   if (rating === null || rating === 0) {
     return <span className="text-gray-500">No ratings yet</span>; // Show a message instead of stars
   }
@@ -31,16 +24,19 @@ const renderStars = (rating) => {
   ));
 };
 
-const SingleDataModal = ({ dataset }) => {
+type SingleDataModalProps = {
+  dataset: IDataset;
+};
+const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
   const dataModal = useDataModal();
   const {
     title,
     is_premium,
     price,
-    dataset_author,
+    authors: dataset_author,
     description,
     tags,
-    profiteers,
+    intended_audience: profiteers,
     updated_at,
     size_bytes,
     download_count,
@@ -69,7 +65,7 @@ const SingleDataModal = ({ dataset }) => {
           {/* Author Details */}
           <div className="flex flex-wrap items-center space-x-2">
             <FaUser className="text-[#757185] w-2 h-4" />
-            {dataset_author.map(({ first_name, last_name }, index) => (
+            {dataset_author?.map(({ first_name, last_name }, index) => (
               <small key={index} className="text-[#757185] text-xs">
                 {first_name} {last_name}
               </small>
@@ -138,12 +134,15 @@ const SingleDataModal = ({ dataset }) => {
           {/* Dataset Metadata */}
           <div className="pt-5 flex flex-wrap space-x-3">
             <MetadataItem
-              icon={spinning_timer_icon}
+              icon={'/assets/datalab/spinning-timer.svg'}
               label={`Updated: ${updated_at}`}
             />
-            <MetadataItem icon={database_icon} label={`CSV (${size_bytes})`} />
             <MetadataItem
-              icon={download_icon}
+              icon={'/assets/datalab/db-icon.svg'}
+              label={`CSV (${size_bytes})`}
+            />
+            <MetadataItem
+              icon={'/assets/datalab/download-icon.svg'}
               label={`${download_count} downloads`}
             />
           </div>
@@ -154,7 +153,7 @@ const SingleDataModal = ({ dataset }) => {
                 Covered Regions
               </h4>
               <p className="pt-2 text-[#0F2542]">
-                {covered_regions
+                {(Array.isArray(covered_regions) ? covered_regions : [])
                   .map((regionObj) => regionObj.region)
                   .join(', ')}
               </p>
@@ -165,7 +164,7 @@ const SingleDataModal = ({ dataset }) => {
               </h4>
               <p className="text-[#0F2542]">
                 {' '}
-                {keywords
+                {(Array.isArray(keywords) ? keywords : [])
                   .map((keywordObj) => keywordObj.keyword)
                   .join(', ')}{' '}
               </p>
@@ -185,54 +184,25 @@ const SingleDataModal = ({ dataset }) => {
   );
 };
 
-const MetadataItem = ({ icon, label }) => (
+type MetadataItemProps = {
+  icon: string;
+  label: string;
+};
+const MetadataItem = ({ icon, label }: MetadataItemProps) => (
   <div className="flex text-[#0F2542]">
     <img src={icon} alt={label} className="w-4 h-4" />
     <span className="ml-1  text-xs">{label}</span>
   </div>
 );
-
-const Section = ({ title, children }) => (
+type SectionProps = {
+  title?: string;
+  children: React.ReactNode;
+};
+const Section = ({ title, children }: SectionProps) => (
   <div className="pt-4">
     <h4 className="font-semibold text-xl text-[#ddeeff]">{title}</h4>
     <div className="pt-2">{children}</div>
   </div>
 );
 
-SingleDataModal.propTypes = {
-  dataset: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    is_premium: PropTypes.bool.isRequired,
-    price: PropTypes.number,
-    dataset_author: PropTypes.arrayOf(
-      PropTypes.shape({
-        first_name: PropTypes.string.isRequired,
-        last_name: PropTypes.string.isRequired,
-      }),
-    ).isRequired,
-    description: PropTypes.string.isRequired,
-    tags: PropTypes.arrayOf(PropTypes.string).isRequired,
-    profiteers: PropTypes.object,
-    updated_at: PropTypes.string.isRequired,
-    size_bytes: PropTypes.string.isRequired,
-    download_count: PropTypes.number.isRequired,
-    covered_regions: PropTypes.arrayOf(
-      PropTypes.shape({ region: PropTypes.string.isRequired }),
-    ).isRequired,
-    keywords: PropTypes.arrayOf(
-      PropTypes.shape({ keyword: PropTypes.string.isRequired }),
-    ).isRequired,
-    data_files: PropTypes.array.isRequired,
-    review_count: PropTypes.number.isRequired,
-    average_review: PropTypes.number.isRequired,
-  }).isRequired,
-};
-MetadataItem.propTypes = {
-  icon: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
-};
-Section.propTypes = {
-  title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired,
-};
 export default SingleDataModal;

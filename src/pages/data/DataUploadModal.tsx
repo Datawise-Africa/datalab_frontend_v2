@@ -1,9 +1,14 @@
 // src/components/DataUploadModal.jsx
-import React, { useState } from 'react';
-import confetti from 'canvas-confetti';
+import { useState } from 'react';
+import * as confetti from 'canvas-confetti';
 //import { Save, Upload } from 'lucide-react';
 
-const DataUploadModal = ({ isOpen, onClose }) => {
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+};
+
+const DataUploadModal = ({ isOpen, onClose }: Props) => {
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState('');
   const [isPremium, setIsPremium] = useState(false);
@@ -25,18 +30,18 @@ const DataUploadModal = ({ isOpen, onClose }) => {
     });
   };
 
-  const removeAuthor = (id) => {
+  const removeAuthor = (id: number) => {
     setAuthors(authors.filter((author) => author.id !== id));
   };
 
-  const [checkedItems, setCheckedItems] = useState({
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({
     dataAccuracy: false,
     responsibleUse: false,
     privacyCompliance: false,
     rightsOwnership: false,
   });
 
-  const handleCheck = (key) => {
+  const handleCheck = (key: string) => {
     setCheckedItems((prev) => ({
       ...prev,
       [key]: !prev[key],
@@ -120,7 +125,7 @@ const DataUploadModal = ({ isOpen, onClose }) => {
               <div>
                 <textarea
                   placeholder="Provide a brief overview of your dataset, its contents, and potential use cases"
-                  rows="4"
+                  rows={4}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   maxLength={500}
                 />

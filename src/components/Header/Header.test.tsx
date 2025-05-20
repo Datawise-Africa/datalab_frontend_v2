@@ -45,6 +45,6 @@ describe('Header Component', () => {
     // Check if the navigation menu is visible
     const navMenu =
       screen.getByRole('navigation') || screen.getByTestId('navigation-menu');
-    expect(navMenu).toHaveClass('open'); // Adjust class name based on your implementation
+    expect(navMenu).toHaveClass('open');
   });
 });

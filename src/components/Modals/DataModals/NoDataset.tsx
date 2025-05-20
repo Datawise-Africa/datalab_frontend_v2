@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 
-const NoDataset = ({ isOpen, onClose, message }) => {
+type NoDatasetProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  message?: string;
+};
+
+const NoDataset = ({ isOpen, onClose, message }: NoDatasetProps) => {
   const [showModal, setShowModal] = useState(isOpen);
 
   useEffect(() => {
@@ -68,12 +74,6 @@ const NoDataset = ({ isOpen, onClose, message }) => {
       </div>
     </div>
   );
-};
-
-NoDataset.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  message: PropTypes.string,
 };
 
 export default NoDataset;

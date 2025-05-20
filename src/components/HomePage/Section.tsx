@@ -1,4 +1,11 @@
-import PropTypes from 'prop-types';
+type Props = {
+  className?: string;
+  id?: string;
+  crosses?: boolean;
+  crossesOffset?: string;
+  customPaddings?: string;
+  children: React.ReactNode;
+};
 
 const Section = ({
   className,
@@ -7,7 +14,7 @@ const Section = ({
   crossesOffset,
   customPaddings,
   children,
-}) => {
+}: Props) => {
   return (
     <div
       id={id}
@@ -28,15 +35,6 @@ const Section = ({
       )}
     </div>
   );
-};
-
-Section.propTypes = {
-  className: PropTypes.string,
-  id: PropTypes.string,
-  crosses: PropTypes.bool,
-  crossesOffset: PropTypes.string,
-  customPaddings: PropTypes.string,
-  children: PropTypes.node.isRequired,
 };
 
 export default Section;

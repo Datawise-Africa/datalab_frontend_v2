@@ -1,8 +1,8 @@
+import { getAccessToken } from '@/lib/auth/cookie-actions';
 import { REACT_PUBLIC_API_HOST } from '../constants';
-import { getAccessToken } from '../lib/auth/actions';
 
 const apiService = {
-  post: async function (url, data) {
+  post: async function <T = unknown>(url: string, data: T) {
     // console.log('post', url, data);
 
     return new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ const apiService = {
     });
   },
 
-  get: async function (url) {
+  get: async function (url: string) {
     // console.log('get', url);
 
     return new Promise((resolve, reject) => {
@@ -47,7 +47,7 @@ const apiService = {
     });
   },
 
-  getDataFile: async function (url) {
+  getDataFile: async function (url: string) {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'GET',
@@ -66,7 +66,7 @@ const apiService = {
     });
   },
 
-  getProtected: async function (url) {
+  getProtected: async function (url: string) {
     // console.log('get', url);
     const accessToken = getAccessToken();
     // console.log('get', accessToken);

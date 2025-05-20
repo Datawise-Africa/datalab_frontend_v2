@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import AfyakenDashboard from '../../components/Dashboards/AfyakenDashboard';
-import EdukenDashboard from '../../components/Dashboards/EdukenDashboard';
-
+import AfyakenDashboard from '@/components/Dashboards/AfyakenDashboard';
+import EdukenDashboard from '@/components/Dashboards/EdukenDashboard';
+type DashboardType = 'EdukenDashboard' | 'AfyakenDashboard';
 const DataDashboards = () => {
-  const [componentToRender, setComponentToRender] = useState(null);
+  const [componentToRender, setComponentToRender] =
+    useState<DashboardType | null>(null);
 
   const renderEdukenDashboard = () => setComponentToRender('EdukenDashboard');
   const renderAfyakenDashboard = () => setComponentToRender('AfyakenDashboard');

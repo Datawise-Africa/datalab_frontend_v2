@@ -1,16 +1,15 @@
-import PropTypes from 'prop-types';
-
 import SearchDatasets from './SearchDatasets';
-// import { useAuth } from "../../storage/AuthProvider";
-// import datalab from "/assets/datalab-logo-dark.svg";
-// import user_icon from "/assets/user.svg";
+import type { IDataset } from '@/lib/types/data-set';
+
+type DatasetHeaderProps = {
+  onSearchResults: (results: IDataset[]) => void;
+  onSearchReset: () => void;
+};
 
 const DatasetHeader = ({
-  // handleAuthModalToggle,
-
   onSearchResults,
   onSearchReset,
-}) => {
+}: DatasetHeaderProps) => {
   // const {
   //   // state,
   //   //  dispatch,
@@ -53,12 +52,6 @@ const DatasetHeader = ({
         )} */}
     </div>
   );
-};
-
-DatasetHeader.propTypes = {
-  handleAuthModalToggle: PropTypes.func.isRequired,
-  onSearchResults: PropTypes.func.isRequired,
-  onSearchReset: PropTypes.func.isRequired,
 };
 
 export default DatasetHeader;

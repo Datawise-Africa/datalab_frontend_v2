@@ -15,61 +15,25 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
-import { REACT_PUBLIC_API_HOST } from '../../constants';
 import { Search } from 'lucide-react';
+import { useEduData } from '@/hooks/use-edudata';
 
 const EdukenDashboard = memo(() => {
-  const [selectedCounty, setSelectedCounty] = useState(null);
+  const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
   // eslint-disable-next-line no-unused-vars
-  const [map, setMap] = useState(null);
-  const [geojsonLayer, setGeojsonLayer] = useState(null);
-  const [countyData, setCountyData] = useState(null);
+  const [, setMap] = useState(null);
+  const [geojsonLayer, setGeojsonLayer] = useState<L.GeoJSON<any, any> | null>(
+    null,
+  );
+  const { countyData } = useEduData();
   const [searchTerm, setSearchTerm] = useState('');
-  const [counties, setCounties] = useState([]);
+  const [counties, setCounties] = useState<string[]>([]);
   const mapContainer = useRef(null);
-  const mapRef = useRef(null);
+  const mapRef = useRef<any>(null);
 
   // Colors for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
   const INSTITUTION_COLORS = ['#8884d8', '#82ca9d'];
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `${REACT_PUBLIC_API_HOST}/data/edu_dashboard_data/`,
-        );
-        const data = await response.json();
-
-        const uppercasedData = {
-          ...data,
-          qualifications_per_county: Object.fromEntries(
-            Object.entries(data.qualifications_per_county).map(
-              ([county, qualifications]) => [
-                county.toUpperCase(),
-                qualifications,
-              ],
-            ),
-          ),
-          institutions_per_county: Object.fromEntries(
-            Object.entries(data.institutions_per_county).map(
-              ([county, institutions]) => [county.toUpperCase(), institutions],
-            ),
-          ),
-          categories_per_county: Object.fromEntries(
-            Object.entries(data.categories_per_county).map(
-              ([county, categories]) => [county.toUpperCase(), categories],
-            ),
-          ),
-        };
-        setCountyData(uppercasedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // Get list of counties for search
   useEffect(() => {
@@ -78,14 +42,14 @@ const EdukenDashboard = memo(() => {
         .then((res) => res.json())
         .then((geojson) => {
           const countyList = geojson.features.map(
-            (feature) => feature.properties.COUNTY_NAM,
+            (feature: any) => feature.properties.COUNTY_NAM,
           );
           setCounties(countyList);
         });
     }
   }, []);
 
-  const handleSearch = (searchValue) => {
+  const handleSearch = (searchValue: string) => {
     setSearchTerm(searchValue);
     const searchedCounty = counties.find((county) =>
       county.toLowerCase().includes(searchValue.toLowerCase()),
@@ -96,9 +60,9 @@ const EdukenDashboard = memo(() => {
 
       // Find and zoom to the county on the map
       if (geojsonLayer) {
-        geojsonLayer.eachLayer((layer) => {
-          if (layer.feature.properties.COUNTY_NAM === searchedCounty) {
-            mapRef.current.fitBounds(layer.getBounds());
+        geojsonLayer.eachLayer((layer: any) => {
+          if (layer.feature!.properties.COUNTY_NAM === searchedCounty) {
+            mapRef.current.fitBounds((layer as any).getBounds());
             layer.setStyle({
               fillColor: 'green',
               fillOpacity: 0.7,
@@ -114,7 +78,7 @@ const EdukenDashboard = memo(() => {
     }
   };
 
-  const getQualificationsChartData = (countyName) => {
+  const getQualificationsChartData = (countyName: string) => {
     if (
       !countyData ||
       !countyData.qualifications_per_county ||
@@ -131,7 +95,7 @@ const EdukenDashboard = memo(() => {
     ];
   };
 
-  const getInstitutionsChartData = (countyName) => {
+  const getInstitutionsChartData = (countyName: string) => {
     if (
       !countyData ||
       !countyData.institutions_per_county ||
@@ -147,7 +111,7 @@ const EdukenDashboard = memo(() => {
     ];
   };
 
-  const getCategoriesChartData = (countyName) => {
+  const getCategoriesChartData = (countyName: string) => {
     if (
       !countyData ||
       !countyData.categories_per_county ||
@@ -197,11 +161,11 @@ const EdukenDashboard = memo(() => {
           const newGeojsonLayer = L.geoJSON(geojson, {
             style: (feature) => ({
               fillColor:
-                selectedCounty === feature.properties.COUNTY_NAM
+                selectedCounty === feature!.properties.COUNTY_NAM
                   ? 'green'
                   : 'lightgray',
               fillOpacity:
-                selectedCounty === feature.properties.COUNTY_NAM ? 0.7 : 0.3,
+                selectedCounty === feature!.properties.COUNTY_NAM ? 0.7 : 0.3,
               weight: 2,
               color: '#333',
             }),
@@ -213,7 +177,7 @@ const EdukenDashboard = memo(() => {
                   countyName === selectedCounty ? null : countyName,
                 );
                 if (countyName !== selectedCounty) {
-                  mapRef.current.fitBounds(layer.getBounds());
+                  mapRef.current.fitBounds((layer as any).getBounds());
                 }
               });
             },
@@ -247,7 +211,7 @@ const EdukenDashboard = memo(() => {
                     label
                   >
                     {getInstitutionsChartData(selectedCounty).map(
-                      (entry, index) => (
+                      (_, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={
@@ -334,7 +298,7 @@ const EdukenDashboard = memo(() => {
                   label
                 >
                   {getQualificationsChartData(selectedCounty).map(
-                    (entry, index) => (
+                    (_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}

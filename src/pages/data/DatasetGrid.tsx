@@ -1,12 +1,18 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 import DatasetCard from './DatasetCard';
+import type { IDataset } from '@/lib/types/data-set';
+
+type DatasetGridProps = {
+  datasets: IDataset[];
+  handleSingleDataModal: (dataset: IDataset) => void;
+  handleDownloadDataClick: (dataset: IDataset) => void;
+};
 
 const DatasetGrid = ({
   datasets,
   handleSingleDataModal,
   handleDownloadDataClick,
-}) => {
+}: DatasetGridProps) => {
   const datasetsPerPage = 8; // Set the number of items per page
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -61,12 +67,6 @@ const DatasetGrid = ({
       </div>
     </div>
   );
-};
-
-DatasetGrid.propTypes = {
-  datasets: PropTypes.arrayOf(PropTypes.object).isRequired,
-  handleSingleDataModal: PropTypes.func.isRequired,
-  handleDownloadDataClick: PropTypes.func.isRequired,
 };
 
 export default DatasetGrid;

@@ -1,12 +1,14 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
-import Modal from '../../components/Modals/DataModals/Modal';
-import useDownloadDataModal from '../../hooks/useDownloadDataModal';
-import CustomButton from '../../components/Modals/DataModals/CustomButton';
-import { getAccessToken } from '../../lib/auth/actions';
-import { REACT_PUBLIC_API_HOST } from '../../constants';
+import React, { useState } from 'react';
+import Modal from '@/components/Modals/DataModals/Modal';
+import useDownloadDataModal from '@/store/useDownloadDataModal';
+import CustomButton from '@/components/Modals/DataModals/CustomButton';
+// import { getAccessToken } from '@/lib/auth/actions';
+import { REACT_PUBLIC_API_HOST } from '@/constants';
 import { Toaster, toast } from 'react-hot-toast';
-
+import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
+import company_icon from '/assets/datalab/company-icon-dark.svg';
+import student_icon from '/assets/datalab/student-icon-dark.svg';
+import public_icon from '/assets/datalab/public2-icon-dark.svg';
 import {
   FaUserGraduate,
   FaUsers,
@@ -17,17 +19,20 @@ import {
 } from 'react-icons/fa';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
-import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
-import company_icon from '/assets/datalab/company-icon-dark.svg';
-import student_icon from '/assets/datalab/student-icon-dark.svg';
-import public_icon from '/assets/datalab/public2-icon-dark.svg';
+import type { IDataset } from '@/lib/types/data-set';
+import { useAuth } from '@/context/AuthProvider';
 
-const DownloadDataModal = ({ dataset }) => {
+type DownloadDataModalProps = {
+  dataset: IDataset;
+};
+
+const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const downloadDataModal = useDownloadDataModal();
   const [agreed, setAgreed] = useState(true);
   const [selectedFormat, setSelectedFormat] = useState('csv');
   const [downloading] = useState(false);
+  const auth = useAuth();
 
   const [selectedCard, setSelectedCard] = useState('');
   const [email, setEmail] = useState('');
@@ -52,7 +57,11 @@ const DownloadDataModal = ({ dataset }) => {
     email_address: '', // For the email input
   });
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (
+    event: React.ChangeEvent<
+      HTMLSelectElement | HTMLTextAreaElement | HTMLInputElement
+    >,
+  ) => {
     const { name, value } = event.target; // Destructure name and value
 
     if (name === 'email_address') {
@@ -71,7 +80,7 @@ const DownloadDataModal = ({ dataset }) => {
     }));
   };
 
-  const handleCardClick = (profiteer) => {
+  const handleCardClick = (profiteer: string) => {
     setSelectedCard(profiteer);
 
     setFormData({ ...formData, profiteer: profiteer });
@@ -92,7 +101,7 @@ const DownloadDataModal = ({ dataset }) => {
     ? downloadStep
     : downloadStep.filter((step) => step !== 'Payment');
 
-  const profiteerIcons = {
+  const profiteerIcons: Record<string, string> = {
     non_profit: non_profit_icon,
     company: company_icon,
     students: student_icon,
@@ -117,11 +126,11 @@ const DownloadDataModal = ({ dataset }) => {
     //  { name: "PDF", size: "...", value: "pdf" },
   ]);
 
-  const handleFormatChange = (format) => {
+  const handleFormatChange = (format: string) => {
     setSelectedFormat(format);
   };
 
-  const handleDownload = async (dataset) => {
+  const handleDownload = async (dataset: IDataset) => {
     if (
       !dataset ||
       !dataset.data_files ||
@@ -133,8 +142,8 @@ const DownloadDataModal = ({ dataset }) => {
       return;
     }
     console.log(formData);
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
+    // const accessToken = await getAccessToken();
+    if (!auth.state.accessToken) {
       setErrorMessage('Failed to retrieve access token.');
       return;
     }
@@ -147,7 +156,7 @@ const DownloadDataModal = ({ dataset }) => {
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
-            Authorization: `JWT ${accessToken}`,
+            Authorization: `JWT ${auth.state.accessToken}`,
           },
           body: JSON.stringify(formData),
         },
@@ -174,7 +183,7 @@ const DownloadDataModal = ({ dataset }) => {
       document.body.removeChild(link);
     } catch (error) {
       console.log(formData);
-      console.log('Access Token:', accessToken);
+      console.log('Access Token:', auth.state.accessToken);
 
       console.error('Error downloading data:', error);
       alert('Failed to download data. Please try again.');
@@ -183,7 +192,7 @@ const DownloadDataModal = ({ dataset }) => {
   };
 
   const validateEmail = () => {
-    const emailTypeValidation = {
+    const emailTypeValidation: Record<string, boolean> = {
       Company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
       'Non-Profit': email.endsWith('.org'),
       Student: email.endsWith('.edu'),
@@ -207,10 +216,10 @@ const DownloadDataModal = ({ dataset }) => {
     setErrorMessage('');
 
     try {
-      const accessToken = await getAccessToken();
-      console.log({ accessToken });
+      // const accessToken = await getAccessToken();
+      // console.log({ accessToken });
 
-      if (!accessToken) {
+      if (!auth.state.accessToken) {
         setErrorMessage('Failed to retrieve access token.');
         console.log(' Error: Access token not available');
         return;
@@ -227,7 +236,7 @@ const DownloadDataModal = ({ dataset }) => {
               headers: {
                 Accept: 'application/json',
                 'Content-Type': 'application/json',
-                Authorization: `JWT ${accessToken}`,
+                Authorization: `JWT ${auth.state.accessToken}`,
               },
               body: JSON.stringify({ email }),
             },
@@ -244,7 +253,7 @@ const DownloadDataModal = ({ dataset }) => {
           toast.success(`Verification code sent to ${email}`);
           setIsResendEnabled(false);
           setTimeout(() => setIsResendEnabled(true), 60000);
-        } catch (error) {
+        } catch (error: any) {
           setErrorMessage(error.message);
           toast.error('Failed to send OTP. Try again.');
           console.error(' Error Sending OTP:', error);
@@ -286,7 +295,7 @@ const DownloadDataModal = ({ dataset }) => {
           console.error(' Error Verifying OTP:', error);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ General Error:', error);
       setErrorMessage(error.message || 'An unexpected error occurred.');
       toast.error('An unexpected error occurred.');
@@ -299,7 +308,7 @@ const DownloadDataModal = ({ dataset }) => {
   const [rating, setRating] = useState(0);
   const [message, setMessage] = useState(''); // For success/error messages
 
-  const handleStarClick = async (value) => {
+  const handleStarClick = async (value: number) => {
     if (!dataset?.id) {
       setMessage('Error: Dataset ID is missing.');
       return;
@@ -309,8 +318,7 @@ const DownloadDataModal = ({ dataset }) => {
     setMessage('Submitting...'); // Show loading state
 
     try {
-      const accessToken = await getAccessToken();
-      if (!accessToken) {
+      if (!auth.state.accessToken) {
         setMessage('Error: Authentication required.');
         return;
       }
@@ -319,7 +327,7 @@ const DownloadDataModal = ({ dataset }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `JWT ${accessToken}`,
+          Authorization: `JWT ${auth.state.accessToken}`,
         },
         body: JSON.stringify({
           dataset: dataset.id, // Ensure it's a valid integer
@@ -345,7 +353,10 @@ const DownloadDataModal = ({ dataset }) => {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const contentMap = {
+  const contentMap: Record<
+    string,
+    { title: string; details: React.JSX.Element }
+  > = {
     Overview: {
       title: 'Overview',
       details: (
@@ -364,7 +375,7 @@ const DownloadDataModal = ({ dataset }) => {
 
             {/* Profiteers Section */}
             <div className="pt-2 flex flex-wrap gap-2">
-              {Object.entries(dataset?.profiteers || {}).map(
+              {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
@@ -502,7 +513,7 @@ const DownloadDataModal = ({ dataset }) => {
 
             {/* Profiteers Section */}
             <div className="pt-2 flex flex-wrap gap-2">
-              {Object.entries(dataset?.profiteers || {}).map(
+              {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
@@ -694,7 +705,7 @@ const DownloadDataModal = ({ dataset }) => {
 
             {/* Profiteers Section */}
             <div className="pt-2 flex flex-wrap gap-2">
-              {Object.entries(dataset?.profiteers || {}).map(
+              {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
@@ -840,7 +851,7 @@ const DownloadDataModal = ({ dataset }) => {
 
             {/* Profiteers Section */}
             <div className="pt-2 flex flex-wrap gap-2">
-              {Object.entries(dataset?.profiteers || {}).map(
+              {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
@@ -1052,10 +1063,6 @@ const DownloadDataModal = ({ dataset }) => {
       content={content}
     />
   );
-};
-
-DownloadDataModal.propTypes = {
-  dataset: PropTypes.object.isRequired,
 };
 
 export default DownloadDataModal;

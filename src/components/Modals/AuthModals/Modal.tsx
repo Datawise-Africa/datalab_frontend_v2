@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import datalab from '/assets/datalab-logo-dark.svg';
 
-const Modal = ({ content, isOpen, close }) => {
+type ModalProps = {
+  content: React.ReactNode;
+  isOpen: boolean;
+  close: () => void;
+};
+
+const Modal = ({ content, isOpen, close }: ModalProps) => {
   const [showModal, setShowModal] = useState(isOpen);
 
   useEffect(() => {
@@ -30,7 +34,11 @@ const Modal = ({ content, isOpen, close }) => {
           <div className="w-full h-auto rounded-xl relative flex flex-col bg-white">
             <header className="h-[60px] flex p-6 rounded-t justify-between relative">
               <div className="flex items-center space-x-1">
-                <img src={datalab} alt="Datalab Logo" className="w-6 h-8" />
+                <img
+                  src={'/assets/datalab-logo-dark.svg'}
+                  alt="Datalab Logo"
+                  className="w-6 h-8"
+                />
                 <h2 className="h4 text-n-14">Datalab</h2>
               </div>
               <div
@@ -59,12 +67,6 @@ const Modal = ({ content, isOpen, close }) => {
       </div>
     </div>
   );
-};
-
-Modal.propTypes = {
-  content: PropTypes.node.isRequired,
-  isOpen: PropTypes.bool.isRequired,
-  close: PropTypes.func.isRequired,
 };
 
 export default Modal;

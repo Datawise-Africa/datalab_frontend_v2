@@ -1,8 +1,8 @@
 import { type ReactElement } from 'react';
 import { render, type RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from '../storage/AuthProvider';
-import { PositionProvider } from '../storage/PositionProvider';
+import { AuthProvider } from '../context/AuthProvider';
+import { PositionProvider } from '../context/PositionProvider';
 
 // Define the types for our custom render
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {}

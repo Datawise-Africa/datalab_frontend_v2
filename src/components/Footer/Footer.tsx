@@ -3,12 +3,12 @@ import {
   faLinkedin,
   faGithub,
   faXTwitter,
+  type IconDefinition,
 } from '@fortawesome/free-brands-svg-icons';
 import { socials } from '../../constants';
 import { Link } from 'react-router-dom';
-import datawise_logo from '/assets/Datawise.svg';
 
-const socialIcons = {
+const socialIcons: Record<string, IconDefinition> = {
   LinkedIn: faLinkedin,
   Github: faGithub,
   X: faXTwitter,
@@ -28,7 +28,7 @@ const Footer = () => {
                 rel="noopener noreferrer"
               >
                 <img
-                  src={datawise_logo}
+                  src={'/assets/Datawise.svg'}
                   alt="Datawise logo"
                   loading="lazy"
                   width={180}

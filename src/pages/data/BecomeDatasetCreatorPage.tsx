@@ -19,7 +19,7 @@ const formSchema = z.object({
 
 function BecomeDatasetCreatorPage() {
   const [requestSent, setRequestSent] = useState(false);
-  const [fileSelected, setFileSelected] = useState(null);
+  const [fileSelected, setFileSelected] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -37,18 +37,18 @@ function BecomeDatasetCreatorPage() {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = handleSubmit((data) => {
     console.log('Form submitted:', data);
     setRequestSent(true);
     // Here you would typically send the data to your API
-  };
+  });
   /**
    * Handle file input change event
    * @param { React.ChangeEvent<HTMLInputElement>} e - The event object
    */
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFileSelected(e.target.files[0].name);
+      setFileSelected(e.target!.files[0].name);
     } else {
       setFileSelected(null);
     }
@@ -82,10 +82,7 @@ function BecomeDatasetCreatorPage() {
             </h1>
 
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className={'flex flex-col gap-2'}
-              >
+              <form onSubmit={onSubmit} className={'flex flex-col gap-2'}>
                 {/*<div className="mb-4">*/}
                 {/*  <label htmlFor="name" className="block text-sm font-medium mb-1">*/}
                 {/*    Name <span className="text-red-500">*</span>*/}

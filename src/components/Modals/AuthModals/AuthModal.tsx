@@ -1,235 +1,340 @@
-import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import Modal from './Modal';
-import { useAuthModal } from '../../../hooks/useAuthModal';
 import CustomButton from './CustomButton';
-import apiService from '../../../services/apiService';
-import { useAuth } from '../../../storage/AuthProvider';
+import { useAuth } from '@/context/AuthProvider';
+import useApi from '@/hooks/use-api';
+import type { RegisterOrLoginResponse } from '@/lib/types/auth';
 
-const AuthModal = ({ navUrl }) => {
-  const navigate = useNavigate();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState([]);
+// Define Zod schemas for form validation
+const loginSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const signupSchema = loginSchema.extend({
+  first_name: z.string().min(1, 'First name is required'),
+  last_name: z.string().min(1, 'Last name is required'),
+});
+
+// Define types based on the schemas
+type LoginFormValues = z.infer<typeof loginSchema>;
+type SignupFormValues = z.infer<typeof signupSchema>;
+
+// type AuthModalProps = {
+//   // navUrl?: string;
+// };
+
+const AuthModal = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [serverErrors, setServerErrors] = useState<string[]>([]);
 
-  const authModal = useAuthModal();
+  // const authModal = useAuthModal();
+  const {
+    dispatch,
+    actions,
+    setIsAuthModalOpen,
+    isAuthModalOpen,
+    queue: authQueue,
+  } = useAuth();
+  const { publicApi } = useApi();
 
-  const { dispatch, actions } = useAuth();
+  // Setup React Hook Form for login
+  const {
+    register: registerLogin,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+    reset: resetLoginForm,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-  const submitSignUp = async (e) => {
-    e.preventDefault();
+  // Setup React Hook Form for signup
+  const {
+    register: registerSignup,
+    handleSubmit: handleSignupSubmit,
+    formState: { errors: signupErrors },
+    reset: resetSignupForm,
+  } = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: '',
+    },
+  });
 
-    const formData = {
-      first_name: firstName,
-      last_name: lastName,
-      email: email,
-      password: password,
-    };
+  // Toggle between login and signup forms
+  const toggleAuthMode = () => {
+    setIsSignUp(!isSignUp);
+    setServerErrors([]);
+    resetLoginForm();
+    resetSignupForm();
+  };
 
-    const response = await apiService.post('/auth/register/', formData);
-
-    if (response.access_token) {
-      dispatch(
-        actions.LOGIN(
-          response.id,
-          response.user_role,
-          response.access_token,
-          response.refresh_token,
-          response.first_name,
-          response.last_name,
-        ),
+  // Handle login form submission
+  const onLoginSubmit = async (formData: LoginFormValues) => {
+    try {
+      const { data } = await publicApi.post<RegisterOrLoginResponse>(
+        '/auth/login/',
+        formData,
       );
-      authModal.close();
-      if (navUrl) {
-        navigate(navUrl);
+
+      if (data.access_token) {
+        dispatch(
+          actions.LOGIN({
+            accessToken: data.access_token,
+            refreshToken: data.refresh_token,
+            firstName: data.first_name,
+            lastName: data.last_name,
+            userId: data.id,
+            userRole: data.user_role,
+          }),
+        );
+        // authModal.close();
+        // if (navUrl) {
+        //   navigate(navUrl);
+        // }
+        await authQueue.processQueue();
+        setIsAuthModalOpen(false);
+      } else {
+        // setServerErrors(data.errors || ['Login failed. Please try again.']);
       }
-    } else {
-      setErrors(response.errors);
+    } catch (error) {
+      setServerErrors(['An unexpected error occurred. Please try again.']);
+      console.error('Login error:', error);
     }
   };
 
-  const submitLogin = async (e) => {
-    e.preventDefault();
+  // Handle signup form submission
+  const onSignupSubmit = async (data: SignupFormValues) => {
+    try {
+      const formData = {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        password: data.password,
+      };
 
-    const formData = {
-      email: email,
-      password: password,
-    };
-
-    const response = await apiService.post('/auth/login/', formData);
-    console.log('Login response:', response);
-    if (response.access_token) {
-      dispatch(
-        actions.LOGIN(
-          response.id,
-          response.user_role,
-          response.access_token,
-          response.refresh_token,
-          response.first_name,
-          response.last_name,
-        ),
+      const { data: respData } = await publicApi.post<RegisterOrLoginResponse>(
+        '/auth/register/',
+        formData,
       );
-      authModal.close();
-      if (navUrl) {
-        navigate(navUrl);
+
+      if (respData.access_token) {
+        dispatch(
+          actions.LOGIN({
+            accessToken: respData.access_token,
+            refreshToken: respData.refresh_token,
+            firstName: respData.first_name,
+            lastName: respData.last_name,
+            userId: respData.id,
+            userRole: respData.user_role,
+          }),
+        );
+        // authModal.close();
+        await authQueue.processQueue();
+        setIsAuthModalOpen(false);
+        // if (navUrl) {
+        //   navigate(navUrl);
+        // }
+      } else {
+        // setServerErrors();
+        // respData.errors || ['Registration failed. Please try again.'],
       }
-    } else {
-      setErrors(response.errors);
+    } catch (error) {
+      setServerErrors(['An unexpected error occurred. Please try again.']);
+      console.error('Signup error:', error);
     }
   };
 
   const content = (
     <>
       {isSignUp ? (
-        <form action={submitLogin} className="space-y-4 ">
-          <div className="space-y-2 ">
+        <form
+          onSubmit={handleSignupSubmit(onSignupSubmit)}
+          className="space-y-4"
+        >
+          <div className="space-y-2">
             <h5>Hi, Welcome to Datalab</h5>
             <p>
               Create an account or{' '}
               <span
                 className="underline cursor-pointer hover:underline"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={toggleAuthMode}
               >
                 login to existing account
               </span>
             </p>
           </div>
+
           <div className="pb-4">
             <label htmlFor="first_name">First name</label>
             <input
-              onChange={(e) => setFirstName(e.target.value)}
+              {...registerSignup('first_name')}
+              id="first_name"
               placeholder="Your first name"
               type="text"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {signupErrors.first_name && (
+              <p className="text-red-500 text-sm mt-1">
+                {signupErrors.first_name.message}
+              </p>
+            )}
           </div>
 
           <div className="pb-4">
             <label htmlFor="last_name">Last name</label>
             <input
-              onChange={(e) => setLastName(e.target.value)}
+              {...registerSignup('last_name')}
+              id="last_name"
               placeholder="Your last name"
               type="text"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {signupErrors.last_name && (
+              <p className="text-red-500 text-sm mt-1">
+                {signupErrors.last_name.message}
+              </p>
+            )}
           </div>
 
           <div className="pb-4">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="signup_email">Email</label>
             <input
-              onChange={(e) => setEmail(e.target.value)}
+              {...registerSignup('email')}
+              id="signup_email"
               placeholder="Your email address"
               type="email"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {signupErrors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {signupErrors.email.message}
+              </p>
+            )}
           </div>
 
           <div className="pb-4">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="signup_password">Password</label>
             <input
-              onChange={(e) => setPassword(e.target.value)}
+              {...registerSignup('password')}
+              id="signup_password"
               placeholder="Your password"
               type="password"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {signupErrors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {signupErrors.password.message}
+              </p>
+            )}
           </div>
 
-          {errors.map((error, index) => {
-            return (
-              <div
-                key={`error_${index}`}
-                className="p-5 bg-white text-n-1 rounded-xl opacity-80"
-              >
-                {error}
-              </div>
-            );
-          })}
+          {serverErrors.length > 0 && (
+            <div className="space-y-2">
+              {serverErrors.map((error: any, index) => (
+                <div
+                  key={`error_${index}`}
+                  className="p-3 bg-red-50 text-red-700 rounded-lg"
+                >
+                  {typeof error === 'object'
+                    ? error.message || JSON.stringify(error)
+                    : error}
+                </div>
+              ))}
+            </div>
+          )}
 
-          <CustomButton label="Sign up" onClick={submitSignUp} />
+          <CustomButton label="Sign up" type="submit" />
         </form>
       ) : (
-        <form action={submitLogin} className="space-y-8 bg-white">
+        <form
+          onSubmit={handleLoginSubmit(onLoginSubmit)}
+          className="space-y-8 bg-white"
+        >
           <div className="space-y-2">
             <h5>Hi, Welcome to Datalab</h5>
             <p>
               Sign in to your account or{' '}
               <span
                 className="underline cursor-pointer hover:underline"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={toggleAuthMode}
               >
                 create a new account
               </span>
             </p>
           </div>
+
           <div>
-            <label htmlFor="email">Email</label>
+            <label htmlFor="login_email">Email</label>
             <input
-              onChange={(e) => setEmail(e.target.value)}
+              {...registerLogin('email')}
+              id="login_email"
               placeholder="Your email address"
               type="email"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {loginErrors.email && (
+              <p className="text-red-500 text-sm mt-1">
+                {loginErrors.email.message}
+              </p>
+            )}
           </div>
 
           <div>
-            <label htmlFor="password">Password</label>
+            <label htmlFor="login_password">Password</label>
             <input
-              onChange={(e) => setPassword(e.target.value)}
+              {...registerLogin('password')}
+              id="login_password"
               placeholder="Your password"
               type="password"
               className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
             />
+            {loginErrors.password && (
+              <p className="text-red-500 text-sm mt-1">
+                {loginErrors.password.message}
+              </p>
+            )}
           </div>
 
-          {errors &&
-            errors.length > 0 &&
-            errors.map((error, index) => {
-              return (
+          {serverErrors.length > 0 && (
+            <div className="space-y-2">
+              {serverErrors.map((error: any, index) => (
                 <div
                   key={`error_${index}`}
-                  className="p-5 bg-white text-n-1 rounded-xl opacity-80"
+                  className="p-3 bg-red-50 text-red-700 rounded-lg"
                 >
-                  {error.message || error}{' '}
-                  {/* Handle both object or string errors */}
+                  {typeof error === 'object'
+                    ? error.message || JSON.stringify(error)
+                    : error}
                 </div>
-              );
-            })}
+              ))}
+            </div>
+          )}
 
-          <CustomButton label="Sign in" onClick={submitLogin} />
+          <CustomButton label="Sign in" type="submit" />
         </form>
       )}
-
-      {/* <div className="flex items-center pt-4 pb-2">
-        <hr className="flex-grow border-t" />
-        <span className="px-2">OR</span>
-        <hr className="flex-grow border-t" />
-      </div>
-
-      <div className="mt-4">
-        <GoogleLoginButton
-          onSuccess={handleGoogleSuccess}
-          onError={handleGoogleFailure}
-        />
-      </div> */}
     </>
   );
 
   return (
     <Modal
-      className="bg-white"
-      isOpen={authModal.isOpen}
-      close={authModal.close}
+      // className="bg-white"
+      isOpen={isAuthModalOpen}
+      close={() => setIsAuthModalOpen(false)}
       content={content}
     />
   );
-};
-
-AuthModal.propTypes = {
-  navUrl: PropTypes.string,
 };
 
 export default AuthModal;

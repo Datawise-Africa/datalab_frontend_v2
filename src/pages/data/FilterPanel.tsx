@@ -1,7 +1,12 @@
-import PropTypes from 'prop-types';
+import type { DatasetFilterOptions } from '@/lib/types/data-set';
 import FilterSection from './FilterSection';
 
-const FilterPanel = ({ filters, setFilters }) => {
+type FilterPanelProps = {
+  filters: DatasetFilterOptions;
+  setFilters: React.Dispatch<React.SetStateAction<DatasetFilterOptions>>;
+};
+
+const FilterPanel = ({ filters, setFilters }: FilterPanelProps) => {
   // Mapping of original option values to user-friendly names
   const optionMappings = {
     accessLevel: {
@@ -78,11 +83,6 @@ const FilterPanel = ({ filters, setFilters }) => {
       </div>
     </div>
   );
-};
-
-FilterPanel.propTypes = {
-  filters: PropTypes.object.isRequired,
-  setFilters: PropTypes.func.isRequired,
 };
 
 export default FilterPanel;

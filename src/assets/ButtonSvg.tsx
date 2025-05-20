@@ -1,4 +1,7 @@
-const ButtonSvg = (white) => (
+type ButtonSvgProps = {
+  white?: boolean;
+};
+const ButtonSvg = ({ white }: ButtonSvgProps) => (
   <>
     <svg
       className="absolute top-0 left-0"

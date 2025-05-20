@@ -1,20 +1,23 @@
 import { useState } from 'react';
-import { Menu, Compass, Bookmark, FilePlus, ChevronRight } from 'lucide-react';
-import CollapseIcon from '/assets/datalab/collapseicon.png';
-import { useAuth } from '../../storage/AuthProvider';
+import { Menu, Compass, Bookmark, ChevronRight } from 'lucide-react';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../../components/designs/Button.js';
-import user_icon from '/assets/datalab/AuthIcon.png'; // ✅ Custom user icon
-import upload_icon from '/assets/datalab/uploadicon.png'; // ✅ Your custom upload icon
+import Button from '../../components/designs/Button';
 import { useLocation } from 'react-router-dom';
-import DataCatalog from './DatasetCatalog.jsx';
-import datasetcreator_icon from '/assets/datasetcreator.png';
+import { cn } from '@/lib/utils/cn';
+import { useAuth } from '@/context/AuthProvider';
 
-export default function Sidebar({ handleAuthModalToggle }) {
+export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { state, dispatch, actions } = useAuth();
+  const {
+    state,
+    dispatch,
+    actions,
+    isAuthenticated,
+    setIsAuthModalOpen,
+    queue: authQueue,
+  } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -28,7 +31,10 @@ export default function Sidebar({ handleAuthModalToggle }) {
   };
 
   const handleLoginClick = () => {
-    handleAuthModalToggle();
+    // handleAuthModalToggle();
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleLogout = () => {
@@ -42,8 +48,16 @@ export default function Sidebar({ handleAuthModalToggle }) {
   // }, [state.userId]);
 
   const handleBecomeDatasetCreator = () => {
-    handleAuthModalToggle();
-    navigate('/become-dataset-creator');
+    // handleAuthModalToggle();
+    if (!isAuthenticated) {
+      authQueue.addToQueue({
+        function: navigate,
+        args: ['/become-dataset-creator'],
+      });
+      setIsAuthModalOpen(true);
+    } else {
+      navigate('/become-dataset-creator');
+    }
   };
 
   return (
@@ -70,10 +84,18 @@ export default function Sidebar({ handleAuthModalToggle }) {
           className="text-[#BBBBBB] mt-6 mb-6 self-end md:self-start inline-flex items-center gap-2"
         >
           {collapsed ? (
-            <img src={CollapseIcon} alt="Collapse" className="w-6 h-6" />
+            <img
+              src={'/assets/datalab/collapseicon.png'}
+              alt="Collapse"
+              className="w-6 h-6"
+            />
           ) : (
             <>
-              <img src={CollapseIcon} alt="Collapse" className="w-6 h-6" />{' '}
+              <img
+                src={'/assets/datalab/collapseicon.png'}
+                alt="Collapse"
+                className="w-6 h-6"
+              />{' '}
               <span>Collapse</span>
             </>
           )}
@@ -91,7 +113,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
               >
                 <div className="flex items-start space-x-3">
                   <img
-                    src={user_icon}
+                    src={'/assets/datalab/AuthIcon.png'}
                     alt="User Icon"
                     className="w-8 h-8 mt-1"
                   />
@@ -136,7 +158,11 @@ export default function Sidebar({ handleAuthModalToggle }) {
               } bg-[#FAFAFA] text-[#0F4539] rounded mb-4 w-full flex items-center justify-between`}
             >
               <div className="flex items-start space-x-3">
-                <img src={user_icon} alt="User Icon" className="w-8 h-8 mt-1" />
+                <img
+                  src={'/assets/datalab/AuthIcon.png'}
+                  alt="User Icon"
+                  className="w-8 h-8 mt-1"
+                />
                 {!collapsed && (
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-semibold">
@@ -157,10 +183,10 @@ export default function Sidebar({ handleAuthModalToggle }) {
           {location.pathname !== '/dataset-creator-dashboard' && (
             <button
               onClick={() => {
-                if (state.userId) {
+                if (isAuthenticated) {
                   navigate('/dataset-creator-dashboard');
                 } else {
-                  handleAuthModalToggle();
+                  setIsAuthModalOpen(true);
                 }
               }}
               className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
@@ -168,7 +194,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
               }`}
             >
               <img
-                src={upload_icon}
+                src={'/assets/datalab/uploadicon.png'}
                 alt="Upload Icon"
                 className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
               />
@@ -195,7 +221,7 @@ export default function Sidebar({ handleAuthModalToggle }) {
             collapsed={collapsed}
             icon={
               <img
-                src={datasetcreator_icon}
+                src={'/assets/datasetcreator.png'}
                 alt="User Icon"
                 className="w-5 h-5 mt-1"
               />
@@ -254,9 +280,20 @@ export default function Sidebar({ handleAuthModalToggle }) {
   );
 }
 
-function SidebarItem({ icon, label, collapsed }) {
+type SidebarItemProps = {
+  icon: React.ReactNode;
+  label: string;
+  collapsed: boolean;
+  className?: string;
+};
+function SidebarItem({ icon, label, collapsed, className }: SidebarItemProps) {
   return (
-    <div className="flex items-center bg-[#FFFFFF] text-sm hover:bg-[#E6FAF0] p-2 rounded cursor-pointer">
+    <div
+      className={cn(
+        'flex items-center bg-[#FFFFFF] text-sm hover:bg-[#E6FAF0] p-2 rounded cursor-pointer',
+        className,
+      )}
+    >
       {icon}
       {!collapsed && <span className="ml-3">{label}</span>}
     </div>

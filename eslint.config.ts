@@ -1,10 +1,33 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
 
 export default [
-  { ignores: ['dist'] },
+  {
+    ignores: [
+      'dist',
+      'dist/',
+      'dist-ssr/',
+
+      'node_modules/',
+
+      // # Test outputs
+      'test-results/',
+      'playwright-report/',
+      'coverage/',
+      'node_modules/.vitest/',
+      '.nyc_output/',
+      'html/',
+
+      // # Generated files
+      '*.d.ts',
+      '*.js.map',
+
+      // # Public directory
+      'public/',
+    ],
+  },
   {
     files: ['**/*.{js,jsx}'],
     languageOptions: {
@@ -30,4 +53,4 @@ export default [
       ],
     },
   },
-]
+];

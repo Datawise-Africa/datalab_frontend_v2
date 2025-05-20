@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AuthProvider } from '@/storage/AuthProvider';
+import { AuthProvider } from '@/context/AuthProvider';
+import AuthModal from '@/components/Modals/AuthModals/AuthModal';
 
 const BaseWrapper = () => {
   const location = useLocation();
@@ -11,7 +12,10 @@ const BaseWrapper = () => {
 
   return (
     <AuthProvider>
-      <Outlet />
+      <>
+        <Outlet />
+        <AuthModal />
+      </>
     </AuthProvider>
   );
 };

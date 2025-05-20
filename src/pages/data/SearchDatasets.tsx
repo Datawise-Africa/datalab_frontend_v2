@@ -1,8 +1,19 @@
-import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
+import type { IDataset } from '@/lib/types/data-set';
+import { cn } from '@/lib/utils/cn';
 
-const SearchDatasets = ({ className, onSearchResults, onSearchReset }) => {
+type SearchDatasetsProps = {
+  className?: string;
+  onSearchResults: (results: IDataset[]) => void;
+  onSearchReset: () => void;
+};
+
+const SearchDatasets = ({
+  className,
+  onSearchResults,
+  onSearchReset,
+}: SearchDatasetsProps) => {
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -30,16 +41,35 @@ const SearchDatasets = ({ className, onSearchResults, onSearchReset }) => {
       }
     } catch (err) {
       console.error('Error fetching datasets:', err);
-      onSearchResults('Failed to fetch datasets. Please try again.');
-      onSearchReset([]);
+      // onSearchResults('Failed to fetch datasets. Please try again.');
+      onSearchReset();
     } finally {
       setIsLoading(false);
     }
   };
 
+  // const handleKeyPress = (event: React.KeyboardEvent) => {
+  //   if (event.key === 'Enter') {
+  //     fetchResults();
+  //   }
+  // };
+  const watchInput = useCallback(() => {
+    if (searchText.trim() === '') {
+      setError(null);
+      onSearchReset(); // Reset search results
+    }
+  }, [searchText, onSearchReset]);
+
+  useEffect(() => {
+    watchInput();
+  }, [watchInput]);
+
   return (
     <div
-      className={`p-2 flex flex-col bg-n-7 rounded border border-2  border-[#E5E7EB]  ${className}`}
+      className={cn(
+        `p-2 flex flex-col bg-n-7 rounded border border-2  border-[#E5E7EB] `,
+        className,
+      )}
     >
       <div className="flex items-center ">
         <input
@@ -70,12 +100,6 @@ const SearchDatasets = ({ className, onSearchResults, onSearchReset }) => {
       {error && <div className="text-red-500 mt-2">{error}</div>}
     </div>
   );
-};
-
-SearchDatasets.propTypes = {
-  className: PropTypes.string,
-  onSearchResults: PropTypes.func.isRequired,
-  onSearchReset: PropTypes.func.isRequired,
 };
 
 export default SearchDatasets;
