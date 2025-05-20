@@ -1,6 +1,8 @@
-import { cn } from '../../lib/utils/cn';
+import { cn } from '@/lib/utils/cn';
 
-function Button({ className = '', children = 'Button', ...rest }) {
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+function Button({ className = '', children = 'Button', ...rest }: ButtonProps) {
   return (
     <button
       className={cn(
