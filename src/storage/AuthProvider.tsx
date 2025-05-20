@@ -5,13 +5,18 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
-import PropTypes from 'prop-types';
-import { Cookie } from '../lib/auth/actions';
-import { useAuthModal } from '../hooks/useAuthModal';
+import { Cookie } from '@/lib/auth/cookie';
+import type {
+  AuthContextType,
+  AuthProviderProps,
+  AuthState,
+} from '@/lib/types/auth-context';
+import { authProviderActions } from './actions/auth-actions';
+import { authReducer } from './reducers/auth-reducers';
 
-/**@type {import('./../lib/auth/actions').AuthState} */
-const initialState = {
+const initialState: AuthState = {
   userId: Cookie.get('session_user_id') ?? null,
   userRole: Cookie.get('session_userrole') ?? null,
   accessToken: Cookie.get('session_access_token') ?? null,
@@ -20,71 +25,11 @@ const initialState = {
   lastName: Cookie.get('session_last_name') ?? null,
 };
 
-const actions = {
-  /**
-   *
-   * @param {string} userId
-   * @param {string} userRole
-   * @param {string} accessToken
-   * @param {string} refreshToken
-   * @param {string} firstName
-   * @param {string} lastName
-   * @returns
-   */
-  LOGIN: (
-    userId,
-    userRole,
-    accessToken,
-    refreshToken,
-    firstName,
-    lastName,
-  ) => /** @type {const} */ ({
-    type: 'LOGIN',
-    payload: {
-      userId,
-      userRole,
-      accessToken,
-      refreshToken,
-      firstName,
-      lastName,
-    },
-  }),
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-  LOGOUT: () => /** @type {const} */ ({
-    type: 'LOGOUT',
-  }),
-};
-/**
- * @type {React.Context<{state:typeof initialState,authModal:typeof useAuthModal,actions:typeof actions,dispatch:React.Dispatch<ReturnType<(typeof actions)[keyof typeof actions]>>}>,ReturnType<(typeof actions)[keyof typeof actions]>>}
- */
-const AuthContext = createContext({});
-/**
- * @param {typeof initialState} state
- * @param {ReturnType<(typeof actions)[keyof typeof actions]>} action
- * @returns {typeof initialState}
- */
-function authReducer(state, action) {
-  switch (action.type) {
-    case 'LOGIN': {
-      return {
-        ...state,
-        ...action.payload,
-      };
-    }
-    case 'LOGOUT': {
-      return Object.keys(state).reduce((acc, key) => {
-        acc[key] = null;
-        return acc;
-      }, {});
-    }
-    default:
-      return state;
-  }
-}
-
-const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }: AuthProviderProps) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const authModal = useAuthModal();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const syncState = useCallback(() => {
     Cookie.set('session_user_id', state.userId);
@@ -104,7 +49,14 @@ const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ state, dispatch, actions, authModal, isAuthenticated }}
+      value={{
+        state,
+        dispatch,
+        actions: authProviderActions,
+        isAuthenticated,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -113,10 +65,6 @@ const AuthProvider = ({ children }) => {
 
 const useAuth = () => {
   return useContext(AuthContext);
-};
-
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
 };
 
 export { AuthProvider, useAuth };
