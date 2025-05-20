@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '../../test/test-utils';
+import { render, screen, fireEvent } from '@/test/test-utils';
 import DatasetCard from './DatasetCard';
 
 describe('DatasetCard Component', () => {
@@ -29,7 +29,7 @@ describe('DatasetCard Component', () => {
         dataset={mockDataset}
         handleSingleDataModal={handleSingleDataModal}
         handleDownloadDataClick={handleDownloadDataClick}
-      />
+      />,
     );
 
     // Check if title is rendered
@@ -53,7 +53,7 @@ describe('DatasetCard Component', () => {
         dataset={mockDataset}
         handleSingleDataModal={handleSingleDataModal}
         handleDownloadDataClick={handleDownloadDataClick}
-      />
+      />,
     );
 
     // Find and click the View button
@@ -70,7 +70,7 @@ describe('DatasetCard Component', () => {
         dataset={mockDataset}
         handleSingleDataModal={handleSingleDataModal}
         handleDownloadDataClick={handleDownloadDataClick}
-      />
+      />,
     );
 
     // Find and click the Download button
@@ -87,13 +87,17 @@ describe('DatasetCard Component', () => {
         dataset={mockDataset}
         handleSingleDataModal={handleSingleDataModal}
         handleDownloadDataClick={handleDownloadDataClick}
-      />
+      />,
     );
 
     // Check if the non-profit icon is rendered
-    const profiteerIcon = screen.getByAltText('profiteer icon') ||
-                         screen.getByTestId('profiteer-icon');
+    const profiteerIcon =
+      screen.getByAltText('profiteer icon') ||
+      screen.getByTestId('profiteer-icon');
     expect(profiteerIcon).toBeInTheDocument();
-    expect(profiteerIcon).toHaveAttribute('src', expect.stringContaining('non-profit-icon'));
+    expect(profiteerIcon).toHaveAttribute(
+      'src',
+      expect.stringContaining('non-profit-icon'),
+    );
   });
 });
