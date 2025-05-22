@@ -10,7 +10,7 @@ const DatasetCreatorsDashboard = () => {
 
   return (
     <div className="flex mt-10 lg:mt-10">
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div className="p-6 w-3/4 lg:w-[calc(95%-150px)]  max-h-screen border-l">
         {/* Top Section */}
         <div className="mb-6 mt-20 ">
