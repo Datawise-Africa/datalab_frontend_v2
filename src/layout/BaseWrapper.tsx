@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthProvider';
 import AuthModal from '@/components/Modals/AuthModals/AuthModal';
+import SplashScreen from '@/components/SplashScreen';
 
 const BaseWrapper = () => {
   const location = useLocation();
@@ -11,12 +12,15 @@ const BaseWrapper = () => {
   }, [location.pathname]);
 
   return (
-    <AuthProvider>
-      <>
-        <Outlet />
-        <AuthModal />
-      </>
-    </AuthProvider>
+    <Suspense fallback={<SplashScreen />}>
+      {/* AuthProvider wraps the entire app to manage authentication state */}
+      <AuthProvider>
+        <>
+          <Outlet />
+          <AuthModal />
+        </>
+      </AuthProvider>
+    </Suspense>
   );
 };
 

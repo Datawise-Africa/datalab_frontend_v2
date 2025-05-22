@@ -176,7 +176,10 @@ export default function LayoutSidebar({
 
         {/* User Section */}
         <div className="flex-shrink-0 p-4 border-t border-subtle">
-          <BecomeDatasetCreatorBadge collapsed={isCollapsed} />
+          <BecomeDatasetCreatorBadge
+            collapsed={isCollapsed}
+            isMobile={isMobile}
+          />
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -202,7 +205,9 @@ export default function LayoutSidebar({
                         <span className="text-sm font-medium">
                           {authState.firstName} {authState.lastName}
                         </span>
-                        <span className="text-xs text-gray-500">{'User'}</span>
+                        <span className="text-xs text-gray-500">
+                          {authState.email}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -211,7 +216,7 @@ export default function LayoutSidebar({
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <SidebarUserDropdown user={authState} />
+              <SidebarUserDropdown />
             </DropdownMenu>
           ) : (
             <Button
@@ -380,15 +385,12 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
   );
 }
 
-function SidebarUserDropdown({
-  user,
-}: {
-  user: {
-    firstName?: string;
-    lastName?: string;
-    // email: string;
-  };
-}) {
+function SidebarUserDropdown() {
+  const {
+    dispatch,
+    actions,
+    state: { firstName, lastName },
+  } = useAuth();
   return (
     <DropdownMenuContent
       className="w-64 bg-white   p-4 shadow-lg border border-subtle rounded-md mb-2"
@@ -404,7 +406,7 @@ function SidebarUserDropdown({
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">Data Explorer</span>
             <span className="text-sm font-medium">
-              {user?.firstName} {user?.lastName}
+              {firstName} {lastName}
             </span>
           </div>
         </div>
@@ -442,9 +444,7 @@ function SidebarUserDropdown({
         <Button
           variant="ghost"
           className="w-full text-left inline-flex items-center justify-baseline"
-          onClick={() => {
-            // Handle logout action
-          }}
+          onClick={() => dispatch(actions.LOGOUT())}
         >
           <LucideLogOut className="h-5 w-5 mr-2" />
 

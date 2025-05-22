@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import Sidebar from './Sidebar';
+import Sidebar from './data/Sidebar';
 
 import { useAuth } from '@/context/AuthProvider';
-import DatasetUploadModal from './DataUploadModal';
+import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
@@ -22,11 +22,11 @@ const DatasetCreatorsDashboard = () => {
           </p>
 
           <div className="flex gap-3">
-            <button className="px-4 py-2 border border-[#115443] text-[#115443] transition transform hover:translate-y-[3px]  rounded font-medium hover:bg-green-50 duration-300 transition">
+            <button className="px-4 py-2 border border-[#115443] text-[#115443] transition transform hover:translate-y-[3px]  rounded font-medium hover:bg-green-50 duration-300">
               Explore Datasets
             </button>
             <button
-              className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium transition"
+              className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium"
               onClick={() => setModalOpen(true)}
             >
               + Add Dataset

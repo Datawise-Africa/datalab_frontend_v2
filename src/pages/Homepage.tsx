@@ -1,21 +1,21 @@
 import { useState } from 'react';
-import DatasetHeader from './DatasetHeader';
-import SortData from './SortData';
-import DatasetGrid from './DatasetGrid';
-import FilterPanel from './FilterPanel';
+import DatasetHeader from '../components/data-catalog/DatasetHeader';
+import SortData from '../components/data-catalog/SortData';
+import DatasetGrid from '../components/data-catalog/DatasetGrid';
+import FilterPanel from '../components/data-catalog/FilterPanel';
 
-import Loader from './Loader';
-import SingleDataModal from './SingleDataModal';
+import Loader from '../components/data-catalog/Loader';
+import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/useDataModal';
 import useDownloadDataModal from '@/store/useDownloadDataModal';
-import DownloadDataModal from './DownloadDataModal';
+import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
 import NoDataset from '@/components/Modals/DataModals/NoDataset';
 // import Sidebar from './Sidebar';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 
-const DataCatalog = () => {
+const Homepage = () => {
   // const [navUrl, setNavUrl] = useState('');
   const [sortIsOpen, setSortIsOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
@@ -119,4 +119,4 @@ const DataCatalog = () => {
   );
 };
 
-export default DataCatalog;
+export default Homepage;

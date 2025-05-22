@@ -1,14 +1,25 @@
 import ProtectedLayout from '@/layout/ProtectedLayout';
-import BecomeDatasetCreatorPage from '@/pages/data/BecomeDatasetCreatorPage';
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 
+const BecomeDatasetCreatorPage = lazy(
+  () => import('@/pages/BecomeDatasetCreatorPage'),
+);
+const DatasetCreatorsDashboard = lazy(
+  () => import('@/pages/DatasetCreatorsDashboard'),
+);
+
 export const protecteRoutes: RouteObject = {
-  path: '/',
+  path: '/app',
   element: <ProtectedLayout />,
   children: [
     {
-      path: '/become-dataset-creator',
+      path: '/app/become-dataset-creator',
       element: <BecomeDatasetCreatorPage />,
+    },
+    {
+      path: '/app/dataset-creator-dashboard',
+      element: <DatasetCreatorsDashboard />,
     },
   ],
 };

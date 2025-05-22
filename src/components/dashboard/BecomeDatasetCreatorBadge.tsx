@@ -7,17 +7,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
+import { Link } from 'react-router-dom';
 
 type BecomeDatasetCreatorBadgeProps = {
   collapsed?: boolean;
+  isMobile?: boolean;
 };
 
 export default function BecomeDatasetCreatorBadge({
   collapsed = false,
+  isMobile,
 }: BecomeDatasetCreatorBadgeProps) {
   const [show, setShow] = useState(true);
 
-  if (collapsed) {
+  if (collapsed && !isMobile) {
     return (
       <TooltipProvider>
         <Tooltip>
@@ -27,7 +30,9 @@ export default function BecomeDatasetCreatorBadge({
               className="w-full p-0 flex items-center justify-center h-10"
               onClick={() => setShow(!show)}
             >
-              <ScanText className="h-5 w-5 text-primary" />
+              <Link to="/app/become-dataset-creator">
+                <ScanText className="h-5 w-5 text-primary" />
+              </Link>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right" className="text-subtle">
@@ -39,7 +44,7 @@ export default function BecomeDatasetCreatorBadge({
   }
 
   return show ? (
-    <div className="w-full relative py-6 px-2 text-sm bg-primary/10">
+    <div className="w-full relative py-6 px-2 text-sm bg-primary/10 flex flex-col gap-2 rounded-md">
       <Button
         variant="ghost"
         onClick={() => setShow(!show)}
@@ -58,9 +63,12 @@ export default function BecomeDatasetCreatorBadge({
           premium datasets. Apply now to get started!
         </p>
       </div>
-      <Button onClick={() => setShow(true)} className="text-subtle">
+      <Link
+        to="/app/become-dataset-creator"
+        className="text-subtle bg-primary px-2 py-2 rounded-md hover:bg-primary/80 transition-colors duration-200"
+      >
         Become a Dataset Creator
-      </Button>
+      </Link>
     </div>
   ) : (
     <></>

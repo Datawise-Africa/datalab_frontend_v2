@@ -67,7 +67,7 @@ const SearchDatasets = ({
   return (
     <div
       className={cn(
-        `p-2 flex flex-col bg-n-7 rounded border border-2  border-[#E5E7EB] `,
+        `p-2 flex flex-col bg-n-7 rounded border   border-[#E5E7EB] `,
         className,
       )}
     >
