@@ -5,6 +5,9 @@ import {
   Compass,
   Database,
   Download,
+  Edit,
+  LockIcon,
+  MenuIcon,
   Paperclip,
   User2,
   UserCheck,
@@ -29,6 +32,7 @@ export default function useSidebarLinks() {
     {
       label: 'Menu',
       href: '#',
+      icon: MenuIcon,
       children: [
         {
           label: 'Discover',
@@ -47,6 +51,7 @@ export default function useSidebarLinks() {
     {
       label: 'Creator Tools',
       href: '#',
+      icon: Edit,
       children: [
         {
           label: 'My Datasets',
@@ -68,6 +73,7 @@ export default function useSidebarLinks() {
     {
       label: 'Admin',
       href: '#',
+      icon: LockIcon,
       // icon: <HeroiconsOutlineDocumentReport />,
       children: [
         {

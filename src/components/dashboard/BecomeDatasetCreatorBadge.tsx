@@ -1,9 +1,43 @@
 import { useState } from 'react';
 import { Button } from '../ui/button';
-import { X } from 'lucide-react';
+import { X, ScanText } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
 
-export default function BecomeDatasetCreatorBadge() {
+type BecomeDatasetCreatorBadgeProps = {
+  collapsed?: boolean;
+};
+
+export default function BecomeDatasetCreatorBadge({
+  collapsed = false,
+}: BecomeDatasetCreatorBadgeProps) {
   const [show, setShow] = useState(true);
+
+  if (collapsed) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full p-0 flex items-center justify-center h-10"
+              onClick={() => setShow(!show)}
+            >
+              <ScanText className="h-5 w-5 text-primary" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="text-subtle">
+            <p>Become a Dataset Creator</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   return show ? (
     <div className="w-full relative py-6 px-2 text-sm bg-primary/10">
       <Button
@@ -17,7 +51,7 @@ export default function BecomeDatasetCreatorBadge() {
           <X className="h-4 w-4 text-primary" />
         </div>
       </Button>
-      <div className="flex flex-col gap-2 text-center ">
+      <div className="flex flex-col gap-2 text-center">
         <h2 className="font-bold">Become a Dataset Creator</h2>
         <p className="text-primary">
           Share your data with the world, track engagement, and earn from

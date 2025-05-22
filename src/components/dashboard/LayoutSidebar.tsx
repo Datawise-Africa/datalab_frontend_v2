@@ -6,7 +6,15 @@ import {
   AccordionTrigger,
 } from '../ui/accordion';
 import { Button } from '../ui/button';
-import { ChevronDown, LucidePlus, User, X } from 'lucide-react';
+import {
+  ChevronDown,
+  LucideCog,
+  LucideLogOut,
+  LucidePlus,
+  SquareArrowOutUpRight,
+  User,
+  X,
+} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
 import { useAuth } from '@/context/AuthProvider';
+import { Link } from 'react-router-dom';
 
 type LayoutSidebarProps = {
   links: SidebarLinkType[];
@@ -98,7 +107,7 @@ export default function LayoutSidebar({
                       variant="ghost"
                       onClick={toggleSidebar}
                       className={`
-                        w-full flex items-center justify-center space-x-2 py-3
+                        w-full flex items-center justify-baseline space-x-2 py-3
                         ${isCollapsed ? 'px-0' : 'px-3'}
                       `}
                     >
@@ -163,11 +172,11 @@ export default function LayoutSidebar({
               ))}
             </div>
           )}
-          <BecomeDatasetCreatorBadge />
         </div>
 
         {/* User Section */}
         <div className="flex-shrink-0 p-4 border-t border-subtle">
+          <BecomeDatasetCreatorBadge collapsed={isCollapsed} />
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -252,46 +261,80 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
 
   if (isCollapsed) {
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full p-0 flex items-center justify-center "
-            >
-              {props.icon && (
-                <span className="flex items-center justify-center">
-                  {typeof props.icon !== 'string' ? (
-                    <props.icon size={20} />
-                  ) : (
-                    <img
-                      src={props.icon}
-                      alt={props.label}
-                      className="h-12 w-12"
-                    />
-                  )}
-                </span>
-              )}
-              ss
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="text-subtle">
-            <p>{props.label}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <div className="space-y-1">
+        {/* Parent item with tooltip */}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full p-0 flex items-center justify-center h-10"
+              >
+                {props.icon && (
+                  <span className="flex items-center justify-center w-5 h-5">
+                    {typeof props.icon !== 'string' ? (
+                      <props.icon size={20} className="text-gray-600" />
+                    ) : (
+                      <img
+                        src={props.icon}
+                        alt={props.label}
+                        className="h-5 w-5 text-gray-600"
+                      />
+                    )}
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-subtle">
+              <p>{props.label}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Children items with tooltips */}
+        {hasChildren &&
+          props.children!.map((child) => (
+            <TooltipProvider key={child.label}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full p-0 flex items-center justify-center h-10"
+                  >
+                    {child.icon && (
+                      <span className="flex items-center justify-center w-5 h-5">
+                        {typeof child.icon !== 'string' ? (
+                          <child.icon size={20} className="text-gray-600" />
+                        ) : (
+                          <img
+                            src={child.icon}
+                            alt={child.label}
+                            className="h-5 w-5 text-gray-600"
+                          />
+                        )}
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="text-subtle">
+                  <p>{child.label}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ))}
+      </div>
     );
   }
 
+  // Expanded state remains the same
   return hasChildren ? (
     <AccordionItem value={props.label} className="border-none">
       <AccordionTrigger className="no-underline hover:no-underline py-2 px-3 hover:bg-gray-50 rounded-md">
         <div className="flex items-center space-x-3">
           {props.icon && (
             <span className="flex items-center justify-center w-5 h-5 text-gray-600">
-              {/* {props.icon} */}
               {typeof props.icon !== 'string' ? (
-                <props.icon />
+                <props.icon size={20} />
               ) : (
                 <img
                   src={props.icon}
@@ -305,7 +348,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
         </div>
       </AccordionTrigger>
       <AccordionContent className="pb-2">
-        <div className="ml-8 space-y-1">
+        <div className="ml-4 space-y-1">
           {props.children!.map((child) => (
             <SidebarItem key={child.label} {...child} isCollapsed={false} />
           ))}
@@ -321,7 +364,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
         {props.icon && (
           <span className="flex items-center justify-center w-5 h-5 text-gray-600">
             {typeof props.icon !== 'string' ? (
-              <props.icon />
+              <props.icon size={20} />
             ) : (
               <img
                 src={props.icon}
@@ -367,17 +410,46 @@ function SidebarUserDropdown({
         </div>
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
+      <DropdownMenuItem className="cursor-pointer">
+        <Link to={'/#'} className="flex items-center">
+          <User className="h-5 w-5 mr-2" />
+          <span className="text-sm font-medium">Profile</span>
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem className="cursor-pointer">
+        <Link to={'/#'} className="flex items-center">
+          <LucideCog className="h-5 w-5 mr-2" />
+          <span className="text-sm font-medium">Upload Dataset</span>
+        </Link>
+      </DropdownMenuItem>
       <DropdownMenuItem className="cursor-pointer">
         Become a dataset creator
       </DropdownMenuItem>
       <DropdownMenuItem className="cursor-pointer">
-        Go to main site
+        <a
+          href="/#"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center"
+        >
+          {/* New tab icon */}
+          <SquareArrowOutUpRight className="h-5 w-5 mr-2" />
+          Go to main site
+        </a>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem className="cursor-pointer text-red-600">
-        Log out
+        <Button
+          variant="ghost"
+          className="w-full text-left inline-flex items-center justify-baseline"
+          onClick={() => {
+            // Handle logout action
+          }}
+        >
+          <LucideLogOut className="h-5 w-5 mr-2" />
+
+          <span className="text-sm font-medium">Logout</span>
+        </Button>
       </DropdownMenuItem>
     </DropdownMenuContent>
   );
