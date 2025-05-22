@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import Sidebar from './data/Sidebar';
-
 import { useAuth } from '@/context/AuthProvider';
 import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
 
