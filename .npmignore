@@ -1,0 +1,37 @@
+# Source files
+/src/**/*.test.ts
+/src/**/*.test.tsx
+/src/**/*.spec.ts
+/src/**/*.spec.tsx
+/src/test/
+
+# Testing directories
+/e2e/
+/test-results/
+/playwright-report/
+/coverage/
+/.nyc_output/
+/node_modules/.vitest/
+/html/
+
+# Config files
+vitest.config.ts
+playwright.config.ts
+.eslintrc.json
+.prettierrc
+.editorconfig
+
+# GitHub files
+.github/
+.gitignore
+
+# Development
+.vscode/
+
+# Scripts
+/scripts/
+
+# Build process
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
