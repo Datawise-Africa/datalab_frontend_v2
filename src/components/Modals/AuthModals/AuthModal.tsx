@@ -7,7 +7,6 @@ import CustomButton from './CustomButton';
 import { useAuth } from '@/context/AuthProvider';
 import useApi from '@/hooks/use-api';
 import type { RegisterOrLoginResponse } from '@/lib/types/auth';
-
 // Define Zod schemas for form validation
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -96,6 +95,7 @@ const AuthModal = () => {
             lastName: data.last_name,
             userId: data.id,
             userRole: data.user_role,
+            email: data.email,
           }),
         );
         // authModal.close();
@@ -137,6 +137,7 @@ const AuthModal = () => {
             lastName: respData.last_name,
             userId: respData.id,
             userRole: respData.user_role,
+            email: respData.email,
           }),
         );
         // authModal.close();

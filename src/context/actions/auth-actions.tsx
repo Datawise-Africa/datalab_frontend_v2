@@ -1,12 +1,13 @@
 import type { InferActions } from '@/lib/types/utils';
 
 type LoginPayload = {
-  userId: string | null;
-  userRole: string | null;
-  accessToken: string | null;
-  refreshToken: string | null;
-  firstName: string | null;
-  lastName: string | null;
+  userId: string;
+  userRole: string;
+  accessToken: string;
+  refreshToken: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 };
 
 export const authProviderActions = {

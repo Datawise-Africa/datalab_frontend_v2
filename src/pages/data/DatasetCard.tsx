@@ -1,7 +1,5 @@
 import { FaRegUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { EllipsisVerticalIcon } from '@heroicons/react/24/solid';
-import type { IDataset } from '@/lib/types/data-set';
+// Importing icons
 import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
 import company_icon from '/assets/datalab/company-icon.svg';
 import student_icon from '/assets/datalab/student-icon.svg';
@@ -11,6 +9,7 @@ import database_icon from '/assets/datalab/db-icon.svg';
 import download_icon from '/assets/datalab/download-icon.svg';
 import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
 import view_icon from '/assets/datalab/view-icon.svg';
+import type { IDataset } from '@/lib/types/data-set';
 
 type DatasetCardProps = {
   dataset: IDataset;
@@ -43,60 +42,11 @@ const DatasetCard = ({
   };
 
   return (
-    <div className="border border-[#ddeeff] p-4 rounded-lg w-86 hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
+    <div className="border w-full border-subtle bg-white p-4 rounded-lg  hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
       <div className="flex justify-between">
-        <p className="bg-[#ddeeff] text-md font-bold text-[#188366] px-2 rounded mt-2">
+        <p className="bg-subtle text-md font-bold text-[#188366] px-2 rounded">
           {dataset.is_premium ? `$${dataset.price}` : 'Free'}
         </p>
-
-        {/* Dropdown menu */}
-        <Menu as="div" className="relative inline-block text-left">
-          <MenuButton className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#188366]">
-            <EllipsisVerticalIcon className="h-5 w-5 text-gray-600" />
-          </MenuButton>
-
-          <MenuItems className="absolute left-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg  focus:outline-none divide-y divide-gray-100 border border-gray-200">
-            <div className="px-1 py-1">
-              <MenuItem>
-                {({ active }) => (
-                  <button
-                    onClick={() => console.log('Save')}
-                    className={`${
-                      active ? 'bg-gray-100' : ''
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
-                  >
-                    <img
-                      src={'/assets/datalab/save_icon.svg'}
-                      alt="Download"
-                      className="w-3 h-3 mr-2 "
-                    />
-                    Save
-                  </button>
-                )}
-              </MenuItem>
-
-              <MenuItem>
-                {({ active }) => (
-                  <button
-                    onClick={() =>
-                      navigator.clipboard.writeText(window.location.href)
-                    }
-                    className={`${
-                      active ? 'bg-gray-100' : ''
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
-                  >
-                    <img
-                      src={'/assets/datalab/copy_link_icon.svg'}
-                      alt="Download"
-                      className="w-4 h-4 mr-2 "
-                    />
-                    Copy Link
-                  </button>
-                )}
-              </MenuItem>
-            </div>
-          </MenuItems>
-        </Menu>
       </div>
 
       <div className="flex justify-between mt-2">
@@ -105,7 +55,7 @@ const DatasetCard = ({
 
       <div className="flex flex-wrap items-center space-x-2 mt-2">
         <FaRegUser className="text-[#757185] w-4 h-4 " />
-        {(dataset?.authors ?? []).map((author, index) => (
+        {dataset.authors.map((author, index) => (
           <small key={index} className="text-[#4B5563] text-xs font-bold">
             {author?.first_name} {author?.last_name}
           </small>
@@ -121,7 +71,7 @@ const DatasetCard = ({
         {dataset.tags.map((tag, index) => (
           <div
             key={index}
-            className="bg-[#ffffff] text-[#101827] font-bold rounded px-3 py-1 text-xs border border-[#E5E7EB] border-2"
+            className="bg-[#ffffff] text-[#101827] font-bold rounded px-3 py-1 text-xs border border-[#E5E7EB]"
           >
             {tag}
           </div>
@@ -208,10 +158,10 @@ const DatasetCard = ({
       <div className="mt-4 flex justify-between">
         <button
           onClick={() => handleSingleDataModal(dataset)}
-          className=" py-2 px-3 h-10 rounded  border-[#D9D9D9] border-2 bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
+          className=" py-2 px-3 h-10 rounded border border-[#D9D9D9]  bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
         >
           <img src={view_icon} alt="View" className="w-4 h-4" />
-          <span className="font-bold">View Details</span>
+          <span className="font-semibold text-sm">View Details</span>
         </button>
 
         <button
@@ -223,7 +173,7 @@ const DatasetCard = ({
             alt="Download"
             className="w-4 h-4 invert "
           />
-          <span className="font-bold">Download</span>
+          <span className="font-bold text-sm">Download</span>
         </button>
       </div>
     </div>

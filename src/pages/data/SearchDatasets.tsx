@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import apiService from '../../services/apiService';
 import type { IDataset } from '@/lib/types/data-set';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 
 type SearchDatasetsProps = {
   className?: string;

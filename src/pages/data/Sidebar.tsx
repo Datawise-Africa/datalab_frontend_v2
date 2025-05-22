@@ -4,7 +4,7 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/designs/Button';
 import { useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils/cn';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthProvider';
 
 export default function Sidebar() {

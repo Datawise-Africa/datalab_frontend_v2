@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Upload } from 'lucide-react';
-import { cn } from '../../lib/utils/cn';
+import { cn } from '../../lib/utils';
 import Button from '../../components/designs/Button';
 import { useNavigate } from 'react-router-dom';
 

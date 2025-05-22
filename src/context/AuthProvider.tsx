@@ -97,6 +97,7 @@ const initialState: AuthState = {
   refreshToken: Cookie.get('session_refresh_token') ?? null,
   firstName: Cookie.get('session_first_name') ?? null,
   lastName: Cookie.get('session_last_name') ?? null,
+  email: Cookie.get('session_email') ?? null,
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -113,6 +114,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
     Cookie.set('session_refresh_token', state.refreshToken);
     Cookie.set('session_first_name', state.firstName);
     Cookie.set('session_last_name', state.lastName);
+    Cookie.set('session_email', state.email);
   }, [state]);
   const isAuthenticated = useMemo(() => {
     return !!state.userId && !!state.accessToken;

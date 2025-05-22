@@ -11,7 +11,7 @@ import useDownloadDataModal from '@/store/useDownloadDataModal';
 import DownloadDataModal from './DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
 import NoDataset from '@/components/Modals/DataModals/NoDataset';
-import Sidebar from './Sidebar';
+// import Sidebar from './Sidebar';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 
@@ -59,10 +59,10 @@ const DataCatalog = () => {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3rem)] mt-[3rem] bg-white">
-      <Sidebar />
+    <div className="flex flex-col ">
+      {/* <Sidebar /> */}
 
-      <main className="flex-1 overflow-y-auto px-6 py-6 ">
+      <main className="flex-1  py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mb-4 max-w-24xl ">
           <DatasetHeader
             onSearchResults={datasets.handleSearchResults}
@@ -91,13 +91,11 @@ const DataCatalog = () => {
           message={datasets.modalMessage}
         />
 
-        <div className=" grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <DatasetGrid
-            datasets={datasets.data}
-            handleSingleDataModal={handleSingleDataModal}
-            handleDownloadDataClick={handleDownloadDataClick}
-          />
-        </div>
+        <DatasetGrid
+          datasets={datasets.data}
+          handleSingleDataModal={handleSingleDataModal}
+          handleDownloadDataClick={handleDownloadDataClick}
+        />
       </main>
 
       {/* Modals */}
