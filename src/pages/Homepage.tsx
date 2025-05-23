@@ -54,10 +54,6 @@ const Homepage = () => {
     }
   };
 
-  if (datasets.isLoading) {
-    return <DatasetCardSkeleton />;
-  }
-
   return (
     <div className="flex flex-col ">
       <main className="flex-1  py-8">
@@ -74,12 +70,15 @@ const Homepage = () => {
           onClose={() => datasets.setIsDatasetModalOpen(false)}
           message={datasets.modalMessage}
         />
-
-        <DatasetGrid
-          datasets={datasets.data}
-          handleSingleDataModal={handleSingleDataModal}
-          handleDownloadDataClick={handleDownloadDataClick}
-        />
+        {datasets.isLoading ? (
+          <DatasetCardSkeleton />
+        ) : (
+          <DatasetGrid
+            datasets={datasets.data}
+            handleSingleDataModal={handleSingleDataModal}
+            handleDownloadDataClick={handleDownloadDataClick}
+          />
+        )}
       </main>
 
       {/* Modals */}
