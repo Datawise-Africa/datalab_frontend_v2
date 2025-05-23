@@ -1,4 +1,3 @@
-import type { SidebarLinkType } from '@/hooks/use-sidebar-links';
 import {
   Accordion,
   AccordionContent,
@@ -34,6 +33,7 @@ import { cn } from '@/lib/utils';
 import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
 import { useAuth } from '@/context/AuthProvider';
 import { Link } from 'react-router-dom';
+import type { SidebarLinkType } from '@/lib/types/sidebar';
 
 type LayoutSidebarProps = {
   links: SidebarLinkType[];
