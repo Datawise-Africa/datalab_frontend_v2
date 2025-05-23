@@ -20,7 +20,9 @@ export const protecteRoutes: RouteObject = {
     },
     {
       path: '/app/dataset-creator-dashboard',
-      element: <Protect role="admin" Component={DatasetCreatorsDashboard} />,
+      element: (
+        <Protect role="dataset_creator" Component={DatasetCreatorsDashboard} />
+      ),
     },
   ],
 };

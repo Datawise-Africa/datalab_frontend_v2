@@ -36,16 +36,22 @@ const DatasetGrid = ({
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-2">
-        {currentDatasets.map((dataset, index) => (
-          <DatasetCard
-            key={index}
-            dataset={dataset}
-            handleSingleDataModal={handleSingleDataModal}
-            handleDownloadDataClick={handleDownloadDataClick}
-          />
-        ))}
-      </div>
+      {currentDatasets.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-2">
+          {currentDatasets.map((dataset, index) => (
+            <DatasetCard
+              key={index}
+              dataset={dataset}
+              handleSingleDataModal={handleSingleDataModal}
+              handleDownloadDataClick={handleDownloadDataClick}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex justify-center items-center h-full">
+          <p className="text-lg text-gray-500">No datasets available</p>
+        </div>
+      )}
 
       {/* Pagination Controls */}
       <div className="flex justify-center mt-16 ml-20">

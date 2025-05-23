@@ -63,7 +63,7 @@ export default function DatasetFilterToolbar({
   const performSearch = useCallback(async (query: string) => {
     try {
       const queryString = `query=${encodeURIComponent(query)}`;
-      const url = `/data/filter/search/?${queryString}`;
+      const url = `/data/search/?${queryString}`;
 
       const { data } = await api.get<IDataset[]>(url);
 
@@ -98,7 +98,9 @@ export default function DatasetFilterToolbar({
     const searchCount = searchQuery ? 1 : 0;
     return filtCount + searchCount;
   }, [filters, searchQuery]);
-
+  // const extractOptions = () => {
+  //   const objs = Object.values(datasetFilterOptions.accessLevel);
+  // };
   return (
     <div className="w-full  px-4 py-4">
       {/* Search Bar */}
@@ -129,14 +131,24 @@ export default function DatasetFilterToolbar({
           />
           <DatasetToolbarFilterDropdown
             label="Select Region"
-            options={Object.values(datasetFilterOptions.region)}
+            options={Object.values(datasetFilterOptions.region).map(
+              (region) => ({
+                label: region,
+                value: region,
+              }),
+            )}
             selectedOptions={filters.region}
             category={'region'}
             setFilters={setFilters}
           />
           <DatasetToolbarFilterDropdown
             label="Select Timeframe"
-            options={Object.values(datasetFilterOptions.timeframe)}
+            options={Object.values(datasetFilterOptions.timeframe).map(
+              (timeframe) => ({
+                label: timeframe,
+                value: timeframe,
+              }),
+            )}
             selectedOptions={filters.timeframe}
             category={'timeframe'}
             setFilters={setFilters}
@@ -148,13 +160,13 @@ export default function DatasetFilterToolbar({
             category={'license'}
             setFilters={setFilters}
           /> */}
-          <DatasetToolbarFilterDropdown
+          {/* <DatasetToolbarFilterDropdown
             label="Select Timeframe"
             options={Object.values(datasetFilterOptions.timeframe)}
             selectedOptions={filters.timeframe}
             category={'timeframe'}
             setFilters={setFilters}
-          />
+          /> */}
 
           <Button
             variant="ghost"
@@ -256,7 +268,7 @@ function DatasetToolbarFilterDropdown({
   setFilters,
 }: {
   label: string;
-  options: string[];
+  options: { label: string; value: string }[];
   selectedOptions: string[];
   setFilters: React.Dispatch<React.SetStateAction<DatasetFilterOptions>>;
   category: keyof DatasetFilterOptions;
@@ -298,20 +310,21 @@ function DatasetToolbarFilterDropdown({
           {label}
         </div>
         {selectableOptions.map((option) => (
-          <div key={option} className="flex items-center space-x-2 py-1.5">
+          <Label
+            key={option.value}
+            htmlFor={option.value}
+            className="flex items-center space-x-2 py-1.5 text-subtle"
+          >
             <Checkbox
-              id={`${label}-${option}`}
-              checked={selectedOptions.includes(option)}
-              onCheckedChange={() => handleFilterChange(option)}
+              id={option.value}
+              checked={selectedOptions.includes(option.value)}
+              onCheckedChange={() => handleFilterChange(option.value)}
               className="border-gray-400 rounded"
             />
-            <Label
-              htmlFor={`${label}-${option}`}
-              className="text-sm cursor-pointer flex-1"
-            >
-              {option}
-            </Label>
-          </div>
+            <span className="text-sm cursor-pointer flex-1 text-primary">
+              {option.label}
+            </span>
+          </Label>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>

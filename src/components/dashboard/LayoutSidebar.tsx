@@ -135,10 +135,11 @@ export default function LayoutSidebar({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="default"
+                <Link
+                  to={'/app/dataset-creator-dashboard/'}
+                  // variant="default"
                   className={`
-                    w-full flex items-center justify-center space-x-2 py-3 text-subtle
+                    w-full flex items-center justify-center space-x-2 py-3 text-subtle bg-primary rounded
                     ${isCollapsed && !isMobile ? 'px-0' : 'px-4'}
                   `}
                 >
@@ -146,7 +147,7 @@ export default function LayoutSidebar({
                   {(!isCollapsed || isMobile) && (
                     <span className="text-sm font-medium">Upload Dataset</span>
                   )}
-                </Button>
+                </Link>
               </TooltipTrigger>
               {isCollapsed && !isMobile && (
                 <TooltipContent side="right" className="text-subtle">

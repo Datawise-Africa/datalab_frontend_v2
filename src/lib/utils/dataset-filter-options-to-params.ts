@@ -8,6 +8,12 @@ import type { DatasetFilterOptions } from '../types/data-set';
 export function datasetFiltersToSearchParams(
   filters: DatasetFilterOptions,
 ): URLSearchParams {
+  const queryKeys: Record<string, string> = {
+    accessLevel: 'access_level',
+    dataType: 'datatype',
+    region: 'region',
+    timeframe: 'timeframe',
+  };
   const params = new URLSearchParams();
 
   // Process each filter category
@@ -17,7 +23,7 @@ export function datasetFiltersToSearchParams(
 
     // Handle array values by adding multiple params
     for (const value of values) {
-      params.append(key, value);
+      params.append(queryKeys[key], value);
     }
   }
 

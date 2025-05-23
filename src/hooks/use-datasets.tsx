@@ -1,7 +1,6 @@
 import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import useApi from './use-api';
-import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
 import { datasetFiltersToSearchParams } from '@/lib/utils/dataset-filter-options-to-params';
 
 export type DatasetSortOptions = 'Popular' | 'Most Recent';
@@ -34,6 +33,11 @@ export default function useDatasets() {
     setModalMessage(message);
     setIsDatasetModalOpen(true);
   };
+
+  const activeFilters = useMemo(
+    () => Object.values(filters).reduce((acc, val) => acc + val.length, 0),
+    [filters],
+  );
   const fetchDatasets = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -47,68 +51,20 @@ export default function useDatasets() {
   }, []);
 
   const fetchFilteredDatasets = React.useCallback(async () => {
+    setFilteredDatasets([]);
+    if (activeFilters === 0) {
+      return;
+    }
     setIsFilteredDataLoading(true);
     try {
-      let _filteredData = datasets;
-
-      // Correct API endpoints for each category
-      const endpoints: Record<string, string> = {
-        accessLevel: '/data/filter/access-level/',
-        dataType: '/data/filter/datatype/',
-        region: '/data/filter/region/',
-        timeframe: '/data/filter/timeframe/',
-      };
-
-      // Correct query parameter mappings
-      const queryKeys: Record<string, string> = {
-        accessLevel: 'access_level',
-        dataType: 'datatype',
-        region: 'region',
-        timeframe: 'timeframe',
-      };
       const filtersM = datasetFiltersToSearchParams(filters);
-      console.log('filtersM', filtersM.toString());
+      const { data } = await api.get<IDataset[]>(
+        '/data/filter/?' + filtersM.toString(),
+      );
 
-      for (const [category, values] of Object.entries(filters)) {
-        if (values.length > 0) {
-          const queryKey = queryKeys[category];
-
-          // Reverse map user-friendly values back to original values
-          const originalValues = values.map((userFriendlyValue) => {
-            const mapping = Object.entries(
-              (datasetFilterOptions as unknown as Record<string, string>)[
-                category
-              ] || {},
-            ).find(([, value]) => value === userFriendlyValue);
-            return mapping ? mapping[0] : userFriendlyValue;
-          });
-
-          const queryString = originalValues
-            .map((value) => `${queryKey}=${encodeURIComponent(value)}`)
-            .join('&');
-
-          const url = `${endpoints[category]}?${queryString}`;
-
-          const { data } = await api.get<IDataset[]>(url);
-
-          if (data && data.length > 0) {
-            _filteredData = _filteredData.filter((item) =>
-              data.some((responseDataItem) => {
-                // Condition to check if 'item' matches 'responseDataItem'
-                // Example: Assuming your items have an 'id' property
-                return item.id === responseDataItem.id; // Adjust as needed
-              }),
-            );
-          } else {
-            const noDataMessage = `No data available under category ${values} yet`;
-            console.warn(noDataMessage);
-            showModal(noDataMessage);
-          }
-        }
+      if (data && data.length > 0) {
+        setFilteredDatasets(data);
       }
-
-      // setFilteredData(filteredData.length > 0 ? filteredData : datasets);
-      setFilteredDatasets(_filteredData);
     } catch (error) {
       const noDataMessage = `No data available under this category yet`;
       console.error('Error fetching filtered data:', error);
@@ -118,14 +74,8 @@ export default function useDatasets() {
     }
   }, [datasets, filters, api]);
   const data = useMemo(() => {
-    const dataToReturn =
-      searchedDatasets.length > 0
-        ? searchedDatasets
-        : filteredDatasets.length > 0
-          ? filteredDatasets
-          : datasets;
-    if (sort) {
-      return dataToReturn.sort((a, b) => {
+    const sortFuntion = (data: IDataset[]) => {
+      return data.sort((a, b) => {
         if (sort === 'Popular') {
           return b.download_count - a.download_count;
         } else if (sort === 'Most Recent') {
@@ -135,8 +85,12 @@ export default function useDatasets() {
         }
         return 0;
       });
-    }
-    return dataToReturn;
+    };
+
+    if (activeFilters > 0) return sortFuntion(filteredDatasets);
+    const dataToReturn =
+      searchedDatasets.length > 0 ? searchedDatasets : datasets;
+    return sortFuntion(dataToReturn);
   }, [datasets, filteredDatasets, sort, searchedDatasets]);
   const handleSearchResults = (results: IDataset[]) => {
     setSearchedDatasets(results);
@@ -161,7 +115,7 @@ export default function useDatasets() {
   useEffect(() => {
     fetchFilteredDatasets();
   }, [filters]);
-  // console.log({ searchedDatasets, filteredDatasets, datasets });
+  console.log({ searchedDatasets, filteredDatasets, datasets });
 
   return {
     data,
