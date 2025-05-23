@@ -19,7 +19,7 @@ export default function Sidebar() {
     queue: authQueue,
   } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const toggleSidebar = () => {

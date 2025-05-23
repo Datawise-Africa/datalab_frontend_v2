@@ -8,7 +8,7 @@ import useDataModal from '@/store/useDataModal';
 import useDownloadDataModal from '@/store/useDownloadDataModal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
-import NoDataset from '@/components/Modals/DataModals/NoDataset';
+// import NoDataset from '@/components/Modals/DataModals/NoDataset';
 // import Sidebar from './Sidebar';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
