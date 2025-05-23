@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import {
   BarChart,
@@ -11,24 +12,12 @@ import {
   Paperclip,
   User2,
   UserCheck,
-  type LucideIcon,
 } from 'lucide-react';
+import type { SidebarLinkType } from '@/lib/types/sidebar';
+import { validateSidebarLink } from '@/lib/utils/validate-sidebar-link';
 
-import { useMemo } from 'react';
-
-export type SidebarLinkType = {
-  label: string;
-  icon?: string | LucideIcon;
-  href: string;
-  badge?: string;
-  external?: boolean;
-  requiredRole?: string;
-  requiresAuth?: boolean;
-  children?: SidebarLinkType[];
-};
 export default function useSidebarLinks() {
-  const auth = useAuth();
-  const links: SidebarLinkType[] = [
+  const sidebarLinks: SidebarLinkType[] = [
     {
       label: 'Menu',
       href: '#',
@@ -74,6 +63,8 @@ export default function useSidebarLinks() {
       label: 'Admin',
       href: '#',
       icon: LockIcon,
+      requiresAuth: true,
+      requiredRole: 'admin',
       // icon: <HeroiconsOutlineDocumentReport />,
       children: [
         {
@@ -91,25 +82,20 @@ export default function useSidebarLinks() {
           label: 'Approved Datasets',
           href: '#',
           icon: Database,
+          requiresAuth: true,
+          requiredRole: 'admin',
         },
       ],
     },
   ];
+  const auth = useAuth();
 
   const filteredLinks = useMemo(() => {
-    return links.filter((link) => {
-      if (link.requiresAuth && !auth.isAuthenticated) {
-        return false;
-      }
-      /**
-       * TODO: Implement role-based access control
-       */
-      // if (link.requiredRole && !auth.state.userRole?.includes(link.requiredRole)) {
-      //   return false;
-      // }
-      return true;
-    });
-  }, [auth.state]);
+    return sidebarLinks
+      .map(validateSidebarLink(auth.isAuthenticated, auth.state.userRole))
+      .filter((link): link is SidebarLinkType => link !== null);
+  }, [auth.isAuthenticated, auth.state.userRole]);
+
   return {
     links: filteredLinks,
   };
