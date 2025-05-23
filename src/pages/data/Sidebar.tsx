@@ -3,7 +3,7 @@ import { Menu, Compass, Bookmark, ChevronRight } from 'lucide-react';
 import { X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/designs/Button';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthProvider';
 
