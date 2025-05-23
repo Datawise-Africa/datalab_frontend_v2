@@ -51,6 +51,9 @@ export class AuthPerm {
     authRole: AuthUserRoleType,
     userRole: AuthUserRoleType,
   ): boolean {
+    if (!this.isValidRole(authRole)) {
+      return false;
+    }
     const userSystemRole = this.combinedPermissions(userRole);
     const userRoleToCheck = this.getRolePermissionValue(authRole);
 
