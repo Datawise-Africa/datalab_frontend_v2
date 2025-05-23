@@ -51,11 +51,10 @@ export class AuthPerm {
     authRole: AuthUserRoleType,
     userRole: AuthUserRoleType,
   ): boolean {
-    const systemPermission = this.combinedPermissions(userRole);
-    const userPermission = this.getRolePermissionValue(authRole);
-    console.log({ systemPermission, userPermission, authRole, userRole });
+    const userSystemRole = this.combinedPermissions(userRole);
+    const userRoleToCheck = this.getRolePermissionValue(authRole);
 
-    return (systemPermission & userPermission) === userPermission;
+    return (userSystemRole & userRoleToCheck) === userRoleToCheck;
   }
 
   /**
