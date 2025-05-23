@@ -35,16 +35,48 @@
  */
 export const datasetFilterOptions = {
   accessLevel: {
-    public: 'Public Access',
-    non_profit: 'Non-Profit',
-    commercial: 'Commercial',
-    students: 'Student',
+    // public: 'Public Access',
+    // non_profit: 'Non-Profit',
+    // commercial: 'Commercial',
+    // students: 'Student',
+    public: {
+      label: 'Public Access',
+      value: 'public_sector',
+    },
+    non_profit: {
+      label: 'Non-Profit',
+      value: 'non_profit',
+    },
+    commercial: {
+      label: 'Commercial',
+      value: 'commercial',
+    },
+    students: {
+      label: 'Student',
+      value: 'student_academics',
+    },
   },
   dataType: {
-    education: 'Education',
-    healthcare: 'Healthcare',
-    agriculture: 'Agricultural',
-    environmental: 'Environmental',
+    // education: 'Education',
+    // healthcare: 'Healthcare',
+    // agriculture: 'Agricultural',
+    // environmental: 'Environmental',
+    education: {
+      label: 'Education',
+      value: 'Education',
+    },
+    healthcare: {
+      label: 'Healthcare',
+      value: 'Healthcare',
+    },
+    agriculture: {
+      label: 'Agriculture',
+      value: 'Agriculture',
+    },
+    environmental: {
+      label: 'Environmental',
+      value: 'Environmental',
+    },
   },
   region: {
     'East Africa': 'East African ',

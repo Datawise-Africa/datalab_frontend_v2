@@ -9,18 +9,18 @@ import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
 import company_icon from '/assets/datalab/company-icon-dark.svg';
 import student_icon from '/assets/datalab/student-icon-dark.svg';
 import public_icon from '/assets/datalab/public2-icon-dark.svg';
-import {
-  FaUserGraduate,
-  FaUsers,
-  FaHandsHelping,
-  FaCheck,
-  FaBuilding,
-  FaTimes,
-} from 'react-icons/fa';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 import type { IDataset } from '@/lib/types/data-set';
 import { useAuth } from '@/context/AuthProvider';
+import {
+  Building,
+  Check,
+  GraduationCap,
+  Handshake,
+  Users,
+  X,
+} from 'lucide-react';
 
 type DownloadDataModalProps = {
   dataset: IDataset;
@@ -390,9 +390,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
                     </span>
                     {status ? (
-                      <FaCheck className="text-green-500" />
+                      <Check className="text-green-500" size={16} />
                     ) : (
-                      <FaTimes className="text-red-500" />
+                      <X className="text-red-500" size={16} />
                     )}
                   </div>
                 ),
@@ -528,9 +528,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
                     </span>
                     {status ? (
-                      <FaCheck className="text-green-500" />
+                      <Check className="text-green-500" size={16} />
                     ) : (
-                      <FaTimes className="text-red-500" />
+                      <X className="text-red-500" size={16} />
                     )}
                   </div>
                 ),
@@ -560,22 +560,22 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                 {[
                   {
                     type: 'Company',
-                    icon: <FaBuilding />,
+                    icon: <Building />,
                     description: 'Business Email Required.',
                   },
                   {
                     type: 'Non-Profit',
-                    icon: <FaHandsHelping />,
+                    icon: <Handshake />,
                     description: 'NGO or .org Email Required.',
                   },
                   {
                     type: 'Student',
-                    icon: <FaUserGraduate />,
+                    icon: <GraduationCap />,
                     description: 'University/Educational Email Required.',
                   },
                   {
                     type: 'Public',
-                    icon: <FaUsers />,
+                    icon: <Users />,
                     description: 'Personal Email Required.',
                   },
                 ].map((card, index) => (
@@ -720,9 +720,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
                     </span>
                     {status ? (
-                      <FaCheck className="text-green-500" />
+                      <Check className="text-green-500" size={16} />
                     ) : (
-                      <FaTimes className="text-red-500" />
+                      <X className="text-red-500" size={16} />
                     )}
                   </div>
                 ),
@@ -866,9 +866,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
                     </span>
                     {status ? (
-                      <FaCheck className="text-green-500" />
+                      <Check className="text-green-500" size={16} />
                     ) : (
-                      <FaTimes className="text-red-500" />
+                      <X className="text-red-500" size={16} />
                     )}
                   </div>
                 ),

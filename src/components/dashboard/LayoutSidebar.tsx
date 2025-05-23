@@ -1,4 +1,3 @@
-import type { SidebarLinkType } from '@/hooks/use-sidebar-links';
 import {
   Accordion,
   AccordionContent,
@@ -34,6 +33,7 @@ import { cn } from '@/lib/utils';
 import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
 import { useAuth } from '@/context/AuthProvider';
 import { Link } from 'react-router-dom';
+import type { SidebarLinkType } from '@/lib/types/sidebar';
 
 type LayoutSidebarProps = {
   links: SidebarLinkType[];
@@ -135,10 +135,11 @@ export default function LayoutSidebar({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant="default"
+                <Link
+                  to={'/app/dataset-creator-dashboard/'}
+                  // variant="default"
                   className={`
-                    w-full flex items-center justify-center space-x-2 py-3 text-subtle
+                    w-full flex items-center justify-center space-x-2 py-3 text-subtle bg-primary rounded
                     ${isCollapsed && !isMobile ? 'px-0' : 'px-4'}
                   `}
                 >
@@ -146,7 +147,7 @@ export default function LayoutSidebar({
                   {(!isCollapsed || isMobile) && (
                     <span className="text-sm font-medium">Upload Dataset</span>
                   )}
-                </Button>
+                </Link>
               </TooltipTrigger>
               {isCollapsed && !isMobile && (
                 <TooltipContent side="right" className="text-subtle">
@@ -216,7 +217,7 @@ export default function LayoutSidebar({
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <SidebarUserDropdown />
+              <SidebarUserDropdown isMobile={isMobile} />
             </DropdownMenu>
           ) : (
             <Button
@@ -274,20 +275,27 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
               <Button
                 variant="ghost"
                 className="w-full p-0 flex items-center justify-center h-10"
+                asChild
               >
-                {props.icon && (
-                  <span className="flex items-center justify-center w-5 h-5">
-                    {typeof props.icon !== 'string' ? (
-                      <props.icon size={20} className="text-gray-600" />
-                    ) : (
-                      <img
-                        src={props.icon}
-                        alt={props.label}
-                        className="h-5 w-5 text-gray-600"
-                      />
-                    )}
-                  </span>
-                )}
+                <Link
+                  to={props.href}
+                  className="w-full p-0 flex items-center justify-center h-10"
+                >
+                  {/* Icon */}
+                  {props.icon && (
+                    <span className="flex items-center justify-center w-5 h-5">
+                      {typeof props.icon !== 'string' ? (
+                        <props.icon size={20} className="text-gray-600" />
+                      ) : (
+                        <img
+                          src={props.icon}
+                          alt={props.label}
+                          className="h-5 w-5 text-gray-600"
+                        />
+                      )}
+                    </span>
+                  )}
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" className="text-subtle">
@@ -302,23 +310,25 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
             <TooltipProvider key={child.label}>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="w-full p-0 flex items-center justify-center h-10"
-                  >
-                    {child.icon && (
-                      <span className="flex items-center justify-center w-5 h-5">
-                        {typeof child.icon !== 'string' ? (
-                          <child.icon size={20} className="text-gray-600" />
-                        ) : (
-                          <img
-                            src={child.icon}
-                            alt={child.label}
-                            className="h-5 w-5 text-gray-600"
-                          />
-                        )}
-                      </span>
-                    )}
+                  <Button variant="ghost" asChild>
+                    <Link
+                      to={child.href}
+                      className="w-full p-0 flex items-center justify-center h-10"
+                    >
+                      {child.icon && (
+                        <span className="flex items-center justify-center w-5 h-5">
+                          {typeof child.icon !== 'string' ? (
+                            <child.icon size={20} className="text-gray-600" />
+                          ) : (
+                            <img
+                              src={child.icon}
+                              alt={child.label}
+                              className="h-5 w-5 text-gray-600"
+                            />
+                          )}
+                        </span>
+                      )}
+                    </Link>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="text-subtle">
@@ -365,7 +375,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
       variant="ghost"
       className="w-full justify-start py-2 px-3 h-auto hover:bg-gray-50 rounded-md"
     >
-      <div className="flex items-center space-x-3">
+      <Link to={props.href} className="flex items-center space-x-3">
         {props.icon && (
           <span className="flex items-center justify-center w-5 h-5 text-gray-600">
             {typeof props.icon !== 'string' ? (
@@ -380,12 +390,12 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
           </span>
         )}
         <span className="text-sm font-medium">{props.label}</span>
-      </div>
+      </Link>
     </Button>
   );
 }
 
-function SidebarUserDropdown() {
+function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
   const {
     dispatch,
     actions,
@@ -394,8 +404,8 @@ function SidebarUserDropdown() {
   return (
     <DropdownMenuContent
       className="w-64 bg-white   p-4 shadow-lg border border-subtle rounded-md mb-2"
-      side="right"
-      alignOffset={10}
+      side={isMobile ? 'top' : 'right'}
+      // alignOffset={10}
     >
       <DropdownMenuLabel>
         <div className="flex items-center space-x-3">
