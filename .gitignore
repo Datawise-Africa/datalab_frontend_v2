@@ -22,3 +22,21 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test related files
+test-results/
+test-results/**/*
+playwright-report/
+playwright-report/**/*
+coverage/
+**/node_modules/.vitest/
+**/.nyc_output/
+**/html/
+**/coverage-final.json
+**/.vite-node/
+**.spec.js.snap
+**.test.js.snap
+
+# Temporary files
+.tmp/
+.cache/
