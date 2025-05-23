@@ -65,11 +65,11 @@ const Homepage = () => {
           sortOption={datasets.sort}
           resetSearch={datasets.handleSearchReset}
         />
-        <NoDataset
+        {/* <NoDataset
           isOpen={datasets.isDatasetModalOpen}
           onClose={() => datasets.setIsDatasetModalOpen(false)}
           message={datasets.modalMessage}
-        />
+        /> */}
         {datasets.isLoading ? (
           <DatasetCardSkeleton />
         ) : (

@@ -11,7 +11,7 @@ import view_icon from '/assets/datalab/view-icon.svg';
 import type { IDataset } from '@/lib/types/data-set';
 import { CheckIcon, Star, User, X } from 'lucide-react';
 import { Badge } from '../ui/badge';
-
+import moment from 'moment';
 type DatasetCardProps = {
   dataset: IDataset;
   handleSingleDataModal: (dataset: IDataset) => void;
@@ -125,7 +125,7 @@ const DatasetCard = ({
         <div className="flex items-center">
           <img src={spinning_timer_icon} alt="timer" className="w-4 h-4" />
           <span className="ml-1 text-[#101827] text-xs">
-            Created: {dataset.created_at}
+            Created: {moment(dataset.created_at).format('MMMM Do YYYY')}
           </span>
         </div>
         <div className="flex items-center">
@@ -161,7 +161,7 @@ const DatasetCard = ({
         </div>
       </div>
 
-      <hr className=" mt-2 border-t border-[#ddeeff] -mx-6" />
+      <hr className=" mt-2 border-t border-[#ddeeff]" />
 
       <div className="mt-4 flex justify-between">
         <button

@@ -2,6 +2,7 @@ import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import useApi from './use-api';
 import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
+import { datasetFiltersToSearchParams } from '@/lib/utils/dataset-filter-options-to-params';
 
 export type DatasetSortOptions = 'Popular' | 'Most Recent';
 
@@ -65,6 +66,8 @@ export default function useDatasets() {
         region: 'region',
         timeframe: 'timeframe',
       };
+      const filtersM = datasetFiltersToSearchParams(filters);
+      console.log('filtersM', filtersM.toString());
 
       for (const [category, values] of Object.entries(filters)) {
         if (values.length > 0) {
