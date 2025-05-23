@@ -16,7 +16,11 @@ export default function Protect({ role, Component, props = {} }: ProtectProps) {
   const { state, isAuthenticated } = useAuth();
   const perm = AuthPerm.getInstance();
   const userHasAccess = useMemo(() => {
-    return perm.hasPermission(role, state.userRole);
+    return (
+      isAuthenticated &&
+      state.userRole &&
+      perm.hasPermission(role, state.userRole)
+    );
   }, [role, isAuthenticated, state.userRole]);
   return (
     <div>
