@@ -49,7 +49,7 @@ export default function useDatasetCreator(
     } finally {
       setIsLoading(false);
     }
-  }, [api]);
+  }, []);
 
   const createDatasetCreator = useCallback(
     async (data: BecomeDatasetCreatorSchema) => {
