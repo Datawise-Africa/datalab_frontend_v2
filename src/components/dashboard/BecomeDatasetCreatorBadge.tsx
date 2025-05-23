@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from '../ui/tooltip';
 import { Link } from 'react-router-dom';
+import useDatasetCreator from '@/hooks/use-dataset-creator';
 
 type BecomeDatasetCreatorBadgeProps = {
   collapsed?: boolean;
@@ -19,6 +20,7 @@ export default function BecomeDatasetCreatorBadge({
   isMobile,
 }: BecomeDatasetCreatorBadgeProps) {
   const [show, setShow] = useState(true);
+  const { currentStatus: _ } = useDatasetCreator();
 
   if (collapsed && !isMobile) {
     return (
