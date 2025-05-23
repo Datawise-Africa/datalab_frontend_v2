@@ -1,8 +1,9 @@
+import type { AuthUserRoleType } from '@/lib/types/auth-context';
 import type { InferActions } from '@/lib/types/utils';
 
 type LoginPayload = {
   userId: string;
-  userRole: string;
+  userRole: AuthUserRoleType;
   accessToken: string;
   refreshToken: string;
   firstName: string;

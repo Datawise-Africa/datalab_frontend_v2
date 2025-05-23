@@ -1,4 +1,3 @@
-import { FaRegUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
 // Importing icons
 import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
 import company_icon from '/assets/datalab/company-icon.svg';
@@ -10,6 +9,7 @@ import download_icon from '/assets/datalab/download-icon.svg';
 import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
 import view_icon from '/assets/datalab/view-icon.svg';
 import type { IDataset } from '@/lib/types/data-set';
+import { CheckIcon, Star, User, X } from 'lucide-react';
 
 type DatasetCardProps = {
   dataset: IDataset;
@@ -34,7 +34,7 @@ const DatasetCard = ({
     }
 
     return [...Array(5)].map((_, index) => (
-      <FaStar
+      <Star
         key={index}
         className={index < rating ? 'text-[#757185]' : 'text-gray-300'}
       />
@@ -54,7 +54,7 @@ const DatasetCard = ({
       </div>
 
       <div className="flex flex-wrap items-center space-x-2 mt-2">
-        <FaRegUser className="text-[#757185] w-4 h-4 " />
+        <User className="text-[#757185] w-4 h-4 " />
         {dataset.authors.map((author, index) => (
           <small key={index} className="text-[#4B5563] text-xs font-bold">
             {author?.first_name} {author?.last_name}
@@ -104,9 +104,9 @@ const DatasetCard = ({
                 {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
               </span>
               {status ? (
-                <FaCheck className="text-green-500" />
+                <CheckIcon className="text-green-500" size={16} />
               ) : (
-                <FaTimes className="text-red-500" />
+                <X className="text-red-500" size={16} />
               )}
             </div>
           ),

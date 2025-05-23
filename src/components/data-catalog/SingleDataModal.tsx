@@ -1,8 +1,8 @@
-import { FaUser, FaCheck, FaTimes, FaStar } from 'react-icons/fa';
 import Modal from '@/components/Modals/DataModals/Modal';
 import useDataModal from '@/store/useDataModal';
 import DatasetPreview from './DatasetPreview';
 import type { IDataset } from '@/lib/types/data-set';
+import { Check, Star, User, X } from 'lucide-react';
 
 const profiteerIcons: Record<string, any> = {
   non_profit: '/assets/datalab/non-profit-icon.svg',
@@ -17,7 +17,7 @@ const renderStars = (rating: number | null) => {
   }
 
   return [...Array(5)].map((_, index) => (
-    <FaStar
+    <Star
       key={index}
       className={index < rating ? 'text-yellow-500' : 'text-gray-300'}
     />
@@ -64,7 +64,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
 
           {/* Author Details */}
           <div className="flex flex-wrap items-center space-x-2">
-            <FaUser className="text-[#757185] w-2 h-4" />
+            <User className="text-[#757185] w-2 h-4" />
             {dataset_author?.map(({ first_name, last_name }, index) => (
               <small key={index} className="text-[#757185] text-xs">
                 {first_name} {last_name}
@@ -104,9 +104,9 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
                     {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
                   </span>
                   {status ? (
-                    <FaCheck className="text-green-500" />
+                    <Check className="text-green-500" size={16} />
                   ) : (
-                    <FaTimes className="text-red-500" />
+                    <X className="text-red-500" size={16} />
                   )}
                 </div>
               ),

@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import useApi from './use-api';
 import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
 
-export type DatasetSortOptions = 'Popular' | 'Most Recent' | null;
+export type DatasetSortOptions = 'Popular' | 'Most Recent';
 
 export default function useDatasets() {
   const [datasets, setDatasets] = React.useState<IDataset[]>([]);
@@ -14,6 +14,8 @@ export default function useDatasets() {
     [],
   );
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isFilteredDataLoading, setIsFilteredDataLoading] =
+    React.useState(false);
   const [_, setHasSearched] = React.useState(false);
   const [isDatasetModalOpen, setIsDatasetModalOpen] = React.useState(false);
   const [filters, setFilters] = React.useState<DatasetFilterOptions>({
@@ -22,7 +24,7 @@ export default function useDatasets() {
     region: [],
     timeframe: [],
   });
-  const [sort, setSort] = React.useState<DatasetSortOptions>(null);
+  const [sort, setSort] = React.useState<DatasetSortOptions>('Most Recent');
   const [modalMessage, setModalMessage] = React.useState<string>('');
 
   const api = useApi().publicApi;
@@ -44,7 +46,7 @@ export default function useDatasets() {
   }, []);
 
   const fetchFilteredDatasets = React.useCallback(async () => {
-    setIsLoading(true);
+    setIsFilteredDataLoading(true);
     try {
       let _filteredData = datasets;
 
@@ -109,7 +111,7 @@ export default function useDatasets() {
       console.error('Error fetching filtered data:', error);
       showModal(noDataMessage);
     } finally {
-      setIsLoading(false);
+      setIsFilteredDataLoading(false);
     }
   }, [datasets, filters, api]);
   const data = useMemo(() => {
@@ -147,6 +149,9 @@ export default function useDatasets() {
     setSearchedDatasets([]);
     setHasSearched(false);
   };
+  const pageIsLoading = useMemo(() => {
+    return isLoading || isFilteredDataLoading;
+  }, [isLoading, isFilteredDataLoading]);
   useEffect(() => {
     fetchDatasets();
   }, [fetchDatasets]);
@@ -157,7 +162,7 @@ export default function useDatasets() {
 
   return {
     data,
-    isLoading,
+    isLoading: pageIsLoading,
     handleSearchResults,
     handleSearchReset,
     isDatasetModalOpen,
@@ -166,5 +171,6 @@ export default function useDatasets() {
     setSort,
     setFilters,
     filters,
+    sort,
   };
 }
