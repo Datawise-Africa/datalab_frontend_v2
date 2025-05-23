@@ -1,3 +1,4 @@
+import Protect from '@/components/Protect';
 import ProtectedLayout from '@/layout/ProtectedLayout';
 import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
@@ -19,7 +20,7 @@ export const protecteRoutes: RouteObject = {
     },
     {
       path: '/app/dataset-creator-dashboard',
-      element: <DatasetCreatorsDashboard />,
+      element: <Protect role="admin" Component={DatasetCreatorsDashboard} />,
     },
   ],
 };

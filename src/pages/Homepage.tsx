@@ -3,8 +3,6 @@ import { useState } from 'react';
 // import FilterPanel from '../components/data-catalog/FilterPanel';
 // import SortData from '../components/data-catalog/SortData';
 import DatasetGrid from '../components/data-catalog/DatasetGrid';
-
-import Loader from '../components/data-catalog/Loader';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/useDataModal';
 import useDownloadDataModal from '@/store/useDownloadDataModal';
@@ -62,30 +60,7 @@ const Homepage = () => {
 
   return (
     <div className="flex flex-col ">
-      {/* <Sidebar /> */}
-
       <main className="flex-1  py-8">
-        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mb-4 max-w-24xl "> */}
-        {/* <DatasetHeader
-            onSearchResults={datasets.handleSearchResults}
-            onSearchReset={datasets.handleSearchReset}
-          /> */}
-
-        {/* <div className="items-center justify-center hidden lg:flex w-24 mr-0">
-            <SortData
-              sortIsOpen={sortIsOpen}
-              toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
-              onSort={datasets.setSort}
-            />
-          </div> */}
-        {/* </div> */}
-
-        {/* <div className=" lg:flex flex-grow max-w-24xl">
-          <FilterPanel
-            filters={datasets.filters}
-            setFilters={datasets.setFilters}
-          />
-        </div> */}
         <DatasetFilterToolbar
           filters={datasets.filters}
           onSearchResults={datasets.handleSearchResults}

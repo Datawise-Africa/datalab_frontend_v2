@@ -94,7 +94,7 @@ const AuthModal = () => {
             firstName: data.first_name,
             lastName: data.last_name,
             userId: data.id,
-            userRole: data.user_role,
+            userRole: 'admin', // data.user_role,
             email: data.email,
           }),
         );

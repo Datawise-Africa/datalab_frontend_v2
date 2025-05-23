@@ -10,6 +10,7 @@ import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
 import view_icon from '/assets/datalab/view-icon.svg';
 import type { IDataset } from '@/lib/types/data-set';
 import { CheckIcon, Star, User, X } from 'lucide-react';
+import { Badge } from '../ui/badge';
 
 type DatasetCardProps = {
   dataset: IDataset;
@@ -69,12 +70,19 @@ const DatasetCard = ({
 
       <div className="pt-2 flex flex-wrap gap-2">
         {dataset.tags.map((tag, index) => (
-          <div
+          // <div
+          //   key={index}
+          //   className="bg-[#ffffff] text-[#101827] font-bold rounded px-3 py-1 text-xs border border-[#E5E7EB]"
+          // >
+          //   {tag}
+          // </div>
+          <Badge
             key={index}
-            className="bg-[#ffffff] text-[#101827] font-bold rounded px-3 py-1 text-xs border border-[#E5E7EB]"
+            variant="outline"
+            className="text-[#0F2542] rounded-lg px-3 py-1 text-xs border-gray-300"
           >
             {tag}
-          </div>
+          </Badge>
         ))}
       </div>
 
