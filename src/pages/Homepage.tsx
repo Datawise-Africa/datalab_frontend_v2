@@ -1,23 +1,23 @@
 import { useState } from 'react';
-import DatasetHeader from '../components/data-catalog/DatasetHeader';
-import SortData from '../components/data-catalog/SortData';
+// import DatasetHeader from '../components/data-catalog/DatasetHeader';
+// import FilterPanel from '../components/data-catalog/FilterPanel';
+// import SortData from '../components/data-catalog/SortData';
 import DatasetGrid from '../components/data-catalog/DatasetGrid';
-import FilterPanel from '../components/data-catalog/FilterPanel';
-
-import Loader from '../components/data-catalog/Loader';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/useDataModal';
 import useDownloadDataModal from '@/store/useDownloadDataModal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
-import NoDataset from '@/components/Modals/DataModals/NoDataset';
+// import NoDataset from '@/components/Modals/DataModals/NoDataset';
 // import Sidebar from './Sidebar';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
+import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
+import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
 
 const Homepage = () => {
   // const [navUrl, setNavUrl] = useState('');
-  const [sortIsOpen, setSortIsOpen] = useState(false);
+  // const [sortIsOpen, setSortIsOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
   const auth = useAuth();
@@ -54,48 +54,31 @@ const Homepage = () => {
     }
   };
 
-  if (datasets.isLoading) {
-    return <Loader />;
-  }
-
   return (
     <div className="flex flex-col ">
-      {/* <Sidebar /> */}
-
       <main className="flex-1  py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 mb-4 max-w-24xl ">
-          <DatasetHeader
-            onSearchResults={datasets.handleSearchResults}
-            onSearchReset={datasets.handleSearchReset}
-          />
-
-          <div className="items-center justify-center hidden lg:flex w-24 mr-0">
-            <SortData
-              sortIsOpen={sortIsOpen}
-              toggleDropdown={() => setSortIsOpen(!sortIsOpen)}
-              onSort={datasets.setSort}
-            />
-          </div>
-        </div>
-
-        <div className=" lg:flex flex-grow max-w-24xl">
-          <FilterPanel
-            filters={datasets.filters}
-            setFilters={datasets.setFilters}
-          />
-        </div>
-
-        <NoDataset
+        <DatasetFilterToolbar
+          filters={datasets.filters}
+          onSearchResults={datasets.handleSearchResults}
+          setFilters={datasets.setFilters}
+          setSortOption={datasets.setSort}
+          sortOption={datasets.sort}
+          resetSearch={datasets.handleSearchReset}
+        />
+        {/* <NoDataset
           isOpen={datasets.isDatasetModalOpen}
           onClose={() => datasets.setIsDatasetModalOpen(false)}
           message={datasets.modalMessage}
-        />
-
-        <DatasetGrid
-          datasets={datasets.data}
-          handleSingleDataModal={handleSingleDataModal}
-          handleDownloadDataClick={handleDownloadDataClick}
-        />
+        /> */}
+        {datasets.isLoading ? (
+          <DatasetCardSkeleton />
+        ) : (
+          <DatasetGrid
+            datasets={datasets.data}
+            handleSingleDataModal={handleSingleDataModal}
+            handleDownloadDataClick={handleDownloadDataClick}
+          />
+        )}
       </main>
 
       {/* Modals */}

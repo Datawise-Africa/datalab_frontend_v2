@@ -3,9 +3,11 @@ import type {
   authProviderActions,
 } from '@/context/actions/auth-actions';
 
+export type AuthUserRoleType = 'user' | 'dataset_creator' | 'admin';
+
 export type AuthState = {
   userId: string;
-  userRole: string;
+  userRole: AuthUserRoleType;
   accessToken: string;
   refreshToken: string;
   firstName: string;

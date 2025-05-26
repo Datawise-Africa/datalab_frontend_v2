@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Menu, Compass, Bookmark, ChevronRight } from 'lucide-react';
 import { X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/designs/Button';
-import { useLocation } from 'react-router-dom';
+// import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthProvider';
 
@@ -19,7 +19,7 @@ export default function Sidebar() {
     queue: authQueue,
   } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const toggleSidebar = () => {
@@ -180,27 +180,19 @@ export default function Sidebar() {
             </button>
           )}
 
-          {location.pathname !== '/dataset-creator-dashboard' && (
-            <button
-              onClick={() => {
-                if (isAuthenticated) {
-                  navigate('/dataset-creator-dashboard');
-                } else {
-                  setIsAuthModalOpen(true);
-                }
-              }}
-              className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
-                collapsed ? 'p-2' : 'px-4 py-2'
-              }`}
-            >
-              <img
-                src={'/assets/datalab/uploadicon.png'}
-                alt="Upload Icon"
-                className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
-              />
-              {!collapsed && 'Upload Dataset'}
-            </button>
-          )}
+          <Link
+            to={'/app/dataset-creator-dashboard'}
+            className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
+              collapsed ? 'p-2' : 'px-4 py-2'
+            }`}
+          >
+            <img
+              src={'/assets/datalab/uploadicon.png'}
+              alt="Upload Icon"
+              className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
+            />
+            {!collapsed && 'Upload Dataset'}ss
+          </Link>
         </div>
 
         {/* Menu Items */}
