@@ -9,7 +9,7 @@ type Props = {
 
 type DatasetCreatorStatus =
   | Pick<
-      PaginatedGetBecomeDatasetCreatorResponse['docs'][number],
+      PaginatedGetBecomeDatasetCreatorResponse['data'][number],
       'status'
     >['status']
   | 'N/A';
@@ -24,16 +24,19 @@ type DatasetCreatorStatus =
  * @returns {Object} The dataset creator state and actions
  * @returns {function(BecomeDatasetCreatorSchema): Promise<any>} returns.createDatasetCreator - Function to submit a dataset creator application
  * @returns {boolean} returns.isLoading - Loading state flag for API operations
- * @returns {Array<PaginatedGetBecomeDatasetCreatorResponse['docs'][number]>} returns.data - Raw dataset creator data
+ * @returns {Array<PaginatedGetBecomeDatasetCreatorResponse['data'][number]>} returns.data - Raw dataset creator data
  * @returns {DatasetCreatorStatus} returns.currentStatus - Current status of the dataset creator application
  */
 export default function useDatasetCreator(
   { shouldFetch }: Props = { shouldFetch: true },
 ) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isStatusUpdateLoading, setIsStatusUpdateLoading] =
+    React.useState(false);
+
   const api = useApi().privateApi;
   const [data, setData] = React.useState<
-    PaginatedGetBecomeDatasetCreatorResponse['docs']
+    PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -41,8 +44,8 @@ export default function useDatasetCreator(
       const response = await api.get<PaginatedGetBecomeDatasetCreatorResponse>(
         '/users/become-dataset-creator/',
       );
-      if (Array.isArray(response.data.docs)) {
-        setData(response.data.docs);
+      if (Array.isArray(response.data.data)) {
+        setData(response.data.data);
       }
     } catch (error) {
       console.error(extractCorrectErrorMessage(error));
@@ -65,6 +68,43 @@ export default function useDatasetCreator(
     },
     [api],
   );
+  const handleApprove = useCallback(async (id: number) => {
+    setIsStatusUpdateLoading(true);
+    try {
+      // const response =
+      await api.post(`/users/${id}/approve`);
+      setData(
+        data.map((applicant) =>
+          applicant.id === id
+            ? { ...applicant, status: 'Approved' }
+            : applicant,
+        ),
+      );
+    } catch (error) {
+      console.error(extractCorrectErrorMessage(error));
+    } finally {
+      setIsStatusUpdateLoading(false);
+    }
+  }, []);
+
+  const handleReject = useCallback(async (id: number) => {
+    setIsStatusUpdateLoading(true);
+    try {
+      // const response =
+      await api.post(`/users/${id}/reject`);
+      setData(
+        data.map((applicant) =>
+          applicant.id === id
+            ? { ...applicant, status: 'Rejected' }
+            : applicant,
+        ),
+      );
+    } catch (error) {
+      console.error(extractCorrectErrorMessage(error));
+    } finally {
+      setIsStatusUpdateLoading(false);
+    }
+  }, []);
   useEffect(() => {
     if (!shouldFetch) return;
     fetchData();
@@ -78,5 +118,8 @@ export default function useDatasetCreator(
     isLoading,
     data,
     currentStatus,
+    handleApprove,
+    isStatusUpdateLoading,
+    handleReject,
   };
 }

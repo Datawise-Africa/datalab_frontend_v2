@@ -10,6 +10,10 @@ const DatasetCreatorsDashboard = lazy(
   () => import('@/pages/DatasetCreatorsDashboard'),
 );
 
+const ApplicationsPage = lazy(
+  () => import('@/components/creatorapplications/ApplicationsPage'),
+);
+
 export const protecteRoutes: RouteObject = {
   path: '/app',
   element: <ProtectedLayout />,
@@ -23,6 +27,10 @@ export const protecteRoutes: RouteObject = {
       element: (
         <Protect role="dataset_creator" Component={DatasetCreatorsDashboard} />
       ),
+    },
+    {
+      path: '/app/applications',
+      element: <ApplicationsPage />,
     },
   ],
 };

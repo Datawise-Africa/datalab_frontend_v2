@@ -17,6 +17,7 @@ const baseRoutes = [
     path: '/reports',
     element: <Reports />,
   },
+
   protecteRoutes,
 ];
 
