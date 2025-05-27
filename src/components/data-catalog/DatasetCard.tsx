@@ -1,4 +1,4 @@
-// Importing icons
+
 import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
 import company_icon from '/assets/datalab/company-icon.svg';
 import student_icon from '/assets/datalab/student-icon.svg';
