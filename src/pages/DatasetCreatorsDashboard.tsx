@@ -1,9 +1,9 @@
-import { useState } from 'react';
+
 import { useAuth } from '@/context/AuthProvider';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
-  const [modalOpen, setModalOpen] = useState(false);
+
 
   return (
     <div className="flex mt-10 lg:mt-10">
@@ -24,7 +24,7 @@ const DatasetCreatorsDashboard = () => {
             </button>
             <button
               className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium"
-              onClick={() => setModalOpen(true)}
+              
             >
               + Add Dataset
             </button>
