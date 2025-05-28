@@ -34,9 +34,10 @@ export default function useDatasetCreator(
   { shouldFetch }: Props = { shouldFetch: true },
 ) {
   const authPerm = AuthPerm.getInstance();
+  const auth = useAuth();
+
   const [isLoading, setIsLoading] = React.useState(false);
   const api = useApi().privateApi;
-  const auth = useAuth();
   const [data, setData] = React.useState<
     PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);
@@ -94,7 +95,8 @@ export default function useDatasetCreator(
       return 'Confirmed';
     }
     return data[0].status || 'N/A';
-  }, [data]);
+  }, [data, auth.isAuthenticated, authPerm, auth.state.userRole, data]);
+
   return {
     createDatasetCreator,
     isLoading,
