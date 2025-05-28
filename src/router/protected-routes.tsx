@@ -30,7 +30,7 @@ export const protecteRoutes: RouteObject = {
     },
     {
       path: '/app/applications',
-      element: <ApplicationsPage />,
+      element: <Protect role="admin" Component={ApplicationsPage} />,
     },
   ],
 };

@@ -41,6 +41,8 @@ export default function useSidebarLinks() {
       label: 'Creator Tools',
       href: '#',
       icon: Edit,
+      requiresAuth: true,
+      requiredRole: 'dataset_creator',
       children: [
         {
           label: 'My Datasets',

@@ -11,9 +11,10 @@ export type BecomeDatasetCreatorType = {
   affiliation: string;
   expertise: string;
   reason_for_joining: string;
-  past_work_files: null;
-  status: 'Pending' | 'In Review' | 'Approved' | 'Rejected';
+  past_work_files: string[];
+  status: 'Pending' | 'In review' | 'Approved' | 'Rejected';
   created_at: string;
+  approved_at?: string;
 };
 export const getDatasetCreatorBadge = (
   status: BecomeDatasetCreatorType['status'],
@@ -28,7 +29,7 @@ export const getDatasetCreatorBadge = (
     case 'Rejected':
       return 'bg-red-50 text-red-700';
 
-    case 'In Review':
+    case 'In review':
       return 'bg-yellow-50 text-yellow-700';
     default:
       return '';

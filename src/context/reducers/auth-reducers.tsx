@@ -15,6 +15,13 @@ export function authReducer(state: AuthState, action: AuthAction): AuthState {
         return acc;
       }, {} as AuthStateWithRecord);
     }
+    case 'REFRESH': {
+      return {
+        ...state,
+        accessToken: action.payload.accessToken,
+        refreshToken: action.payload.refreshToken,
+      };
+    }
     default:
       return state;
   }

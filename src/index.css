@@ -91,9 +91,18 @@
   scroll-behavior: smooth;
 }
 
+@utility gradient-btn {
+  background: linear-gradient(to bottom, var(--primary), var(--secondary));
+  /* bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#E5E7EB] rounded px-2 py-3 mb-10 cursor-pointer hover:from-[#072720] hover:to-[#072720] transition transform duration-200 hover:translate-y-[3px] ${className} disabled:bg-gray-400 disabled:text-white */
+}
+
 @layer base {
   body {
     @apply font-sans bg-white  text-[#101827] text-base;
+  }
+  input,
+  textarea {
+    @apply border  rounded-md py-2 px-3 text-sm border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40;
   }
 }
 
