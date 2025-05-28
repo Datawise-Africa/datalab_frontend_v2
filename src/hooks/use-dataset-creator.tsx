@@ -1,5 +1,8 @@
-import type { PaginatedGetBecomeDatasetCreatorResponse } from '@/lib/types/dataset-creator';
-import React, { useCallback, useEffect } from 'react';
+import type {
+  BecomeDatasetCreatorType,
+  PaginatedGetBecomeDatasetCreatorResponse,
+} from '@/lib/types/dataset-creator';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import useApi from './use-api';
 import type { BecomeDatasetCreatorSchema } from '@/lib/schema/become-dataset-creator-schema';
 import { extractCorrectErrorMessage } from '@/lib/error';
@@ -41,6 +44,12 @@ export default function useDatasetCreator(
   const [data, setData] = React.useState<
     PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);
+  const [isStatusUpdateLoading, setIsStatusUpdateLoading] =
+    React.useState(false);
+  const [selectedApplicantID, setSelectedApplicantID] = useState<number | null>(
+    null,
+  );
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -80,6 +89,25 @@ export default function useDatasetCreator(
     fetchData();
   }, [fetchData, shouldFetch]);
 
+  const handleChangeStatus = async (
+    id: number,
+    status: BecomeDatasetCreatorType['status'],
+  ) => {
+    setIsStatusUpdateLoading(true);
+    try {
+      // const response =
+      await api.put(`/users/become-dataset-creator/${id}/ `);
+      setData(
+        data.map((applicant) =>
+          applicant.id === id ? { ...applicant, status: status } : applicant,
+        ),
+      );
+    } catch (error) {
+      console.error(extractCorrectErrorMessage(error));
+    } finally {
+      setIsStatusUpdateLoading(false);
+    }
+  };
   const currentStatus = React.useMemo<DatasetCreatorStatus>(() => {
     if (!data || data.length === 0) {
       return 'N/A';
@@ -97,11 +125,22 @@ export default function useDatasetCreator(
     return data[0].status || 'N/A';
   }, [data, auth.isAuthenticated, authPerm, auth.state.userRole, data]);
 
+  const selectedApplicant = useMemo(() => {
+    return selectedApplicantID
+      ? data.find(function (applicant) {
+          return (applicant.id === selectedApplicantID);
+        })
+      : null;
+  }, [selectedApplicantID, data]);
   return {
     createDatasetCreator,
     isLoading,
     data,
     currentStatus,
     refreshData,
+    handleChangeStatus,
+    isStatusUpdateLoading,
+    selectedApplicant,
+    setSelectedApplicantID,
   };
 }
