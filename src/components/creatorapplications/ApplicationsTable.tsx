@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { useState } from 'react';
+// import { useState } from 'react';
 import ApplicantDetailsModal from './ApplicantsModal';
 import { Check, MoreVertical, Hourglass, X } from 'lucide-react';
 import {
@@ -16,7 +16,6 @@ import useDatasetCreator from '@/hooks/use-dataset-creator';
 import { cn } from '@/lib/utils';
 import {
   getDatasetCreatorBadge,
-  type BecomeDatasetCreatorType,
 } from '@/lib/types/dataset-creator';
 
 export function ApplicationsTable() {
