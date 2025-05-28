@@ -147,4 +147,32 @@ export class AuthPerm {
   public isValidRole(role: string): role is AuthUserRoleType {
     return role in this.Permissions;
   }
+
+  /**
+   * Check if any of the provided roles are valid
+   * @param roles Array of roles to check
+   * @return True if any role is valid
+   */
+  public canAnyRole(
+    roles: AuthUserRoleType[],
+    userRole: AuthUserRoleType,
+  ): boolean {
+    return roles.some(
+      (role) => this.isValidRole(role) && this.hasPermission(role, userRole),
+    );
+  }
+
+  /**
+   * Check if a role is a valid user role and not have acess
+   * @param roles Array of roles to check
+   * @return True if any role is valid and does not have access
+   */
+  public cannotAnyRole(
+    roles: AuthUserRoleType[],
+    userRole: AuthUserRoleType,
+  ): boolean {
+    return roles.some(
+      (role) => this.isValidRole(role) && !this.hasPermission(role, userRole),
+    );
+  }
 }

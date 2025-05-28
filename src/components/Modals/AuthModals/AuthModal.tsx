@@ -1,30 +1,19 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import Modal from './Modal';
-import CustomButton from './CustomButton';
 import { useAuth } from '@/context/AuthProvider';
 import useApi from '@/hooks/use-api';
 import type { RegisterOrLoginResponse } from '@/lib/types/auth';
-// Define Zod schemas for form validation
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-});
-
-const signupSchema = loginSchema.extend({
-  first_name: z.string().min(1, 'First name is required'),
-  last_name: z.string().min(1, 'Last name is required'),
-});
-
-// Define types based on the schemas
-type LoginFormValues = z.infer<typeof loginSchema>;
-type SignupFormValues = z.infer<typeof signupSchema>;
-
-// type AuthModalProps = {
-//   // navUrl?: string;
-// };
+import { extractCorrectErrorMessage } from '@/lib/error';
+import { Button } from '@/components/ui/button';
+import { RotateCcw } from 'lucide-react';
+import {
+  loginSchema,
+  signupSchema,
+  type LoginFormValues,
+  type SignupFormValues,
+} from '@/lib/schema/auth-schema';
 
 const AuthModal = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -44,7 +33,7 @@ const AuthModal = () => {
   const {
     register: registerLogin,
     handleSubmit: handleLoginSubmit,
-    formState: { errors: loginErrors },
+    formState: { errors: loginErrors, isSubmitting: isLoginSubmitting },
     reset: resetLoginForm,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,7 +47,7 @@ const AuthModal = () => {
   const {
     register: registerSignup,
     handleSubmit: handleSignupSubmit,
-    formState: { errors: signupErrors },
+    formState: { errors: signupErrors, isSubmitting: isSignupSubmitting },
     reset: resetSignupForm,
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -80,6 +69,7 @@ const AuthModal = () => {
 
   // Handle login form submission
   const onLoginSubmit = async (formData: LoginFormValues) => {
+    setServerErrors([]);
     try {
       const { data } = await publicApi.post<RegisterOrLoginResponse>(
         '/auth/login/',
@@ -108,13 +98,15 @@ const AuthModal = () => {
         // setServerErrors(data.errors || ['Login failed. Please try again.']);
       }
     } catch (error) {
-      setServerErrors(['An unexpected error occurred. Please try again.']);
+      // setServerErrors(['An unexpected error occurred. Please try again.']);
+      setServerErrors([extractCorrectErrorMessage(error)]);
       console.error('Login error:', error);
     }
   };
 
   // Handle signup form submission
   const onSignupSubmit = async (data: SignupFormValues) => {
+    setServerErrors([]);
     try {
       const formData = {
         first_name: data.first_name,
@@ -151,7 +143,10 @@ const AuthModal = () => {
         // respData.errors || ['Registration failed. Please try again.'],
       }
     } catch (error) {
-      setServerErrors(['An unexpected error occurred. Please try again.']);
+      setServerErrors(
+        [extractCorrectErrorMessage(error)],
+        // ['An unexpected error occurred. Please try again.']
+      );
       console.error('Signup error:', error);
     }
   };
@@ -255,7 +250,18 @@ const AuthModal = () => {
             </div>
           )}
 
-          <CustomButton label="Sign up" type="submit" />
+          {/* <CustomButton label="Sign up" type="submit" />
+           */}
+          <Button
+            type="submit"
+            disabled={isSignupSubmitting}
+            className="w-full bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#E5E7EB] rounded px-2 py-3 mb-10 hover:from-[#072720] hover:to-[#072720] cursor-pointer transition transform duration-200 hover:translate-y-[3px] disabled:bg-gray-400 disabled:text-white disabled:cursor-not-allowed"
+          >
+            {isSignupSubmitting && (
+              <RotateCcw className="animate-spin mr-2" size={16} />
+            )}
+            {isSignupSubmitting ? 'Signing up...' : 'Sign up'}
+          </Button>
         </form>
       ) : (
         <form
@@ -322,7 +328,18 @@ const AuthModal = () => {
             </div>
           )}
 
-          <CustomButton label="Sign in" type="submit" />
+          {/* <CustomButton label="Sign in" type="submit" />
+           */}
+          <Button
+            type="submit"
+            disabled={isLoginSubmitting}
+            className="w-full bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#E5E7EB] rounded px-2 py-3 mb-10 hover:from-[#072720] hover:to-[#072720] cursor-pointer transition transform duration-200 hover:translate-y-[3px] disabled:bg-gray-400 disabled:text-white disabled:cursor-not-allowed"
+          >
+            {isLoginSubmitting && (
+              <RotateCcw className="animate-spin mr-2" size={16} />
+            )}
+            {isLoginSubmitting ? 'Signing in...' : 'Sign in'}
+          </Button>
         </form>
       )}
     </>

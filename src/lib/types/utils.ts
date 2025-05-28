@@ -21,5 +21,5 @@ export type PaginatedResponse<T = any> = {
     nextPage: null;
     prevPage: null;
   };
-  docs: T[];
+  data: T[];
 };

@@ -22,5 +22,10 @@ export const authProviderActions = {
     ({
       type: 'LOGOUT',
     }) as const,
+  REFRESH: (payload: { accessToken: string; refreshToken: string }) =>
+    ({
+      type: 'REFRESH',
+      payload,
+    }) as const,
 };
 export type AuthAction = InferActions<typeof authProviderActions>;
