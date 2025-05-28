@@ -6,10 +6,12 @@ import Button from '../../components/designs/Button';
 // import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthProvider';
+import { AuthPerm } from '@/lib/auth/perm';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const authPerm = AuthPerm.getInstance();
   const {
     state,
     dispatch,
@@ -180,19 +182,22 @@ export default function Sidebar() {
             </button>
           )}
 
-          <Link
-            to={'/app/dataset-creator-dashboard'}
-            className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
-              collapsed ? 'p-2' : 'px-4 py-2'
-            }`}
-          >
-            <img
-              src={'/assets/datalab/uploadicon.png'}
-              alt="Upload Icon"
-              className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
-            />
-            {!collapsed && 'Upload Dataset'}ss
-          </Link>
+          {isAuthenticated &&
+            authPerm.hasPermission('dataset_creator', state.userRole) && (
+              <Link
+                to={'/app/dataset-creator-dashboard'}
+                className={`bg-gradient-to-b from-[#115443] to-[#26A37E] text-white rounded mb-8 w-full flex items-center justify-center ${
+                  collapsed ? 'p-2' : 'px-4 py-2'
+                }`}
+              >
+                <img
+                  src={'/assets/datalab/uploadicon.png'}
+                  alt="Upload Icon"
+                  className={`w-4 h-4 ${!collapsed ? 'mr-2' : ''}`}
+                />
+                {!collapsed && 'Upload Dataset'}ss
+              </Link>
+            )}
         </div>
 
         {/* Menu Items */}

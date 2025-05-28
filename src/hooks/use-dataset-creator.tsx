@@ -3,16 +3,19 @@ import React, { useCallback, useEffect } from 'react';
 import useApi from './use-api';
 import type { BecomeDatasetCreatorSchema } from '@/lib/schema/become-dataset-creator-schema';
 import { extractCorrectErrorMessage } from '@/lib/error';
+import { useAuth } from '@/context/AuthProvider';
+import { AuthPerm } from '@/lib/auth/perm';
 type Props = {
   shouldFetch?: boolean;
 };
 
 type DatasetCreatorStatus =
   | Pick<
-      PaginatedGetBecomeDatasetCreatorResponse['docs'][number],
+      PaginatedGetBecomeDatasetCreatorResponse['data'][number],
       'status'
     >['status']
-  | 'N/A';
+  | 'N/A'
+  | 'Confirmed';
 /**
  * A hook for managing dataset creator data and operations.
  * This hook handles fetching dataset creator information, creating new dataset creator requests,
@@ -30,10 +33,13 @@ type DatasetCreatorStatus =
 export default function useDatasetCreator(
   { shouldFetch }: Props = { shouldFetch: true },
 ) {
+  const authPerm = AuthPerm.getInstance();
+  const auth = useAuth();
+
   const [isLoading, setIsLoading] = React.useState(false);
   const api = useApi().privateApi;
   const [data, setData] = React.useState<
-    PaginatedGetBecomeDatasetCreatorResponse['docs']
+    PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -41,16 +47,20 @@ export default function useDatasetCreator(
       const response = await api.get<PaginatedGetBecomeDatasetCreatorResponse>(
         '/users/become-dataset-creator/',
       );
-      if (Array.isArray(response.data.docs)) {
-        setData(response.data.docs);
+      if (Array.isArray(response.data.data)) {
+        setData(response.data.data);
       }
     } catch (error) {
       console.error(extractCorrectErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
+  }, [auth.isAuthenticated]);
+  const refreshData = useCallback(async () => {
+    if (auth.isAuthenticated) {
+      await fetchData();
+    }
+  }, [auth.isAuthenticated, fetchData]);
   const createDatasetCreator = useCallback(
     async (data: BecomeDatasetCreatorSchema) => {
       setIsLoading(true);
@@ -66,17 +76,32 @@ export default function useDatasetCreator(
     [api],
   );
   useEffect(() => {
-    if (!shouldFetch) return;
+    if (!shouldFetch || !auth.isAuthenticated) return;
     fetchData();
   }, [fetchData, shouldFetch]);
 
-  const currentStatus = React.useMemo(() => {
-    return (data.length === 0 ? 'N/A' : data[0].status) as DatasetCreatorStatus;
-  }, [data]);
+  const currentStatus = React.useMemo<DatasetCreatorStatus>(() => {
+    if (!data || data.length === 0) {
+      return 'N/A';
+    }
+    if (
+      data[0].status === 'Approved' ||
+      (auth.isAuthenticated &&
+        authPerm.hasAnyPermission(
+          ['dataset_creator', 'admin'],
+          auth.state.userRole,
+        ))
+    ) {
+      return 'Confirmed';
+    }
+    return data[0].status || 'N/A';
+  }, [data, auth.isAuthenticated, authPerm, auth.state.userRole, data]);
+
   return {
     createDatasetCreator,
     isLoading,
     data,
     currentStatus,
+    refreshData,
   };
 }
