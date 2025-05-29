@@ -67,4 +67,4 @@ export const cookieOptions = {
 };
 
 // export const REACT_PUBLIC_API_HOST = "http://localhost:8000"
-export const REACT_PUBLIC_API_HOST = 'http://backend.datawiseafrica.com';
+export const REACT_PUBLIC_API_HOST = 'https://backend.datawiseafrica.com';
