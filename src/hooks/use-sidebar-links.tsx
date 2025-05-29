@@ -4,7 +4,6 @@ import {
   BarChart,
   Bookmark,
   Compass,
-  Database,
   Download,
   Edit,
   LockIcon,
@@ -72,21 +71,21 @@ export default function useSidebarLinks() {
         {
           label: 'Applications',
           badge: '3',
-          href: '#',
+          href: '/app/applications',
           icon: User2,
         },
         {
           label: 'Approved Creators',
-          href: '#',
+          href: '/app/applications/approvedcreators',
           icon: UserCheck,
         },
-        {
-          label: 'Approved Datasets',
-          href: '#',
-          icon: Database,
-          requiresAuth: true,
-          requiredRole: 'admin',
-        },
+        // {
+        //   label: 'Approved Datasets',
+        //   href: '/',
+        //   icon: Database,
+        //   requiresAuth: true,
+        //   requiredRole: 'admin',
+        // },
       ],
     },
   ];

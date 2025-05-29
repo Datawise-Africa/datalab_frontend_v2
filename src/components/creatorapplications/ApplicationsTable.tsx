@@ -20,8 +20,9 @@ import {
 
 export function ApplicationsTable() {
   // const [applicants, setApplicants] = useState<Applicant[]>([])
-  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant } =
+  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant,} =
     useDatasetCreator();
+    // const approvedApplicants = filteredDataByStatus('Approved');
 
   // const changeStatus = async (id: number, action: 'Approve' | 'Reject') => {
   //   if (action === 'Approve') return await handleApprove(id);
