@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
 type Props = {
   shouldFetch?: boolean;
+  statusFilter?:DatasetCreatorStatus;
 };
 
 type DatasetCreatorStatus =
@@ -96,7 +97,7 @@ export default function useDatasetCreator(
     setIsStatusUpdateLoading(true);
     try {
       // const response =
-      await api.put(`/users/become-dataset-creator/${id}/ `);
+      await api.put(`/users/become-dataset-creator/${id}/ `, { status });
       setData(
         data.map((applicant) =>
           applicant.id === id ? { ...applicant, status: status } : applicant,
@@ -132,6 +133,12 @@ export default function useDatasetCreator(
         })
       : null;
   }, [selectedApplicantID, data]);
+
+  const filteredDataByStatus = (status: DatasetCreatorStatus) => {
+    return data.filter((applicant) => applicant.status === status);
+  };
+  
+  
   return {
     createDatasetCreator,
     isLoading,
@@ -142,5 +149,6 @@ export default function useDatasetCreator(
     isStatusUpdateLoading,
     selectedApplicant,
     setSelectedApplicantID,
+    filteredDataByStatus
   };
 }
