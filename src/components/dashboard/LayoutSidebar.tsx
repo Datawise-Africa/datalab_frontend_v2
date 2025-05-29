@@ -34,6 +34,9 @@ import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
 import { useAuth } from '@/context/AuthProvider';
 import { Link } from 'react-router-dom';
 import type { SidebarLinkType } from '@/lib/types/sidebar';
+import { AuthPerm } from '@/lib/auth/perm';
+import { IconParkOutlineDataUser } from '../icons/IconParkOutlineDataUser';
+import useCan from '@/hooks/use-can';
 
 type LayoutSidebarProps = {
   links: SidebarLinkType[];
@@ -55,6 +58,7 @@ export default function LayoutSidebar({
   closeSidebar,
 }: LayoutSidebarProps) {
   const { isAuthenticated, state: authState, setIsAuthModalOpen } = useAuth();
+  const authPerm = AuthPerm.getInstance();
   // Don't render sidebar on mobile if it's not open
   if (isMobile && !isOpen) return null;
 
@@ -132,30 +136,35 @@ export default function LayoutSidebar({
           )}
 
           {/* Upload Button */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link
-                  to={'/app/dataset-creator-dashboard/'}
-                  // variant="default"
-                  className={`
+          {isAuthenticated &&
+            authPerm.hasPermission('dataset_creator', authState.userRole) && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      to={'/app/dataset-creator-dashboard/'}
+                      // variant="default"
+                      className={`
                     w-full flex items-center justify-center space-x-2 py-3 text-subtle bg-primary rounded
                     ${isCollapsed && !isMobile ? 'px-0' : 'px-4'}
                   `}
-                >
-                  <LucidePlus className="h-4 w-4" />
-                  {(!isCollapsed || isMobile) && (
-                    <span className="text-sm font-medium">Upload Dataset</span>
+                    >
+                      <LucidePlus className="h-4 w-4" />
+                      {(!isCollapsed || isMobile) && (
+                        <span className="text-sm font-medium">
+                          Upload Dataset
+                        </span>
+                      )}
+                    </Link>
+                  </TooltipTrigger>
+                  {isCollapsed && !isMobile && (
+                    <TooltipContent side="right" className="text-subtle">
+                      <p>Upload Dataset</p>
+                    </TooltipContent>
                   )}
-                </Link>
-              </TooltipTrigger>
-              {isCollapsed && !isMobile && (
-                <TooltipContent side="right" className="text-subtle">
-                  <p>Upload Dataset</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+                </Tooltip>
+              </TooltipProvider>
+            )}
         </div>
 
         {/* Navigation Links */}
@@ -401,6 +410,9 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
     actions,
     state: { firstName, lastName },
   } = useAuth();
+  const access = useCan();
+  console.log({ access });
+
   return (
     <DropdownMenuContent
       className="w-64 bg-white   p-4 shadow-lg border border-subtle rounded-md mb-2"
@@ -411,7 +423,10 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="" alt="User Avatar" className="border" />
-            <AvatarFallback className="border">CN</AvatarFallback>
+            <AvatarFallback className="border">
+              {firstName.charAt(0)}
+              {lastName.charAt(0)}
+            </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">Data Explorer</span>
@@ -421,25 +436,34 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
           </div>
         </div>
       </DropdownMenuLabel>
-      <DropdownMenuSeparator />
-      <DropdownMenuItem className="cursor-pointer">
+      {/* <DropdownMenuSeparator /> */}
+      <hr className="my-1 text-subtle" />
+      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
         <Link to={'/#'} className="flex items-center">
           <User className="h-5 w-5 mr-2" />
           <span className="text-sm font-medium">Profile</span>
         </Link>
       </DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer">
+      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
         <Link to={'/#'} className="flex items-center">
           <LucideCog className="h-5 w-5 mr-2" />
           <span className="text-sm font-medium">Upload Dataset</span>
         </Link>
       </DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer">
-        Become a dataset creator
-      </DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer">
+      {!access.is_admin && !access.is_dataset_creator && (
+        <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
+          <Link
+            to={'/app/become-dataset-creator'}
+            className="flex items-center gap-2"
+          >
+            <IconParkOutlineDataUser />
+            Become a dataset creator
+          </Link>
+        </DropdownMenuItem>
+      )}
+      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
         <a
-          href="/#"
+          href="https://datawiseafrica.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center"
@@ -450,10 +474,10 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
         </a>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem className="cursor-pointer text-red-600">
+      <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-red-50">
         <Button
           variant="ghost"
-          className="w-full text-left inline-flex items-center justify-baseline"
+          className="w-full text-left inline-flex items-center justify-baseline cursor-pointer"
           onClick={() => dispatch(actions.LOGOUT())}
         >
           <LucideLogOut className="h-5 w-5 mr-2" />
