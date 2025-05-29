@@ -1,3 +1,4 @@
+import ApprovedApplicantsTable from '@/components/creatorapplications/ApprovedApplicants';
 import Protect from '@/components/Protect';
 import ProtectedLayout from '@/layout/ProtectedLayout';
 import { lazy } from 'react';
@@ -31,6 +32,10 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/applications',
       element: <Protect role="admin" Component={ApplicationsPage} />,
+    },
+    {
+      path: '/app/applications/approvedcreators',
+      element: <Protect role="admin" Component={ApprovedApplicantsTable} />,
     },
   ],
 };
