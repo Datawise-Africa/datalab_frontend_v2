@@ -34,6 +34,8 @@ import { AuthPerm } from '@/lib/auth/perm';
 import { formatFileSize } from '../lib/utils/format-file-size';
 import { Badge } from '@/components/ui/badge';
 import type { PaginatedGetBecomeDatasetCreatorResponse } from '@/lib/types/dataset-creator';
+import toast from 'react-hot-toast';
+import { extractCorrectErrorMessage } from '@/lib/error';
 type ApprovalStatus =
   PaginatedGetBecomeDatasetCreatorResponse['data'][number]['status'];
 const getStatusBadgeClass = (status: ApprovalStatus | 'N/A' | 'Confirmed') => {
@@ -77,7 +79,9 @@ export default function BecomeDatasetCreatorPage() {
       await refreshData(); // Refresh data after submission
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Handle error appropriately, e.g., show a notification
+      toast.error(
+        <div className="text-sm">{extractCorrectErrorMessage(error)}</div>,
+      );
     }
 
     // Here you would typically send the data to your API
