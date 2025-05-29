@@ -4,7 +4,6 @@ import {
   BarChart,
   Bookmark,
   Compass,
-  Database,
   Download,
   Edit,
   LockIcon,

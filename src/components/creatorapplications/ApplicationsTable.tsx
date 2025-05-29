@@ -20,7 +20,7 @@ import {
 
 export function ApplicationsTable() {
   // const [applicants, setApplicants] = useState<Applicant[]>([])
-  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant,filteredDataByStatus } =
+  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant,} =
     useDatasetCreator();
     // const approvedApplicants = filteredDataByStatus('Approved');
 

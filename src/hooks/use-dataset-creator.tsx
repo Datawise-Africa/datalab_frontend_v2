@@ -129,7 +129,7 @@ export default function useDatasetCreator(
   const selectedApplicant = useMemo(() => {
     return selectedApplicantID
       ? data.find(function (applicant) {
-          return (applicant.id === selectedApplicantID);
+          return applicant.id === selectedApplicantID;
         })
       : null;
   }, [selectedApplicantID, data]);
