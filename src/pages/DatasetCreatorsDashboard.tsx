@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
 import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
+import FormS from '@/components/ds/FormS';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
@@ -34,6 +35,7 @@ const DatasetCreatorsDashboard = () => {
               isOpen={modalOpen}
               onClose={() => setModalOpen(false)}
             />
+            <FormS/>
           </div>
         </div>
 

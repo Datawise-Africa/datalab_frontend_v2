@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
-interface FileUpload {
+export interface FileUpload {
     id: string;
     file: File;
     name: string;
