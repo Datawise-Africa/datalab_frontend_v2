@@ -25,6 +25,7 @@ import Step1 from './Step1';
 import Step2 from './Step2';
 import Step3 from './Step3';
 import Step4 from './Step4';
+import Step5 from './Step5';
 
 const _steps = [
   {
@@ -76,7 +77,7 @@ const _steps = [
 ];
 
 export default function FormS() {
-  const [step, setStep] = useState(4);
+  const [step, setStep] = useState(5);
   const form = useForm();
   const currentStep = _steps.find((s) => s.id === step);
 
@@ -141,7 +142,7 @@ export default function FormS() {
             </div>
 
             <DialogHeader className="px-8 pb-2 text-center">
-              <DialogTitle className="mb-2 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-3xl font-bold text-transparent">
+              <DialogTitle className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-xl font-bold text-transparent">
                 {currentStep?.header.title}
               </DialogTitle>
               <DialogDescription className="text-lg leading-relaxed text-gray-600">
@@ -149,12 +150,13 @@ export default function FormS() {
               </DialogDescription>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto px-12 py-8">
+            <div className="flex-1 overflow-y-auto p-4">
               <div className="mx-auto max-w-4xl">
                 {step === 1 && <Step1 form={form} />}
                 {step === 2 && <Step2 form={form} />}
                 {step === 3 && <Step3 form={form} />}
                 {step === 4 && <Step4 form={form} />}
+                {step === 5 && <Step5 form={form} />}
               </div>
             </div>
 
@@ -187,7 +189,7 @@ export default function FormS() {
                 {step < _steps.length ? (
                   <Button
                     onClick={nextStep}
-                    className="transform rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
+                    className="transform rounded-xl px-6 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                   >
                     Next
                     <ChevronRight className="ml-1 h-4 w-4" />

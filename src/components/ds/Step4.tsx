@@ -20,11 +20,29 @@ import { Checkbox } from '../ui/checkbox';
 type Step4Props = {
   form: UseFormReturn;
 };
-const intendedAudience: Record<string, boolean> = {
-  students: false,
-  non_profit: false,
-  company: false,
-  public: false,
+const intendedAudience: Record<
+  string,
+  {
+    label: string;
+    value: boolean;
+  }
+> = {
+  students: {
+    label: 'Students & Academics',
+    value: false,
+  },
+  non_profit: {
+    label: 'Non-profit Organizations',
+    value: false,
+  },
+  company: {
+    label: 'Commercial/Business',
+    value: false,
+  },
+  public: {
+    label: 'Public Sector',
+    value: false,
+  },
 };
 export default function Step4({ form }: Step4Props) {
   return (
@@ -133,33 +151,41 @@ export default function Step4({ form }: Step4Props) {
         )}
       />
       {/* Intended audience */}
-      <FormField
-        control={form.control}
-        name="intended_audience"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              Intended audience <span className="text-red-500">*</span>
-            </FormLabel>
-            <FormControl>
-              {/* Check boxes */}
-              {Object.keys(intendedAudience).map((audience) => (
-                <FormItem key={audience}>
-                  <FormControl>
-                    <Checkbox
-                      name={field.name}
-                      checked={intendedAudience[audience]}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  {/* <FormLabel>{audience}</FormLabel> */}
-                </FormItem>
-              ))}
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="flex flex-col gap-4">
+        <FormField
+          control={form.control}
+          name="intended_audience"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Intended Audience</FormLabel>
+              <FormControl>
+                <div className="flex flex-col gap-2">
+                  {Object.entries(intendedAudience).map(([key, value]) => (
+                    <div key={key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={key}
+                        checked={field.value?.[key] || false}
+                        onCheckedChange={(checked) => {
+                          const newValue = {
+                            ...(field.value || {}),
+                            [key]: checked,
+                          };
+                          field.onChange(newValue);
+                        }}
+                        className={`focus:ring-primary/50 hover:border-primary/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4 rounded border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white`}
+                      />
+                      <label htmlFor={key} className="text-sm">
+                        {value.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 }
