@@ -1,16 +1,21 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Check, Clock } from 'lucide-react';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
-} from '@/components/ui/tooltip';
+} from './tooltip';
+import { Fragment } from 'react';
 import { cn } from '@/lib/utils';
-import type { StepperValidationStatus } from '../ui/stepper';
+import { AnimatePresence, motion } from 'framer-motion';
 
-// Animation variants
+// Validation status type
+export type StepperValidationStatus =
+    | 'valid'
+    | 'invalid'
+    | 'partial'
+    | 'untouched';
+
 const stepCircleVariants = {
     initial: { scale: 1 },
     hover: { scale: 1.1 },
@@ -42,8 +47,7 @@ const iconVariants = {
     animate: { scale: 1, rotate: 0 },
     exit: { scale: 0, rotate: 180 },
 };
-
-// StepperHeader component props
+// StepperHeader component
 interface StepperHeaderProps {
     steps: Array<{
         key: string;
@@ -57,7 +61,6 @@ interface StepperHeaderProps {
     canGoToStep?: (stepIndex: number) => boolean;
     stepValidationStatus: Record<string, StepperValidationStatus>;
     stepErrors: Record<string, string[]>;
-    minimal?: boolean;
 }
 
 export function StepperHeader({
@@ -68,7 +71,6 @@ export function StepperHeader({
     canGoToStep,
     stepValidationStatus,
     stepErrors,
-    minimal = false,
 }: StepperHeaderProps) {
     const handleStepClick = (stepIndex: number) => {
         if (onStepClick && canGoToStep?.(stepIndex)) {
@@ -281,31 +283,26 @@ export function StepperHeader({
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={cn('text-center', minimal ? 'mb-3' : 'mb-6')}
+                    className="mb-6 text-center"
                 >
                     <motion.div
                         key={`step-${activeStep}`}
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.3 }}
-                        className={cn(
-                            'font-medium text-gray-500',
-                            minimal ? 'text-xs' : 'text-sm',
-                        )}
+                        className="text-sm font-medium text-gray-500"
                     >
                         Step {activeStep + 1} of {steps.length}
                     </motion.div>
-                    {!minimal && (
-                        <motion.div
-                            key={`label-${activeStep}`}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                            className="mt-1 text-xs text-gray-400"
-                        >
-                            {steps[activeStep]?.label}
-                        </motion.div>
-                    )}
+                    <motion.div
+                        key={`label-${activeStep}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: 0.1 }}
+                        className="mt-1 text-xs text-gray-400"
+                    >
+                        {steps[activeStep]?.label}
+                    </motion.div>
                 </motion.div>
 
                 {/* Mobile View - Horizontal Compact Layout */}
@@ -331,10 +328,7 @@ export function StepperHeader({
                                                 }
                                                 disabled={!isClickable}
                                                 className={cn(
-                                                    'flex items-center justify-center rounded-full border-2 text-xs font-medium transition-colors duration-300',
-                                                    minimal
-                                                        ? 'h-6 w-6'
-                                                        : 'h-8 w-8',
+                                                    'flex h-8 w-8 items-center justify-center rounded-full border-2 text-xs font-medium transition-colors duration-300',
                                                     getStepStatusColor(
                                                         step.key,
                                                         index,
@@ -385,12 +379,7 @@ export function StepperHeader({
                                                                 'pulse',
                                                             ]}
                                                             exit="exit"
-                                                            className={cn(
-                                                                'absolute -top-1 -right-1 rounded-full border-2 border-white bg-red-500',
-                                                                minimal
-                                                                    ? 'h-2 w-2'
-                                                                    : 'h-3 w-3',
-                                                            )}
+                                                            className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-red-500"
                                                         />
                                                     )}
                                                 {!isCompleted &&
@@ -404,12 +393,7 @@ export function StepperHeader({
                                                             initial="initial"
                                                             animate="animate"
                                                             exit="exit"
-                                                            className={cn(
-                                                                'absolute -top-1 -right-1 rounded-full border-2 border-white bg-green-500',
-                                                                minimal
-                                                                    ? 'h-2 w-2'
-                                                                    : 'h-3 w-3',
-                                                            )}
+                                                            className="absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-white bg-green-500"
                                                         />
                                                     )}
                                             </AnimatePresence>
@@ -450,7 +434,7 @@ export function StepperHeader({
                             const Icon = step.Icon;
 
                             return (
-                                <React.Fragment key={step.key}>
+                                <Fragment key={step.key}>
                                     {/* Step Container */}
                                     <div className="flex min-w-0 flex-1 flex-col items-center">
                                         {/* Step Circle */}
@@ -465,10 +449,7 @@ export function StepperHeader({
                                                         }
                                                         disabled={!isClickable}
                                                         className={cn(
-                                                            'mb-3 flex items-center justify-center rounded-full border-2 text-sm font-medium transition-colors duration-300',
-                                                            minimal
-                                                                ? 'h-8 w-8'
-                                                                : 'h-12 w-12', // Smaller size in minimal mode
+                                                            'mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors duration-300',
                                                             getStepStatusColor(
                                                                 step.key,
                                                                 index,
@@ -512,13 +493,7 @@ export function StepperHeader({
                                                                     animate="animate"
                                                                     exit="exit"
                                                                 >
-                                                                    <Check
-                                                                        className={cn(
-                                                                            minimal
-                                                                                ? 'h-4 w-4'
-                                                                                : 'h-5 w-5',
-                                                                        )}
-                                                                    />
+                                                                    <Check className="h-5 w-5" />
                                                                 </motion.div>
                                                             ) : stepValidationStatus[
                                                                   step.key
@@ -533,13 +508,7 @@ export function StepperHeader({
                                                                     animate="animate"
                                                                     exit="exit"
                                                                 >
-                                                                    <AlertCircle
-                                                                        className={cn(
-                                                                            minimal
-                                                                                ? 'h-4 w-4'
-                                                                                : 'h-5 w-5',
-                                                                        )}
-                                                                    />
+                                                                    <AlertCircle className="h-5 w-5" />
                                                                 </motion.div>
                                                             ) : stepValidationStatus[
                                                                   step.key
@@ -553,13 +522,7 @@ export function StepperHeader({
                                                                     animate="animate"
                                                                     exit="exit"
                                                                 >
-                                                                    <Check
-                                                                        className={cn(
-                                                                            minimal
-                                                                                ? 'h-4 w-4'
-                                                                                : 'h-5 w-5',
-                                                                        )}
-                                                                    />
+                                                                    <Check className="h-5 w-5" />
                                                                 </motion.div>
                                                             ) : stepValidationStatus[
                                                                   step.key
@@ -574,33 +537,9 @@ export function StepperHeader({
                                                                     animate="animate"
                                                                     exit="exit"
                                                                 >
-                                                                    <Clock
-                                                                        className={cn(
-                                                                            minimal
-                                                                                ? 'h-4 w-4'
-                                                                                : 'h-5 w-5',
-                                                                        )}
-                                                                    />
+                                                                    <Clock className="h-5 w-5" />
                                                                 </motion.div>
-                                                            ) : minimal ||
-                                                              !Icon ? (
-                                                                <motion.span
-                                                                    key="number"
-                                                                    variants={
-                                                                        iconVariants
-                                                                    }
-                                                                    initial="initial"
-                                                                    animate="animate"
-                                                                    exit="exit"
-                                                                    className={cn(
-                                                                        minimal
-                                                                            ? 'text-xs'
-                                                                            : 'text-sm',
-                                                                    )}
-                                                                >
-                                                                    {index + 1}
-                                                                </motion.span>
-                                                            ) : (
+                                                            ) : Icon ? (
                                                                 <motion.div
                                                                     key="icon"
                                                                     variants={
@@ -612,6 +551,24 @@ export function StepperHeader({
                                                                 >
                                                                     <Icon className="h-5 w-5" />
                                                                 </motion.div>
+                                                            ) : (
+                                                                <motion.span
+                                                                    key="number"
+                                                                    variants={
+                                                                        iconVariants
+                                                                    }
+                                                                    initial="initial"
+                                                                    animate="animate"
+                                                                    exit="exit"
+                                                                >
+                                                                    {String(
+                                                                        index +
+                                                                            1,
+                                                                    ).padStart(
+                                                                        2,
+                                                                        '0',
+                                                                    )}
+                                                                </motion.span>
                                                             )}
                                                         </AnimatePresence>
                                                     </motion.button>
@@ -632,13 +589,7 @@ export function StepperHeader({
                                                                         'pulse',
                                                                     ]}
                                                                     exit="exit"
-                                                                    className={cn(
-                                                                        'absolute -top-1 -right-1 rounded-full border-2 border-white',
-                                                                        minimal
-                                                                            ? 'h-3 w-3'
-                                                                            : 'h-4 w-4',
-                                                                        'bg-red-500',
-                                                                    )}
+                                                                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-red-500"
                                                                 />
                                                             )}
                                                         {!isCompleted &&
@@ -652,13 +603,7 @@ export function StepperHeader({
                                                                     initial="initial"
                                                                     animate="animate"
                                                                     exit="exit"
-                                                                    className={cn(
-                                                                        'absolute -top-1 -right-1 rounded-full border-2 border-white',
-                                                                        minimal
-                                                                            ? 'h-3 w-3'
-                                                                            : 'h-4 w-4',
-                                                                        'bg-green-500',
-                                                                    )}
+                                                                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-green-500"
                                                                 />
                                                             )}
                                                     </AnimatePresence>
@@ -674,20 +619,11 @@ export function StepperHeader({
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: index * 0.1 }}
-                                            className={cn(
-                                                'text-center',
-                                                minimal
-                                                    ? 'max-w-16'
-                                                    : 'max-w-32',
-                                            )}
+                                            className="max-w-32 text-center"
                                         >
                                             <motion.h3
                                                 className={cn(
-                                                    'mb-1 transition-colors duration-300',
-                                                    minimal
-                                                        ? 'text-xs'
-                                                        : 'text-sm',
-                                                    'font-medium',
+                                                    'mb-1 text-sm font-medium transition-colors duration-300',
                                                     isActive &&
                                                         'text-purple-600',
                                                     isCompleted &&
@@ -724,7 +660,7 @@ export function StepperHeader({
                                             >
                                                 {step.label}
                                             </motion.h3>
-                                            {!minimal && step.description && (
+                                            {step.description && (
                                                 <motion.p
                                                     className={cn(
                                                         'text-xs transition-colors duration-300',
@@ -750,18 +686,10 @@ export function StepperHeader({
 
                                     {/* Progress Line */}
                                     {index < steps.length - 1 && (
-                                        <div
-                                            className={cn(
-                                                'mb-8 flex items-center justify-center',
-                                                minimal ? '-mx-1' : '-mx-2',
-                                            )}
-                                        >
+                                        <div className="-mx-2 mb-8 flex items-center justify-center">
                                             <motion.div
                                                 className={cn(
-                                                    'h-0.5 transition-colors duration-500',
-                                                    minimal
-                                                        ? 'w-full min-w-12'
-                                                        : 'w-full min-w-8',
+                                                    'h-0.5 w-full min-w-8 transition-colors duration-500',
                                                 )}
                                                 animate={{
                                                     backgroundColor: isCompleted
@@ -775,7 +703,7 @@ export function StepperHeader({
                                             />
                                         </div>
                                     )}
-                                </React.Fragment>
+                                </Fragment>
                             );
                         })}
                     </motion.div>
@@ -798,5 +726,58 @@ export function StepperHeader({
                 </div>
             </div>
         </TooltipProvider>
+    );
+}
+
+// Step transition wrapper component
+interface StepTransitionProps {
+    children: React.ReactNode;
+    activeStep: number;
+    direction: number;
+}
+// Animation variants
+const stepVariants = {
+    enter: (direction: number) => ({
+        x: direction > 0 ? 300 : -300,
+        opacity: 0,
+        scale: 0.95,
+    }),
+    center: {
+        zIndex: 1,
+        x: 0,
+        opacity: 1,
+        scale: 1,
+    },
+    exit: (direction: number) => ({
+        zIndex: 0,
+        x: direction < 0 ? 300 : -300,
+        opacity: 0,
+        scale: 0.95,
+    }),
+};
+export function StepTransition({
+    children,
+    activeStep,
+    direction,
+}: StepTransitionProps) {
+    return (
+        <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+                key={activeStep}
+                custom={direction}
+                variants={stepVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                    x: { type: 'spring', stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.2 },
+                    scale: { duration: 0.2 },
+                }}
+                className="w-full"
+            >
+                {children}
+            </motion.div>
+        </AnimatePresence>
     );
 }
