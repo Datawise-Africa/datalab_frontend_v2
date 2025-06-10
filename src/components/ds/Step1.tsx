@@ -20,11 +20,11 @@ import {
     SelectValue,
 } from '../ui/select';
 
-type StepProps = {
+type Step1Props = {
     form: UseFormReturn;
 };
 
-export default function Step1({ form }: StepProps) {
+export default function Step1({ form }: Step1Props) {
     return (
         <div className="flex flex-col gap-4">
             <FormField
