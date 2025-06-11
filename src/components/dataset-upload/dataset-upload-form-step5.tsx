@@ -45,7 +45,7 @@ const complianceAgreementOptions: PrivacyComplianceOptions = {
     description: `I confirm that I have the necessary rights and permissions to share this dataset, and I will provide appropriate attribution to any third-party sources.`,
   },
 };
-export default function Step5({ form }: Step5Props) {
+export default function DatasetUploadFormStep5({ form }: Step5Props) {
   return (
     <div>
       <FormField

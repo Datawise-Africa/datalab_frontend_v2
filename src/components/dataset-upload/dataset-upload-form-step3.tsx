@@ -78,7 +78,7 @@ const authorTitles = [
   'MA',
 ]
 
-export default function Step3({ form }: Step3Props) {
+export default function DatasetUploadFormStep3({ form }: Step3Props) {
   const [authors, setAuthors] = useState<Author[]>(baseAuthors);
   const { data: licences } = useLicences();
   const addAuthor = () => {
@@ -149,7 +149,7 @@ export default function Step3({ form }: Step3Props) {
                         onValueChange={field.onChange}
                         >
                           <SelectTrigger className="border-primary/30 w-full">
-                            <SelectValue placeholder="Theme" />
+                            <SelectValue placeholder="Mr./Mrs." />
                           </SelectTrigger>
                           <SelectContent className="border-primary/30 w-full bg-white">
                             {authorTitles.map((title) => (

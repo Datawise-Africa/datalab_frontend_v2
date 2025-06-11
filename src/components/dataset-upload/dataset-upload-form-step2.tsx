@@ -17,7 +17,7 @@ import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema
 type Step2Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
 };
-export default function Step2({ form }: Step2Props) {
+export default function DatasetUploadFormStep2({ form }: Step2Props) {
   const formatFile = ({ name, base64 }: FileUpload) => ({
     file_name: name,
     base64: base64!,

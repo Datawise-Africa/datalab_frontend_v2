@@ -39,7 +39,7 @@ const regionsOfOrigin = [
   { value: 'Oceania', label: 'Oceania' },
 
 ]
-export default function Step4({ form }: Step4Props) {
+export default function DatasetUploadFormStep4({ form }: Step4Props) {
   return (
     <div className="flex flex-col gap-4">
       <FormField

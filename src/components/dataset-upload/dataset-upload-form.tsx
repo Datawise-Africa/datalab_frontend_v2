@@ -20,17 +20,19 @@ import {
   Award,
   Search,
   CheckCircle,
+  Loader,
 } from 'lucide-react';
-import Step1 from './Step1';
-import Step2 from './Step2';
-import Step3 from './Step3';
-import Step4 from './Step4';
-import Step5 from './Step5';
+import DatasetUploadFormStep1 from './dataset-upload-form-step1.tsx';
+import DatasetUploadFormStep2 from './dataset-upload-form-step2.tsx';
+import DatasetUploadFormStep3 from './dataset-upload-form-step3.tsx';
+import DatasetUploadFormStep4 from './dataset-upload-form-step4.tsx';
+import DatasetUploadFormStep5 from './dataset-upload-form-step5.tsx';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   uploadDatasetSchema,
   type UploadDatasetSchemaType,
 } from '@/lib/schema/upload-dataset-schema';
+import { extractCorrectErrorMessage } from '@/lib/error.ts';
 
 const _steps = [
   {
@@ -81,16 +83,45 @@ const _steps = [
   },
 ];
 
-export default function FormS() {
+export default function DatasetUploadForm() {
   const [step, setStep] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm({
     resolver: zodResolver(uploadDatasetSchema),
     defaultValues: {
-      step_1: {},
-      step_2: {},
-      step_3: {},
-      step_4: {},
-      step_5: {},
+      step_1: {
+        category: '',
+        title: '',
+        description: '',
+        is_premium: false,
+        price: 0,
+        is_private: false,
+      },
+      step_2: { data_files: [], metadata_files: [], datasheet_files: [] },
+      step_3: {
+        authors: [],
+        license: '',
+        doi_citation: '',
+      },
+      step_4: {
+        audience_data: {
+          students: false,
+          non_profit: false,
+          company: false,
+          public: false,
+        },
+        covered_regions: [],
+        keywords: [],
+        tags: [],
+        origin_region: '',
+      },
+      step_5: {
+        data_accuracy: false,
+        responsible_use: false,
+        privacy_compliance: false,
+        rights_ownership: false,
+      },
     },
     mode: 'onChange',
   });
@@ -102,31 +133,51 @@ export default function FormS() {
     let isValid = false;
     // if (step < _steps.length) setStep(step + 1);
     if (currentStep) {
-      const result = await form.trigger(`step_${step}` as Step);
-      isValid = result;
+      isValid = await form.trigger(`step_${step}` as Step);
     }
     if (isValid && step < _steps.length) {
       setStep(step + 1);
-    } else if (step === _steps.length) {
-      // Handle form submission logic here
-      console.log('Form submitted:', form.getValues());
-      // You can also reset the form or redirect the user
-      form.reset();
-      setStep(1); // Reset to the first step after submission
     }
+    // else if (step === _steps.length) {
+    // Handle form submission logic here
+    // console.log('Form submitted:', form.getValues());
+    // // You can also reset the form or redirect the user
+    // form.reset();
+    // setStep(1); // Reset to the first step after submission
+    // }
   }, [step]);
 
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
   };
 
+  const submitForm = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const dataToSubmit = Object.values(data).reduce((acc, stepData) => {
+        return { ...acc, ...stepData };
+      });
+      console.log('Submitting form data:', dataToSubmit);
+      // Here you can handle the form submission, e.g., send data to an API
+    } catch (error) {
+      setError(extractCorrectErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  });
+  const isFormLoading = isLoading || form.formState.isSubmitting;
+
   return (
     <Dialog>
       <Form {...form}>
-        <div className="w-full">
+        <form className="w-full" onSubmit={submitForm}>
           <DialogTrigger asChild>
-            <Button className="transform rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 hover:shadow-xl">
-              Create Dataset
+            <Button
+              type={'button'}
+              className="transform rounded px-4 py-2 text-white shadow-lg transition-all duration-300"
+            >
+              + Add Dataset
             </Button>
           </DialogTrigger>
           <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[60rem] flex-col overflow-hidden rounded-3xl border-0 bg-white/90 p-4 shadow-2xl backdrop-blur-lg">
@@ -151,7 +202,7 @@ export default function FormS() {
                   return (
                     <div key={s.id} className="flex items-center">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 ${
+                        className={`border-primary/30 flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 ${
                           isActive
                             ? 'scale-110 bg-gradient-to-r shadow-lg'
                             : isCompleted
@@ -172,22 +223,37 @@ export default function FormS() {
               </div>
             </div>
 
-            <DialogHeader className="px-8 pb-2 text-center">
-              <DialogTitle className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-xl font-bold text-transparent">
+            <DialogHeader className="px-4 pb-2 text-center">
+              <DialogTitle className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-lg font-bold text-transparent">
                 {currentStep?.header.title}
               </DialogTitle>
-              <DialogDescription className="text-lg leading-relaxed text-gray-600">
-                {currentStep?.header.description}
+              <DialogDescription className="text-md leading-relaxed text-gray-600">
+                <p>{currentStep?.header.description}</p>
+                {error && (
+                  <p className="rounded bg-red-100 p-2 text-sm text-red-500">
+                    {error}
+                  </p>
+                )}
               </DialogDescription>
             </DialogHeader>
 
             <div className="flex-1 overflow-y-auto p-4">
               <div className="mx-auto max-w-4xl">
-                {step === 1 && <Step1 form={form as FormType} />}
-                {step === 2 && <Step2 form={form as FormType} />}
-                {step === 3 && <Step3 form={form as FormType} />}
-                {step === 4 && <Step4 form={form as FormType} />}
-                {step === 5 && <Step5 form={form as FormType} />}
+                {step === 1 && (
+                  <DatasetUploadFormStep1 form={form as FormType} />
+                )}
+                {step === 2 && (
+                  <DatasetUploadFormStep2 form={form as FormType} />
+                )}
+                {step === 3 && (
+                  <DatasetUploadFormStep3 form={form as FormType} />
+                )}
+                {step === 4 && (
+                  <DatasetUploadFormStep4 form={form as FormType} />
+                )}
+                {step === 5 && (
+                  <DatasetUploadFormStep5 form={form as FormType} />
+                )}
               </div>
             </div>
 
@@ -196,6 +262,7 @@ export default function FormS() {
                 <DialogClose asChild>
                   <Button
                     variant="outline"
+                    type={'button'}
                     className="rounded-xl border-gray-200 px-6 py-2 transition-all duration-200 hover:bg-gray-50"
                   >
                     Cancel
@@ -205,6 +272,7 @@ export default function FormS() {
                   <Button
                     onClick={prevStep}
                     variant="outline"
+                    type={'button'}
                     className="rounded-xl border-gray-200 px-6 py-2 transition-all duration-200 hover:bg-gray-50"
                   >
                     <ChevronLeft className="mr-1 h-4 w-4" />
@@ -220,6 +288,7 @@ export default function FormS() {
                 {step < _steps.length ? (
                   <Button
                     onClick={nextStep}
+                    type={'button'}
                     className="transform rounded-xl px-6 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
                   >
                     Next
@@ -228,16 +297,20 @@ export default function FormS() {
                 ) : (
                   <Button
                     type="submit"
-                    onClick={() => console.log(form.getValues())}
+                    onClick={submitForm}
+                    disabled={isFormLoading}
                     className="transform rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-green-700 hover:to-emerald-700 hover:shadow-xl"
                   >
-                    Complete
+                    <Loader
+                      className={`mr-2 h-4 w-4 ${isFormLoading ? 'animate-spin' : ''}`}
+                    />
+                    {isFormLoading ? 'Submitting...' : 'Complete'}
                   </Button>
                 )}
               </div>
             </DialogFooter>
           </DialogContent>
-        </div>
+        </form>
       </Form>
     </Dialog>
   );

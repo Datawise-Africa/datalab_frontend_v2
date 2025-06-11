@@ -76,7 +76,7 @@ const categories = [
   },
 ];
 
-export default function Step1({ form }: Step1Props) {
+export default function DatasetUploadFormStep1({ form }: Step1Props) {
   console.log('Rendering Step 1');
   console.log('Form State:', form.getValues());
   console.log('Form Errors:', form.formState.errors);
@@ -203,7 +203,7 @@ export default function Step1({ form }: Step1Props) {
         control={form.control}
         name="step_1.is_private"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/30 p-3 shadow-sm">
             <div className="space-y-0.5">
               <FormLabel>Private Dataset</FormLabel>
               <FormDescription>
