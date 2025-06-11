@@ -9,9 +9,9 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Form } from '../ui/form';
-import { useForm } from 'react-hook-form';
+import { useForm, type UseFormReturn } from 'react-hook-form';
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,6 +26,11 @@ import Step2 from './Step2';
 import Step3 from './Step3';
 import Step4 from './Step4';
 import Step5 from './Step5';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  uploadDatasetSchema,
+  type UploadDatasetSchemaType,
+} from '@/lib/schema/upload-dataset-schema';
 
 const _steps = [
   {
@@ -77,13 +82,39 @@ const _steps = [
 ];
 
 export default function FormS() {
-  const [step, setStep] = useState(5);
-  const form = useForm();
-  const currentStep = _steps.find((s) => s.id === step);
+  const [step, setStep] = useState(1);
+  const form = useForm({
+    resolver: zodResolver(uploadDatasetSchema),
+    defaultValues: {
+      step_1: {},
+      step_2: {},
+      step_3: {},
+      step_4: {},
+      step_5: {},
+    },
+    mode: 'onChange',
+  });
 
-  const nextStep = () => {
-    if (step < _steps.length) setStep(step + 1);
-  };
+  type FormType = UseFormReturn<UploadDatasetSchemaType>;
+  const currentStep = _steps.find((s) => s.id === step);
+  type Step = keyof UploadDatasetSchemaType;
+  const nextStep = useCallback(async () => {
+    let isValid = false;
+    // if (step < _steps.length) setStep(step + 1);
+    if (currentStep) {
+      const result = await form.trigger(`step_${step}` as Step);
+      isValid = result;
+    }
+    if (isValid && step < _steps.length) {
+      setStep(step + 1);
+    } else if (step === _steps.length) {
+      // Handle form submission logic here
+      console.log('Form submitted:', form.getValues());
+      // You can also reset the form or redirect the user
+      form.reset();
+      setStep(1); // Reset to the first step after submission
+    }
+  }, [step]);
 
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
@@ -152,11 +183,11 @@ export default function FormS() {
 
             <div className="flex-1 overflow-y-auto p-4">
               <div className="mx-auto max-w-4xl">
-                {step === 1 && <Step1 form={form} />}
-                {step === 2 && <Step2 form={form} />}
-                {step === 3 && <Step3 form={form} />}
-                {step === 4 && <Step4 form={form} />}
-                {step === 5 && <Step5 form={form} />}
+                {step === 1 && <Step1 form={form as FormType} />}
+                {step === 2 && <Step2 form={form as FormType} />}
+                {step === 3 && <Step3 form={form as FormType} />}
+                {step === 4 && <Step4 form={form as FormType} />}
+                {step === 5 && <Step5 form={form as FormType} />}
               </div>
             </div>
 
@@ -197,6 +228,7 @@ export default function FormS() {
                 ) : (
                   <Button
                     type="submit"
+                    onClick={() => console.log(form.getValues())}
                     className="transform rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-green-700 hover:to-emerald-700 hover:shadow-xl"
                   >
                     Complete

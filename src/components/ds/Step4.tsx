@@ -17,39 +17,24 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
+import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 type Step4Props = {
-  form: UseFormReturn;
+  form: UseFormReturn<UploadDatasetSchemaType>;
 };
-const intendedAudience: Record<
-  string,
-  {
-    label: string;
-    value: boolean;
-  }
-> = {
-  students: {
-    label: 'Students & Academics',
-    value: false,
-  },
-  non_profit: {
-    label: 'Non-profit Organizations',
-    value: false,
-  },
-  company: {
-    label: 'Commercial/Business',
-    value: false,
-  },
-  public: {
-    label: 'Public Sector',
-    value: false,
-  },
+type AudienceKey = keyof UploadDatasetSchemaType['step_4']['audience_data'];
+
+const intendedAudience: Record<AudienceKey, { label: string }> = {
+  students: { label: 'Students & Academics' },
+  non_profit: { label: 'Non-profit Organizations' },
+  company: { label: 'Commercial/Business' },
+  public: { label: 'Public Sector' },
 };
 export default function Step4({ form }: Step4Props) {
   return (
     <div className="flex flex-col gap-4">
       <FormField
         control={form.control}
-        name="keywords"
+        name="step_4.keywords"
         render={({ field }) => (
           <FormItem>
             <FormLabel>
@@ -68,13 +53,13 @@ export default function Step4({ form }: Step4Props) {
               <strong>Tip:</strong> Use specific, relevant terms that
               researchers would search for
             </FormDescription>
-            <FormMessage />
+            <FormMessage className="text-xs text-red-500" />
           </FormItem>
         )}
       />
       <FormField
         control={form.control}
-        name="tags"
+        name="step_4.tags"
         render={({ field }) => (
           <FormItem>
             <FormLabel>
@@ -93,13 +78,13 @@ export default function Step4({ form }: Step4Props) {
               These help categorize your dataset (e.g., 'verified',
               'high-resolution')
             </FormDescription>
-            <FormMessage />
+            <FormMessage className="text-xs text-red-500" />
           </FormItem>
         )}
       />
       <FormField
         control={form.control}
-        name={'dataset_region'}
+        name={'step_4.origin_region'}
         render={({ field }) => (
           <FormItem>
             <FormLabel>
@@ -121,13 +106,13 @@ export default function Step4({ form }: Step4Props) {
             {/* <FormDescription className="text-xs text-gray-500">
                                                   The title or role of the author.
                                               </FormDescription> */}
-            <FormMessage />
+            <FormMessage className="text-xs text-red-500" />
           </FormItem>
         )}
       />
       <FormField
         control={form.control}
-        name="regions_covered"
+        name="step_4.covered_regions"
         render={({ field }) => (
           <FormItem>
             <FormLabel>
@@ -146,7 +131,7 @@ export default function Step4({ form }: Step4Props) {
               These help categorize your dataset (e.g., 'verified',
               'high-resolution')
             </FormDescription>
-            <FormMessage />
+            <FormMessage className="text-xs text-red-500" />
           </FormItem>
         )}
       />
@@ -154,34 +139,38 @@ export default function Step4({ form }: Step4Props) {
       <div className="flex flex-col gap-4">
         <FormField
           control={form.control}
-          name="intended_audience"
+          name="step_4.audience_data"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Intended Audience</FormLabel>
               <FormControl>
                 <div className="flex flex-col gap-2">
-                  {Object.entries(intendedAudience).map(([key, value]) => (
-                    <div key={key} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={key}
-                        checked={field.value?.[key] || false}
-                        onCheckedChange={(checked) => {
-                          const newValue = {
-                            ...(field.value || {}),
-                            [key]: checked,
-                          };
-                          field.onChange(newValue);
-                        }}
-                        className={`focus:ring-primary/50 hover:border-primary/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4 rounded border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white`}
-                      />
-                      <label htmlFor={key} className="text-sm">
-                        {value.label}
-                      </label>
-                    </div>
-                  ))}
+                  {Object.entries(intendedAudience).map(([key, value]) => {
+                    // Type assertion to ensure key is of type AudienceKey
+                    const typedKey = key as AudienceKey;
+                    return (
+                      <div key={key} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={key}
+                          checked={field.value?.[typedKey] || false}
+                          onCheckedChange={(checked) => {
+                            const newValue = {
+                              ...(field.value || {}),
+                              [typedKey]: checked,
+                            };
+                            field.onChange(newValue);
+                          }}
+                          className={`focus:ring-primary/50 hover:border-primary/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4 rounded border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white`}
+                        />
+                        <label htmlFor={key} className="text-sm">
+                          {value.label}
+                        </label>
+                      </div>
+                    );
+                  })}
                 </div>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-500" />
             </FormItem>
           )}
         />

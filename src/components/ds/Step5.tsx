@@ -8,11 +8,22 @@ import {
   FormMessage,
 } from '../ui/form';
 import { Info } from 'lucide-react';
+import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 type Step5Props = {
-  form: UseFormReturn;
+  form: UseFormReturn<UploadDatasetSchemaType>;
 };
 
-const options = {
+type PrivacyComplianceKey = keyof UploadDatasetSchemaType['step_5'];
+
+type PrivacyComplianceOptions = {
+  [key in PrivacyComplianceKey]: {
+    label: string;
+    value: boolean;
+    description: string;
+  };
+};
+
+const complianceAgreementOptions: PrivacyComplianceOptions = {
   data_accuracy: {
     label: 'Data Accuracy',
     value: false,
@@ -39,42 +50,47 @@ export default function Step5({ form }: Step5Props) {
     <div>
       <FormField
         control={form.control}
-        name="terms_and_conditions"
+        name="step_5"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Terms and Conditions</FormLabel>
             <FormControl>
               <div className="flex flex-col gap-2">
-                {Object.entries(options).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="border-primary/30 flex items-center space-x-2 rounded-lg border p-4 transition-colors duration-200 hover:bg-gray-50"
-                  >
-                    <Checkbox
-                      id={key}
-                      checked={field.value?.[key] || false}
-                      onCheckedChange={(checked) => {
-                        const newValue = {
-                          ...(field.value || {}),
-                          [key]: checked,
-                        };
-                        field.onChange(newValue);
-                      }}
-                      className={`focus:ring-primary/50 hover:border-primary/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4 rounded border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white`}
-                    />
-                    <label htmlFor={key} className="text-sm">
-                      <div className="flex flex-col gap-2">
-                        <h2>{value.label}</h2>
-                        <p className="text-xs text-gray-500">
-                          {value.description}
-                        </p>
+                {Object.entries(complianceAgreementOptions).map(
+                  ([key, value]) => {
+                    const typedKey = key as PrivacyComplianceKey;
+                    return (
+                      <div
+                        key={key}
+                        className="border-primary/30 flex items-center space-x-2 rounded-lg border p-4 transition-colors duration-200 hover:bg-gray-50"
+                      >
+                        <Checkbox
+                          id={key}
+                          checked={field.value?.[typedKey] || false}
+                          onCheckedChange={(checked) => {
+                            const newValue = {
+                              ...(field.value || {}),
+                              [typedKey]: checked,
+                            };
+                            field.onChange(newValue);
+                          }}
+                          className={`focus:ring-primary/50 hover:border-primary/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4 rounded border border-gray-300 transition-all duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-offset-white disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-white`}
+                        />
+                        <label htmlFor={key} className="text-sm">
+                          <div className="flex flex-col gap-2">
+                            <h2>{value.label}</h2>
+                            <p className="text-xs text-gray-500">
+                              {value.description}
+                            </p>
+                          </div>
+                        </label>
                       </div>
-                    </label>
-                  </div>
-                ))}
+                    );
+                  },
+                )}
               </div>
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-xs text-red-500" />
           </FormItem>
         )}
       />

@@ -39,9 +39,10 @@ import {
 } from '../ui/accordion';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 
 type Step3Props = {
-  form: UseFormReturn;
+  form: UseFormReturn<UploadDatasetSchemaType>;
 };
 
 interface Author {
@@ -50,6 +51,7 @@ interface Author {
   last_name: string;
   title: string;
   email: string;
+  affiliation: string; // Optional, can be empty
 }
 const baseAuthors: Author[] = [
   {
@@ -58,6 +60,7 @@ const baseAuthors: Author[] = [
     last_name: '',
     title: '',
     email: '',
+    affiliation: '',
   },
 ];
 
@@ -71,14 +74,15 @@ export default function Step3({ form }: Step3Props) {
       last_name: '',
       title: '',
       email: '',
+      affiliation: '',
     };
     setAuthors([...authors, newAuthor]);
-    form.setValue('authors', [...authors, newAuthor]);
+    form.setValue('step_3.authors', [...authors, newAuthor]);
   };
   const removeAuthor = (id: string) => {
     setAuthors(authors.filter((author) => author.id !== id));
     form.setValue(
-      'authors',
+      'step_3.authors',
       authors.filter((author) => author.id !== id),
     );
   };
@@ -122,7 +126,7 @@ export default function Step3({ form }: Step3Props) {
                 {/* Title */}
                 <FormField
                   control={form.control}
-                  name={`authors.${index}.title`}
+                  name={`step_3.authors.${index}.title`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Title</FormLabel>
@@ -141,14 +145,14 @@ export default function Step3({ form }: Step3Props) {
                       {/* <FormDescription className="text-xs text-gray-500">
                                             The title or role of the author.
                                         </FormDescription> */}
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
                 {/* First Name */}
                 <FormField
                   control={form.control}
-                  name={`authors.${index}.first_name`}
+                  name={`step_3.authors.${index}.first_name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -160,14 +164,14 @@ export default function Step3({ form }: Step3Props) {
                       {/* <FormDescription className="text-xs text-gray-500">
                                             The first name of the author.
                                         </FormDescription> */}
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
                 {/* Last Name */}
                 <FormField
                   control={form.control}
-                  name={`authors.${index}.last_name`}
+                  name={`step_3.authors.${index}.last_name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -179,14 +183,14 @@ export default function Step3({ form }: Step3Props) {
                       {/* <FormDescription className="text-xs text-gray-500">
                                             The last name of the author.
                                         </FormDescription> */}
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
                 {/* Email */}
                 <FormField
                   control={form.control}
-                  name={`authors.${index}.email`}
+                  name={`step_3.authors.${index}.email`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -203,7 +207,7 @@ export default function Step3({ form }: Step3Props) {
                       {/* <FormDescription className="text-xs text-gray-500">
                                             The email address of the author.
                                         </FormDescription> */}
-                      <FormMessage />
+                      <FormMessage className="text-xs text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -211,7 +215,7 @@ export default function Step3({ form }: Step3Props) {
               {/* Affiliation */}
               <FormField
                 control={form.control}
-                name={`authors.${index}.affiliation`}
+                name={`step_3.authors.${index}.affiliation`}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -227,7 +231,7 @@ export default function Step3({ form }: Step3Props) {
                     <FormDescription className="text-xs text-gray-500">
                       The affiliation of the author.
                     </FormDescription>
-                    <FormMessage />
+                    <FormMessage className="text-xs text-red-500" />
                   </FormItem>
                 )}
               />
@@ -239,7 +243,7 @@ export default function Step3({ form }: Step3Props) {
       <div className="mb-6">
         <FormField
           control={form.control}
-          name="doi"
+          name="step_3.doi_citation"
           render={({ field }) => (
             <FormItem>
               <FormLabel>DOI Citation</FormLabel>
@@ -250,14 +254,14 @@ export default function Step3({ form }: Step3Props) {
                 <strong>Optional:</strong> Add a DOI if your dataset has already
                 been published elsewhere
               </FormDescription>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-500" />
             </FormItem>
           )}
         />
         {/* Licence */}
         <FormField
           control={form.control}
-          name="license"
+          name="step_3.license"
           render={({ field }) => (
             <FormItem>
               <FormLabel>License</FormLabel>
@@ -268,7 +272,11 @@ export default function Step3({ form }: Step3Props) {
                   className="space-y-4"
                 >
                   {licences.map((lic, index) => (
-                    <LicenceItem lic={lic} index={index} />
+                    <LicenceItem
+                      lic={lic}
+                      index={index}
+                      key={lic.license_type}
+                    />
                   ))}
                 </RadioGroup>
               </FormControl>
@@ -276,7 +284,7 @@ export default function Step3({ form }: Step3Props) {
                 Choose a license for your dataset. Click on any option to see
                 more details.
               </FormDescription>
-              <FormMessage />
+              <FormMessage className="text-xs text-red-500" />
             </FormItem>
           )}
         />

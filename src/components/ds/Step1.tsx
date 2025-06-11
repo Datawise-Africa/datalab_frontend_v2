@@ -1,10 +1,10 @@
 import {
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from '../ui/form';
 import type { UseFormReturn } from 'react-hook-form';
 import { Input } from '../ui/input';
@@ -13,167 +13,213 @@ import { IconInput } from '../ui/icon-input';
 import { CircleDollarSignIcon } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '../ui/select';
+import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 
 type Step1Props = {
-    form: UseFormReturn;
+  form: UseFormReturn<UploadDatasetSchemaType>;
 };
 
+const categories = [
+  {
+    label: 'Climate & Environment',
+    value: 'Climate & Environment',
+  },
+  {
+    label: 'Economics & Finance',
+    value: 'Economics & Finance',
+  },
+  {
+    label: 'Social & Demographic',
+    value: 'Social & Demographic',
+  },
+  {
+    label: 'Health & Medical',
+    value: 'Health & Medical',
+  },
+  {
+    label: 'Technology & Innovation',
+    value: 'Technology & Innovation',
+  },
+  {
+    label: 'Education & Research',
+    value: 'Education & Research',
+  },
+  {
+    label: 'Government & Public Policy',
+    value: 'Government & Public Policy',
+  },
+  {
+    label: 'Transportation & Mobility',
+    value: 'Transportation & Mobility',
+  },
+  {
+    label: 'Energy & Utilities',
+    value: 'Energy & Utilities',
+  },
+  {
+    label: 'Agriculture & Food',
+    value: 'Agriculture & Food',
+  },
+  {
+    label: 'Urban & Regional Planning',
+    value: 'Urban & Regional Planning',
+  },
+  {
+    label: 'Tourism & Recreation',
+    value: 'Tourism & Recreation',
+  },
+];
+
 export default function Step1({ form }: Step1Props) {
-    return (
-        <div className="flex flex-col gap-4">
-            <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>
-                            Dataset title{' '}
-                            <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                            <Input
-                                placeholder="E.g 'Global Climate Data 2023'"
-                                {...field}
-                            />
-                        </FormControl>
-                        <FormDescription className="text-xs text-gray-500">
-                            Choose a clear descriptive title that will help
-                            users find your dataset
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="category"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>
-                            Category <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl className="">
-                            <Select {...field}>
-                                <SelectTrigger className="border-primary/30 w-full">
-                                    <SelectValue placeholder="Theme" />
-                                </SelectTrigger>
-                                <SelectContent className="border-primary/30 w-full bg-white">
-                                    <SelectItem value="light">Light</SelectItem>
-                                    <SelectItem value="dark">Dark</SelectItem>
-                                    <SelectItem value="system">
-                                        System
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </FormControl>
-                        {/* <FormDescription className='text-xs text-gray-500'>
+  console.log('Rendering Step 1');
+  console.log('Form State:', form.getValues());
+  console.log('Form Errors:', form.formState.errors);
+
+  return (
+    <div className="flex flex-col gap-4">
+      <FormField
+        control={form.control}
+        name="step_1.title"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              Dataset title <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Input placeholder="E.g 'Global Climate Data 2023'" {...field} />
+            </FormControl>
+            <FormDescription className="text-xs text-gray-500">
+              Choose a clear descriptive title that will help users find your
+              dataset
+            </FormDescription>
+            <FormMessage className="text-xs text-red-500" />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="step_1.category"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              Category <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl className="">
+              <Select {...field}>
+                <SelectTrigger className="border-primary/30 w-full">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent className="border-primary/30 w-full bg-white">
+                  {categories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormControl>
+            {/* <FormDescription className='text-xs text-gray-500'>
                                                         Choose a clear descriptive title that will help users find your dataset
                                                     </FormDescription> */}
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>
-                            Brief Description{' '}
-                            <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                            <Textarea
-                                placeholder="Provide a brief description of your dataset it's contents and potential usecases."
-                                {...field}
-                                className="h-24 resize-none"
-                            />
-                        </FormControl>
-                        <FormDescription className="text-xs text-gray-500">
-                            <strong>Tip:</strong> Include information about data
-                            collection methods, time period and key variables.
-                        </FormDescription>
-                        <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="is_premium"
-                render={({ field }) => (
-                    <FormItem className="border-primary/30 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                            <FormLabel>Premium Dataset</FormLabel>
-                            <FormDescription>
-                                Charge users for access to this dataset
-                            </FormDescription>
-                        </div>
-                        <FormControl>
-                            <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                            />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-            {form.watch('is_premium') && (
-                <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>
-                                Price (USD)
-                                <span className="text-red-500">*</span>
-                            </FormLabel>
-                            <FormControl>
-                                <IconInput
-                                    placeholder="E.g 'Global Climate Data 2023'"
-                                    {...field}
-                                    leftIcon={<CircleDollarSignIcon />}
-                                    type="number"
-                                    min={0}
-                                />
-                            </FormControl>
-                            <FormDescription className="text-xs text-gray-500">
-                                Choose a clear descriptive title that will help
-                                users find your dataset
-                            </FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
+            <FormMessage className="text-xs text-red-500" />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="step_1.description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>
+              Brief Description <span className="text-red-500">*</span>
+            </FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Provide a brief description of your dataset it's contents and potential usecases."
+                {...field}
+                className="h-24 resize-none"
+              />
+            </FormControl>
+            <FormDescription className="text-xs text-gray-500">
+              <strong>Tip:</strong> Include information about data collection
+              methods, time period and key variables.
+            </FormDescription>
+            <FormMessage className="text-xs text-red-500" />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="step_1.is_premium"
+        render={({ field }) => (
+          <FormItem className="border-primary/30 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <div className="space-y-0.5">
+              <FormLabel>Premium Dataset</FormLabel>
+              <FormDescription>
+                Charge users for access to this dataset
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      {form.watch('step_1.is_premium') && (
+        <FormField
+          control={form.control}
+          name="step_1.price"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Price (USD)
+                <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl>
+                <IconInput
+                  placeholder="E.g 'Global Climate Data 2023'"
+                  {...field}
+                  leftIcon={<CircleDollarSignIcon />}
+                  type="number"
+                  min={0}
                 />
-            )}
-            <FormField
-                control={form.control}
-                name="private_dataset"
-                render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                            <FormLabel>Private Dataset</FormLabel>
-                            <FormDescription>
-                                Only you and specified collaborators can view
-                                this dataset
-                            </FormDescription>
-                        </div>
-                        <FormControl>
-                            <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                disabled
-                                aria-readonly
-                            />
-                        </FormControl>
-                    </FormItem>
-                )}
-            />
-        </div>
-    );
+              </FormControl>
+              <FormDescription className="text-xs text-gray-500">
+                Choose a clear descriptive title that will help users find your
+                dataset
+              </FormDescription>
+              <FormMessage className="text-xs text-red-500" />
+            </FormItem>
+          )}
+        />
+      )}
+      <FormField
+        control={form.control}
+        name="step_1.is_private"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+            <div className="space-y-0.5">
+              <FormLabel>Private Dataset</FormLabel>
+              <FormDescription>
+                Only you and specified collaborators can view this dataset
+              </FormDescription>
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                aria-readonly
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    </div>
+  );
 }
