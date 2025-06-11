@@ -111,7 +111,7 @@ export default function Step1({ form }: Step1Props) {
               Category <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl className="">
-              <Select {...field}>
+              <Select {...field} onValueChange={field.onChange}>
                 <SelectTrigger className="border-primary/30 w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>

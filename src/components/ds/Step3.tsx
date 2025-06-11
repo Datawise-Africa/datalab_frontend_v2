@@ -63,6 +63,20 @@ const baseAuthors: Author[] = [
     affiliation: '',
   },
 ];
+const authorTitles = [
+  'Dr.',
+  'Prof.',
+  'Mr.',
+  'Ms.',
+  'Mrs.',
+  'Mx.',
+  'Eng.',
+  'PhD',
+  'MSc',
+  'BSc',
+  'MBA',
+  'MA',
+]
 
 export default function Step3({ form }: Step3Props) {
   const [authors, setAuthors] = useState<Author[]>(baseAuthors);
@@ -131,14 +145,18 @@ export default function Step3({ form }: Step3Props) {
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl className="">
-                        <Select {...field}>
+                        <Select {...field}
+                        onValueChange={field.onChange}
+                        >
                           <SelectTrigger className="border-primary/30 w-full">
                             <SelectValue placeholder="Theme" />
                           </SelectTrigger>
                           <SelectContent className="border-primary/30 w-full bg-white">
-                            <SelectItem value="light">Light</SelectItem>
-                            <SelectItem value="dark">Dark</SelectItem>
-                            <SelectItem value="system">System</SelectItem>
+                            {authorTitles.map((title) => (
+                              <SelectItem key={title} value={title}>
+                                {title}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>

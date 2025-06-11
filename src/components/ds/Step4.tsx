@@ -29,6 +29,16 @@ const intendedAudience: Record<AudienceKey, { label: string }> = {
   company: { label: 'Commercial/Business' },
   public: { label: 'Public Sector' },
 };
+
+const regionsOfOrigin = [
+  { value: 'africa', label: 'Africa' },
+  { value: 'asia', label: 'Asia' },
+  { value: 'europe', label: 'Europe' },
+  { value: 'North America', label: 'North America' },
+  { value: 'South America', label: 'South America' },
+  { value: 'Oceania', label: 'Oceania' },
+
+]
 export default function Step4({ form }: Step4Props) {
   return (
     <div className="flex flex-col gap-4">
@@ -92,14 +102,18 @@ export default function Step4({ form }: Step4Props) {
               <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl className="">
-              <Select {...field}>
+              <Select {...field}
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger className="border-primary/30 w-full">
-                  <SelectValue placeholder="Theme" />
+                  <SelectValue placeholder="Region of origin" />
                 </SelectTrigger>
                 <SelectContent className="border-primary/30 w-full bg-white">
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                  {regionsOfOrigin.map((region) => (
+                    <SelectItem key={region.value} value={region.value}>
+                      {region.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </FormControl>

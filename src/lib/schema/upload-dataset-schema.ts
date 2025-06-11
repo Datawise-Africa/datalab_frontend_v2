@@ -40,11 +40,11 @@ const datasetFilesSchema = z.object({
 });
 
 const datasetUploadAuthorSchema = z.object({
-  title: z.string().min(1, 'Author title is required'),
-  first_name: z.string().min(1, 'Author first name is required'),
-  last_name: z.string().min(1, 'Author last name is required'),
-  email: z.string().email('Invalid email address'),
-  affiliation: z.string().min(1, 'Author affiliation is required'),
+  title: z.string({required_error: 'Author title is required'}).min(1, 'Author title is required'),
+  first_name: z.string({required_error: 'Author first name is required'}).min(1, 'Author first name is required'),
+  last_name: z.string({required_error: 'Author last name is required'}).min(1, 'Author last name is required'),
+  email: z.string({required_error: 'Invalid email address'}).email('Invalid email address'),
+  affiliation: z.string({required_error: 'Author affiliation is required'}).min(1, 'Author affiliation is required'),
 });
 
 export type DatasetUploadAuthorSchemaType = z.infer<
