@@ -40,11 +40,21 @@ const datasetFilesSchema = z.object({
 });
 
 const datasetUploadAuthorSchema = z.object({
-  title: z.string({required_error: 'Author title is required'}).min(1, 'Author title is required'),
-  first_name: z.string({required_error: 'Author first name is required'}).min(1, 'Author first name is required'),
-  last_name: z.string({required_error: 'Author last name is required'}).min(1, 'Author last name is required'),
-  email: z.string({required_error: 'Invalid email address'}).email('Invalid email address'),
-  affiliation: z.string({required_error: 'Author affiliation is required'}).min(1, 'Author affiliation is required'),
+  title: z
+    .string({ required_error: 'Author title is required' })
+    .min(1, 'Author title is required'),
+  first_name: z
+    .string({ required_error: 'Author first name is required' })
+    .min(1, 'Author first name is required'),
+  last_name: z
+    .string({ required_error: 'Author last name is required' })
+    .min(1, 'Author last name is required'),
+  email: z
+    .string({ required_error: 'Invalid email address' })
+    .email('Invalid email address'),
+  affiliation: z
+    .string({ required_error: 'Author affiliation is required' })
+    .min(1, 'Author affiliation is required'),
 });
 
 export type DatasetUploadAuthorSchemaType = z.infer<
@@ -52,7 +62,8 @@ export type DatasetUploadAuthorSchemaType = z.infer<
 >;
 
 const attributionSchema = z.object({
-  authors: z
+  authors: z.array(z.number()).default([]),
+  new_authors: z
     .array(datasetUploadAuthorSchema)
     .min(1, 'At least one author is required'),
   doi_citation: z.string().url().optional(),
@@ -72,10 +83,12 @@ const uploadDatasetDiscoveryInfoSchema = z.object({
 });
 
 export const uploadDatasetReviewSchema = z.object({
-  data_accuracy: z.coerce.boolean().default(false),
-  responsible_use: z.coerce.boolean().default(false),
-  privacy_compliance: z.coerce.boolean().default(false),
-  rights_ownership: z.coerce.boolean().default(false),
+  accepted_terms: z.object({
+    data_accuracy: z.coerce.boolean().default(false),
+    responsible_use: z.coerce.boolean().default(false),
+    privacy_compliance: z.coerce.boolean().default(false),
+    rights_ownership: z.coerce.boolean().default(false),
+  }),
 });
 
 // export const uploadDatasetSchemaSteps = createSteps([

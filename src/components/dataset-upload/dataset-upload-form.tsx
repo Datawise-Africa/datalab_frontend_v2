@@ -100,8 +100,9 @@ export default function DatasetUploadForm() {
       },
       step_2: { data_files: [], metadata_files: [], datasheet_files: [] },
       step_3: {
-        authors: [],
+        new_authors: [],
         license: '',
+        authors: [],
         doi_citation: '',
       },
       step_4: {
@@ -117,10 +118,12 @@ export default function DatasetUploadForm() {
         origin_region: '',
       },
       step_5: {
-        data_accuracy: false,
-        responsible_use: false,
-        privacy_compliance: false,
-        rights_ownership: false,
+        accepted_terms: {
+          data_accuracy: false,
+          responsible_use: false,
+          privacy_compliance: false,
+          rights_ownership: false,
+        },
       },
     },
     mode: 'onChange',

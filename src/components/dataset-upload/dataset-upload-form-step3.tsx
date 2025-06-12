@@ -37,9 +37,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion';
-import { Badge } from '../ui/badge';
-import { cn } from '@/lib/utils';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
+import { MultiSelect } from '../ui/multi-select';
+import { useAuthors } from '@/hooks/use-authors';
 
 type Step3Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
@@ -54,14 +54,14 @@ interface Author {
   affiliation: string; // Optional, can be empty
 }
 const baseAuthors: Author[] = [
-  {
-    id: crypto.randomUUID(),
-    first_name: '',
-    last_name: '',
-    title: '',
-    email: '',
-    affiliation: '',
-  },
+  // {
+  //   id: crypto.randomUUID(),
+  //   first_name: '',
+  //   last_name: '',
+  //   title: '',
+  //   email: '',
+  //   affiliation: '',
+  // },
 ];
 const authorTitles = [
   'Dr.',
@@ -76,10 +76,11 @@ const authorTitles = [
   'BSc',
   'MBA',
   'MA',
-]
+];
 
 export default function DatasetUploadFormStep3({ form }: Step3Props) {
   const [authors, setAuthors] = useState<Author[]>(baseAuthors);
+  const dbAuthors = useAuthors();
   const { data: licences } = useLicences();
   const addAuthor = () => {
     const newAuthor: Author = {
@@ -91,12 +92,12 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
       affiliation: '',
     };
     setAuthors([...authors, newAuthor]);
-    form.setValue('step_3.authors', [...authors, newAuthor]);
+    form.setValue('step_3.new_authors', [...authors, newAuthor]);
   };
   const removeAuthor = (id: string) => {
     setAuthors(authors.filter((author) => author.id !== id));
     form.setValue(
-      'step_3.authors',
+      'step_3.new_authors',
       authors.filter((author) => author.id !== id),
     );
   };
@@ -111,10 +112,43 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
 
   return (
     <div>
-      <div>
-        <div className="mb-6 flex items-center justify-between">
-          <h1>Authors</h1>
-          <Button onClick={addAuthor} variant={'outline'} className="">
+      <div className="flex flex-col gap-4">
+        <FormField
+          control={form.control}
+          name={`step_3.authors`}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Authors</FormLabel>
+              <FormControl className="">
+                <MultiSelect
+                  {...field}
+                  options={dbAuthors.data.map((author) => ({
+                    value: '' + author.id,
+                    label: `${author.title} ${author.first_name} ${author.last_name}`,
+                  }))}
+                  mode="multiple"
+                  value={field.value as unknown as string[]}
+                  chipVariant="default"
+                  onChange={field.onChange}
+                  placeholder="Select authors"
+                  className="border-primary/30 w-full bg-white"
+                />
+              </FormControl>
+              {/* <FormDescription className="text-xs text-gray-500">
+                                            The title or role of the author.
+                                        </FormDescription> */}
+              <FormMessage className="text-xs text-red-500" />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex items-center justify-between">
+          <h1>Add New Authors</h1>
+          <Button
+            onClick={addAuthor}
+            variant={'outline'}
+            className="border-primary/30 bg-white"
+          >
             <Plus className="mr-2 h-4 w-4" />
             Add Author
           </Button>
@@ -129,25 +163,23 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                 <User className="mr-2 inline h-5 w-5" />
                 Author {index + 1}
               </h2>
-              {index > 0 && (
+              {
                 <Button variant="ghost" onClick={() => removeAuthor(author.id)}>
                   <X className="h-4 w-4" />
                 </Button>
-              )}
+              }
             </div>
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {/* Title */}
                 <FormField
                   control={form.control}
-                  name={`step_3.authors.${index}.title`}
+                  name={`step_3.new_authors.${index}.title`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl className="">
-                        <Select {...field}
-                        onValueChange={field.onChange}
-                        >
+                        <Select {...field} onValueChange={field.onChange}>
                           <SelectTrigger className="border-primary/30 w-full">
                             <SelectValue placeholder="Mr./Mrs." />
                           </SelectTrigger>
@@ -170,7 +202,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                 {/* First Name */}
                 <FormField
                   control={form.control}
-                  name={`step_3.authors.${index}.first_name`}
+                  name={`step_3.new_authors.${index}.first_name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -189,7 +221,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                 {/* Last Name */}
                 <FormField
                   control={form.control}
-                  name={`step_3.authors.${index}.last_name`}
+                  name={`step_3.new_authors.${index}.last_name`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -208,7 +240,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                 {/* Email */}
                 <FormField
                   control={form.control}
-                  name={`step_3.authors.${index}.email`}
+                  name={`step_3.new_authors.${index}.email`}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -233,7 +265,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
               {/* Affiliation */}
               <FormField
                 control={form.control}
-                name={`step_3.authors.${index}.affiliation`}
+                name={`step_3.new_authors.${index}.affiliation`}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -287,7 +319,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                 <RadioGroup
                   value={field.value}
                   onValueChange={field.onChange}
-                  className="space-y-4"
+                  className="space-y-2"
                 >
                   {licences.map((lic, index) => (
                     <LicenceItem
@@ -315,7 +347,7 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
   return (
     <div
       key={lic.license_type}
-      className="border-primary/30 rounded border p-4 transition-colors hover:bg-gray-50"
+      className="border-primary/30 rounded border p-2 transition-colors hover:bg-gray-50"
     >
       <div className="flex items-start space-x-3">
         <RadioGroupItem
@@ -332,13 +364,11 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
                   htmlFor={`license-${index}`}
                   className="block w-full cursor-pointer text-left"
                 >
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">
-                      {lic.license_type}
-                    </h3>
-                    <p className="text-sm text-gray-600">{lic.description}</p>
+                  <div className="space-y-1">
+                    <h3 className="text-lg">{lic.license_type}</h3>
+                    {/* <p className="text-sm text-gray-600">{lic.description}</p> */}
                     <div className="flex flex-wrap gap-2">
-                      {Object.entries(lic.fields).map(([fieldName, value]) => (
+                      {/* {Object.entries(lic.fields).map(([fieldName, value]) => (
                         <Badge
                           key={fieldName}
                           variant="outline"
@@ -356,7 +386,7 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
                           )}
                           {fieldName}
                         </Badge>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                 </Label>

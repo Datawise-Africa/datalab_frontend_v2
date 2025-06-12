@@ -9,11 +9,13 @@ import {
 } from '../ui/form';
 import { Info } from 'lucide-react';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
+// import { useTermsAndConditions } from '@/hooks/use-terms-and-conditions';
 type Step5Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
 };
 
-type PrivacyComplianceKey = keyof UploadDatasetSchemaType['step_5'];
+type PrivacyComplianceKey =
+  keyof UploadDatasetSchemaType['step_5']['accepted_terms'];
 
 type PrivacyComplianceOptions = {
   [key in PrivacyComplianceKey]: {
@@ -46,11 +48,12 @@ const complianceAgreementOptions: PrivacyComplianceOptions = {
   },
 };
 export default function DatasetUploadFormStep5({ form }: Step5Props) {
+  // const terms = useTermsAndConditions();
   return (
     <div>
       <FormField
         control={form.control}
-        name="step_5"
+        name="step_5.accepted_terms"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Terms and Conditions</FormLabel>
