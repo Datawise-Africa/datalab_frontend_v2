@@ -20,67 +20,72 @@ import {
   SelectValue,
 } from '../ui/select';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
+import { useDatasetCategories } from '@/hooks/use-dataset-categories';
+import { useEffect } from 'react';
 
 type Step1Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
 };
 
-const categories = [
-  {
-    label: 'Climate & Environment',
-    value: 'Climate & Environment',
-  },
-  {
-    label: 'Economics & Finance',
-    value: 'Economics & Finance',
-  },
-  {
-    label: 'Social & Demographic',
-    value: 'Social & Demographic',
-  },
-  {
-    label: 'Health & Medical',
-    value: 'Health & Medical',
-  },
-  {
-    label: 'Technology & Innovation',
-    value: 'Technology & Innovation',
-  },
-  {
-    label: 'Education & Research',
-    value: 'Education & Research',
-  },
-  {
-    label: 'Government & Public Policy',
-    value: 'Government & Public Policy',
-  },
-  {
-    label: 'Transportation & Mobility',
-    value: 'Transportation & Mobility',
-  },
-  {
-    label: 'Energy & Utilities',
-    value: 'Energy & Utilities',
-  },
-  {
-    label: 'Agriculture & Food',
-    value: 'Agriculture & Food',
-  },
-  {
-    label: 'Urban & Regional Planning',
-    value: 'Urban & Regional Planning',
-  },
-  {
-    label: 'Tourism & Recreation',
-    value: 'Tourism & Recreation',
-  },
-];
+// const categories = [
+//   {
+//     label: 'Climate & Environment',
+//     value: 'Climate & Environment',
+//   },
+//   {
+//     label: 'Economics & Finance',
+//     value: 'Economics & Finance',
+//   },
+//   {
+//     label: 'Social & Demographic',
+//     value: 'Social & Demographic',
+//   },
+//   {
+//     label: 'Health & Medical',
+//     value: 'Health & Medical',
+//   },
+//   {
+//     label: 'Technology & Innovation',
+//     value: 'Technology & Innovation',
+//   },
+//   {
+//     label: 'Education & Research',
+//     value: 'Education & Research',
+//   },
+//   {
+//     label: 'Government & Public Policy',
+//     value: 'Government & Public Policy',
+//   },
+//   {
+//     label: 'Transportation & Mobility',
+//     value: 'Transportation & Mobility',
+//   },
+//   {
+//     label: 'Energy & Utilities',
+//     value: 'Energy & Utilities',
+//   },
+//   {
+//     label: 'Agriculture & Food',
+//     value: 'Agriculture & Food',
+//   },
+//   {
+//     label: 'Urban & Regional Planning',
+//     value: 'Urban & Regional Planning',
+//   },
+//   {
+//     label: 'Tourism & Recreation',
+//     value: 'Tourism & Recreation',
+//   },
+// ];
 
 export default function DatasetUploadFormStep1({ form }: Step1Props) {
   console.log('Rendering Step 1');
   console.log('Form State:', form.getValues());
   console.log('Form Errors:', form.formState.errors);
-
+  const categories = useDatasetCategories();
+  useEffect(() => {
+    categories.refetch();
+  }, []);
   return (
     <div className="flex flex-col gap-4">
       <FormField
@@ -111,14 +116,18 @@ export default function DatasetUploadFormStep1({ form }: Step1Props) {
               Category <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl className="">
-              <Select {...field} onValueChange={field.onChange}>
+              <Select
+                {...field}
+                value={field.value as unknown as string}
+                onValueChange={field.onChange}
+              >
                 <SelectTrigger className="border-primary/30 w-full">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="border-primary/30 w-full bg-white">
-                  {categories.map((category) => (
-                    <SelectItem key={category.value} value={category.value}>
-                      {category.label}
+                  {categories.data.map((category) => (
+                    <SelectItem key={category.id} value={category.id + ''}>
+                      {category.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -203,7 +212,7 @@ export default function DatasetUploadFormStep1({ form }: Step1Props) {
         control={form.control}
         name="step_1.is_private"
         render={({ field }) => (
-          <FormItem className="flex flex-row items-center justify-between rounded-lg border border-primary/30 p-3 shadow-sm">
+          <FormItem className="border-primary/30 flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
             <div className="space-y-0.5">
               <FormLabel>Private Dataset</FormLabel>
               <FormDescription>

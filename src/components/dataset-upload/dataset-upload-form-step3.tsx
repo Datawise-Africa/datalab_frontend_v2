@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -81,7 +81,7 @@ const authorTitles = [
 export default function DatasetUploadFormStep3({ form }: Step3Props) {
   const [authors, setAuthors] = useState<Author[]>(baseAuthors);
   const dbAuthors = useAuthors();
-  const { data: licences } = useLicences();
+  const licences = useLicences();
   const addAuthor = () => {
     const newAuthor: Author = {
       id: crypto.randomUUID(),
@@ -109,7 +109,10 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
   //     );
   //     form.setValue('authors', authors);
   // };
-
+  useEffect(() => {
+    dbAuthors.refetch();
+    licences.refetch();
+  }, []);
   return (
     <div>
       <div className="flex flex-col gap-4">
@@ -124,7 +127,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                   {...field}
                   options={dbAuthors.data.map((author) => ({
                     value: '' + author.id,
-                    label: `${author.title} ${author.first_name} ${author.last_name}`,
+                    label: `${author.first_name} ${author.last_name}`,
                   }))}
                   mode="multiple"
                   value={field.value as unknown as string[]}
@@ -321,7 +324,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                   onValueChange={field.onChange}
                   className="space-y-2"
                 >
-                  {licences.map((lic, index) => (
+                  {licences.data.map((lic, index) => (
                     <LicenceItem
                       lic={lic}
                       index={index}

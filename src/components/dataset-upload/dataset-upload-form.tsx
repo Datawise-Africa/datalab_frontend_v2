@@ -21,6 +21,7 @@ import {
   Search,
   CheckCircle,
   Loader,
+  UploadCloud,
 } from 'lucide-react';
 import DatasetUploadFormStep1 from './dataset-upload-form-step1.tsx';
 import DatasetUploadFormStep2 from './dataset-upload-form-step2.tsx';
@@ -33,6 +34,7 @@ import {
   type UploadDatasetSchemaType,
 } from '@/lib/schema/upload-dataset-schema';
 import { extractCorrectErrorMessage } from '@/lib/error.ts';
+import useApi from '@/hooks/use-api.tsx';
 
 const _steps = [
   {
@@ -85,13 +87,15 @@ const _steps = [
 
 export default function DatasetUploadForm() {
   const [step, setStep] = useState(1);
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const api = useApi().privateApi;
   const form = useForm({
     resolver: zodResolver(uploadDatasetSchema),
     defaultValues: {
       step_1: {
-        category: '',
+        category: undefined,
         title: '',
         description: '',
         is_premium: false,
@@ -161,7 +165,9 @@ export default function DatasetUploadForm() {
       const dataToSubmit = Object.values(data).reduce((acc, stepData) => {
         return { ...acc, ...stepData };
       });
-      console.log('Submitting form data:', dataToSubmit);
+      await api.post('/data/datasets/', dataToSubmit);
+      setIsOpen(false);
+      // console.log('Submitting form data:', dataToSubmit);
       // Here you can handle the form submission, e.g., send data to an API
     } catch (error) {
       setError(extractCorrectErrorMessage(error));
@@ -172,7 +178,7 @@ export default function DatasetUploadForm() {
   const isFormLoading = isLoading || form.formState.isSubmitting;
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <Form {...form}>
         <form className="w-full" onSubmit={submitForm}>
           <DialogTrigger asChild>
@@ -302,12 +308,16 @@ export default function DatasetUploadForm() {
                     type="submit"
                     onClick={submitForm}
                     disabled={isFormLoading}
-                    className="transform rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-8 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-green-700 hover:to-emerald-700 hover:shadow-xl"
+                    className="bg-primary transform rounded px-8 py-2 text-white shadow-lg transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <Loader
-                      className={`mr-2 h-4 w-4 ${isFormLoading ? 'animate-spin' : ''}`}
-                    />
-                    {isFormLoading ? 'Submitting...' : 'Complete'}
+                    {isFormLoading ? (
+                      <Loader
+                        className={`mr-2 h-4 w-4 ${isFormLoading ? 'animate-spin' : ''}`}
+                      />
+                    ) : (
+                      <UploadCloud className="mr-2 h-4 w-4" />
+                    )}
+                    {isFormLoading ? 'Submitting...' : 'Publish Dataset'}
                   </Button>
                 )}
               </div>

@@ -10,9 +10,9 @@ const datasetUploadBasicInfoSchema = z
     description: z
       .string({ required_error: 'Description is required' })
       .min(1, 'Description is required'),
-    category: z
-      .string({ required_error: 'Category is required' })
-      .min(1, 'Category is required'),
+    category: z.coerce
+      .number({ required_error: 'Category is required' })
+      .positive('Invalid category selected'),
     is_premium: z.coerce.boolean().default(false),
     price: z.coerce
       .number()
@@ -20,7 +20,13 @@ const datasetUploadBasicInfoSchema = z
       .optional(),
     is_private: z.coerce.boolean().default(false),
   })
-  .strict();
+  .strict()
+  .refine(
+    (data) => !data.is_premium || (data.is_premium && data.price !== undefined),
+    {
+      message: 'Price is required for premium datasets',
+    },
+  );
 export type DatasetUploadBasicInfoSchemaType = z.infer<
   typeof datasetUploadBasicInfoSchema
 >;
@@ -34,7 +40,9 @@ const datasetFileSchema = z.object({
 });
 
 const datasetFilesSchema = z.object({
-  data_files: z.array(datasetFileSchema),
+  data_files: z
+    .array(datasetFileSchema)
+    .min(1, 'At least one data file is required'),
   metadata_files: z.array(datasetFileSchema).optional(),
   datasheet_files: z.array(datasetFileSchema).optional(),
 });
@@ -62,11 +70,10 @@ export type DatasetUploadAuthorSchemaType = z.infer<
 >;
 
 const attributionSchema = z.object({
-  authors: z.array(z.number()).default([]),
-  new_authors: z
-    .array(datasetUploadAuthorSchema)
-    .min(1, 'At least one author is required'),
-  doi_citation: z.string().url().optional(),
+  authors: z.array(z.coerce.number()).default([]),
+  new_authors: z.array(datasetUploadAuthorSchema),
+  // .min(1, 'At least one author is required'),
+  doi_citation: z.string().optional(),
   license: z.string().min(1, 'License is required'),
 });
 const uploadDatasetDiscoveryInfoSchema = z.object({
