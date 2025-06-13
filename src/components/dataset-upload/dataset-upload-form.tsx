@@ -105,7 +105,7 @@ export default function DatasetUploadForm() {
       step_2: { data_files: [], metadata_files: [], datasheet_files: [] },
       step_3: {
         new_authors: [],
-        license: '',
+        license: undefined,
         authors: [],
         doi_citation: '',
       },
@@ -165,7 +165,12 @@ export default function DatasetUploadForm() {
       const dataToSubmit = Object.values(data).reduce((acc, stepData) => {
         return { ...acc, ...stepData };
       });
-      await api.post('/data/datasets/', dataToSubmit);
+      await api.post('/data/datasets/', {
+        ...dataToSubmit,
+        keywords: (dataToSubmit as any).keywords.join(','),
+        covered_regions: (dataToSubmit as any).covered_regions.join(','),
+      });
+      form.reset();
       setIsOpen(false);
       // console.log('Submitting form data:', dataToSubmit);
       // Here you can handle the form submission, e.g., send data to an API
@@ -184,12 +189,12 @@ export default function DatasetUploadForm() {
           <DialogTrigger asChild>
             <Button
               type={'button'}
-              className="transform rounded px-4 py-2 text-white shadow-lg transition-all duration-300"
+              className="transform cursor-pointer rounded px-6 py-4 text-white shadow-lg transition-all duration-300"
             >
               + Add Dataset
             </Button>
           </DialogTrigger>
-          <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[60rem] flex-col overflow-hidden rounded-3xl border-0 bg-white/90 p-4 shadow-2xl backdrop-blur-lg">
+          <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[60rem] flex-col overflow-hidden rounded-3xl border-0 bg-white p-4 shadow-2xl backdrop-blur-lg">
             {/* Progress Bar */}
             <div className="absolute top-0 right-0 left-0 h-1 bg-gray-100">
               <div

@@ -31,14 +31,21 @@ const intendedAudience: Record<AudienceKey, { label: string }> = {
 };
 
 const regionsOfOrigin = [
-  { value: 'africa', label: 'Africa' },
-  { value: 'asia', label: 'Asia' },
-  { value: 'europe', label: 'Europe' },
-  { value: 'North America', label: 'North America' },
-  { value: 'South America', label: 'South America' },
-  { value: 'Oceania', label: 'Oceania' },
+  'Africa',
+  'Asia',
+  'Europe',
+  'North America',
+  'South America',
+  'Oceania',
+  'Global',
 
-]
+  // { value: 'africa', label: 'Africa' },
+  // { value: 'asia', label: 'Asia' },
+  // { value: 'europe', label: 'Europe' },
+  // { value: 'North America', label: 'North America' },
+  // { value: 'South America', label: 'South America' },
+  // { value: 'Oceania', label: 'Oceania' },
+];
 export default function DatasetUploadFormStep4({ form }: Step4Props) {
   return (
     <div className="flex flex-col gap-4">
@@ -102,16 +109,14 @@ export default function DatasetUploadFormStep4({ form }: Step4Props) {
               <span className="text-red-500">*</span>
             </FormLabel>
             <FormControl className="">
-              <Select {...field}
-                onValueChange={field.onChange}
-              >
+              <Select {...field} onValueChange={field.onChange}>
                 <SelectTrigger className="border-primary/30 w-full">
                   <SelectValue placeholder="Region of origin" />
                 </SelectTrigger>
                 <SelectContent className="border-primary/30 w-full bg-white">
                   {regionsOfOrigin.map((region) => (
-                    <SelectItem key={region.value} value={region.value}>
-                      {region.label}
+                    <SelectItem key={region} value={region}>
+                      {region}
                     </SelectItem>
                   ))}
                 </SelectContent>

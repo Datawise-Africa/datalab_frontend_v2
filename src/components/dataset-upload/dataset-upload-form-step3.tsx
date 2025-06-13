@@ -320,7 +320,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
               <FormLabel>License</FormLabel>
               <FormControl>
                 <RadioGroup
-                  value={field.value}
+                  value={field.value as unknown as string}
                   onValueChange={field.onChange}
                   className="space-y-2"
                 >
@@ -354,7 +354,7 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
     >
       <div className="flex items-start space-x-3">
         <RadioGroupItem
-          value={lic.license_type}
+          value={lic.id as unknown as string}
           id={`license-${index}`}
           className="mt-1"
         />

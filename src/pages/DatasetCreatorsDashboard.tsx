@@ -2,6 +2,7 @@
 import { useAuth } from '@/context/AuthProvider';
 // import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
 import DatasetUploadForm from '@/components/dataset-upload/dataset-upload-form.tsx';
+import { Button } from '@/components/ui/button';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
@@ -20,10 +21,13 @@ const DatasetCreatorsDashboard = () => {
             Jump back in, or start something new.
           </p>
 
-          <div className="flex gap-3">
-            <button className="transform rounded border border-[#115443] px-4 py-2 font-medium whitespace-nowrap text-[#115443] transition duration-300 hover:translate-y-[3px] hover:bg-green-50">
+          <div className="flex items-center gap-3">
+            <Button
+              variant={'outline'}
+              className="transform cursor-pointer rounded border-[#115443] px-6 py-4 whitespace-nowrap text-[#115443] transition duration-300 hover:bg-green-50"
+            >
               Explore Datasets
-            </button>
+            </Button>
             {/* <button
               className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium"
               onClick={() => setModalOpen(true)}
