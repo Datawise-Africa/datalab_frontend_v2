@@ -1,52 +1,58 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
-import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
+// import DatasetUploadModal from '../components/data-catalog/DataUploadModal';
+import DatasetUploadForm from '@/components/dataset-upload/dataset-upload-form.tsx';
+import { Button } from '@/components/ui/button';
 
 const DatasetCreatorsDashboard = () => {
   const { state } = useAuth();
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div className="flex mt-10 lg:mt-10">
+    <div className="mt-10 flex lg:mt-10">
       {/* <Sidebar /> */}
-      <div className="p-6 w-3/4 lg:w-[calc(95%-150px)]  max-h-screen border-l">
+      <div className="max-h-screen w-3/4 border-l p-6 lg:w-[calc(95%-150px)]">
         {/* Top Section */}
-        <div className="mb-6 mt-20 ">
-          <h1 className="text-xl font-semibold mb-1">
+        <div className="mt-20 mb-6">
+          <h1 className="mb-1 text-xl font-semibold">
             Welcome, {state.firstName}{' '}
           </h1>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="mb-4 text-sm text-gray-600">
             Jump back in, or start something new.
           </p>
 
-          <div className="flex gap-3">
-            <button className="px-4 py-2 border border-[#115443] text-[#115443] transition transform hover:translate-y-[3px]  rounded font-medium hover:bg-green-50 duration-300">
+          <div className="flex items-center gap-3">
+            <Button
+              variant={'outline'}
+              className="transform cursor-pointer rounded border-[#115443] px-6 py-4 whitespace-nowrap text-[#115443] transition duration-300 hover:bg-green-50"
+            >
               Explore Datasets
-            </button>
-            <button
+            </Button>
+            {/* <button
               className="px-4 py-2 bg-gradient-to-b from-[#115443] to-[#26A37E] transition transform hover:translate-y-[3px] text-[#ffffff]  rounded font-medium"
               onClick={() => setModalOpen(true)}
             >
               + Add Dataset
-            </button>
+            </button> */}
 
-            <DatasetUploadModal
+            {/* <DatasetUploadModal
               isOpen={modalOpen}
               onClose={() => setModalOpen(false)}
-            />
+            /> */}
+            <DatasetUploadForm />
           </div>
         </div>
 
         {/* Center Card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-10 text-center shadow-sm   mt-20">
+        <div className="mt-20 rounded-lg border border-gray-200 bg-white p-10 text-center shadow-sm">
           <img
             src={'/assets/datalab/datasetcreatorsimage.svg'}
             alt="No datasets"
             className="mx-auto mb-6 max-h-48 object-contain"
           />
 
-          <h2 className="text-lg font-semibold mb-2">No datasets yet</h2>
-          <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
+          <h2 className="mb-2 text-lg font-semibold">No datasets yet</h2>
+          <p className="mx-auto mb-6 max-w-md text-sm text-gray-600">
             Start by uploading your first dataset. Once uploaded, you’ll be able
             to manage, license, and share it from your dashboard.
           </p>

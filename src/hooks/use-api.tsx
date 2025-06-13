@@ -53,7 +53,7 @@ export default function useApi() {
 
         try {
           const response = await publicApi.post(
-            `/auth/refresh_token/`,
+            `/auth/refresh-token/`,
             {
               ...(auth.isAuthenticated
                 ? {
