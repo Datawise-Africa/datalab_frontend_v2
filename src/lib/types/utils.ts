@@ -9,17 +9,3 @@ export type InferActions<T> = T extends {
 }
   ? U
   : never;
-
-export type PaginatedResponse<T = any> = {
-  meta: {
-    totalDocs: 1;
-    totalPages: 1;
-    page: 1;
-    limit: 20;
-    hasNextPage: false;
-    hasPrevPage: false;
-    nextPage: null;
-    prevPage: null;
-  };
-  data: T[];
-};

@@ -1,4 +1,4 @@
-import type { PaginatedResponse } from './utils';
+import type { PaginatedResponse } from '@/constants/pagination';
 
 export type BecomeDatasetCreatorType = {
   id: number;

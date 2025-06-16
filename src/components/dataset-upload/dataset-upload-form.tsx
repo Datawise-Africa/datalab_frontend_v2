@@ -22,6 +22,7 @@ import {
   CheckCircle,
   Loader,
   UploadCloud,
+  Plus,
 } from 'lucide-react';
 import DatasetUploadFormStep1 from './dataset-upload-form-step1.tsx';
 import DatasetUploadFormStep2 from './dataset-upload-form-step2.tsx';
@@ -34,7 +35,7 @@ import {
   type UploadDatasetSchemaType,
 } from '@/lib/schema/upload-dataset-schema';
 import { extractCorrectErrorMessage } from '@/lib/error.ts';
-import useApi from '@/hooks/use-api.tsx';
+import { useDatasetMutations } from '@/hooks/use-dataset-creator-datasets.tsx';
 
 const _steps = [
   {
@@ -90,7 +91,8 @@ export default function DatasetUploadForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const api = useApi().privateApi;
+  // const api = useApi().privateApi;
+  const mut = useDatasetMutations();
   const form = useForm({
     resolver: zodResolver(uploadDatasetSchema),
     defaultValues: {
@@ -145,13 +147,6 @@ export default function DatasetUploadForm() {
     if (isValid && step < _steps.length) {
       setStep(step + 1);
     }
-    // else if (step === _steps.length) {
-    // Handle form submission logic here
-    // console.log('Form submitted:', form.getValues());
-    // // You can also reset the form or redirect the user
-    // form.reset();
-    // setStep(1); // Reset to the first step after submission
-    // }
   }, [step]);
 
   const prevStep = () => {
@@ -162,18 +157,18 @@ export default function DatasetUploadForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const dataToSubmit = Object.values(data).reduce((acc, stepData) => {
-        return { ...acc, ...stepData };
+      // const response =
+      await mut.createDataset.mutateAsync(data, {
+        onError: (error) => {
+          setError(extractCorrectErrorMessage(error));
+          setIsLoading(false);
+        },
+        onSuccess: () => {
+          setIsOpen(false);
+          setStep(1);
+          form.reset();
+        },
       });
-      await api.post('/data/datasets/', {
-        ...dataToSubmit,
-        keywords: (dataToSubmit as any).keywords.join(','),
-        covered_regions: (dataToSubmit as any).covered_regions.join(','),
-      });
-      form.reset();
-      setIsOpen(false);
-      // console.log('Submitting form data:', dataToSubmit);
-      // Here you can handle the form submission, e.g., send data to an API
     } catch (error) {
       setError(extractCorrectErrorMessage(error));
     } finally {
@@ -189,9 +184,10 @@ export default function DatasetUploadForm() {
           <DialogTrigger asChild>
             <Button
               type={'button'}
-              className="transform cursor-pointer rounded px-6 py-4 text-white shadow-lg transition-all duration-300"
+              className="flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700"
             >
-              + Add Dataset
+              <Plus className="h-4 w-4" />
+              Add Dataset
             </Button>
           </DialogTrigger>
           <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[60rem] flex-col overflow-hidden rounded-3xl border-0 bg-white p-4 shadow-2xl backdrop-blur-lg">

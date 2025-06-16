@@ -1,17 +1,25 @@
-// Importing icons
-import non_profit_icon from '/assets/datalab/non-profit-icon.svg';
-import company_icon from '/assets/datalab/company-icon.svg';
-import student_icon from '/assets/datalab/student-icon.svg';
-import public_icon from '/assets/datalab/public2-icon.svg';
-import spinning_timer_icon from '/assets/datalab/spinning-timer.svg';
-import database_icon from '/assets/datalab/db-icon.svg';
-import download_icon from '/assets/datalab/download-icon.svg';
-import download_arrow_icon from '/assets/datalab/download-arrow-icon.svg';
-import view_icon from '/assets/datalab/view-icon.svg';
 import type { IDataset } from '@/lib/types/data-set';
-import { CheckIcon, Star, User, X } from 'lucide-react';
+import {
+  Calendar,
+  Database,
+  Download,
+  Ellipsis,
+  Eye,
+  Star,
+  Users,
+} from 'lucide-react';
 import { Badge } from '../ui/badge';
 import moment from 'moment';
+import { getIntendedAudienceIcon } from '@/lib/get-intended-audience-icon';
+import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 type DatasetCardProps = {
   dataset: IDataset;
   handleSingleDataModal: (dataset: IDataset) => void;
@@ -23,166 +31,161 @@ const DatasetCard = ({
   handleSingleDataModal,
   handleDownloadDataClick,
 }: DatasetCardProps) => {
-  const intendedAudienceIcons = {
-    non_profit: non_profit_icon,
-    company: company_icon,
-    students: student_icon,
-    public: public_icon,
+  const limitWordByBoundary = (text: string, limit: number = 100): string => {
+    if (text.length <= limit) return text;
+    const boundary = text.lastIndexOf(' ', limit);
+    return boundary !== -1
+      ? text.slice(0, boundary) + '...'
+      : text.slice(0, limit) + '...';
   };
-  const renderStars = (rating: number | null) => {
-    if (rating === null || rating === 0) {
-      return <span className="text-gray-500">No ratings yet</span>;
-    }
+  const formattedDescription = limitWordByBoundary(dataset.description, 100);
+  // const intendedAudienceIcons = {
+  //   non_profit: non_profit_icon,
+  //   company: company_icon,
+  //   students: student_icon,
+  //   public: public_icon,
+  // };
+  // const renderStars = (rating: number | null) => {
+  //   if (rating === null || rating === 0) {
+  //     return <span className="text-gray-500">No ratings yet</span>;
+  //   }
 
-    return [...Array(5)].map((_, index) => (
-      <Star
-        key={index}
-        className={index < rating ? 'text-[#757185]' : 'text-gray-300'}
-      />
-    ));
-  };
+  //   return [...Array(5)].map((_, index) => (
+  //     <Star
+  //       key={index}
+  //       className={index < rating ? 'text-[#757185]' : 'text-gray-300'}
+  //     />
+  //   ));
+  // };
 
   return (
-    <div className="border w-full border-subtle bg-white p-4 rounded-lg  hover:shadow-2xl transition transform  duration-300 hover:translate-y-[-10px]">
-      <div className="flex justify-between">
-        <p className="bg-subtle text-md font-bold text-[#188366] px-2 rounded">
-          {dataset.is_premium ? `$${dataset.price}` : 'Free'}
-        </p>
+    <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex items-center gap-2">
+          {dataset.is_private ? (
+            <span className="rounded bg-orange-100 px-2 py-1 text-sm font-medium text-orange-700">
+              ${dataset.price}
+            </span>
+          ) : (
+            <Badge className="rounded bg-green-100 px-2 text-sm font-medium text-green-700">
+              Free
+            </Badge>
+          )}
+          {dataset.is_private && (
+            <div className="flex items-center gap-1 text-pink-600">
+              <div className="flex h-3 w-3 items-center justify-center rounded-full border border-pink-600">
+                <div className="h-1.5 w-1.5 rounded-full bg-pink-600"></div>
+              </div>
+              <span className="text-sm font-medium">Private</span>
+            </div>
+          )}
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Ellipsis className="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            updatePositionStrategy="optimized"
+            className="w-48 rounded-md border border-gray-200 bg-white p-2 shadow-lg"
+          >
+            <DropdownMenuLabel>Share</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Download</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      <div className="flex justify-between mt-2">
-        <h3 className="font-semibold text-lg">{dataset.title}</h3>
+      {/* Title and Rating */}
+      <h3 className="mb-2 text-lg leading-tight font-semibold text-gray-900">
+        {dataset.title}
+      </h3>
+
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <small>
+          {dataset.authors.map((author) => (
+            <span className="text-sm text-gray-600">{author.first_name}</span>
+          ))}
+        </small>
+        <div className="flex items-center gap-1 text-xs">
+          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+          <span className="text-xs font-medium text-gray-700">{1.2}K</span>
+          <span className="text-xs text-gray-500">
+            ({dataset.review_count ?? 0} reviews)
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-wrap items-center space-x-2 mt-2">
-        <User className="text-[#757185] w-4 h-4 " />
-        {dataset.authors.map((author, index) => (
-          <small key={index} className="text-[#4B5563] text-xs font-bold">
-            {author?.first_name} {author?.last_name}
-          </small>
-        ))}
-      </div>
-
-      <p className="pt-2 text-sm text-[#4B5563] mt-1">
-        {dataset.description.split(' ').slice(0, 10).join(' ')}
-        {dataset.description.split(' ').length > 10 ? '...' : ''}
+      {/* Description */}
+      <p className="mb-4 text-sm leading-relaxed text-gray-600">
+        {formattedDescription}
       </p>
 
-      <div className="pt-2 flex flex-wrap gap-2">
+      {/* Tags */}
+      <div className="mb-4 flex flex-wrap gap-2">
         {dataset.tags.map((tag, index) => (
-          // <div
-          //   key={index}
-          //   className="bg-[#ffffff] text-[#101827] font-bold rounded px-3 py-1 text-xs border border-[#E5E7EB]"
-          // >
-          //   {tag}
-          // </div>
           <Badge
             key={index}
-            variant="outline"
-            className="text-[#0F2542] rounded-lg px-3 py-1 text-xs border-gray-300"
+            variant={'outline'}
+            className="border-primary/10 rounded-full bg-gray-100 px-2 py-[0.8px] text-xs text-gray-700 transition-colors hover:bg-gray-200"
           >
             {tag}
           </Badge>
         ))}
       </div>
 
-      <div>
-        <p className="text-[#333333] font-semibold text-xs mt-2">
-          Available to:
-        </p>
-      </div>
-
-      <div className="pt-2 flex flex-wrap gap-2">
-        {Object.entries(dataset?.intended_audience || {}).map(
-          ([profiteer, status], index) => (
-            <div
-              key={index}
-              className="bg-[#EFFDF4] rounded px-2 py-1 text-xs font-bold text-[#101827] flex items-center gap-1"
-            >
-              <img
-                src={
-                  intendedAudienceIcons[
-                    profiteer as keyof typeof intendedAudienceIcons
-                  ]
-                }
-                alt={`${profiteer} icon`}
-                className="w-1 h-1 "
-              />
-              <span>
-                {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
-              </span>
-              {status ? (
-                <CheckIcon className="text-green-500" size={16} />
-              ) : (
-                <X className="text-red-500" size={16} />
-              )}
+      {/* Available To */}
+      <div className="mb-4">
+        <p className="mb-2 text-sm font-medium text-gray-700">Available to:</p>
+        <div className="flex flex-wrap gap-2">
+          {/* {availableTo.map((type, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6L5 9L10 3" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <span className="text-sm text-gray-600">{type}</span>
             </div>
-          ),
-        )}
-      </div>
-
-      <div className="pt-5 flex flex-col space-y-2">
-        <div className="flex items-center">
-          <img src={spinning_timer_icon} alt="timer" className="w-4 h-4" />
-          <span className="ml-1 text-[#101827] text-xs">
-            Created: {moment(dataset.created_at).format('MMMM Do YYYY')}
-          </span>
-        </div>
-        <div className="flex items-center">
-          <img src={database_icon} alt="database" className="w-4 h-4" />
-          <span className="ml-1 text-[#101827] text-xs">
-            CSV ({dataset.size_bytes})
-          </span>
-        </div>
-
-        <div className="flex items-center">
-          <img src={download_icon} alt="download" className="w-4 h-4 " />
-          <span className="ml-1 text-[#101827] text-xs">
-            {dataset.download_count} downloads
-          </span>
-        </div>
-
-        <div className="mt-1 flex flex-row items-center justify-between">
-          <h4 className="text-xs">
-            Dataset Review:{' '}
-            {dataset.review_count > 0 ? (
-              <span className="flex items-center space-x-1">
-                <span className="flex">
-                  {renderStars(Math.round(dataset.average_review) || 0)}
-                </span>
-                {/* <p className="text-[#4B5563] text-md">
-              ( {dataset.review_count} ratings)
-            </p> */}
-              </span>
-            ) : (
-              <p className="text-gray-500 text-xs">No ratings yet</p>
-            )}
-          </h4>
+          ))} */}
+          {getIntendedAudienceIcon(dataset.intended_audience)}
         </div>
       </div>
 
-      <hr className=" mt-2 border-t border-[#ddeeff]" />
+      {/* Metadata */}
+      <div className="mb-6 space-y-2 text-sm">
+        <div className="flex items-center gap-2 text-xs text-gray-600">
+          <Calendar className="h-4 w-4" />
+          <span>Updated: {moment(dataset.updated_at).format('LL')}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-gray-600">
+          <Database className="h-4 w-4" />
+          <span>CSV,Shapefile,XLSX,PDF (3.1 GB)</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-gray-600">
+          <Users className="h-4 w-4" />
+          <span>{dataset.download_count} downloads</span>
+        </div>
+      </div>
 
-      <div className="mt-4 flex justify-between">
-        <button
+      {/* Actions */}
+      <div className="flex gap-2">
+        <Button
+          variant={'outline'}
           onClick={() => handleSingleDataModal(dataset)}
-          className=" py-2 px-3 h-10 rounded border border-[#D9D9D9]  bg-[#ffffff] transition transform hover:translate-y-[3px] hover:shadow-outer hover:bg-[#b1e9d1] text-[#0F4539]  flex items-center space-x-1"
+          className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
         >
-          <img src={view_icon} alt="View" className="w-4 h-4" />
-          <span className="font-semibold text-sm">View Details</span>
-        </button>
-
-        <button
+          <Eye className="h-4 w-4" />
+          View Details
+        </Button>
+        <Button
+          variant={'default'}
           onClick={() => handleDownloadDataClick(dataset)}
-          className="py-1 px-2 h-10 rounded bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#ffffff] flex items-center space-x-1 transition transform hover:translate-y-[3px] hover:shadow-outer"
+          className="flex flex-1 items-center justify-center gap-2 rounded-md bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
         >
-          <img
-            src={download_arrow_icon}
-            alt="Download"
-            className="w-4 h-4 invert "
-          />
-          <span className="font-bold text-sm">Download</span>
-        </button>
+          <Download className="h-4 w-4" />
+          Download
+        </Button>
       </div>
     </div>
   );
