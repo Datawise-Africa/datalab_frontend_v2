@@ -37,7 +37,7 @@ const DatasetGrid = ({
   return (
     <div className="w-full">
       {currentDatasets.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
+        <div className="grid gap-2 md:grid-cols-2 lg:min-w-[30rem] lg:grid-cols-3 xl:grid-cols-4">
           {currentDatasets.map((dataset, index) => (
             <DatasetCard
               key={index}
