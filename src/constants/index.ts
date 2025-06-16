@@ -70,4 +70,3 @@ export const cookieOptions = {
 
 export const REACT_PUBLIC_API_HOST =
   'https://backend.datawiseafrica.com/';
-
