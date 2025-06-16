@@ -53,6 +53,7 @@ export interface IDatasetTermsAndConditions {
   title: string;
   description: string;
 }
+export type DatasetStatus = 'PB' | 'AR' | 'DF';
 export interface IDataset {
   id: number;
   category: IDatasetCategory;
@@ -60,7 +61,7 @@ export interface IDataset {
   description: string;
   dataset_image?: string | null;
   doi?: string | null;
-  status?: 'PB' | 'AR' | 'DF'; // 'PB' = Published, 'AR' = Archive, 'DF' = Draft
+  status?: DatasetStatus; // 'PB' = Published, 'AR' = Archive, 'DF' = Draft
   dataset_region: string;
   license: string | null;
   metadata_file: string | null;

@@ -16,6 +16,7 @@ import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
 import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
 import type { DatasetSortOptions } from '@/hooks/use-datasets';
 import useApi from '@/hooks/use-api';
+import type { PaginatedResponse } from '@/constants/pagination';
 
 type DatasetToolBarProps = {
   filters: DatasetFilterOptions;
@@ -65,7 +66,9 @@ export default function DatasetFilterToolbar({
       const queryString = `query=${encodeURIComponent(query)}`;
       const url = `/data/search/?${queryString}`;
 
-      const { data } = await api.get<IDataset[]>(url);
+      const {
+        data: { data },
+      } = await api.get<PaginatedResponse<IDataset>>(url);
 
       if (data && Array.isArray(data)) {
         onSearchResults(data);
@@ -102,7 +105,7 @@ export default function DatasetFilterToolbar({
   //   const objs = Object.values(datasetFilterOptions.accessLevel);
   // };
   return (
-    <div className="w-full  px-4 py-4">
+    <div className="w-full px-4 py-4">
       {/* Search Bar */}
       <DatasetToolBarSearchAndSortBar
         searchQuery={searchQuery}
@@ -113,8 +116,8 @@ export default function DatasetFilterToolbar({
         setIsSearching={setIsSearching}
       />
       {/* Filters Row - Horizontally Scrollable on Mobile */}
-      <div className="overflow-x-auto pb-2 -mx-4 px-4">
-        <div className="flex gap-2 min-w-max">
+      <div className="-mx-4 overflow-x-auto px-4 pb-2">
+        <div className="flex min-w-max gap-2">
           <DatasetToolbarFilterDropdown
             label="Select Access"
             options={Object.values(datasetFilterOptions.accessLevel)}
@@ -177,7 +180,7 @@ export default function DatasetFilterToolbar({
             <X className="h-4 w-4" />
             Reset filters
             {totalActiveFilters > 0 && (
-              <span className="ml-1 text-xs bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="bg-primary text-primary-foreground ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
                 {totalActiveFilters}
               </span>
             )}
@@ -204,10 +207,10 @@ function DatasetToolBarSearchAndSortBar({
 }: DatasetToolBarSearchAndSortBarProps) {
   const sortOptions: DatasetSortOptions[] = ['Most Recent', 'Popular'];
   return (
-    <div className="flex flex-col sm:flex-row gap-4 mb-4 items-start sm:items-center">
-      <div className="relative flex-1 w-full">
+    <div className="mb-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+      <div className="relative w-full flex-1">
         <Search
-          className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+          className={`absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform ${
             isSearching ? 'text-primary animate-pulse' : 'text-muted-foreground'
           }`}
         />
@@ -216,11 +219,11 @@ function DatasetToolBarSearchAndSortBar({
           placeholder="Search datasets"
           value={searchQuery}
           onChange={handleSearchChange}
-          className="w-full pl-10 pr-4 py-2 border border-subtle rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+          className="border-subtle focus:ring-primary/50 w-full rounded-md border py-2 pr-4 pl-10 focus:ring-2 focus:outline-none"
         />
         {isSearching && (
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          <div className="absolute top-1/2 right-3 -translate-y-1/2 transform">
+            <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
           </div>
         )}
       </div>
@@ -230,23 +233,23 @@ function DatasetToolBarSearchAndSortBar({
           <DropdownMenuTrigger asChild>
             <Button
               variant="outline"
-              className="flex items-center gap-1 border-subtle"
+              className="border-subtle flex items-center gap-1"
             >
               {sortOption}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white border-subtle">
+          <DropdownMenuContent align="end" className="border-subtle bg-white">
             <div className="p-2">
               {sortOptions.map((opt) => (
                 <div
                   key={opt}
-                  className="cursor-pointer py-1.5 px-2 rounded hover:bg-muted flex items-center gap-2"
+                  className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded px-2 py-1.5"
                   onClick={() => setSortOption(opt)}
                 >
                   <span>{opt}</span>{' '}
                   <CheckIcon
-                    className={`h-4 w-4 ml-2 ${
+                    className={`ml-2 h-4 w-4 ${
                       sortOption === opt ? 'text-primary' : 'hidden'
                     }`}
                   />
@@ -294,34 +297,34 @@ function DatasetToolbarFilterDropdown({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-1 border-subtle"
+          className="border-subtle flex items-center gap-1"
         >
           {label}
           {totalSelected > 0 && (
-            <span className="ml-1 text-xs bg-primary text-subtle rounded-full w-5 h-5 flex items-center justify-center">
+            <span className="bg-primary text-subtle ml-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
               {totalSelected}
             </span>
           )}
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="p-2 min-w-[240px] bg-white border-subtle">
-        <div className="text-sm font-medium border-b border-subtle pb-2 mb-2">
+      <DropdownMenuContent className="border-subtle min-w-[240px] bg-white p-2">
+        <div className="border-subtle mb-2 border-b pb-2 text-sm font-medium">
           {label}
         </div>
         {selectableOptions.map((option) => (
           <Label
             key={option.value}
             htmlFor={option.value}
-            className="flex items-center space-x-2 py-1.5 text-subtle"
+            className="text-subtle flex items-center space-x-2 py-1.5"
           >
             <Checkbox
               id={option.value}
               checked={selectedOptions.includes(option.value)}
               onCheckedChange={() => handleFilterChange(option.value)}
-              className="border-gray-400 rounded"
+              className="rounded border-gray-400"
             />
-            <span className="text-sm cursor-pointer flex-1 text-primary">
+            <span className="text-primary flex-1 cursor-pointer text-sm">
               {option.label}
             </span>
           </Label>

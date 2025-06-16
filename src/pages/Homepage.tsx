@@ -55,13 +55,21 @@ const Homepage = () => {
   };
 
   return (
-    <div className="flex flex-col ">
-      <main className="flex-1  py-8">
+    <div className="flex flex-col">
+      <main className="flex-1 py-8">
         <DatasetFilterToolbar
           filters={datasets.filters}
           onSearchResults={datasets.handleSearchResults}
-          setFilters={datasets.setFilters}
-          setSortOption={datasets.setSort}
+          setFilters={(value) =>
+            datasets.setFilters(
+              typeof value === 'function' ? value(datasets.filters) : value,
+            )
+          }
+          setSortOption={(value) =>
+            datasets.setSort(
+              typeof value === 'function' ? value(datasets.sort) : value,
+            )
+          }
           sortOption={datasets.sort}
           resetSearch={datasets.handleSearchReset}
         />
