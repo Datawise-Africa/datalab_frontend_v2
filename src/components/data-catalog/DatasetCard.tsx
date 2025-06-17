@@ -59,7 +59,7 @@ const DatasetCard = ({
   // };
 
   return (
-    <div className="flex-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+    <div className="flex flex-1 flex-col gap-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
       {/* Header */}
       <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ const DatasetCard = ({
       <h3 className="mb-2 text-lg leading-tight font-semibold text-gray-900">
         {dataset.title}
       </h3>
-
+      {/* Author and rating */}
       <div className="mb-3 flex items-center justify-between gap-2">
         <small>
           {dataset.authors.map((author) => (
@@ -169,7 +169,7 @@ const DatasetCard = ({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-self-end">
         <Button
           variant={'outline'}
           onClick={() => handleSingleDataModal(dataset)}

@@ -13,6 +13,7 @@ export type AuthState = {
   firstName: string;
   lastName: string;
   email: string;
+  fullName: string;
 };
 
 export type AuthProviderProps = {

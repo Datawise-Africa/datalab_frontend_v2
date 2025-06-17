@@ -46,7 +46,7 @@ export default function useSidebarLinks() {
         {
           label: 'My Datasets',
           icon: Download,
-          href: '#',
+          href: '/app/dataset-creator-dashboard/?tab=my_datasets',
         },
         {
           label: 'Analytics',

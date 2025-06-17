@@ -26,16 +26,18 @@ export interface IDatasetProfiteers {
 //   id: number;
 //   term: string;
 // }
-
-export interface IDatasetRegion {
-  id: number;
-  region: string;
-}
-
-export interface IDatasetKeyword {
-  id: number;
-  keyword: string;
-}
+/**A comma separated string initially an object */
+type IDatasetRegion = string;
+// {
+//   id: number;
+//   region: string;
+// }
+/**A comma separated string initially an object */
+type IDatasetKeyword = string;
+// {
+//   id: number;
+//   keyword: string;
+// }
 
 export interface IDatasetDataFile {
   id: number;
@@ -82,8 +84,8 @@ export interface IDataset {
   updated_at: string;
   tags: string[];
   size_bytes: string;
-  covered_regions: IDatasetRegion[];
-  keywords: IDatasetKeyword[];
+  covered_regions: IDatasetRegion;
+  keywords: IDatasetKeyword;
   data_files: IDatasetDataFile[];
   review_count: number;
   average_review: number;

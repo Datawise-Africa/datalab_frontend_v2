@@ -21,6 +21,8 @@ export interface DatasetMutationCallbacks {
   onError?: (error: Error) => void;
   onSettled?: () => void;
 }
+
+type ExtractMapValue<T> = T extends Record<string, infer V> ? V : never;
 export function useDatasetCreatorDatasets(
   status: DatasetStatus,
   initialFilters: DatasetFilters = {},
@@ -195,7 +197,17 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
   type UpdateMutationType = [IDataset['id'], UploadDatasetSchemaType];
 
   const updateOrPublishEndpoint = '/data/datasets/';
-
+  const transformData = (data: UploadDatasetSchemaType) => {
+    const modified = Object.values(data).reduce(
+      (acc, value) => ({ ...acc, ...value }),
+      {},
+    );
+    return {
+      ...modified,
+      keywords: (modified as any).keywords.join(','),
+      covered_regions: (modified as any).covered_regions.join(','),
+    } as ExtractMapValue<UploadDatasetSchemaType>;
+  };
   // Invalidate queries helper
   const invalidateDatasetQueries = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: datasetCreatorDatasetkeys.all });
@@ -205,12 +217,11 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
   const createDataset = useMutation({
     mutationFn: async (payload: UploadDatasetSchemaType): Promise<IDataset> => {
       try {
+        const transformedData = transformData(payload);
+        (transformedData as any)['status'] = 'DF'; // Ensure draft status
         const response = await api.post<IDataset>(
           updateOrPublishEndpoint,
-          Object.values(payload).reduce(
-            (acc, value) => ({ ...acc, ...value }),
-            {},
-          ),
+          transformedData,
         );
         return response.data;
       } catch (error) {
@@ -232,14 +243,20 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
 
   // Save dataset as draft
   const saveDraft = useMutation({
-    mutationFn: async ([
-      id,
-      payload,
-    ]: UpdateMutationType): Promise<IDataset> => {
+    mutationFn: async (payload: UploadDatasetSchemaType): Promise<IDataset> => {
       try {
-        const response = await api.put<IDataset>(
-          `${updateOrPublishEndpoint}${id}`,
-          payload,
+        // const payloadData = Object.values(payload).reduce(
+        //   (acc, value) => ({ ...acc, ...value }),
+        //   {
+        //     status: 'DF', // Ensure draft status
+        //   },
+        // );
+        const payloadData = transformData(payload);
+        (payloadData as any).status = 'DF'; // Ensure draft status
+
+        const response = await api.post<IDataset>(
+          `${updateOrPublishEndpoint}`,
+          payloadData,
         );
         return response.data;
       } catch (error) {
@@ -280,12 +297,11 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       updateData,
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
+        const transformedData = transformData(updateData);
+        (transformedData as any).status = 'PB'; // Ensure published status
         const response = await api.post<IDataset>(
           `${updateOrPublishEndpoint}${id}`,
-          Object.values(updateData).reduce(
-            (acc, value) => ({ ...acc, ...value }),
-            {},
-          ),
+          transformedData,
         );
         return response.data;
       } catch (error) {
