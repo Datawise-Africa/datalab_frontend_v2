@@ -6,12 +6,19 @@ type DatasetGridProps = {
   datasets: IDataset[];
   handleSingleDataModal: (dataset: IDataset) => void;
   handleDownloadDataClick: (dataset: IDataset) => void;
+  handleBookmarkDataset: (dataset: IDataset) => void;
+  handleQuickDownload: (dataset: IDataset) => void;
+  handleShareDataset: (dataset: IDataset) => void;
+  // isBookmarked?: (dataset: IDataset | number) => boolean;
+  // isBookmarksLoading?: boolean;
 };
 
 const DatasetGrid = ({
   datasets,
   handleSingleDataModal,
   handleDownloadDataClick,
+  handleBookmarkDataset,
+  handleShareDataset,
 }: DatasetGridProps) => {
   const datasetsPerPage = 8; // Set the number of items per page
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,6 +51,11 @@ const DatasetGrid = ({
               dataset={dataset}
               handleSingleDataModal={handleSingleDataModal}
               handleDownloadDataClick={handleDownloadDataClick}
+              handleBookmarkDataset={handleBookmarkDataset}
+              handleQuickDownload={handleDownloadDataClick}
+              handleShareDataset={handleShareDataset}
+              // isDatasetBookmarked={isDatasetBookmarked}
+              // isBookmarksLoading={isBookmarksLoading}
             />
           ))}
         </div>

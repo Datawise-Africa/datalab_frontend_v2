@@ -25,9 +25,10 @@ export default function useSidebarLinks() {
         {
           label: 'Discover',
           icon: Compass,
+
           href: '/#',
         },
-        { label: 'Saved Items', icon: Bookmark, href: '#' },
+        { label: 'Saved Items', icon: Bookmark, href: '/app/saved-datasets' },
         {
           label: 'My Downloads',
           icon: Download,

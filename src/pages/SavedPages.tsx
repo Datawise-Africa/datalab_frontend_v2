@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState ,useEffect} from 'react';
 // import DatasetHeader from '../components/data-catalog/DatasetHeader';
 // import FilterPanel from '../components/data-catalog/FilterPanel';
 // import SortData from '../components/data-catalog/SortData';
@@ -15,13 +15,29 @@ import useDatasets from '@/hooks/use-datasets';
 import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
 import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
 
-const Homepage = () => {
+const SavedDatasets = () => {
   // const [navUrl, setNavUrl] = useState('');
   // const [sortIsOpen, setSortIsOpen] = useState(false);
+  const [bookmarkedDatasets, setBookmarkedDatasets] = useState([]);
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
   const auth = useAuth();
-  const datasets = useDatasets();
+  const datasets = useDatasets('Bookmarks');
+  
+  useEffect(() => {
+    const fetchSavedDataset = async () => {
+    	const data = await datasets.fetchBookmarkedDatasetsWithDetails();
+    	// setBookmarkedDatasets(data);
+    };
+    
+    fetchSavedDataset();
+  }, []);
+  
+  // const bookmarkedDatasets = useMemo(() => {
+  //   return datasets.data.filter((dataset) =>
+  //     datasets.bookmarkedDatasets.includes(dataset.id.toString())
+  //   );
+  // }, [datasets.data, datasets.bookmarkedDatasets]);
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
   // const pathname = useLocation();
@@ -74,7 +90,7 @@ const Homepage = () => {
           <DatasetCardSkeleton />
         ) : (
           <DatasetGrid
-            datasets={datasets.data}
+            datasets={bookmarkedDatasets}
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}
             handleBookmarkDataset={(dataset) =>
@@ -82,6 +98,7 @@ const Homepage = () => {
             }
             handleShareDataset={datasets.handleShareDataset}
             handleQuickDownload={handleDownloadDataClick}
+            
           />
         )}
       </main>
@@ -107,4 +124,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default SavedDatasets;
