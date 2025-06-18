@@ -193,8 +193,30 @@ export default function DatasetUploadForm({
       setError(extractCorrectErrorMessage(error));
     }
   });
+  const handleUpdateDraft = form.handleSubmit(async (data) => {
+    console.log('Updating dataset draft with data:', data);
 
-  const submitForm = form.handleSubmit(async (data) => {
+    try {
+      // Validate the current step before saving
+      const isValid = form.trigger(`step_${step}` as Step);
+      if (!isValid) {
+        setError('Please fill out all required fields before saving.');
+        return;
+      }
+      await mut.updateDataset.mutateAsync([dataset?.id!, data, 'DF'], {
+        onSuccess: () => {
+          handleToggleFormModal?.(false);
+          setStep(1);
+          form.reset();
+          setError(null);
+        },
+      });
+    } catch (error) {
+      setError(extractCorrectErrorMessage(error));
+    }
+  });
+
+  const createdDataset = form.handleSubmit(async (data) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -216,7 +238,35 @@ export default function DatasetUploadForm({
       setIsLoading(false);
     }
   });
-  const isFormLoading = isLoading || form.formState.isSubmitting;
+  const publishDataset = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // const response =
+      await mut.publishDataset.mutateAsync([dataset?.id!, data, 'PB'], {
+        onError: (error) => {
+          setError(extractCorrectErrorMessage(error));
+          setIsLoading(false);
+        },
+        onSuccess: () => {
+          handleToggleFormModal?.(false);
+          setStep(1);
+          form.reset();
+        },
+      });
+    } catch (error) {
+      setError(extractCorrectErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  });
+  const isFormLoading =
+    isLoading ||
+    form.formState.isSubmitting ||
+    mut.isArchiving ||
+    mut.isCreating ||
+    mut.isUpdating ||
+    mut.isSavingDraft;
 
   const resetFormWithDefaults = useCallback(() => {
     if (dataset) {
@@ -287,10 +337,18 @@ export default function DatasetUploadForm({
       setError(null);
     }
   }, [isFormModalOpen, resetFormWithDefaults]);
+  const isLastStep = step === _steps.length;
+  // console.log({
+  //   isFormLoading,
+  //   formState: form.formState.errors,
+  //   step,
+  //   dataset,
+  // });
+
   return (
     <Dialog open={isFormModalOpen} onOpenChange={handleToggleFormModal}>
       <Form {...form}>
-        <form className="w-full text-sm" onSubmit={submitForm}>
+        <form className="w-full text-sm" onSubmit={createdDataset}>
           <DialogTrigger asChild>
             <Button
               type={'button'}
@@ -300,7 +358,7 @@ export default function DatasetUploadForm({
               Add Dataset
             </Button>
           </DialogTrigger>
-          <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[40rem] flex-col overflow-hidden rounded-3xl border-0 bg-white p-4 shadow-2xl backdrop-blur-lg">
+          <DialogContent className="flex max-h-[95vh] min-h-[85vh] w-[95vw] !max-w-[40rem] flex-col overflow-hidden rounded border-0 bg-white p-4 shadow-2xl backdrop-blur-lg">
             {/* Progress Bar */}
             <div className="absolute top-0 right-0 left-0 h-1 bg-gray-100">
               <div
@@ -343,8 +401,8 @@ export default function DatasetUploadForm({
               </div>
             </div>
 
-            <DialogHeader className="flex flex-row items-center justify-between px-4 text-center">
-              <div>
+            <DialogHeader className="flex flex-row items-center justify-between px-4">
+              <div className="flex flex-col text-left">
                 <DialogTitle className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-sm font-bold text-transparent">
                   {currentStep?.header.title}
                 </DialogTitle>
@@ -353,16 +411,38 @@ export default function DatasetUploadForm({
                 </DialogDescription>
               </div>
               <div>
-                <Button
-                  type="button"
-                  variant={'outline'}
-                  onClick={handleSaveDraft}
-                  disabled={isFormLoading}
-                  className="border-primary/300 text-primary text-sm"
-                >
-                  <SaveIcon className="h-3" />
-                  <span>Save Draft</span>
-                </Button>
+                {!isLastStep && !dataset && (
+                  <Button
+                    type="button"
+                    variant={'outline'}
+                    onClick={handleSaveDraft}
+                    disabled={isFormLoading}
+                    className="border-primary/300 text-primary text-sm"
+                  >
+                    {isFormLoading ? (
+                      <Loader className="h-3 animate-spin" />
+                    ) : (
+                      <SaveIcon className="h-3" />
+                    )}{' '}
+                    <span>Save Draft</span>
+                  </Button>
+                )}
+                {!isLastStep && dataset && (
+                  <Button
+                    type="button"
+                    variant={'outline'}
+                    onClick={handleUpdateDraft}
+                    disabled={isFormLoading}
+                    className="border-primary/300 text-primary text-sm"
+                  >
+                    {isFormLoading ? (
+                      <Loader className="h-3 animate-spin" />
+                    ) : (
+                      <SaveIcon className="h-3" />
+                    )}{' '}
+                    <span>Update</span>
+                  </Button>
+                )}
               </div>
             </DialogHeader>
             {error && (
@@ -398,60 +478,82 @@ export default function DatasetUploadForm({
               </div>
             </div>
 
-            <DialogFooter className="flex items-center justify-between border-t border-gray-100 bg-white/50 px-12 py-2 backdrop-blur-sm">
-              <div className="flex items-center space-x-3">
+            <DialogFooter className="bg-white">
+              <div className="flex w-full items-center justify-between space-x-4 p-4">
+                {/* Left Section - Navigation Buttons */}
                 <DialogClose asChild>
                   <Button
-                    variant="outline"
-                    type={'button'}
-                    className="rounded-xl border-gray-200 px-6 py-2 transition-all duration-200 hover:bg-gray-50"
+                    variant="destructive"
+                    type="button"
+                    size="sm"
+                    className="border border-red-400 text-red-700 hover:bg-red-50"
                   >
                     Cancel
                   </Button>
                 </DialogClose>
-                {step > 1 && (
-                  <Button
-                    onClick={prevStep}
-                    variant="outline"
-                    type={'button'}
-                    className="rounded-xl border-gray-200 px-6 py-2 transition-all duration-200 hover:bg-gray-50"
-                  >
-                    <ChevronLeft className="mr-1 h-4 w-4" />
-                    Previous
-                  </Button>
-                )}
-              </div>
-
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-gray-500">
-                  Step {step} of {_steps.length}
-                </span>
-                {step < _steps.length ? (
-                  <Button
-                    onClick={nextStep}
-                    type={'button'}
-                    className="transform rounded-xl px-6 py-2 text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:from-blue-700 hover:to-purple-700 hover:shadow-xl"
-                  >
-                    Next
-                    <ChevronRight className="ml-1 h-4 w-4" />
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    onClick={submitForm}
-                    disabled={isFormLoading}
-                    className="bg-primary transform rounded px-8 py-2 text-white shadow-lg transition-all duration-200 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {isFormLoading ? (
-                      <Loader
-                        className={`mr-2 h-4 w-4 ${isFormLoading ? 'animate-spin' : ''}`}
-                      />
-                    ) : (
-                      <UploadCloud className="mr-2 h-4 w-4" />
-                    )}
-                    {isFormLoading ? 'Submitting...' : 'Publish Dataset'}
-                  </Button>
-                )}
+                <div className="flex items-center space-x-2">
+                  {step > 1 && (
+                    <Button
+                      onClick={prevStep}
+                      variant="outline"
+                      type="button"
+                      size="sm"
+                      className="border-primary/30 border"
+                    >
+                      <ChevronLeft className="mr- h-5 w-5" />
+                      Previous
+                    </Button>
+                  )}
+                  {!isLastStep ? (
+                    <Button
+                      onClick={nextStep}
+                      disabled={isFormLoading}
+                      variant="default"
+                      type="button"
+                      size="sm"
+                      className="rounded px-4 text-white"
+                    >
+                      <ChevronRight className="h-5 w-5" />
+                      Next
+                    </Button>
+                  ) : (
+                    <>
+                      {dataset ? (
+                        <Button
+                          onClick={createdDataset}
+                          disabled={isFormLoading}
+                          variant="default"
+                          type="button"
+                          size="sm"
+                          className="rounded px-4 text-white"
+                        >
+                          {isFormLoading ? (
+                            <Loader className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <UploadCloud className="h-5 w-5" />
+                          )}
+                          Publish
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={publishDataset}
+                          disabled={isFormLoading}
+                          variant="default"
+                          type="button"
+                          size="sm"
+                          className="rounded px-4 text-white"
+                        >
+                          {isFormLoading ? (
+                            <Loader className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <UploadCloud className="h-5 w-5" />
+                          )}
+                          Submit
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             </DialogFooter>
           </DialogContent>

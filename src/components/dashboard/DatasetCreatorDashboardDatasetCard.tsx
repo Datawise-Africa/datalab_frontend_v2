@@ -4,14 +4,11 @@ import { cn } from '@/lib/utils';
 import {
   BarChart3,
   Calendar,
-  Download,
-  Eye,
   FileText,
   Lock,
   MoreHorizontal,
 } from 'lucide-react';
 import moment from 'moment';
-import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -184,7 +181,7 @@ export default function DatasetCreatorDashboardDatasetCard({
         </div>
       </div>
 
-      <div className="flex gap-2 text-sm whitespace-nowrap">
+      {/* <div className="flex gap-2 text-sm whitespace-nowrap">
         <Button
           variant={'outline'}
           className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border border-gray-300 px-4 py-2 font-medium text-gray-700 hover:bg-gray-50"
@@ -199,7 +196,7 @@ export default function DatasetCreatorDashboardDatasetCard({
           <Download className="h-4 w-4" />
           Download
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

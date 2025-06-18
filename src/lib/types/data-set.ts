@@ -57,7 +57,7 @@ export interface IDatasetTermsAndConditions {
 }
 export type DatasetStatus = 'PB' | 'AR' | 'DF';
 export interface IDataset {
-  id: number;
+  id: string;
   category: IDatasetCategory;
   title: string;
   description: string;

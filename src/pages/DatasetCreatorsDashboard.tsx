@@ -1,7 +1,7 @@
 import DatasetUploadForm from '@/components/dataset-upload/dataset-upload-form.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMultipleDatasetStatuses } from '@/hooks/use-dataset-creator-datasets';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
 import { useAuth } from '@/context/AuthProvider';
 import DatasetCreatorDashboardDatasetCard from '@/components/dashboard/DatasetCreatorDashboardDatasetCard';
 import type { IDataset } from '@/lib/types/data-set';
+import { Link } from 'react-router-dom';
 type TabTypes = 'drafts' | 'published' | 'archived';
 
 export default function DatasetCreatorsDashboard() {
@@ -29,6 +30,16 @@ export default function DatasetCreatorsDashboard() {
     {},
     { limit: 10, page: 1 },
   );
+  const updateSelectedDatasetOnModalClose = useCallback(() => {
+    if (selectedDataset) {
+      // queries.PB.refetch();
+      // queries.DF.refetch();
+      // queries.AR.refetch();
+      setSelectedDataset(null!);
+    }
+    // console.log('Selected dataset reset on modal close');
+  }, [queries, selectedDataset]);
+
   const [activeTab, setActiveTab] = useState<TabTypes>('published');
   const tabs: TabTypes[] = ['published', 'drafts', 'archived'];
   const [searchQuery, setSearchQuery] = useState('');
@@ -55,11 +66,21 @@ export default function DatasetCreatorsDashboard() {
   const handleDeleteDataset = () => {
     // Implement delete functionality here
   };
+
+  useEffect(() => {
+    // Reset selected dataset when modal closes
+    if (!isUpdateOrCreateDatasetModalOpen) {
+      setSelectedDataset(null!);
+    }
+    return () => {
+      updateSelectedDatasetOnModalClose();
+    };
+  }, [updateSelectedDatasetOnModalClose]);
   return (
     <div className="min-h-screen">
       {/* Header */}
       <div className="border-b border-gray-200 bg-white px-6 py-4">
-        <div className="flex items-center justify-between">
+        <div className="gap-2items-center flex flex-col justify-between md:flex-row">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               Welcome, {auth.state.fullName}
@@ -69,13 +90,13 @@ export default function DatasetCreatorsDashboard() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Button
-              variant={'outline'}
-              className="flex items-center gap-2 rounded-md border border-emerald-600 px-3 py-2 text-emerald-600 hover:bg-emerald-50"
+            <Link
+              to="/"
+              className="flex items-center gap-2 rounded-md border border-emerald-600 px-3 py-2 text-sm whitespace-nowrap text-emerald-600 hover:bg-emerald-50"
             >
               <Search className="h-4 w-4" />
               Explore Datasets
-            </Button>
+            </Link>
             <DatasetUploadForm
               handleToggleFormModal={setIsUpdateOrCreateDatasetModalOpen}
               isFormModalOpen={isUpdateOrCreateDatasetModalOpen}

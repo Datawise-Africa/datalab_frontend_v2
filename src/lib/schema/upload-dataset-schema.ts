@@ -83,7 +83,7 @@ const attributionSchema = z.object({
       required_error: 'License is required',
       message: 'License is required',
     })
-    .positive('Invalid license selected')
+
     .optional(),
 });
 const uploadDatasetDiscoveryInfoSchema = z.object({

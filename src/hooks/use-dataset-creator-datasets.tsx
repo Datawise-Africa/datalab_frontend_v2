@@ -194,7 +194,11 @@ export function useMultipleDatasetStatuses(
 export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
   const api = useApi().privateApi;
   const queryClient = useQueryClient();
-  type UpdateMutationType = [IDataset['id'], UploadDatasetSchemaType];
+  type UpdateMutationType = [
+    IDataset['id'],
+    UploadDatasetSchemaType,
+    IDataset['status'],
+  ];
 
   const updateOrPublishEndpoint = '/data/datasets/';
   const transformData = (data: UploadDatasetSchemaType) => {
@@ -218,7 +222,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     mutationFn: async (payload: UploadDatasetSchemaType): Promise<IDataset> => {
       try {
         const transformedData = transformData(payload);
-        (transformedData as any)['status'] = 'DF'; // Ensure draft status
+        (transformedData as any)['status'] = 'PB'; // Ensure published status
         const response = await api.post<IDataset>(
           updateOrPublishEndpoint,
           transformedData,
@@ -295,10 +299,11 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     mutationFn: async ([
       id,
       updateData,
+      status,
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
         const transformedData = transformData(updateData);
-        (transformedData as any).status = 'PB'; // Ensure published status
+        (transformedData as any).status = status; // Ensure published status
         const response = await api.post<IDataset>(
           `${updateOrPublishEndpoint}${id}`,
           transformedData,
@@ -343,14 +348,14 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     mutationFn: async ([
       id,
       updateData,
+      status,
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
+        const transformedData = transformData(updateData);
+        (transformedData as any).status = status; // Ensure correct status
         const response = await api.put<IDataset>(
-          `${updateOrPublishEndpoint}${id}`,
-          Object.values(updateData).reduce(
-            (acc, value) => ({ ...acc, ...value }),
-            {},
-          ),
+          `${updateOrPublishEndpoint}${id}/`,
+          transformedData,
         );
         return response.data;
       } catch (error) {
@@ -359,6 +364,36 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       }
     },
     onSuccess: (data) => {
+      invalidateDatasetQueries();
+      callbacks.onSuccess?.(data);
+    },
+    onError: (error: Error) => {
+      callbacks.onError?.(error);
+    },
+    onSettled: () => {
+      callbacks.onSettled?.();
+    },
+  });
+
+  // Change dataset status
+  const changeDatasetStatus = useMutation({
+    mutationFn: async ([id, newStatus]: [
+      string,
+      DatasetStatus,
+    ]): Promise<IDataset> => {
+      try {
+        const response = await api.put<IDataset>(
+          `${updateOrPublishEndpoint}${id}/`,
+          { status: newStatus },
+        );
+        return response.data;
+      } catch (error) {
+        console.error('Error changing dataset status:', error);
+        throw new Error(extractCorrectErrorMessage(error));
+      }
+    },
+    onSuccess: (data) => {
+      // Invalidate all dataset queries to refresh data
       invalidateDatasetQueries();
       callbacks.onSuccess?.(data);
     },
@@ -433,6 +468,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     isUpdating: updateDataset.isPending,
     isArchiving: archiveDataset.isPending,
     isDeleting: deleteDataset.isPending,
+    isChangingStatus: changeDatasetStatus.isPending,
 
     // Any mutation in progress
     isMutating:
@@ -441,7 +477,8 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       publishDataset.isPending ||
       updateDataset.isPending ||
       archiveDataset.isPending ||
-      deleteDataset.isPending,
+      deleteDataset.isPending ||
+      changeDatasetStatus.isPending,
 
     // Error states
     createError: createDataset.error,
@@ -450,6 +487,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     updateError: updateDataset.error,
     archiveError: archiveDataset.error,
     deleteError: deleteDataset.error,
+    changeStatusError: changeDatasetStatus.error,
 
     // Reset functions
     resetCreateError: createDataset.reset,
@@ -458,6 +496,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     resetUpdateError: updateDataset.reset,
     resetArchiveError: archiveDataset.reset,
     resetDeleteError: deleteDataset.reset,
+    resetChangeStatusError: changeDatasetStatus.reset,
 
     // Helper to reset all errors
     resetAllErrors: () => {
@@ -467,6 +506,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       updateDataset.reset();
       archiveDataset.reset();
       deleteDataset.reset();
+      changeDatasetStatus.reset();
     },
   };
 }
