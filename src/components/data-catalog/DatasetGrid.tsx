@@ -37,7 +37,7 @@ const DatasetGrid = ({
   return (
     <div className="w-full">
       {currentDatasets.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 py-2">
+        <div className="grid gap-2 md:grid-cols-2 lg:min-w-[30rem] lg:grid-cols-3 xl:grid-cols-4">
           {currentDatasets.map((dataset, index) => (
             <DatasetCard
               key={index}
@@ -48,15 +48,15 @@ const DatasetGrid = ({
           ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center h-full">
+        <div className="flex h-full items-center justify-center">
           <p className="text-lg text-gray-500">No datasets available</p>
         </div>
       )}
 
       {/* Pagination Controls */}
-      <div className="flex justify-center mt-16 ml-20">
+      <div className="mt-16 ml-20 flex justify-center">
         <button
-          className=' className="mt-8 p-2  text-[#101827] text-xl rounded-lg font-bold hover:text-green-800 transition '
+          className='className="mt-8 rounded-lg p-2 text-xl font-bold text-[#101827] transition hover:text-green-800'
           onClick={handlePreviousPage}
           disabled={currentPage === 1}
         >
@@ -64,7 +64,7 @@ const DatasetGrid = ({
         </button>
         <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
         <button
-          className=' className="mt-8 p-2  text-[#101827] text-xl font-bold rounded-lg  hover:text-green-800 transition '
+          className='className="mt-8 rounded-lg p-2 text-xl font-bold text-[#101827] transition hover:text-green-800'
           onClick={handleNextPage}
           disabled={currentPage === totalPages}
         >
