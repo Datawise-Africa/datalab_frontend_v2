@@ -2,7 +2,10 @@ import DatasetUploadForm from '@/components/dataset-upload/dataset-upload-form.t
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Filter, MoreHorizontal } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { useMultipleDatasetStatuses } from '@/hooks/use-dataset-creator-datasets';
+import {
+  useDatasetMutations,
+  useMultipleDatasetStatuses,
+} from '@/hooks/use-dataset-creator-datasets';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +27,7 @@ export default function DatasetCreatorsDashboard() {
     isUpdateOrCreateDatasetModalOpen,
     setIsUpdateOrCreateDatasetModalOpen,
   ] = useState(false);
+  const mut = useDatasetMutations();
   const [selectedDataset, setSelectedDataset] = useState<IDataset>(null!);
   const { queries } = useMultipleDatasetStatuses(
     ['AR', 'DF', 'PB'],
@@ -63,8 +67,17 @@ export default function DatasetCreatorsDashboard() {
     setSelectedDataset(dataset);
     setIsUpdateOrCreateDatasetModalOpen(true);
   };
-  const handleDeleteDataset = () => {
-    // Implement delete functionality here
+  const handleDeleteDataset = async (datasetId: IDataset['id']) => {
+    try {
+      await mut.deleteDataset.mutateAsync(datasetId, {
+        onSuccess: () => {
+          console.log('Dataset deleted successfully');
+        },
+        onError: (error) => {
+          console.error('Error deleting dataset:', error);
+        },
+      });
+    } catch (err) {}
   };
 
   useEffect(() => {

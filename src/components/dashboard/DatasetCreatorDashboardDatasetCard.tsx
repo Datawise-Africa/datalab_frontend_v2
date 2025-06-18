@@ -27,7 +27,7 @@ import {
 type DatasetCardProps = {
   dataset: IDataset;
   onEdit: (dataset: IDataset) => void;
-  onDelete: (dataset: IDataset) => void;
+  onDelete: (dataset: IDataset['id']) => void;
 };
 export default function DatasetCreatorDashboardDatasetCard({
   dataset,
@@ -100,7 +100,10 @@ export default function DatasetCreatorDashboardDatasetCard({
                   Edit
                   <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDelete(dataset)}>
+                <DropdownMenuItem
+                  onClick={() => onDelete(dataset.id)}
+                  variant="destructive"
+                >
                   Delete
                   <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
                 </DropdownMenuItem>
