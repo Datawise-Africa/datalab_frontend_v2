@@ -61,7 +61,7 @@ const DatasetCard = ({
   return (
     <div className="flex flex-1 flex-col gap-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
       {/* Header */}
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-4 flex flex-[1] items-start justify-between">
         <div className="flex items-center gap-2">
           {dataset.is_private ? (
             <span className="rounded bg-orange-100 px-2 py-1 text-sm font-medium text-orange-700">
@@ -95,50 +95,52 @@ const DatasetCard = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {/* Title and Rating */}
-      <h3 className="mb-2 text-lg leading-tight font-semibold text-gray-900">
-        {dataset.title}
-      </h3>
-      {/* Author and rating */}
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <small>
-          {dataset.authors.map((author) => (
-            <span className="text-sm text-gray-600">{author.first_name}</span>
-          ))}
-        </small>
-        <div className="flex items-center gap-1 text-xs">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-          <span className="text-xs font-medium text-gray-700">{1.2}K</span>
-          <span className="text-xs text-gray-500">
-            ({dataset.review_count ?? 0} reviews)
-          </span>
+      <div className="flex flex-[10] flex-col gap-1">
+        {/* Title and Rating */}
+        <h3 className="mb-2 text-lg leading-tight font-semibold text-gray-900">
+          {dataset.title}
+        </h3>
+        {/* Author and rating */}
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <small>
+            {dataset.authors.map((author) => (
+              <span className="text-sm text-gray-600">{author.first_name}</span>
+            ))}
+          </small>
+          <div className="flex items-center gap-1 text-xs">
+            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-medium text-gray-700">{1.2}K</span>
+            <span className="text-xs text-gray-500">
+              ({dataset.review_count ?? 0} reviews)
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* Description */}
-      <p className="mb-4 text-sm leading-relaxed text-gray-600">
-        {formattedDescription}
-      </p>
+        {/* Description */}
+        <p className="mb-4 text-sm leading-relaxed text-gray-600">
+          {formattedDescription}
+        </p>
 
-      {/* Tags */}
-      <div className="mb-4 flex flex-wrap gap-2">
-        {dataset.tags.map((tag, index) => (
-          <Badge
-            key={index}
-            variant={'outline'}
-            className="border-primary/10 rounded-full bg-gray-100 px-2 py-[0.8px] text-xs text-gray-700 transition-colors hover:bg-gray-200"
-          >
-            {tag}
-          </Badge>
-        ))}
-      </div>
+        {/* Tags */}
+        <div className="mb-4 flex flex-wrap gap-2">
+          {dataset.tags.map((tag, index) => (
+            <Badge
+              key={index}
+              variant={'outline'}
+              className="border-primary/10 rounded-full bg-gray-100 px-2 py-[0.8px] text-xs text-gray-700 transition-colors hover:bg-gray-200"
+            >
+              {tag}
+            </Badge>
+          ))}
+        </div>
 
-      {/* Available To */}
-      <div className="mb-4">
-        <p className="mb-2 text-sm font-medium text-gray-700">Available to:</p>
-        <div className="flex flex-wrap gap-2">
-          {/* {availableTo.map((type, index) => (
+        {/* Available To */}
+        <div className="mb-4">
+          <p className="mb-2 text-sm font-medium text-gray-700">
+            Available to:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {/* {availableTo.map((type, index) => (
             <div key={index} className="flex items-center gap-2">
               <div className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -148,28 +150,28 @@ const DatasetCard = ({
               <span className="text-sm text-gray-600">{type}</span>
             </div>
           ))} */}
-          {getIntendedAudienceIcon(dataset.intended_audience)}
+            {getIntendedAudienceIcon(dataset.intended_audience)}
+          </div>
+        </div>
+
+        {/* Metadata */}
+        <div className="mb-6 space-y-2 text-sm">
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <Calendar className="h-4 w-4" />
+            <span>Updated: {moment(dataset.updated_at).format('LL')}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <Database className="h-4 w-4" />
+            <span>CSV,Shapefile,XLSX,PDF (3.1 GB)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-600">
+            <Users className="h-4 w-4" />
+            <span>{dataset.download_count} downloads</span>
+          </div>
         </div>
       </div>
-
-      {/* Metadata */}
-      <div className="mb-6 space-y-2 text-sm">
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <Calendar className="h-4 w-4" />
-          <span>Updated: {moment(dataset.updated_at).format('LL')}</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <Database className="h-4 w-4" />
-          <span>CSV,Shapefile,XLSX,PDF (3.1 GB)</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-gray-600">
-          <Users className="h-4 w-4" />
-          <span>{dataset.download_count} downloads</span>
-        </div>
-      </div>
-
       {/* Actions */}
-      <div className="flex gap-2 justify-self-end">
+      <div className="flex flex-[1] gap-2 justify-self-end">
         <Button
           variant={'outline'}
           onClick={() => handleSingleDataModal(dataset)}

@@ -85,6 +85,11 @@ const Homepage = () => {
             datasets={datasets.data}
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}
+            changePageSize={datasets.changePageSize}
+            goToNextPage={datasets.goToNextPage}
+            goToPreviousPage={datasets.goToPreviousPage}
+            goToPage={datasets.goToPage}
+            pagination={datasets.pagination}
           />
         )}
       </main>

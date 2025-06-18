@@ -67,7 +67,7 @@ export default function useDatasets() {
     },
     [],
   );
-  console.log({ activeFilters, filters, pagination, sort });
+  // console.log({ activeFilters, filters, pagination, sort });
 
   // Main datasets query with pagination
   const {
@@ -173,10 +173,10 @@ export default function useDatasets() {
   }, []);
 
   const goToNextPage = useCallback(() => {
-    if (paginationMeta.page < paginationMeta.totalPages) {
+    if (paginationMeta.page < paginationMeta.total_pages) {
       setPagination((prev) => ({ ...prev, page: prev.page + 1 }));
     }
-  }, [paginationMeta.page, paginationMeta.totalPages]);
+  }, [paginationMeta.page, paginationMeta.total_pages]);
 
   const goToPreviousPage = useCallback(() => {
     if (paginationMeta.page > 1) {
@@ -244,7 +244,7 @@ export default function useDatasets() {
 
   // Prefetch next page for better UX
   const prefetchNextPage = useCallback(async () => {
-    if (paginationMeta.page < paginationMeta.totalPages) {
+    if (paginationMeta.page < paginationMeta.total_pages) {
       const nextPagePagination = { ...pagination, page: pagination.page + 1 };
 
       if (activeFilters > 0) {
@@ -309,15 +309,15 @@ export default function useDatasets() {
   // Pagination info for UI
   const paginationInfo = {
     currentPage: paginationMeta.page,
-    totalPages: paginationMeta.totalPages,
-    totalItems: paginationMeta.totalDocs,
+    totalPages: paginationMeta.total_pages,
+    totalItems: paginationMeta.total_docs,
     itemsPerPage: paginationMeta.limit,
-    hasNextPage: paginationMeta.page < paginationMeta.totalPages,
+    hasNextPage: paginationMeta.page < paginationMeta.total_pages,
     hasPreviousPage: paginationMeta.page > 1,
     startItem: (paginationMeta.page - 1) * paginationMeta.limit + 1,
     endItem: Math.min(
       paginationMeta.page * paginationMeta.limit,
-      paginationMeta.totalDocs,
+      paginationMeta.total_docs,
     ),
   };
 
@@ -352,3 +352,5 @@ export default function useDatasets() {
     isFilteredDataLoading,
   };
 }
+
+export type UseDatasetReturnType = ReturnType<typeof useDatasets>;

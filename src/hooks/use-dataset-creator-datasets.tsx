@@ -103,16 +103,16 @@ export function useDatasetCreatorDatasets(
   }, []);
 
   const goToNextPage = useCallback(() => {
-    if (paginationMeta.hasNextPage) {
+    if (paginationMeta.has_next_page) {
       setPagination((prev) => ({ ...prev, page: prev.page + 1 }));
     }
-  }, [paginationMeta.hasNextPage]);
+  }, [paginationMeta.has_next_page]);
 
   const goToPreviousPage = useCallback(() => {
-    if (paginationMeta.hasPrevPage) {
+    if (paginationMeta.has_prev_page) {
       setPagination((prev) => ({ ...prev, page: prev.page - 1 }));
     }
-  }, [paginationMeta.hasPrevPage]);
+  }, [paginationMeta.has_prev_page]);
 
   const changePageSize = useCallback((limit: number) => {
     setPagination((prev) => ({ ...prev, limit, page: 1 })); // Reset to first page
