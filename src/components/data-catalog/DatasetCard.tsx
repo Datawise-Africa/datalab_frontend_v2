@@ -162,7 +162,10 @@ const DatasetCard = ({
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <Database className="h-4 w-4" />
-            <span>CSV,Shapefile,XLSX,PDF (3.1 GB)</span>
+            <span>
+              {/* CSV,Shapefile,XLSX,PDF  */}
+              {dataset.dataset_size}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-600">
             <Users className="h-4 w-4" />

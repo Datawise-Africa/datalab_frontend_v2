@@ -270,8 +270,6 @@ export default function DatasetUploadForm({
 
   const resetFormWithDefaults = useCallback(() => {
     if (dataset) {
-      console.log(dataset);
-
       form.reset({
         step_1: {
           category: ('' + dataset.category?.id) as unknown as number,
@@ -288,7 +286,7 @@ export default function DatasetUploadForm({
         },
         step_3: {
           new_authors: [],
-          license: +dataset.license!,
+          license: dataset.license?.id! ?? null,
           authors: (dataset.authors.map((au) => '' + au.id) ||
             []) as unknown as number[],
           doi_citation: dataset.doi_citation || '',
@@ -315,15 +313,11 @@ export default function DatasetUploadForm({
         },
         step_5: {
           accepted_terms: {
-            // data_accuracy: dataset.terms_and_conditions?.data_accuracy || false,
-            // responsible_use: dataset.accepted_terms?.responsible_use || false,
-            // privacy_compliance:
-            //   dataset.accepted_terms?.privacy_compliance || false,
-            // rights_ownership: dataset.accepted_terms?.rights_ownership || false,
-            data_accuracy: false,
-            responsible_use: false,
-            privacy_compliance: false,
-            rights_ownership: false,
+            data_accuracy: dataset.accepted_terms?.data_accuracy || false,
+            responsible_use: dataset.accepted_terms?.responsible_use || false,
+            privacy_compliance:
+              dataset.accepted_terms?.privacy_compliance || false,
+            rights_ownership: dataset.accepted_terms?.rights_ownership || false,
           },
         },
       });
@@ -338,12 +332,6 @@ export default function DatasetUploadForm({
     }
   }, [isFormModalOpen, resetFormWithDefaults]);
   const isLastStep = step === _steps.length;
-  // console.log({
-  //   isFormLoading,
-  //   formState: form.formState.errors,
-  //   step,
-  //   dataset,
-  // });
 
   return (
     <Dialog open={isFormModalOpen} onOpenChange={handleToggleFormModal}>

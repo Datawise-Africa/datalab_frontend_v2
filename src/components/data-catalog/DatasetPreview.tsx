@@ -16,7 +16,7 @@ const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
   const { getDataFile: gDFileurl } = useApi();
   useEffect(() => {
     if (dataFiles.length > 0) {
-      const csvFileUrl = dataFiles[0]?.file_url;
+      const csvFileUrl = dataFiles[0]?.s3_url;
 
       if (csvFileUrl) {
         const getDataFile = async () => {

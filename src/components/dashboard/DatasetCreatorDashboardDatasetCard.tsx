@@ -35,6 +35,17 @@ export default function DatasetCreatorDashboardDatasetCard({
   onDelete,
 }: DatasetCardProps) {
   // const extractIntendedAudience = (audience:) => {}
+  // const fileSize = useMemo(() => {
+  //   const { data_files, metadata_files, datasheet_files } = dataset;
+  //   const totalSize = [data_files, metadata_files, datasheet_files]
+  //     .flat()
+  //     .reduce(
+  //       (acc, file) =>
+  //         acc + (file.file_size ? parseInt('' + file.file_size, 10) : 0),
+  //       0,
+  //     );
+  //   return formatFileSize(totalSize);
+  // }, [dataset]);
   return (
     <div className="w-full rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-4 flex items-start justify-between">
@@ -179,6 +190,11 @@ export default function DatasetCreatorDashboardDatasetCard({
             {dataset.download_count}
           </span>
         </div>
+        <span className="flex items-center gap-1">
+          <FileText className="h-3 w-3" />
+          {/* {fileSize} */}
+          {dataset.dataset_size}
+        </span>
       </div>
 
       {/* <div className="flex gap-2 text-sm whitespace-nowrap">

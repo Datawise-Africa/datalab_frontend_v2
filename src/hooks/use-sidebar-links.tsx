@@ -7,7 +7,7 @@ import {
   Download,
   Edit,
   LockIcon,
-  MenuIcon,
+  // MenuIcon,
   Paperclip,
   User2,
   UserCheck,
@@ -17,25 +17,25 @@ import { validateSidebarLink } from '@/lib/utils/validate-sidebar-link';
 
 export default function useSidebarLinks() {
   const sidebarLinks: SidebarLinkType[] = [
+    // {
+    //   label: 'Menu',
+    //   href: '#',
+    //   icon: MenuIcon,
+    //   children: [
     {
-      label: 'Menu',
-      href: '#',
-      icon: MenuIcon,
-      children: [
-        {
-          label: 'Discover',
-          icon: Compass,
-          href: '/#',
-        },
-        { label: 'Saved Items', icon: Bookmark, href: '#' },
-        {
-          label: 'My Downloads',
-          icon: Download,
-          href: '#',
-          badge: 'Pending',
-        },
-      ],
+      label: 'Discover',
+      icon: Compass,
+      href: '/#',
     },
+    { label: 'Saved Items', icon: Bookmark, href: '#' },
+    {
+      label: 'My Downloads',
+      icon: Download,
+      href: '#',
+      badge: 'Pending',
+    },
+    //   ],
+    // },
     {
       label: 'Creator Tools',
       href: '#',

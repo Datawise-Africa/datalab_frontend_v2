@@ -135,7 +135,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       !dataset ||
       !dataset.data_files ||
       !dataset.data_files[0] ||
-      !dataset.data_files[0].file_url
+      !dataset.data_files[0].s3_url
     ) {
       console.error('Invalid dataset object:', dataset);
       alert('Invalid dataset selected.');
@@ -170,7 +170,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       }
 
       // Retrieve the URL where the file can be downloaded
-      const fileUrl = dataset.data_files[0].file_url;
+      const fileUrl = dataset.data_files[0].s3_url;
 
       // Create a temporary anchor element
       const link = document.createElement('a');
@@ -361,30 +361,30 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'Overview',
       details: (
         <>
-          <div className="p-4 rounded-md shadow bg-white">
+          <div className="rounded-md bg-white p-4 shadow">
             <div className="flex justify-between">
-              <h3 className="font-semibold text-[#0E0C15] text-xl">
+              <h3 className="text-xl font-semibold text-[#0E0C15]">
                 {dataset?.title}
               </h3>
               <div>
-                <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
+                <p className="rounded-md bg-[#ddeeff] px-2 text-[#0E0C15]">
                   {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
 
             {/* Profiteers Section */}
-            <div className="pt-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
-                    className="border border-gray-800 text-gray-800 rounded-lg px-2 py-1 text-xs  flex items-center gap-1"
+                    className="flex items-center gap-1 rounded-lg border border-gray-800 px-2 py-1 text-xs text-gray-800"
                   >
                     <img
                       src={profiteerIcons[profiteer]}
                       alt={`${profiteer} icon`}
-                      className="w-3 h-3"
+                      className="h-3 w-3"
                     />
                     <span>
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
@@ -408,7 +408,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                   name="intended_use"
                   value={formData.intended_use}
                   onChange={handleInputChange}
-                  className="w-full border border-[#ADA8C3] bg-gray-100 text-gray-800 rounded-md p-2"
+                  className="w-full rounded-md border border-[#ADA8C3] bg-gray-100 p-2 text-gray-800"
                 >
                   <option value="">
                     How do you intend to use this dataset? Select one option
@@ -436,7 +436,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               </h4>
               <div className="mt-2">
                 <textarea
-                  className="w-full border border-[#ADA8C3] bg-gray-100 text-gray-800 rounded-md p-2"
+                  className="w-full rounded-md border border-[#ADA8C3] bg-gray-100 p-2 text-gray-800"
                   placeholder="What is your project about ..."
                   id="project_description"
                   name="project_description"
@@ -447,9 +447,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* License Summary & Creator Control */}
-            <div className="pt-4 p-4">
+            <div className="p-4 pt-4">
               <p className="text-lg text-[#4B5563]">License Summary</p>
-              <div className="flex items-center mt-4 space-x-2">
+              <div className="mt-4 flex items-center space-x-2">
                 <AiOutlineInfoCircle className="text-xl text-[#4B5563]" />
                 <span className="text-[#4B5563]">
                   Non-commercial use for research and educational purposes only.
@@ -459,7 +459,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               <p className="mt-4 text-lg text-[#4B5563]">
                 Creator Control Notice
               </p>
-              <div className="flex items-center mt-4 space-x-2 p-2 text-[#4B5563] rounded-md">
+              <div className="mt-4 flex items-center space-x-2 rounded-md p-2 text-[#4B5563]">
                 <AiOutlineInfoCircle className="text-xl text-[#4B5563]" />
                 <span className="text-[#4B5563]">
                   Dataset Creators can restrict access if terms are abused.
@@ -468,7 +468,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-4 gap-16">
+            <div className="mt-4 flex justify-between gap-16">
               {currentStep > 1 && (
                 <CustomButton
                   label="Previous"
@@ -479,10 +479,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               {currentStep < displayStep.length && (
                 <CustomButton
                   disabled={!areAllFieldsFilled}
-                  className={`py-2 px-3 rounded-lg ${
+                  className={`rounded-lg px-3 py-2 ${
                     agreed
                       ? 'bg-[#ddeeff] text-[#0E0C15]'
-                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
+                      : 'cursor-not-allowed bg-gray-400 text-[#0E0C15]'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -499,30 +499,30 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       details: (
         <>
           <Toaster />
-          <div className="bg-white p-4 rounded-md shadow">
+          <div className="rounded-md bg-white p-4 shadow">
             <div className="flex justify-between bg-white">
-              <h3 className="font-semibold text-xl text-[#4B5563]">
+              <h3 className="text-xl font-semibold text-[#4B5563]">
                 {dataset?.title}
               </h3>
               <div>
-                <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
+                <p className="rounded-md bg-[#ddeeff] px-2 text-[#0E0C15]">
                   {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
 
             {/* Profiteers Section */}
-            <div className="pt-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
-                    className="border border-gray-800 text-gray-800 rounded-lg px-2 py-1 text-xs flex items-center gap-1"
+                    className="flex items-center gap-1 rounded-lg border border-gray-800 px-2 py-1 text-xs text-gray-800"
                   >
                     <img
                       src={profiteerIcons[profiteer]}
                       alt={`${profiteer} icon`}
-                      className="w-3 h-3"
+                      className="h-3 w-3"
                     />
                     <span>
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
@@ -538,11 +538,11 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Verification Section */}
-            <div className="verification-section bg-white mt-6 p-4 rounded-md">
-              <h3 className="font-semibold text-xl text-[#4B5563] mb-4">
+            <div className="verification-section mt-6 rounded-md bg-white p-4">
+              <h3 className="mb-4 text-xl font-semibold text-[#4B5563]">
                 Please Verify your Details Here
               </h3>
-              <h2 className="text-lg text-[#4B5563] font-semibold">Steps</h2>
+              <h2 className="text-lg font-semibold text-[#4B5563]">Steps</h2>
               <p className="text-[#4B5563]">
                 1. Click the institution type with which you want to download
                 the dataset.
@@ -556,7 +556,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                 to receive your OTP.
               </p>
 
-              <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="mt-4 grid grid-cols-2 gap-4">
                 {[
                   {
                     type: 'Company',
@@ -582,14 +582,14 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                   <div
                     key={index}
                     onClick={() => handleCardClick(card.type)}
-                    className={`p-4 border ${
+                    className={`border p-4 ${
                       selectedCard === card.type ? 'bg-blue-300' : 'bg-gray-100'
-                    } border-[#ADA8C3] rounded-md text-center cursor-pointer`}
+                    } cursor-pointer rounded-md border-[#ADA8C3] text-center`}
                   >
-                    <div className="text-2xl mb-2 text-[#4B5563]">
+                    <div className="mb-2 text-2xl text-[#4B5563]">
                       {card.icon}
                     </div>
-                    <h4 className="font-semibold text-lg text-[#4B5563]">
+                    <h4 className="text-lg font-semibold text-[#4B5563]">
                       {card.type}
                     </h4>
                     <p className="text-sm text-gray-600">{card.description}</p>
@@ -607,7 +607,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                   type="email"
                   value={formData.email_address}
                   onChange={handleInputChange}
-                  className="w-full border border-[#ADA8C3] bg-gray-100 text-[#4B5563] rounded-md p-2"
+                  className="w-full rounded-md border border-[#ADA8C3] bg-gray-100 p-2 text-[#4B5563]"
                   placeholder="Enter your institutional email address here"
                   disabled={isVerified}
                 />
@@ -623,22 +623,22 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                     type="text"
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
-                    className="w-full border border-[#ADA8C3] bg-gray-100 text-[#4B5563] rounded-md p-2"
+                    className="w-full rounded-md border border-[#ADA8C3] bg-gray-100 p-2 text-[#4B5563]"
                     placeholder="Enter OTP"
                   />
                 </div>
               )}
 
               {errorMessage && (
-                <p className="text-red-500 pt-2">{errorMessage}</p>
+                <p className="pt-2 text-red-500">{errorMessage}</p>
               )}
 
               {/* Buttons */}
-              <div className="flex flex-wrap gap-4 mt-4">
+              <div className="mt-4 flex flex-wrap gap-4">
                 <button
                   onClick={handleAction}
                   disabled={loading}
-                  className="px-4 py-2 bg-[#ddeeff] text-[#0E0C15] rounded-md"
+                  className="rounded-md bg-[#ddeeff] px-4 py-2 text-[#0E0C15]"
                 >
                   {loading
                     ? 'Processing...'
@@ -651,7 +651,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                   <button
                     onClick={handleAction}
                     disabled={!isResendEnabled}
-                    className="px-4 py-2 bg-gray-500 text-white rounded-md"
+                    className="rounded-md bg-gray-500 px-4 py-2 text-white"
                   >
                     Resend Code
                   </button>
@@ -660,7 +660,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-4 gap-16">
+            <div className="mt-4 flex justify-between gap-16">
               {currentStep > 1 && (
                 <CustomButton
                   label="Previous"
@@ -671,10 +671,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               {currentStep < displayStep.length && (
                 <CustomButton
                   disabled={!isVerified}
-                  className={`py-2 px-3 rounded-lg ${
+                  className={`rounded-lg px-3 py-2 ${
                     isVerified
                       ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
-                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
+                      : 'cursor-not-allowed bg-gray-400 text-[#0E0C15]'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -690,31 +690,31 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'License',
       details: (
         <>
-          <div className="bg-white p-4 rounded-md shadow">
+          <div className="rounded-md bg-white p-4 shadow">
             {/* Title & Price Section */}
             <div className="flex justify-between bg-white">
-              <h3 className="font-semibold text-xl text-[#4B5563]">
+              <h3 className="text-xl font-semibold text-[#4B5563]">
                 {dataset?.title}
               </h3>
               <div>
-                <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
+                <p className="rounded-md bg-[#ddeeff] px-2 text-[#0E0C15]">
                   {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
 
             {/* Profiteers Section */}
-            <div className="pt-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
-                    className="border border-gray-800 text-gray-800 rounded-lg px-2 py-1 text-xs flex items-center gap-1"
+                    className="flex items-center gap-1 rounded-lg border border-gray-800 px-2 py-1 text-xs text-gray-800"
                   >
                     <img
                       src={profiteerIcons[profiteer]}
                       alt={`${profiteer} icon`}
-                      className="w-3 h-3"
+                      className="h-3 w-3"
                     />
                     <span>
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
@@ -736,11 +736,11 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               </h4>
               <div className="mt-4">
                 {/* Allowed Uses (Green) */}
-                <div className="bg-green-100 p-4 rounded-md">
-                  <h5 className="font-semibold text-green-700 flex items-center">
+                <div className="rounded-md bg-green-100 p-4">
+                  <h5 className="flex items-center font-semibold text-green-700">
                     ✅ Allowed Uses
                   </h5>
-                  <ul className="mt-2 text-sm text-green-700 space-y-1">
+                  <ul className="mt-2 space-y-1 text-sm text-green-700">
                     <li className="flex items-center">
                       ✔ Research and Analysis
                     </li>
@@ -757,11 +757,11 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                 </div>
 
                 {/* Restricted Uses (Red) */}
-                <div className="bg-red-100 p-4 rounded-md mt-4">
-                  <h5 className="font-semibold text-red-700 flex items-center">
+                <div className="mt-4 rounded-md bg-red-100 p-4">
+                  <h5 className="flex items-center font-semibold text-red-700">
                     ❌ Restricted Uses
                   </h5>
-                  <ul className="mt-2 text-sm text-red-700 space-y-1">
+                  <ul className="mt-2 space-y-1 text-sm text-red-700">
                     <li className="flex items-center">
                       ✖ Commercial Products
                     </li>
@@ -797,7 +797,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-4 gap-16">
+            <div className="mt-4 flex justify-between gap-16">
               {currentStep > 1 && (
                 <CustomButton
                   label="Previous"
@@ -808,10 +808,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               {currentStep < displayStep.length && (
                 <CustomButton
                   disabled={!agreed}
-                  className={`py-2 px-3 rounded-lg ${
+                  className={`rounded-lg px-3 py-2 ${
                     agreed
                       ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
-                      : 'bg-gray-400 text-[#0E0C15] cursor-not-allowed'
+                      : 'cursor-not-allowed bg-gray-400 text-[#0E0C15]'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -836,31 +836,31 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'Download',
       details: (
         <>
-          <div className="bg-white p-4 rounded-md shadow">
+          <div className="rounded-md bg-white p-4 shadow">
             {/* Title & Price Section */}
             <div className="flex justify-between">
-              <h3 className="font-semibold text-xl text-[#4B5563]">
+              <h3 className="text-xl font-semibold text-[#4B5563]">
                 {dataset?.title}
               </h3>
               <div>
-                <p className="bg-[#ddeeff] text-[#0E0C15] px-2 rounded-md">
+                <p className="rounded-md bg-[#ddeeff] px-2 text-[#0E0C15]">
                   {dataset?.is_premium ? `$${dataset?.price}` : 'Free'}
                 </p>
               </div>
             </div>
 
             {/* Profiteers Section */}
-            <div className="pt-2 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 pt-2">
               {Object.entries(dataset?.intended_audience || {}).map(
                 ([profiteer, status], Pindex) => (
                   <div
                     key={Pindex}
-                    className="border border-gray-800 text-gray-800 rounded-lg px-2 py-1 text-xs flex items-center gap-1"
+                    className="flex items-center gap-1 rounded-lg border border-gray-800 px-2 py-1 text-xs text-gray-800"
                   >
                     <img
                       src={profiteerIcons[profiteer]}
                       alt={`${profiteer} icon`}
-                      className="w-3 h-3"
+                      className="h-3 w-3"
                     />
                     <span>
                       {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
@@ -876,8 +876,8 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Approval Section */}
-            <div className="flex flex-col items-center p-4 bg-gray-100 max-w-full mx-auto mt-4 rounded-md shadow">
-              <div className="w-16 h-16 flex items-center justify-center bg-green-100 rounded-full mb-4">
+            <div className="mx-auto mt-4 flex max-w-full flex-col items-center rounded-md bg-gray-100 p-4 shadow">
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-10 w-10 text-green-500"
@@ -894,10 +894,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               <h2 className="text-lg font-semibold text-[#4B5563]">
                 You are Approved!
               </h2>
-              <p className="text-gray-700 text-center">
+              <p className="text-center text-gray-700">
                 Thank you! You are approved to download this dataset.
               </p>
-              <p className="text-sm text-gray-700 bg-gray-200 p-2 rounded-md mt-4 text-center">
+              <p className="mt-4 rounded-md bg-gray-200 p-2 text-center text-sm text-gray-700">
                 Remember: This dataset is for non-commercial, educational use
                 only. By downloading, you agree to notify the creator if you use
                 it in publications or derivative works.
@@ -905,15 +905,15 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             </div>
 
             {/* Available Formats */}
-            <div className="justify-self-center p-4 mb-4">
-              <h3 className="text-lg font-semibold text-center text-[#4B5563]">
+            <div className="mb-4 justify-self-center p-4">
+              <h3 className="text-center text-lg font-semibold text-[#4B5563]">
                 Available Formats
               </h3>
-              <div className="flex flex-row gap-4 mt-2 text-[#4B5563]">
+              <div className="mt-2 flex flex-row gap-4 text-[#4B5563]">
                 {availableFormats.map((format) => (
                   <label
                     key={format.value}
-                    className={`flex items-center p-3 border rounded-md cursor-pointer ${
+                    className={`flex cursor-pointer items-center rounded-md border p-3 ${
                       selectedFormat === format.value
                         ? 'bg-gray-200'
                         : 'bg-gray-100'
@@ -925,7 +925,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                       value={format.value}
                       checked={selectedFormat === format.value}
                       onChange={() => handleFormatChange(format.value)}
-                      className="appearance-none rounded-full w-3 h-3 border mr-4 border-gray-300 checked:bg-gray-500 checked:border-transparent"
+                      className="mr-4 h-3 w-3 appearance-none rounded-full border border-gray-300 checked:border-transparent checked:bg-gray-500"
                     />
                     {format.name}
                   </label>
@@ -938,7 +938,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               <h3 className="text-lg font-semibold text-[#4B5563]">
                 Rate This Dataset
               </h3>
-              <div className="flex justify-center mt-2">
+              <div className="mt-2 flex justify-center">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <svg
                     key={star}
@@ -955,12 +955,12 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                 ))}
               </div>
               {message && (
-                <p className="text-sm text-green-500 mt-2">{message}</p>
+                <p className="mt-2 text-sm text-green-500">{message}</p>
               )}
             </div>
 
             {/* Navigation & Download Buttons */}
-            <div className="flex justify-between mt-4 mb-4 gap-16 w-full">
+            <div className="mt-4 mb-4 flex w-full justify-between gap-16">
               {currentStep > 1 && (
                 <CustomButton
                   label="Back"
@@ -973,9 +973,9 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                 label="Download"
                 onClick={() => handleDownload(dataset)}
                 disabled={downloading}
-                className={`py-2 px-4 rounded-lg ${
+                className={`rounded-lg px-4 py-2 ${
                   downloading
-                    ? 'bg-[#0E0C15] text-gray-200 cursor-not-allowed'
+                    ? 'cursor-not-allowed bg-[#0E0C15] text-gray-200'
                     : 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
                 }`}
               >
@@ -985,10 +985,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               {currentStep < displayStep.length && (
                 <CustomButton
                   disabled={!agreed}
-                  className={`py-2 px-3 rounded-lg ${
+                  className={`rounded-lg px-3 py-2 ${
                     agreed
                       ? 'bg-[#ddeeff] text-[#0E0C15] hover:bg-[#FFC876]'
-                      : 'bg-gray-400 text-[#0E0C15]cursor-not-allowed'
+                      : 'text-[#0E0C15]cursor-not-allowed bg-gray-400'
                   }`}
                   label="Next"
                   onClick={handleNextStep}
@@ -1013,7 +1013,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
   };
 
   const renderProgress = () => (
-    <div className="flex items-center justify-between pl-5 pr-5">
+    <div className="flex items-center justify-between pr-5 pl-5">
       {displayStep.map((step, index) => (
         <div key={index} className="flex items-center">
           <div
@@ -1022,10 +1022,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             }`}
           >
             <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+              className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                 index + 1 === currentStep
-                  ? 'text-[#0E0C15] border-[#004176]'
-                  : 'text-[#0E0C15] border-[#0E0C15]'
+                  ? 'border-[#004176] text-[#0E0C15]'
+                  : 'border-[#0E0C15] text-[#0E0C15]'
               }`}
             >
               {index + 1}
@@ -1033,7 +1033,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
             <span className="mt-2 text-xs font-medium">{step}</span>
           </div>
           {index < displayStep.length - 1 && (
-            <div className="flex-1 h-px bg-slate-400 mx-2"></div>
+            <div className="mx-2 h-px flex-1 bg-slate-400"></div>
           )}
         </div>
       ))}
@@ -1048,7 +1048,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
         <div className="pt-6">
           {/* Step Content */}
-          <div className="border border-[#757185] shadow-sm p-2 rounded-md">
+          <div className="rounded-md border border-[#757185] p-2 shadow-sm">
             {renderStepContent()}
           </div>
         </div>
