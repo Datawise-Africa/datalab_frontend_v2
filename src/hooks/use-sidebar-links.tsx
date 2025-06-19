@@ -7,6 +7,7 @@ import {
   Download,
   Edit,
   LockIcon,
+  MenuIcon,
   // MenuIcon,
   Paperclip,
   User2,
@@ -14,32 +15,35 @@ import {
 } from 'lucide-react';
 import type { SidebarLinkType } from '@/lib/types/sidebar';
 import { validateSidebarLink } from '@/lib/utils/validate-sidebar-link';
-import { useBookmarkStats } from './use-bookmarked-datasets';
 
 export default function useSidebarLinks() {
-  const { totalBookmarks } = useBookmarkStats();
   const auth = useAuth();
 
   const filteredLinks = useMemo(() => {
     const sidebarLinks: SidebarLinkType[] = [
       {
-        label: 'Discover',
-        icon: Compass,
-
         href: '/#',
-      },
-      {
-        label: auth.isAuthenticated
-          ? `Saved Items (${totalBookmarks})`
-          : 'Saved Items',
-        icon: Bookmark,
-        href: '/app/saved-datasets',
-      },
-      {
-        label: 'My Downloads',
-        icon: Download,
-        href: '#',
-        badge: 'Pending',
+        icon: MenuIcon,
+        label: 'Menu',
+        children: [
+          {
+            label: 'Discover',
+            icon: Compass,
+
+            href: '/#',
+          },
+          {
+            label: 'Saved Items',
+            icon: Bookmark,
+            href: '/app/saved-datasets',
+          },
+          {
+            label: 'My Downloads',
+            icon: Download,
+            href: '#',
+            badge: 'Pending',
+          },
+        ],
       },
       {
         label: 'Creator Tools',

@@ -11,16 +11,18 @@ import {
   useBookmarks,
   useDatasetMapper,
 } from '@/hooks/use-bookmarked-datasets';
+import useDatasets from '@/hooks/use-datasets';
 
 const SavedDatasets = () => {
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
 
   const auth = useAuth();
-  const { bookmarkedDatasets, isLoading, addBookmark } = useBookmarks();
+  const { bookmarkedDatasets, isLoading } = useBookmarks();
   const enahancedBookmarkedDatasets = useDatasetMapper(
-    bookmarkedDatasets.map((item) => item.dataset),
+    bookmarkedDatasets.map((item) => item?.dataset),
   );
+  const { handleShareDataset } = useDatasets();
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
 
@@ -54,18 +56,21 @@ const SavedDatasets = () => {
       <main className="flex-1 py-8">
         {isLoading ? (
           <DatasetCardSkeleton />
-        ) : (
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        ) : enahancedBookmarkedDatasets.length ? (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
             {enahancedBookmarkedDatasets.map((dataset) => (
               <DatasetCard
                 key={dataset.id}
                 dataset={dataset}
                 handleDownloadDataClick={handleDownloadDataClick}
                 handleSingleDataModal={handleSingleDataModal}
-                handleBookmarkDataset={addBookmark}
+                handleShareDataset={handleShareDataset}
+                mode="bookmark"
               />
             ))}
           </div>
+        ) : (
+          <div>No bookmarked datasets found.</div>
         )}
       </main>
       {selectedDataset && <SingleDataModal dataset={selectedDataset} />}
