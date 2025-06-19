@@ -26,26 +26,47 @@ export interface IDatasetProfiteers {
 //   id: number;
 //   term: string;
 // }
-
-export interface IDatasetRegion {
-  id: number;
-  region: string;
-}
-
-export interface IDatasetKeyword {
-  id: number;
-  keyword: string;
-}
+/**A comma separated string initially an object */
+type IDatasetRegion = string;
+// {
+//   id: number;
+//   region: string;
+// }
+/**A comma separated string initially an object */
+type IDatasetKeyword = string;
+// {
+//   id: number;
+//   keyword: string;
+// }
 
 export interface IDatasetDataFile {
   id: number;
-  file_url: string;
+  file_name: string;
+  s3_url: string;
+  file_size: number;
+  file_size_display: string;
+  content_type: string;
 }
 
 export interface IDatasetOriginRegion {
   id: number;
   code: string;
   name: string;
+}
+
+interface IDatasetAcceptedTerm {
+  id: number;
+  data_accuracy: boolean;
+  responsible_use: boolean;
+  privacy_compliance: boolean;
+  rights_ownership: boolean;
+}
+
+interface IDatasetLicense {
+  id: number;
+  title: string;
+  license_type: string;
+  description: string;
 }
 
 export interface IDatasetTermsAndConditions {
@@ -55,7 +76,7 @@ export interface IDatasetTermsAndConditions {
 }
 export type DatasetStatus = 'PB' | 'AR' | 'DF';
 export interface IDataset {
-  id: number;
+  id: string;
   category: IDatasetCategory;
   title: string;
   description: string;
@@ -63,9 +84,10 @@ export interface IDataset {
   doi?: string | null;
   status?: DatasetStatus; // 'PB' = Published, 'AR' = Archive, 'DF' = Draft
   dataset_region: string;
-  license: string | null;
-  metadata_file: string | null;
-  datasheet_file: string | null;
+  license: IDatasetLicense | null;
+  data_files: IDatasetDataFile[];
+  metadata_files: IDatasetDataFile[];
+  datasheet_files: IDatasetDataFile[];
   doi_citation: string | null;
   download_count: number;
   is_premium: boolean;
@@ -75,18 +97,17 @@ export interface IDataset {
   origin_region?: IDatasetOriginRegion;
   authors: IDatasetAuthor[];
   intended_audience: IDatasetProfiteers;
-  // accepted_term: IDatasetTerm;
-  // restricted_term: IDatasetTerm;
+  accepted_terms: IDatasetAcceptedTerm;
   terms_and_conditions?: IDatasetTermsAndConditions;
   created_at: string;
   updated_at: string;
   tags: string[];
   size_bytes: string;
-  covered_regions: IDatasetRegion[];
-  keywords: IDatasetKeyword[];
-  data_files: IDatasetDataFile[];
+  covered_regions: IDatasetRegion;
+  keywords: IDatasetKeyword;
   review_count: number;
   average_review: number;
+  dataset_size: number;
 }
 
 export type DatasetFilterOptions = {

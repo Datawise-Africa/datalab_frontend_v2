@@ -1,6 +1,12 @@
 import type { CookieOptions } from '../types/CookieOptions';
 
-export class Cookie {
+type CookieState<T extends Record<string, any> = Record<string, any>> = {
+  [K in keyof T]: T[K] extends string | number | boolean | object
+    ? T[K]
+    : never;
+};
+
+export class Cookie<T extends Record<string, any> = Record<string, any>> {
   /**
    *
    * @param {string} name
@@ -8,9 +14,9 @@ export class Cookie {
    * @param {CookieOptions} options
    * @returns {void}
    */
-  static set(name: string, value: any, options: CookieOptions = {}) {
+  set(name: keyof CookieState<T>, value: any, options: CookieOptions = {}) {
     const serializedValue = encodeURIComponent(JSON.stringify(value));
-    const cookie = `${name}=${serializedValue}`;
+    const cookie = `${String(name)}=${serializedValue}`;
 
     let expires = options.expires;
     if (expires instanceof Date) {
@@ -39,9 +45,9 @@ export class Cookie {
    * @param {import("./actions").CookieOptions} options - Options to ensure correct path and domain.
    * @returns {void}
    */
-  static remove(name: string, options: CookieOptions = {}) {
+  remove(name: keyof CookieState<T>, options: CookieOptions = {}) {
     // Build the base cookie string
-    let cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+    let cookie = `${String(name)}=;expires=Thu, 01 Jan 1970 00:00:00 UTC`;
 
     // Append optional path
     if (options.path) {
@@ -58,15 +64,15 @@ export class Cookie {
   }
   /**
    *
-   * @param {string} name
-   * @returns {string | null | undefined}
+   * @param {keyof CookieState<T>} name - The name of the cookie to retrieve.
+   * @returns {any} The value of the cookie, parsed as JSON, or null
    */
-  static get(name: string) {
+  get(name: keyof CookieState<T>) {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      if (cookie.startsWith(`${name}=`)) {
-        const value = cookie.substring(name.length + 1);
+      if (cookie.startsWith(`${String(name)}=`)) {
+        const value = cookie.substring(String(name).length + 1);
         try {
           return JSON.parse(decodeURIComponent(value));
         } catch {
@@ -76,13 +82,13 @@ export class Cookie {
     }
     return null;
   }
-  static setCookieToken = (key: string, payload: any) => {
-    Cookie.set(key, payload);
+  setCookieToken = (key: keyof CookieState<T>, payload: any) => {
+    this.set(key, payload);
   };
-  static getCookieToken = (key: string) => {
-    return Cookie.get(key);
+  getCookieToken = (key: keyof CookieState<T>) => {
+    return this.get(key);
   };
-  static removeToken = (key: string) => {
-    Cookie.set(key, null);
+  removeToken = (key: keyof CookieState<T>) => {
+    this.set(key, null);
   };
 }

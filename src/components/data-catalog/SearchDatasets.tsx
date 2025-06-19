@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import apiService from '../../services/apiService';
+// import apiService from '../../services/apiService';
 import type { IDataset } from '@/lib/types/data-set';
 import { cn } from '@/lib/utils';
+import useApi from '@/hooks/use-api';
 
 type SearchDatasetsProps = {
   className?: string;
@@ -17,7 +18,7 @@ const SearchDatasets = ({
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const { publicApi } = useApi();
   const fetchResults = async () => {
     if (!searchText.trim()) {
       setError(null);
@@ -32,10 +33,10 @@ const SearchDatasets = ({
       const queryString = `query=${encodeURIComponent(searchText)}`;
       const url = `/data/filter/search/?${queryString}`;
 
-      const response = await apiService.get(url);
+      const response = await publicApi.get(url);
 
-      if (response && Array.isArray(response)) {
-        onSearchResults(response);
+      if (response.data && Array.isArray(response.data)) {
+        onSearchResults(response.data);
       } else {
         onSearchResults([]);
       }
@@ -67,14 +68,14 @@ const SearchDatasets = ({
   return (
     <div
       className={cn(
-        `p-2 flex flex-col bg-n-7 rounded border   border-[#E5E7EB] `,
+        `bg-n-7 flex flex-col rounded border border-[#E5E7EB] p-2`,
         className,
       )}
     >
-      <div className="flex items-center ">
+      <div className="flex items-center">
         <input
           type="text"
-          className="flex-grow rounded-full p-2 "
+          className="flex-grow rounded-full p-2"
           placeholder="Search datasets..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
@@ -97,7 +98,7 @@ const SearchDatasets = ({
         </button>
       </div>
       {isLoading && <div className="ml-2 text-gray-500">Loading...</div>}
-      {error && <div className="text-red-500 mt-2">{error}</div>}
+      {error && <div className="mt-2 text-red-500">{error}</div>}
     </div>
   );
 };

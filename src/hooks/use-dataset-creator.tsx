@@ -10,7 +10,7 @@ import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
 type Props = {
   shouldFetch?: boolean;
-  statusFilter?:DatasetCreatorStatus;
+  statusFilter?: DatasetCreatorStatus;
 };
 
 type DatasetCreatorStatus =
@@ -137,8 +137,7 @@ export default function useDatasetCreator(
   const filteredDataByStatus = (status: DatasetCreatorStatus) => {
     return data.filter((applicant) => applicant.status === status);
   };
-  
-  
+
   return {
     createDatasetCreator,
     isLoading,
@@ -149,6 +148,6 @@ export default function useDatasetCreator(
     isStatusUpdateLoading,
     selectedApplicant,
     setSelectedApplicantID,
-    filteredDataByStatus
+    filteredDataByStatus,
   };
 }

@@ -1,30 +1,24 @@
 import { useState } from 'react';
-// import DatasetHeader from '../components/data-catalog/DatasetHeader';
-// import FilterPanel from '../components/data-catalog/FilterPanel';
-// import SortData from '../components/data-catalog/SortData';
 import DatasetGrid from '../components/data-catalog/DatasetGrid';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/useDataModal';
 import useDownloadDataModal from '@/store/useDownloadDataModal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
-// import NoDataset from '@/components/Modals/DataModals/NoDataset';
-// import Sidebar from './Sidebar';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
 import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
+import { useBookmarks } from '@/hooks/use-bookmarked-datasets';
 
 const Homepage = () => {
-  // const [navUrl, setNavUrl] = useState('');
-  // const [sortIsOpen, setSortIsOpen] = useState(false);
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
   const auth = useAuth();
   const datasets = useDatasets();
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
-  // const pathname = useLocation();
+  const { addBookmark } = useBookmarks();
 
   const handleSingleDataModal = (dataset: IDataset) => {
     setSelectedDataset(dataset);
@@ -32,10 +26,7 @@ const Homepage = () => {
   };
 
   const handleDownloadDataClick = (dataset: IDataset) => {
-    // console.log('handleDownloadDataClick', dataset);
-
     if (!auth.isAuthenticated) {
-      // console.log('Not authenticated');
       auth.queue.addToQueue([
         {
           function: setDownloadDataset,
@@ -85,6 +76,14 @@ const Homepage = () => {
             datasets={datasets.data}
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}
+            changePageSize={datasets.changePageSize}
+            goToNextPage={datasets.goToNextPage}
+            goToPreviousPage={datasets.goToPreviousPage}
+            goToPage={datasets.goToPage}
+            pagination={datasets.pagination}
+            handleBookmarkDataset={addBookmark}
+            handleShareDataset={datasets.handleShareDataset}
+            handleQuickDownload={handleDownloadDataClick}
           />
         )}
       </main>

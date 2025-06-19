@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 // import PropTypes from 'prop-types';
 import Papa from 'papaparse';
 
-import apiService from '../../services/apiService';
+// import apiService from '../../services/apiService';
 import type { IDatasetDataFile } from '@/lib/types/data-set';
+import useApi from '@/hooks/use-api';
 
 type DatasetPreviewProps = {
   dataFiles: IDatasetDataFile[];
@@ -12,15 +13,15 @@ type DatasetPreviewProps = {
 const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
   const [csvData, setCsvData] = useState<any[]>([]);
   const [error, setError] = useState(null);
-
+  const { getDataFile: gDFileurl } = useApi();
   useEffect(() => {
     if (dataFiles.length > 0) {
-      const csvFileUrl = dataFiles[0]?.file_url;
+      const csvFileUrl = dataFiles[0]?.s3_url;
 
       if (csvFileUrl) {
         const getDataFile = async () => {
           try {
-            const response = await apiService.getDataFile(csvFileUrl);
+            const response = await gDFileurl(csvFileUrl);
             const csvText = await (response as any).text();
             const parsed = Papa.parse(csvText, {
               header: true,
@@ -48,16 +49,16 @@ const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
 
   return (
     <div>
-      {error && <p className="text-red-500 mt-2">Error: {error}</p>}
+      {error && <p className="mt-2 text-red-500">Error: {error}</p>}
       {csvData.length > 0 ? (
-        <div className="overflow-auto max-h-96 relative">
+        <div className="relative max-h-96 overflow-auto">
           <table className="min-w-full border-collapse">
             <thead className="sticky top-0 z-10">
               <tr>
                 {Object.keys(csvData[0]).map((header, index) => (
                   <th
                     key={index}
-                    className="bg-[#188366] font-bold text-left border border-[#CAC6DD] border-r border-l text-[#ddeeff] px-4 py-1 last:border-r-0"
+                    className="border border-r border-l border-[#CAC6DD] bg-[#188366] px-4 py-1 text-left font-bold text-[#ddeeff] last:border-r-0"
                   >
                     {header}
                   </th>
@@ -70,7 +71,7 @@ const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
                   {Object.values(row).map((value, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className="border border-[#CAC6DD] text-black border-r border-l px-4 py-2 last:border-r-0"
+                      className="border border-r border-l border-[#CAC6DD] px-4 py-2 text-black last:border-r-0"
                     >
                       {value as any}
                     </td>
@@ -81,7 +82,7 @@ const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
           </table>
         </div>
       ) : (
-        <p className="text-[#ddeeff] text-center">
+        <p className="text-center text-[#ddeeff]">
           No data available for preview
         </p>
       )}

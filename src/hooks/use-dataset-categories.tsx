@@ -9,26 +9,32 @@ export interface IDatasetCategory {
   title: string;
   // description: string;
 }
+
 export function useDatasetCategories() {
-  const api = useApi().privateApi;
-  const fetchDatasetCategories = useCallback(async () => {
+  const { privateApi } = useApi();
+
+  const fetchDatasetCategories = useCallback(async (): Promise<
+    IDatasetCategory[]
+  > => {
     try {
-      const response = await api.get<IDatasetCategory[]>(
+      const { data } = await privateApi.get<IDatasetCategory[]>(
         '/data/dataset-categories/',
       );
-      return response.data;
+      return data;
     } catch (error) {
       console.error('Error fetching dataset categories:', error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, []);
-  const datasetCategories = useQuery({
+  }, [privateApi]);
+
+  return useQuery({
     queryKey: datasetCategoriesKeys.all,
     queryFn: fetchDatasetCategories,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: true,
-    initialData: [],
-    refetchOnMount: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes - more readable
+    retry: 2, // Specific retry count instead of boolean
+    select: (data) => data ?? [], // Handle undefined data gracefully
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    refetchOnMount: 'always', // More explicit than boolean
+    placeholderData: [], // Provide an empty array as initial data
   });
-  return datasetCategories;
 }
