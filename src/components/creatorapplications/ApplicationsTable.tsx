@@ -14,15 +14,19 @@ import {
 import { Button } from '@/components/ui/button';
 import useDatasetCreator from '@/hooks/use-dataset-creator';
 import { cn } from '@/lib/utils';
-import {
-  getDatasetCreatorBadge,
-} from '@/lib/types/dataset-creator';
+import { getDatasetCreatorBadge } from '@/lib/types/dataset-creator';
 
 export function ApplicationsTable() {
   // const [applicants, setApplicants] = useState<Applicant[]>([])
-  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant,} =
-    useDatasetCreator();
-    // const approvedApplicants = filteredDataByStatus('Approved');
+  const {
+    data,
+    handleChangeStatus,
+    isStatusUpdateLoading,
+    isLoading,
+    setSelectedApplicantID,
+    selectedApplicant,
+  } = useDatasetCreator();
+  // const approvedApplicants = filteredDataByStatus('Approved');
 
   // const changeStatus = async (id: number, action: 'Approve' | 'Reject') => {
   //   if (action === 'Approve') return await handleApprove(id);
@@ -32,7 +36,7 @@ export function ApplicationsTable() {
   // const [selectedApplicant, setSelectedApplicant] =
   //   useState<BecomeDatasetCreatorType | null>(null);
   const [modalOpen, setModalOpen] = React.useState(false);
-  const openModal = (id:number) => {
+  const openModal = (id: number) => {
     setSelectedApplicantID(id);
     setModalOpen(true);
   };
@@ -85,7 +89,7 @@ export function ApplicationsTable() {
                 <TableCell>{applicant.affiliation}</TableCell>
                 <TableCell>{applicant.expertise}</TableCell>
                 <TableCell className="text-right">
-                 {new Date(applicant.created_at).toISOString().split('T')[0]}
+                  {new Date(applicant.created_at).toISOString().split('T')[0]}
                 </TableCell>
                 <TableCell>
                   <span
@@ -176,7 +180,6 @@ export function ApplicationsTable() {
                   </Button>
                 </TableCell>
               </TableRow>
-
             ))
           )}
         </TableBody>

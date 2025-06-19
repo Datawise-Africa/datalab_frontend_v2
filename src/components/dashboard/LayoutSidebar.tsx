@@ -58,6 +58,7 @@ export default function LayoutSidebar({
   closeSidebar,
 }: LayoutSidebarProps) {
   const { isAuthenticated, state: authState, setIsAuthModalOpen } = useAuth();
+
   const authPerm = AuthPerm.getInstance();
   // Don't render sidebar on mobile if it's not open
   if (isMobile && !isOpen) return null;
