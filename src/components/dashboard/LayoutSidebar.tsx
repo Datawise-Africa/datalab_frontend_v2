@@ -58,6 +58,7 @@ export default function LayoutSidebar({
   closeSidebar,
 }: LayoutSidebarProps) {
   const { isAuthenticated, state: authState, setIsAuthModalOpen } = useAuth();
+
   const authPerm = AuthPerm.getInstance();
   // Don't render sidebar on mobile if it's not open
   if (isMobile && !isOpen) return null;
@@ -67,7 +68,7 @@ export default function LayoutSidebar({
       {/* Mobile Overlay */}
       {shouldShowOverlay && (
         <div
-          className="fixed inset-0 bg-gray-200 bg-opacity-50 z-40 lg:hidden transition-all duration-200 ease-in-out"
+          className="bg-opacity-50 fixed inset-0 z-40 bg-gray-200 transition-all duration-200 ease-in-out lg:hidden"
           onClick={closeSidebar}
         />
       )}
@@ -75,9 +76,9 @@ export default function LayoutSidebar({
       {/* Sidebar */}
       <div
         className={cn(
-          'relative  flex flex-col h-full border-r border-subtle bg-white transition-all duration-200 ease-in-out',
+          'border-subtle relative flex h-full flex-col border-r bg-white transition-all duration-200 ease-in-out',
           {
-            'fixed left-0 top-0 z-50 lg:hidden': isMobile,
+            'fixed top-0 left-0 z-50 lg:hidden': isMobile,
             'w-16': isCollapsed && !isMobile,
             'w-64': (isCollapsed && isMobile) || !isCollapsed,
             // 'w-64': !isCollapsed,
@@ -85,16 +86,16 @@ export default function LayoutSidebar({
         )}
       >
         {/* Header */}
-        <div className="flex-shrink-0 p-4 border-b border-subtle">
+        <div className="border-subtle flex-shrink-0 border-b p-4">
           {/* Mobile Close Button */}
           {isMobile && (
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold">Menu</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={closeSidebar}
-                className="p-1 h-8 w-8"
+                className="h-8 w-8 p-1"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -110,10 +111,7 @@ export default function LayoutSidebar({
                     <Button
                       variant="ghost"
                       onClick={toggleSidebar}
-                      className={`
-                        w-full flex items-center justify-baseline space-x-2 py-3
-                        ${isCollapsed ? 'px-0' : 'px-3'}
-                      `}
+                      className={`flex w-full items-center justify-baseline space-x-2 py-3 ${isCollapsed ? 'px-0' : 'px-3'} `}
                     >
                       <img
                         src={'/assets/datalab/collapseicon.png'}
@@ -144,10 +142,7 @@ export default function LayoutSidebar({
                     <Link
                       to={'/app/dataset-creator-dashboard/'}
                       // variant="default"
-                      className={`
-                    w-full flex items-center justify-center space-x-2 py-3 text-subtle bg-primary rounded
-                    ${isCollapsed && !isMobile ? 'px-0' : 'px-4'}
-                  `}
+                      className={`text-subtle bg-primary flex w-full items-center justify-center space-x-2 rounded py-3 ${isCollapsed && !isMobile ? 'px-0' : 'px-4'} `}
                     >
                       <LucidePlus className="h-4 w-4" />
                       {(!isCollapsed || isMobile) && (
@@ -185,7 +180,7 @@ export default function LayoutSidebar({
         </div>
 
         {/* User Section */}
-        <div className="flex-shrink-0 p-4 border-t border-subtle">
+        <div className="border-subtle flex-shrink-0 border-t p-4">
           <BecomeDatasetCreatorBadge
             collapsed={isCollapsed}
             isMobile={isMobile}
@@ -195,17 +190,14 @@ export default function LayoutSidebar({
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className={`
-                    w-full p-0 h-auto hover:bg-gray-50
-                    ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'}
-                  `}
+                  className={`h-auto w-full p-0 hover:bg-gray-50 ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'} `}
                 >
                   <div
                     className={`flex items-center ${isCollapsed && !isMobile ? 'justify-center' : 'space-x-3'}`}
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={''} />
-                      <AvatarFallback className="border border-subtle">
+                      <AvatarFallback className="border-subtle border">
                         {authState.firstName!.charAt(0)}
                         {authState.lastName!.charAt(0)}
                       </AvatarFallback>
@@ -231,10 +223,7 @@ export default function LayoutSidebar({
           ) : (
             <Button
               variant="ghost"
-              className={`
-                w-full p-0 h-auto hover:bg-gray-50
-                ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'}
-              `}
+              className={`h-auto w-full p-0 hover:bg-gray-50 ${isCollapsed && !isMobile ? 'justify-center' : 'justify-between'} `}
               onClick={() => {
                 // Handle login/signup action
                 setIsAuthModalOpen(true);
@@ -247,7 +236,7 @@ export default function LayoutSidebar({
                   isCollapsed && !isMobile ? 'justify-center' : 'space-x-3',
                 )}
               >
-                <div className="h-8 w-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100">
                   <User className="h-4 w-4 text-gray-600" />
                 </div>
                 {(!isCollapsed || isMobile) && (
@@ -283,16 +272,16 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full p-0 flex items-center justify-center h-10"
+                className="flex h-10 w-full items-center justify-center p-0"
                 asChild
               >
                 <Link
                   to={props.href}
-                  className="w-full p-0 flex items-center justify-center h-10"
+                  className="flex h-10 w-full items-center justify-center p-0"
                 >
                   {/* Icon */}
                   {props.icon && (
-                    <span className="flex items-center justify-center w-5 h-5">
+                    <span className="flex h-5 w-5 items-center justify-center">
                       {typeof props.icon !== 'string' ? (
                         <props.icon size={20} className="text-gray-600" />
                       ) : (
@@ -322,10 +311,10 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
                   <Button variant="ghost" asChild>
                     <Link
                       to={child.href}
-                      className="w-full p-0 flex items-center justify-center h-10"
+                      className="flex h-10 w-full items-center justify-center p-0"
                     >
                       {child.icon && (
-                        <span className="flex items-center justify-center w-5 h-5">
+                        <span className="flex h-5 w-5 items-center justify-center">
                           {typeof child.icon !== 'string' ? (
                             <child.icon size={20} className="text-gray-600" />
                           ) : (
@@ -353,10 +342,10 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
   // Expanded state remains the same
   return hasChildren ? (
     <AccordionItem value={props.label} className="border-none">
-      <AccordionTrigger className="no-underline hover:no-underline py-2 px-3 hover:bg-gray-50 rounded-md">
+      <AccordionTrigger className="rounded-md px-3 py-2 no-underline hover:bg-gray-50 hover:no-underline">
         <div className="flex items-center space-x-3">
           {props.icon && (
-            <span className="flex items-center justify-center w-5 h-5 text-gray-600">
+            <span className="flex h-5 w-5 items-center justify-center text-gray-600">
               {typeof props.icon !== 'string' ? (
                 <props.icon size={20} />
               ) : (
@@ -382,11 +371,11 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
   ) : (
     <Button
       variant="ghost"
-      className="w-full justify-start py-2 px-3 h-auto hover:bg-gray-50 rounded-md"
+      className="h-auto w-full justify-start rounded-md px-3 py-2 hover:bg-gray-50"
     >
       <Link to={props.href} className="flex items-center space-x-3">
         {props.icon && (
-          <span className="flex items-center justify-center w-5 h-5 text-gray-600">
+          <span className="flex h-5 w-5 items-center justify-center text-gray-600">
             {typeof props.icon !== 'string' ? (
               <props.icon size={20} />
             ) : (
@@ -415,7 +404,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
 
   return (
     <DropdownMenuContent
-      className="w-64 bg-white   p-4 shadow-lg border border-subtle rounded-md mb-2"
+      className="border-subtle mb-2 w-64 rounded-md border bg-white p-4 shadow-lg"
       side={isMobile ? 'top' : 'right'}
       // alignOffset={10}
     >
@@ -437,21 +426,21 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
         </div>
       </DropdownMenuLabel>
       {/* <DropdownMenuSeparator /> */}
-      <hr className="my-1 text-subtle" />
-      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
+      <hr className="text-subtle my-1" />
+      <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
         <Link to={'/#'} className="flex items-center">
-          <User className="h-5 w-5 mr-2" />
+          <User className="mr-2 h-5 w-5" />
           <span className="text-sm font-medium">Profile</span>
         </Link>
       </DropdownMenuItem>
-      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
+      <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
         <Link to={'/#'} className="flex items-center">
-          <LucideCog className="h-5 w-5 mr-2" />
+          <LucideCog className="mr-2 h-5 w-5" />
           <span className="text-sm font-medium">Upload Dataset</span>
         </Link>
       </DropdownMenuItem>
       {!access.is_admin && !access.is_dataset_creator && (
-        <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
+        <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
           <Link
             to={'/app/become-dataset-creator'}
             className="flex items-center gap-2"
@@ -461,7 +450,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
           </Link>
         </DropdownMenuItem>
       )}
-      <DropdownMenuItem className="cursor-pointer hover:bg-primary/20">
+      <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
         <a
           href="https://datawiseafrica.com/"
           target="_blank"
@@ -469,7 +458,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
           className="flex items-center"
         >
           {/* New tab icon */}
-          <SquareArrowOutUpRight className="h-5 w-5 mr-2" />
+          <SquareArrowOutUpRight className="mr-2 h-5 w-5" />
           Go to main site
         </a>
       </DropdownMenuItem>
@@ -477,10 +466,10 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
       <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-red-50">
         <Button
           variant="ghost"
-          className="w-full text-left inline-flex items-center justify-baseline cursor-pointer"
+          className="inline-flex w-full cursor-pointer items-center justify-baseline text-left"
           onClick={() => dispatch(actions.LOGOUT())}
         >
-          <LucideLogOut className="h-5 w-5 mr-2" />
+          <LucideLogOut className="mr-2 h-5 w-5" />
 
           <span className="text-sm font-medium">Logout</span>
         </Button>

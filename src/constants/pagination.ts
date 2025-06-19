@@ -8,14 +8,14 @@ export interface PaginationParamsInterface {
 }
 
 export interface PaginationMetaInterface {
-  totalDocs: number;
-  totalPages: number;
+  total_docs: number;
+  total_pages: number;
   page: number;
   limit: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  nextPage: number | null;
-  prevPage: number | null;
+  has_next_page: boolean;
+  has_prev_page: boolean;
+  next_page: number | null;
+  prev_page: number | null;
 }
 
 export const DEFAULT_PAGINATION: PaginationParamsInterface = {
@@ -24,12 +24,12 @@ export const DEFAULT_PAGINATION: PaginationParamsInterface = {
 };
 
 export const DEFAULT_PAGINATION_META: PaginatedResponse['meta'] = {
-  totalDocs: 0,
-  totalPages: 0,
+  total_docs: 0,
+  total_pages: 0,
   page: 1,
   limit: 10,
-  hasNextPage: false,
-  hasPrevPage: false,
-  nextPage: null,
-  prevPage: null,
+  has_next_page: false,
+  has_prev_page: false,
+  next_page: null,
+  prev_page: null,
 };

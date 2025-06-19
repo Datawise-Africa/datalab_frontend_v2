@@ -78,12 +78,14 @@ const attributionSchema = z.object({
   authors: z.array(z.coerce.number()).default([]),
   new_authors: z.array(datasetUploadAuthorSchema),
   doi_citation: z.string().optional(),
-  license: z.coerce
-    .number({
-      required_error: 'License is required',
-      message: 'License is required',
-    })
-    .positive('Invalid license selected'),
+ license: z.coerce
+  .number({
+    required_error: 'License is required',
+    invalid_type_error: 'License must be a number',
+  })
+  .nullable()
+  .optional()
+  .default(null),
 });
 const uploadDatasetDiscoveryInfoSchema = z.object({
   keywords: z.array(z.string().min(2).max(100)),
@@ -93,7 +95,7 @@ const uploadDatasetDiscoveryInfoSchema = z.object({
       required_error: 'Origin region is required',
       message: 'Origin region is required',
     })
-    .nonempty(),
+    .optional(),
   covered_regions: z.array(z.string().nonempty('Covered region is required')),
   audience_data: z.object({
     students: z.coerce.boolean().default(false),

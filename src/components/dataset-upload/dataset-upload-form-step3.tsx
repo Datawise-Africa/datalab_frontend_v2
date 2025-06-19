@@ -26,11 +26,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
-import { useLicences, type ILicence } from '@/hooks/use-licences';
+import { type ILicence, type SingleFormLicence } from '@/hooks/use-licences';
 import {
   Accordion,
   AccordionContent,
@@ -39,10 +39,12 @@ import {
 } from '../ui/accordion';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 import { MultiSelect } from '../ui/multi-select';
-import { useAuthors } from '@/hooks/use-authors';
+import { type IFormAuthor } from '@/hooks/use-authors';
 
 type Step3Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
+  existingAuthors: IFormAuthor[];
+  existingLicences: SingleFormLicence[];
 };
 
 interface Author {
@@ -78,10 +80,13 @@ const authorTitles = [
   'MA',
 ];
 
-export default function DatasetUploadFormStep3({ form }: Step3Props) {
+export default function DatasetUploadFormStep3({
+  form,
+  existingAuthors,
+  existingLicences,
+}: Step3Props) {
   const [authors, setAuthors] = useState<Author[]>(baseAuthors);
-  const dbAuthors = useAuthors();
-  const licences = useLicences();
+
   const addAuthor = () => {
     const newAuthor: Author = {
       id: crypto.randomUUID(),
@@ -101,18 +106,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
       authors.filter((author) => author.id !== id),
     );
   };
-  // const updateAuthor = (id: string, field: string, value: string) => {
-  //     setAuthors(
-  //         authors.map((author) =>
-  //             author.id === id ? { ...author, [field]: value } : author,
-  //         ),
-  //     );
-  //     form.setValue('authors', authors);
-  // };
-  useEffect(() => {
-    dbAuthors.refetch();
-    licences.refetch();
-  }, []);
+
   return (
     <div>
       <div className="flex flex-col gap-4">
@@ -125,7 +119,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
               <FormControl className="">
                 <MultiSelect
                   {...field}
-                  options={dbAuthors.data.map((author) => ({
+                  options={existingAuthors.map((author) => ({
                     value: '' + author.id,
                     label: `${author.first_name} ${author.last_name}`,
                   }))}
@@ -324,7 +318,7 @@ export default function DatasetUploadFormStep3({ form }: Step3Props) {
                   onValueChange={field.onChange}
                   className="space-y-2"
                 >
-                  {licences.data.map((lic, index) => (
+                  {existingLicences!.map((lic, index) => (
                     <LicenceItem
                       lic={lic}
                       index={index}
@@ -350,13 +344,13 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
   return (
     <div
       key={lic.license_type}
-      className="border-primary/30 rounded border p-2 transition-colors hover:bg-gray-50"
+      className="border-primary/20 rounded border p-2 transition-colors hover:bg-gray-50"
     >
       <div className="flex items-start space-x-3">
         <RadioGroupItem
           value={lic.id as unknown as string}
           id={`license-${index}`}
-          className="mt-1"
+          className=""
         />
 
         <div className="min-w-0 flex-1">
@@ -367,11 +361,11 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
                   htmlFor={`license-${index}`}
                   className="block w-full cursor-pointer text-left"
                 >
-                  <div className="space-y-1">
-                    <h3 className="text-lg">{lic.license_type}</h3>
+                  <div className=" ">
+                    <h3 className="">{lic.license_type}</h3>
                     {/* <p className="text-sm text-gray-600">{lic.description}</p> */}
-                    <div className="flex flex-wrap gap-2">
-                      {/* {Object.entries(lic.fields).map(([fieldName, value]) => (
+                    {/* <div className="flex flex-wrap gap-2"> */}
+                    {/* {Object.entries(lic.fields).map(([fieldName, value]) => (
                         <Badge
                           key={fieldName}
                           variant="outline"
@@ -390,7 +384,7 @@ function LicenceItem({ index, lic }: { lic: ILicence; index: number }) {
                           {fieldName}
                         </Badge>
                       ))} */}
-                    </div>
+                    {/* </div> */}
                   </div>
                 </Label>
               </AccordionTrigger>

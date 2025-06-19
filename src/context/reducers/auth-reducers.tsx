@@ -6,6 +6,7 @@ export function authReducer(state: AuthState, action: AuthAction): AuthState {
     case 'LOGIN': {
       return {
         ...state,
+        fullName: `${action.payload.firstName} ${action.payload.lastName}`,
         ...action.payload,
       };
     }

@@ -4,9 +4,9 @@ import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { authorKeys } from '@/lib/features/author-keys';
 
-export interface IAuthor {
+export interface IFormAuthor {
   id: number;
-  title: string | null; // Title can be null if not provided
+  title: string | null;
   first_name: string;
   last_name: string;
   email: string;
@@ -14,23 +14,29 @@ export interface IAuthor {
 }
 
 export function useAuthors() {
-  const api = useApi().privateApi;
-  const fetchAuthors = useCallback(async () => {
+  const { privateApi } = useApi();
+
+  const fetchAuthors = useCallback(async (): Promise<IFormAuthor[]> => {
     try {
-      const response = await api.get<IAuthor[]>('/data/dataset-authors/');
-      return response.data;
+      const { data } = await privateApi.get<IFormAuthor[]>(
+        '/data/dataset-authors/',
+      );
+      return data;
     } catch (error) {
-      console.error('Error fetching licences:', error);
+      // Fixed typo: "licences" -> "authors"
+      console.error('Error fetching authors:', error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, []);
-  const authors = useQuery({
+  }, [privateApi]);
+
+  return useQuery({
     queryKey: authorKeys.all,
     queryFn: fetchAuthors,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: true,
-    initialData: [],
-    refetchOnMount: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes - more readable
+    retry: 2, // Specific retry count instead of boolean
+    select: (data) => data ?? [], // Handle undefined data gracefully
+    refetchOnWindowFocus: false, // Prevent unnecessary refetches
+    refetchOnMount: 'always', // More explicit than boolean
+    placeholderData: [], // Provide an empty array as initial data
   });
-  return authors;
 }

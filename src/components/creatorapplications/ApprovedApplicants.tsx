@@ -32,10 +32,10 @@ export default function ApprovedApplicantsTable() {
       `${applicant.user.first_name} ${applicant.user.last_name}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      applicant.user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      applicant.user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   console.log('All data:', data);
-console.log('Approved:', filteredDataByStatus('Approved'));
+  console.log('Approved:', filteredDataByStatus('Approved'));
 
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -50,7 +50,9 @@ console.log('Approved:', filteredDataByStatus('Approved'));
   };
 
   if (isLoading) {
-    return <div className="py-10 text-center">Loading approved applicants...</div>;
+    return (
+      <div className="py-10 text-center">Loading approved applicants...</div>
+    );
   }
 
   return (
@@ -59,7 +61,7 @@ console.log('Approved:', filteredDataByStatus('Approved'));
         Approved Creator Applications
       </h1>
       <p className="mt-1 text-gray-500">
-        Review and manage approved applications from  dataset creators.
+        Review and manage approved applications from dataset creators.
       </p>
 
       <div className="mt-6 flex flex-col sm:flex-row gap-4">

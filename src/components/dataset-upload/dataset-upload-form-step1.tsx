@@ -20,72 +20,17 @@ import {
   SelectValue,
 } from '../ui/select';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
-import { useDatasetCategories } from '@/hooks/use-dataset-categories';
-import { useEffect } from 'react';
+import { type IDatasetCategory } from '@/hooks/use-dataset-categories';
 
 type Step1Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
+  categories: IDatasetCategory[];
 };
 
-// const categories = [
-//   {
-//     label: 'Climate & Environment',
-//     value: 'Climate & Environment',
-//   },
-//   {
-//     label: 'Economics & Finance',
-//     value: 'Economics & Finance',
-//   },
-//   {
-//     label: 'Social & Demographic',
-//     value: 'Social & Demographic',
-//   },
-//   {
-//     label: 'Health & Medical',
-//     value: 'Health & Medical',
-//   },
-//   {
-//     label: 'Technology & Innovation',
-//     value: 'Technology & Innovation',
-//   },
-//   {
-//     label: 'Education & Research',
-//     value: 'Education & Research',
-//   },
-//   {
-//     label: 'Government & Public Policy',
-//     value: 'Government & Public Policy',
-//   },
-//   {
-//     label: 'Transportation & Mobility',
-//     value: 'Transportation & Mobility',
-//   },
-//   {
-//     label: 'Energy & Utilities',
-//     value: 'Energy & Utilities',
-//   },
-//   {
-//     label: 'Agriculture & Food',
-//     value: 'Agriculture & Food',
-//   },
-//   {
-//     label: 'Urban & Regional Planning',
-//     value: 'Urban & Regional Planning',
-//   },
-//   {
-//     label: 'Tourism & Recreation',
-//     value: 'Tourism & Recreation',
-//   },
-// ];
-
-export default function DatasetUploadFormStep1({ form }: Step1Props) {
-  console.log('Rendering Step 1');
-  console.log('Form State:', form.getValues());
-  console.log('Form Errors:', form.formState.errors);
-  const categories = useDatasetCategories();
-  useEffect(() => {
-    categories.refetch();
-  }, []);
+export default function DatasetUploadFormStep1({
+  form,
+  categories,
+}: Step1Props) {
   return (
     <div className="flex flex-col gap-4">
       <FormField
@@ -125,7 +70,7 @@ export default function DatasetUploadFormStep1({ form }: Step1Props) {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent className="border-primary/30 w-full bg-white">
-                  {categories.data.map((category) => (
+                  {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id + ''}>
                       {category.title}
                     </SelectItem>

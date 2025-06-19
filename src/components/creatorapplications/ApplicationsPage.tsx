@@ -10,10 +10,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 
-
-
-
-
 export function ApplicationsPage() {
   return (
     <div className="p-8">
