@@ -10,27 +10,34 @@ import {
   PaginationPrevious,
 } from '../ui/pagination';
 import type { UseDatasetReturnType } from '@/hooks/use-datasets';
-
 type DatasetGridProps = {
   datasets: IDataset[];
   handleSingleDataModal: (dataset: IDataset) => void;
   handleDownloadDataClick: (dataset: IDataset) => void;
+  handleBookmarkDataset: (datasetId: IDataset['id']) => void;
+  handleQuickDownload: (dataset: IDataset) => void;
+  handleShareDataset: (dataset: IDataset) => void;
   pagination: UseDatasetReturnType['pagination'];
   goToPage: UseDatasetReturnType['goToPage'];
   goToNextPage: UseDatasetReturnType['goToNextPage'];
   goToPreviousPage: UseDatasetReturnType['goToPreviousPage'];
   changePageSize: UseDatasetReturnType['changePageSize'];
+  // isBookmarked?: (dataset: IDataset | number) => boolean;
+  // isBookmarksLoading?: boolean;
 };
 
 const DatasetGrid = ({
   datasets,
   handleSingleDataModal,
   handleDownloadDataClick,
-  pagination,
-  goToPage,
-  goToNextPage,
-  goToPreviousPage,
+  handleBookmarkDataset,
+  handleShareDataset,
   changePageSize,
+  goToNextPage,
+  goToPage,
+  goToPreviousPage,
+  handleQuickDownload,
+  pagination,
 }: DatasetGridProps) => {
   const {
     currentPage,
@@ -85,24 +92,26 @@ const DatasetGrid = ({
   };
 
   const pageNumbers = generatePageNumbers();
-  console.log({ pagination });
-
   return (
-    <div className="w-full space-y-6">
-      {/* Dataset Grid */}
+    <div className="w-full">
       {datasets.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:min-w-[30rem] lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-2 py-2 md:grid-cols-2 lg:grid-cols-3">
           {datasets.map((dataset, index) => (
             <DatasetCard
               key={index}
               dataset={dataset}
               handleSingleDataModal={handleSingleDataModal}
               handleDownloadDataClick={handleDownloadDataClick}
+              handleBookmarkDataset={handleBookmarkDataset}
+              handleQuickDownload={handleQuickDownload}
+              handleShareDataset={handleShareDataset}
+              // isDatasetBookmarked={isDatasetBookmarked}
+              // isBookmarksLoading={isBookmarksLoading}
             />
           ))}
         </div>
       ) : (
-        <div className="flex h-64 items-center justify-center">
+        <div className="flex h-full items-center justify-center">
           <p className="text-lg text-gray-500">No datasets available</p>
         </div>
       )}

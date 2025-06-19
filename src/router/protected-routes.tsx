@@ -1,8 +1,11 @@
-import ApprovedApplicantsTable from '@/components/creatorapplications/ApprovedApplicants';
 import Protect from '@/components/Protect';
 import ProtectedLayout from '@/layout/ProtectedLayout';
 import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
+
+const ApprovedApplicantsTable = lazy(
+  () => import('@/components/creatorapplications/ApprovedApplicants'),
+);
 
 const BecomeDatasetCreatorPage = lazy(
   () => import('@/pages/BecomeDatasetCreatorPage'),
@@ -10,6 +13,7 @@ const BecomeDatasetCreatorPage = lazy(
 const DatasetCreatorsDashboard = lazy(
   () => import('@/pages/DatasetCreatorsDashboard'),
 );
+const SavedDatasetsPage = lazy(() => import('@/pages/SavedPages'));
 
 const ApplicationsPage = lazy(
   () => import('@/components/creatorapplications/ApplicationsPage'),
@@ -32,6 +36,10 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/applications',
       element: <Protect role="admin" Component={ApplicationsPage} />,
+    },
+    {
+      path: '/app/saved-datasets',
+      element: <Protect role="admin" Component={SavedDatasetsPage} />,
     },
     {
       path: '/app/applications/approvedcreators',
