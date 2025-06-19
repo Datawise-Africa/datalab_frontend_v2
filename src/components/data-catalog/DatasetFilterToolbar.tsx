@@ -1,7 +1,3 @@
-'use client';
-
-import type React from 'react';
-
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, ChevronDown, X, CheckIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,30 +10,21 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
 import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
-import type { DatasetSortOptions } from '@/hooks/use-datasets';
 import useApi from '@/hooks/use-api';
 import type { PaginatedResponse } from '@/constants/pagination';
+import {
+  useDatasetFilterManager,
+  useDatasetSearchManager,
+  useDatasetSortManager,
+} from '@/hooks/use-dataset-util';
 
-type DatasetToolBarProps = {
-  filters: DatasetFilterOptions;
-  setFilters: React.Dispatch<React.SetStateAction<DatasetFilterOptions>>;
-  onSearchResults: (results: IDataset[]) => void;
-  setSortOption: React.Dispatch<React.SetStateAction<DatasetSortOptions>>;
-  sortOption: DatasetSortOptions;
-  resetSearch: () => void;
-};
-
-export default function DatasetFilterToolbar({
-  filters,
-  setFilters,
-  onSearchResults,
-  sortOption,
-  setSortOption,
-  resetSearch,
-}: DatasetToolBarProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+export default function DatasetFilterToolbar() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const { filters, resetFilters } = useDatasetFilterManager();
+  const { handleSearch, searchQuery, clearSearch, setIsSearchLoading } =
+    useDatasetSearchManager();
+  const { setSort } = useDatasetSortManager();
+
   const api = useApi().publicApi;
   // Debounce search query
   useEffect(() => {
@@ -51,13 +38,14 @@ export default function DatasetFilterToolbar({
   // Trigger search when debounced query changes
   useEffect(() => {
     if (debouncedSearchQuery !== searchQuery) {
-      setIsSearching(true);
+      setIsSearchLoading(true);
     }
 
     if (debouncedSearchQuery) {
       performSearch(debouncedSearchQuery);
     } else {
-      setIsSearching(false);
+      // setIsSearching(false);
+      handleSearch([], ''); // Clear search results if query is empty
     }
   }, [debouncedSearchQuery]);
 
@@ -71,26 +59,24 @@ export default function DatasetFilterToolbar({
       } = await api.get<PaginatedResponse<IDataset>>(url);
 
       if (data && Array.isArray(data)) {
-        onSearchResults(data);
+        handleSearch(data, query);
       } else {
-        onSearchResults([]);
+        handleSearch([], query);
       }
     } catch (error) {
       console.error('Search error:', error);
     } finally {
-      setIsSearching(false);
+      // setIsSearching(false);
+      setIsSearchLoading(false);
     }
   }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const resetFilters = () => {
-    setFilters({ accessLevel: [], dataType: [], region: [], timeframe: [] });
-    setSearchQuery('');
-    setSortOption('Most Recent');
-    resetSearch();
+  const clearAllFilters = () => {
+    // setFilters({ accessLevel: [], dataType: [], region: [], timeframe: [] });
+    resetFilters();
+    setSort('Most Recent');
+    clearSearch();
+    setDebouncedSearchQuery('');
   };
 
   const totalActiveFilters = useMemo(() => {
@@ -107,14 +93,7 @@ export default function DatasetFilterToolbar({
   return (
     <div className="w-full px-4 py-4">
       {/* Search Bar */}
-      <DatasetToolBarSearchAndSortBar
-        searchQuery={searchQuery}
-        handleSearchChange={handleSearchChange}
-        sortOption={sortOption}
-        setSortOption={setSortOption}
-        isSearching={isSearching}
-        setIsSearching={setIsSearching}
-      />
+      <DatasetToolBarSearchAndSortBar />
       {/* Filters Row - Horizontally Scrollable on Mobile */}
       <div className="-mx-4 overflow-x-auto px-4 pb-2">
         <div className="flex min-w-max gap-2">
@@ -123,14 +102,12 @@ export default function DatasetFilterToolbar({
             options={Object.values(datasetFilterOptions.accessLevel)}
             selectedOptions={filters.accessLevel}
             category={'accessLevel'}
-            setFilters={setFilters}
           />
           <DatasetToolbarFilterDropdown
             label="Select Data Type"
             options={Object.values(datasetFilterOptions.dataType)}
             selectedOptions={filters.dataType}
             category={'dataType'}
-            setFilters={setFilters}
           />
           <DatasetToolbarFilterDropdown
             label="Select Region"
@@ -142,7 +119,6 @@ export default function DatasetFilterToolbar({
             )}
             selectedOptions={filters.region}
             category={'region'}
-            setFilters={setFilters}
           />
           <DatasetToolbarFilterDropdown
             label="Select Timeframe"
@@ -154,7 +130,6 @@ export default function DatasetFilterToolbar({
             )}
             selectedOptions={filters.timeframe}
             category={'timeframe'}
-            setFilters={setFilters}
           />
           {/* <DatasetToolbarFilterDropdown
             label="License Types"
@@ -174,7 +149,7 @@ export default function DatasetFilterToolbar({
           <Button
             variant="ghost"
             className="flex items-center gap-1"
-            onClick={resetFilters}
+            onClick={clearAllFilters}
             disabled={totalActiveFilters === 0}
           >
             <X className="h-4 w-4" />
@@ -190,38 +165,30 @@ export default function DatasetFilterToolbar({
     </div>
   );
 }
-type DatasetToolBarSearchAndSortBarProps = {
-  searchQuery: string;
-  handleSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  sortOption: DatasetSortOptions;
-  setSortOption: React.Dispatch<React.SetStateAction<DatasetSortOptions>>;
-  isSearching: boolean;
-  setIsSearching: React.Dispatch<React.SetStateAction<boolean>>;
-};
-function DatasetToolBarSearchAndSortBar({
-  searchQuery,
-  handleSearchChange,
-  sortOption,
-  setSortOption,
-  isSearching,
-}: DatasetToolBarSearchAndSortBarProps) {
-  const sortOptions: DatasetSortOptions[] = ['Most Recent', 'Popular'];
+
+function DatasetToolBarSearchAndSortBar() {
+  // const sortOptions: DatasetSortOptions[] = ['Most Recent', 'Popular'];
+  const { sortOptions, sort, setSort } = useDatasetSortManager();
+  const { setSearchQuery, searchQuery, isSearchLoading } =
+    useDatasetSearchManager();
   return (
     <div className="mb-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
       <div className="relative w-full flex-1">
         <Search
           className={`absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform ${
-            isSearching ? 'text-primary animate-pulse' : 'text-muted-foreground'
+            isSearchLoading
+              ? 'text-primary animate-pulse'
+              : 'text-muted-foreground'
           }`}
         />
         <input
           type="text"
           placeholder="Search datasets"
           value={searchQuery}
-          onChange={handleSearchChange}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="border-subtle focus:ring-primary/50 w-full rounded-md border py-2 pr-4 pl-10 focus:ring-2 focus:outline-none"
         />
-        {isSearching && (
+        {isSearchLoading && (
           <div className="absolute top-1/2 right-3 -translate-y-1/2 transform">
             <div className="border-primary h-4 w-4 animate-spin rounded-full border-b-2"></div>
           </div>
@@ -235,7 +202,7 @@ function DatasetToolBarSearchAndSortBar({
               variant="outline"
               className="border-subtle flex items-center gap-1"
             >
-              {sortOption}
+              {sort}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -245,12 +212,12 @@ function DatasetToolBarSearchAndSortBar({
                 <div
                   key={opt}
                   className="hover:bg-muted flex cursor-pointer items-center gap-2 rounded px-2 py-1.5"
-                  onClick={() => setSortOption(opt)}
+                  onClick={() => setSort(opt)}
                 >
                   <span>{opt}</span>{' '}
                   <CheckIcon
                     className={`ml-2 h-4 w-4 ${
-                      sortOption === opt ? 'text-primary' : 'hidden'
+                      sort === opt ? 'text-primary' : 'hidden'
                     }`}
                   />
                 </div>
@@ -268,21 +235,21 @@ function DatasetToolbarFilterDropdown({
   options,
   selectedOptions,
   category,
-  setFilters,
 }: {
   label: string;
   options: { label: string; value: string }[];
   selectedOptions: string[];
-  setFilters: React.Dispatch<React.SetStateAction<DatasetFilterOptions>>;
   category: keyof DatasetFilterOptions;
 }) {
+  const { updateFilter, filters } = useDatasetFilterManager();
   const handleFilterChange = (value: string) => {
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [category]: prevFilters[category].includes(value)
-        ? prevFilters[category].filter((item) => item !== value)
-        : [...prevFilters[category], value],
-    }));
+    const update = filters[category] || [];
+    updateFilter(
+      category,
+      update.includes(value)
+        ? update.filter((item) => item !== value)
+        : [...update, value],
+    );
   };
   const totalSelected = useMemo(
     () => (Array.isArray(selectedOptions) ? selectedOptions.length : 0),

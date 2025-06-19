@@ -10,6 +10,8 @@ import {
   Calendar,
   Database,
   Users,
+  Loader,
+  Heart,
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import {
@@ -21,24 +23,21 @@ import {
 import moment from 'moment';
 import { getIntendedAudienceIcon } from '@/lib/get-intended-audience-icon';
 import { cn } from '@/lib/utils';
+import { useBookmarks } from '@/hooks/use-bookmarked-datasets';
 type DatasetCardProps = {
   dataset: IDataset & { is_bookmarked?: boolean }; // ✅ NEW
   handleSingleDataModal: (dataset: IDataset) => void;
   handleDownloadDataClick: (dataset: IDataset) => void;
   handleShareDataset?: (dataset: IDataset) => void;
-  handleBookmarkDataset?: (datasetId: IDataset['id']) => void;
-  handleQuickDownload?: (dataset: IDataset) => void;
-  isBookmarksLoading?: boolean;
-  is_bookmarked?: boolean; // ✅ NEW
-  onBookmarkToggle?: () => void; // ✅ NEW
+  mode: 'bookmark' | 'default';
 };
 
 const DatasetCard = ({
   dataset,
   handleSingleDataModal,
   handleDownloadDataClick,
-  handleBookmarkDataset,
   handleShareDataset,
+  mode = 'default',
 }: DatasetCardProps) => {
   const limitWordByBoundary = (text: string, limit: number = 100): string => {
     if (text.length <= limit) return text;
@@ -48,8 +47,18 @@ const DatasetCard = ({
       : text.slice(0, limit) + '...';
   };
   const formattedDescription = limitWordByBoundary(dataset.description, 100);
+  const { addBookmarkMutation, removeBookmarkMutation, isAddingBookmark } =
+    useBookmarks();
+  const handleToggleBookmark = async (datasetId: IDataset['id']) => {
+    if (dataset.is_bookmarked) {
+      await removeBookmarkMutation.mutateAsync(datasetId);
+    } else {
+      await addBookmarkMutation.mutateAsync(datasetId);
+    }
+  };
+
   return (
-    <div className="flex flex-1 flex-col gap-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
+    <div className="flex w-full max-w-[25rem] flex-[1_1_20rem] flex-col gap-1 rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow duration-200 hover:shadow-md">
       {/* Header */}
       <div className="mb-4 flex flex-[1] items-start justify-between">
         <div className="flex items-center gap-2">
@@ -92,16 +101,39 @@ const DatasetCard = ({
               avoidCollisions={true}
             >
               <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => handleBookmarkDataset?.(dataset.id)}
+                className={cn('cursor-pointer disabled:cursor-not-allowed', {
+                  'cursor-progress opacity-50': isAddingBookmark,
+                })}
+                onClick={() => handleToggleBookmark(dataset.id)}
+                disabled={
+                  isAddingBookmark ||
+                  (dataset.is_bookmarked && mode === 'default')
+                }
+                role="button"
               >
-                <Bookmark
-                  className={cn(`mr-2 h-4 w-4`, {
-                    'fill-yellow-500 text-yellow-500': dataset.is_bookmarked,
-                  })}
-                />
+                {isAddingBookmark ? (
+                  <Loader />
+                ) : mode === 'bookmark' ? (
+                  <Bookmark
+                    className={cn(`mr-2 h-4 w-4`, {
+                      'fill-yellow-500 text-yellow-500': dataset.is_bookmarked,
+                    })}
+                  />
+                ) : (
+                  <Heart
+                    className={cn(`mr-2 h-4 w-4`, {
+                      'fill-red-500 text-red-500': dataset.is_bookmarked,
+                    })}
+                  />
+                )}
                 {/* {dataset?.is_bookmarked.toString()} */}
-                {dataset.is_bookmarked ? 'Remove Bookmark' : 'Save'}
+                {mode === 'bookmark'
+                  ? dataset.is_bookmarked
+                    ? 'Remove Bookmark'
+                    : 'Save'
+                  : dataset.is_bookmarked
+                    ? 'Saved'
+                    : 'Save bookmark'}
               </DropdownMenuItem>
 
               <DropdownMenuItem
@@ -187,16 +219,6 @@ const DatasetCard = ({
             Available to:
           </p>
           <div className="flex flex-wrap gap-2">
-            {/* {availableTo.map((type, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6L5 9L10 3" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <span className="text-sm text-gray-600">{type}</span>
-            </div>
-          ))} */}
             {getIntendedAudienceIcon(dataset.intended_audience)}
           </div>
         </div>

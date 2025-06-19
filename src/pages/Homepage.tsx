@@ -9,7 +9,6 @@ import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
 import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
-import { useBookmarks } from '@/hooks/use-bookmarked-datasets';
 
 const Homepage = () => {
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
@@ -18,8 +17,6 @@ const Homepage = () => {
   const datasets = useDatasets();
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
-  const { addBookmark } = useBookmarks();
-
   const handleSingleDataModal = (dataset: IDataset) => {
     setSelectedDataset(dataset);
     dataModal.open();
@@ -48,27 +45,8 @@ const Homepage = () => {
   return (
     <div className="flex flex-col">
       <main className="flex-1 py-8">
-        <DatasetFilterToolbar
-          filters={datasets.filters}
-          onSearchResults={datasets.handleSearchResults}
-          setFilters={(value) =>
-            datasets.setFilters(
-              typeof value === 'function' ? value(datasets.filters) : value,
-            )
-          }
-          setSortOption={(value) =>
-            datasets.setSort(
-              typeof value === 'function' ? value(datasets.sort) : value,
-            )
-          }
-          sortOption={datasets.sort}
-          resetSearch={datasets.handleSearchReset}
-        />
-        {/* <NoDataset
-          isOpen={datasets.isDatasetModalOpen}
-          onClose={() => datasets.setIsDatasetModalOpen(false)}
-          message={datasets.modalMessage}
-        /> */}
+        <DatasetFilterToolbar />
+
         {datasets.isLoading ? (
           <DatasetCardSkeleton />
         ) : (
@@ -76,14 +54,8 @@ const Homepage = () => {
             datasets={datasets.data}
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}
-            changePageSize={datasets.changePageSize}
-            goToNextPage={datasets.goToNextPage}
-            goToPreviousPage={datasets.goToPreviousPage}
-            goToPage={datasets.goToPage}
-            pagination={datasets.pagination}
-            handleBookmarkDataset={addBookmark}
+            paginationInfo={datasets.paginationInfo}
             handleShareDataset={datasets.handleShareDataset}
-            handleQuickDownload={handleDownloadDataClick}
           />
         )}
       </main>

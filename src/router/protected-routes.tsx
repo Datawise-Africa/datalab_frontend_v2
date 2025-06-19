@@ -39,7 +39,7 @@ export const protecteRoutes: RouteObject = {
     },
     {
       path: '/app/saved-datasets',
-      element: <Protect role="admin" Component={SavedDatasetsPage} />,
+      element: <Protect role="user" Component={SavedDatasetsPage} />,
     },
     {
       path: '/app/applications/approvedcreators',
