@@ -27,26 +27,26 @@ const NoDataset = ({ isOpen, onClose, message }: NoDatasetProps) => {
   }
 
   return (
-    <div className="flex items-center justify-center fixed inset-0 z-50 bg-[#E5E7EB]/90">
-      <div className="relative w-[90%] md:w-[80%] lg:w-[700px] my-6 mx-auto h-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#E5E7EB]/90">
+      <div className="relative mx-auto my-6 h-auto w-[90%] md:w-[80%] lg:w-[700px]">
         <div
-          className={`translate duration-600 h-full ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-10'}`}
+          className={`translate h-full duration-600 ${showModal ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-10'}`}
         >
-          <div className="w-full h-auto rounded-xl relative flex flex-col bg-gray-900 shadow-lg">
-            <header className="h-[60px] flex p-6 rounded-t justify-between relative ">
+          <div className="relative flex h-auto w-full flex-col rounded-xl bg-gray-900 shadow-lg">
+            <header className="relative flex h-[60px] justify-between rounded-t p-6">
               <h2 className="text-xl font-semibold text-white">
                 No dataset found
               </h2>
               <div
                 onClick={handleClose}
-                className="absolute right-3 hover:bg-gray-200 rounded-full cursor-pointer p-1"
+                className="absolute right-3 cursor-pointer rounded-full p-1 hover:bg-gray-200"
               >
                 <svg
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-6 h-6"
+                  className="h-6 w-6"
                 >
                   <path
                     strokeLinecap="round"
@@ -58,13 +58,13 @@ const NoDataset = ({ isOpen, onClose, message }: NoDatasetProps) => {
             </header>
 
             <section className="p-6 text-center">
-              <p className="text-gray-700 text-lg">{message}</p>
+              <p className="text-lg text-gray-700">{message}</p>
             </section>
 
-            <footer className="p-4 flex justify-center ">
+            <footer className="flex justify-center p-4">
               <button
                 onClick={handleClose}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
+                className="rounded-lg bg-blue-600 px-6 py-2 text-white shadow-md transition hover:bg-blue-700"
               >
                 Close
               </button>

@@ -1,5 +1,5 @@
 import Modal from '@/components/Modals/DataModals/Modal';
-import useDataModal from '@/store/useDataModal';
+import useDataModal from '@/store/use-data-modal';
 import DatasetPreview from './DatasetPreview';
 import type { IDataset } from '@/lib/types/data-set';
 import { Check, Star, User, X } from 'lucide-react';
@@ -51,22 +51,22 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
       isOpen={dataModal.isOpen}
       close={dataModal.close}
       content={
-        <div className=" p-6 rounded-xl  bg-[#FFFFFF] ">
-          <div className="flex justify-between mb-2 ">
-            <p className="bg-[#EEFBF5] text-md font-bold text-[#188366] px-4 rounded ">
+        <div className="rounded-xl bg-[#FFFFFF] p-6">
+          <div className="mb-2 flex justify-between">
+            <p className="text-md rounded bg-[#EEFBF5] px-4 font-bold text-[#188366]">
               {is_premium ? `$${price}` : 'Free'}
             </p>
           </div>
           {/* Title */}
           <div className="flex justify-between">
-            <h3 className="font-bold text-black text-2xl mb-2">{title}</h3>
+            <h3 className="mb-2 text-2xl font-bold text-black">{title}</h3>
           </div>
 
           {/* Author Details */}
           <div className="flex flex-wrap items-center space-x-2">
-            <User className="text-[#757185] w-2 h-4" />
+            <User className="h-4 w-2 text-[#757185]" />
             {dataset_author?.map(({ first_name, last_name }, index) => (
-              <small key={index} className="text-[#757185] text-xs">
+              <small key={index} className="text-xs text-[#757185]">
                 {first_name} {last_name}
               </small>
             ))}
@@ -76,11 +76,11 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
           <p className="pt-2 text-[#4B5563]">{description}</p>
 
           {/* Tags */}
-          <div className="pt-2 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             {tags.map((tag, index) => (
               <div
                 key={index}
-                className=" text-[#0F2542] rounded-lg px-3 py-1 text-xs"
+                className="rounded-lg px-3 py-1 text-xs text-[#0F2542]"
               >
                 {tag}
               </div>
@@ -88,17 +88,17 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
           </div>
 
           {/* Profiteers */}
-          <div className="pt-2 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             {Object.entries(profiteers || {}).map(
               ([profiteer, status], index) => (
                 <div
                   key={index}
-                  className="bg-[#EFFDF4] rounded-lg px-1 py-1 text-xs text-[#101827] flex items-center gap-1"
+                  className="flex items-center gap-1 rounded-lg bg-[#EFFDF4] px-1 py-1 text-xs text-[#101827]"
                 >
                   <img
                     src={profiteerIcons[profiteer]}
                     alt={`${profiteer} icon`}
-                    className="w-3 h-3"
+                    className="h-3 w-3"
                   />
                   <span>
                     {profiteer.charAt(0).toUpperCase() + profiteer.slice(1)}
@@ -114,7 +114,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
           </div>
           {/* ⭐ Star Rating Display */}
           <div className="mt-4">
-            <h4 className="text-lg text-[#0F2542] font-semibold">
+            <h4 className="text-lg font-semibold text-[#0F2542]">
               Dataset Rating:
             </h4>
             {review_count > 0 ? (
@@ -122,7 +122,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
                 <div className="flex">
                   {renderStars(Math.round(average_review) || 0)}
                 </div>
-                <p className="text-yellow-500 text-md">
+                <p className="text-md text-yellow-500">
                   ( {review_count} ratings)
                 </p>
               </div>
@@ -132,7 +132,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
           </div>
 
           {/* Dataset Metadata */}
-          <div className="pt-5 flex flex-wrap space-x-3">
+          <div className="flex flex-wrap space-x-3 pt-5">
             <MetadataItem
               icon={'/assets/datalab/spinning-timer.svg'}
               label={`Updated: ${updated_at}`}
@@ -149,7 +149,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h4 className="text-lg text-[#0F2542] font-semibold">
+              <h4 className="text-lg font-semibold text-[#0F2542]">
                 Covered Regions
               </h4>
               <p className="pt-2 text-[#0F2542]">
@@ -159,9 +159,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
               </p>
             </div>
             <div>
-              <h4 className="text-lg  text-[#0F2542] font-semibold">
-                Keywords
-              </h4>
+              <h4 className="text-lg font-semibold text-[#0F2542]">Keywords</h4>
               <p className="text-[#0F2542]">
                 {' '}
                 {(Array.isArray(keywords) ? keywords : [])
@@ -173,7 +171,7 @@ const SingleDataModal = ({ dataset }: SingleDataModalProps) => {
 
           {/* Dataset Preview */}
           <Section>
-            <h4 className="text-lg text-[#0F2542] font-semibold">
+            <h4 className="text-lg font-semibold text-[#0F2542]">
               Dataset Review
             </h4>
             <DatasetPreview dataFiles={data_files} />
@@ -190,8 +188,8 @@ type MetadataItemProps = {
 };
 const MetadataItem = ({ icon, label }: MetadataItemProps) => (
   <div className="flex text-[#0F2542]">
-    <img src={icon} alt={label} className="w-4 h-4" />
-    <span className="ml-1  text-xs">{label}</span>
+    <img src={icon} alt={label} className="h-4 w-4" />
+    <span className="ml-1 text-xs">{label}</span>
   </div>
 );
 type SectionProps = {
@@ -200,7 +198,7 @@ type SectionProps = {
 };
 const Section = ({ title, children }: SectionProps) => (
   <div className="pt-4">
-    <h4 className="font-semibold text-xl text-[#ddeeff]">{title}</h4>
+    <h4 className="text-xl font-semibold text-[#ddeeff]">{title}</h4>
     <div className="pt-2">{children}</div>
   </div>
 );

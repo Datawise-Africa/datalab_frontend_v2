@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 export function ApplicationsPage() {
   return (
     <div className="p-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl">
         <h1 className="text-2xl font-bold text-gray-900">
           Dataset Creator Applications
         </h1>
@@ -21,11 +21,11 @@ export function ApplicationsPage() {
           Review and manage applications from potential dataset creators.
         </p>
 
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
+        <div className="mt-6 flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
             <Input
-              className="pl-10 w-full"
+              className="w-full pl-10"
               placeholder="Search by name or email"
             />
           </div>

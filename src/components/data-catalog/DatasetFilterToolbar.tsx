@@ -16,7 +16,7 @@ import {
   useDatasetFilterManager,
   useDatasetSearchManager,
   useDatasetSortManager,
-} from '@/hooks/use-dataset-util';
+} from '@/store/use-dataset-controls';
 
 export default function DatasetFilterToolbar() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');

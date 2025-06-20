@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import DatasetGrid from '../components/data-catalog/DatasetGrid';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
-import useDataModal from '@/store/useDataModal';
-import useDownloadDataModal from '@/store/useDownloadDataModal';
+import useDataModal from '@/store/use-data-modal';
+import useDownloadDataModal from '@/store/use-download-data-modal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
 import type { IDataset } from '@/lib/types/data-set';
@@ -55,7 +55,7 @@ const Homepage = () => {
             handleSingleDataModal={handleSingleDataModal}
             handleDownloadDataClick={handleDownloadDataClick}
             paginationInfo={datasets.paginationInfo}
-            handleShareDataset={datasets.handleShareDataset}
+            isLoading={datasets.isLoading}
           />
         )}
       </main>

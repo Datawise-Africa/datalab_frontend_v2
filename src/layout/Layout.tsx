@@ -1,9 +1,9 @@
 import { Outlet } from 'react-router-dom';
-import useSidebar from '@/hooks/use-sidebar';
 import useSidebarLinks from '@/hooks/use-sidebar-links';
 import LayoutSidebar from '@/components/dashboard/LayoutSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { cn } from '@/lib/utils';
+import { useSidebar } from '@/store/use-sidebar-store.tsx';
 // import { useAuth } from '@/context/AuthProvider';
 
 export default function Dashboard() {
@@ -25,7 +25,7 @@ export default function Dashboard() {
         //   ${!isMobile && isCollapsed ? 'ml-0' : ''}
         // `}
         className={cn(
-          'flex-1 flex flex-col overflow-hidden transition-all duration-200 ease-in-out',
+          'flex flex-1 flex-col overflow-hidden transition-all duration-200 ease-in-out',
           {
             'w-full': isMobile,
             'ml-0': !isMobile && isCollapsed,
@@ -36,9 +36,9 @@ export default function Dashboard() {
         <DashboardHeader isMobile={isMobile} toggleSidebar={toggleSidebar} />
         {/* Content Area */}
         <main className="flex-1 overflow-auto">
-          <div className=" h-full">
+          <div className="h-full">
             {/* Content Container */}
-            <div className="h-full bg-white ">
+            <div className="h-full bg-white">
               <div className="p-4">
                 <Outlet />
               </div>

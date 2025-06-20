@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/context/theme-provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { FancyToaster } from '@/lib/utils/toaster';
+import { useSidebarInit } from '@/store/use-sidebar-store.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,7 @@ const queryClient = new QueryClient({
 });
 const BaseWrapper = () => {
   const location = useLocation();
-
+  useSidebarInit();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);

@@ -114,7 +114,7 @@ export default function BecomeDatasetCreatorBadge({
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full p-0 flex items-center justify-center h-10"
+                className="flex h-10 w-full items-center justify-center p-0"
               >
                 <StatusIcon className={`h-5 w-5 ${statusInfo.color}`} />
               </Button>
@@ -133,24 +133,24 @@ export default function BecomeDatasetCreatorBadge({
     // Mobile or expanded mode
     return (
       <div
-        className={`w-full relative py-4 px-3 mb-4 text-sm ${statusInfo.bgColor} border ${statusInfo.borderColor} flex flex-col gap-2 rounded-md`}
+        className={`relative mb-4 w-full px-3 py-4 text-sm ${statusInfo.bgColor} border ${statusInfo.borderColor} flex flex-col gap-2 rounded-md`}
       >
         <div className="flex items-start gap-3">
           <StatusIcon
             className={`h-5 w-5 ${statusInfo.color} mt-0.5 flex-shrink-0`}
           />
-          <div className="flex flex-col gap-1 flex-1">
+          <div className="flex flex-1 flex-col gap-1">
             <h3 className={`font-semibold ${statusInfo.color}`}>
               {statusInfo.label}
             </h3>
-            <p className="text-gray-700 text-xs leading-relaxed">
+            <p className="text-xs leading-relaxed text-gray-700">
               {statusInfo.description}
             </p>
             {(currentStatus.toLowerCase().includes('rejected') ||
               currentStatus.toLowerCase().includes('denied')) && (
               <Link
                 to="/app/become-dataset-creator"
-                className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 inline-block"
+                className="mt-1 inline-block text-xs text-blue-600 underline hover:text-blue-800"
               >
                 Apply again
               </Link>
@@ -169,11 +169,11 @@ export default function BecomeDatasetCreatorBadge({
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
-              className="w-full p-0 flex items-center justify-center h-10"
+              className="flex h-10 w-full items-center justify-center p-0"
               onClick={() => setShow(!show)}
             >
               <Link to="/app/become-dataset-creator">
-                <ScanText className="h-5 w-5 text-primary" />
+                <ScanText className="text-primary h-5 w-5" />
               </Link>
             </Button>
           </TooltipTrigger>
@@ -186,7 +186,7 @@ export default function BecomeDatasetCreatorBadge({
   }
 
   return show ? (
-    <div className="w-full relative py-6 px-2 mb-4 text-sm bg-primary/10 flex flex-col gap-2 rounded-md">
+    <div className="bg-primary/10 relative mb-4 flex w-full flex-col gap-2 rounded-md px-2 py-6 text-sm">
       <Button
         variant="ghost"
         onClick={() => setShow(!show)}
@@ -195,7 +195,7 @@ export default function BecomeDatasetCreatorBadge({
         asChild
       >
         <div>
-          <X className="h-4 w-4 text-primary" />
+          <X className="text-primary h-4 w-4" />
         </div>
       </Button>
       <div className="flex flex-col gap-2 text-center">
@@ -207,7 +207,7 @@ export default function BecomeDatasetCreatorBadge({
       </div>
       <Link
         to="/app/become-dataset-creator"
-        className="text-subtle bg-primary px-2 py-2 rounded-md hover:bg-primary/80 transition-colors duration-200"
+        className="text-subtle bg-primary hover:bg-primary/80 rounded-md px-2 py-2 transition-colors duration-200"
       >
         Become a Dataset Creator
       </Link>

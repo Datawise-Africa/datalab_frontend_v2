@@ -5,21 +5,21 @@ import { termsAndConditionsQueryKeys } from '@/lib/features/terms-and-condition-
 import { extractCorrectErrorMessage } from '@/lib/error';
 
 export function useTermsAndConditions() {
-    const api = useApi().privateApi;
+  const api = useApi().privateApi;
 
-    const fetchTermsAndConditions = useCallback(async () => {
-        try {
-            const res = await api.get('/data/terms-and-conditions/');
-            return res.data;
-        } catch (error) {
-            throw new Error(extractCorrectErrorMessage(error));
-        }
-    }, []);
+  const fetchTermsAndConditions = useCallback(async () => {
+    try {
+      const res = await api.get('/data/terms-and-conditions/');
+      return res.data;
+    } catch (error) {
+      throw new Error(extractCorrectErrorMessage(error));
+    }
+  }, []);
 
-    const tAndConditions = useQuery({
-        queryKey: termsAndConditionsQueryKeys.all,
-        queryFn: fetchTermsAndConditions,
-    });
+  const tAndConditions = useQuery({
+    queryKey: termsAndConditionsQueryKeys.all,
+    queryFn: fetchTermsAndConditions,
+  });
 
-    return tAndConditions;
+  return tAndConditions;
 }
