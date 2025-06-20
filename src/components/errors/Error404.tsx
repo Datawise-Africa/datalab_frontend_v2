@@ -78,29 +78,29 @@ export default function Error404() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4 overflow-hidden relative">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
       {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
-          className="absolute top-20 left-20 w-32 h-32 bg-indigo-100 rounded-full opacity-30"
+          className="absolute top-20 left-20 h-32 w-32 rounded-full bg-indigo-100 opacity-30"
           animate={floatingVariants.floating}
         />
         <motion.div
-          className="absolute top-40 right-32 w-24 h-24 bg-purple-100 rounded-full opacity-30"
+          className="absolute top-40 right-32 h-24 w-24 rounded-full bg-purple-100 opacity-30"
           animate={{
             ...floatingVariants.floating,
             transition: { ...floatingVariants.floating.transition, delay: 1 },
           }}
         />
         <motion.div
-          className="absolute bottom-32 left-32 w-20 h-20 bg-blue-100 rounded-full opacity-30"
+          className="absolute bottom-32 left-32 h-20 w-20 rounded-full bg-blue-100 opacity-30"
           animate={{
             ...floatingVariants.floating,
             transition: { ...floatingVariants.floating.transition, delay: 2 },
           }}
         />
         <motion.div
-          className="absolute bottom-20 right-20 w-16 h-16 bg-pink-100 rounded-full opacity-30"
+          className="absolute right-20 bottom-20 h-16 w-16 rounded-full bg-pink-100 opacity-30"
           animate={{
             ...floatingVariants.floating,
             transition: { ...floatingVariants.floating.transition, delay: 0.5 },
@@ -109,19 +109,19 @@ export default function Error404() {
       </div>
 
       <motion.div
-        className="text-center max-w-4xl w-full relative z-10"
+        className="relative z-10 w-full max-w-4xl text-center"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* 404 Number Display */}
-        <motion.div className="mb-8 relative" variants={numberVariants}>
+        <motion.div className="relative mb-8" variants={numberVariants}>
           <div className="relative inline-block">
             {/* Glowing background effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-3xl blur-3xl opacity-20 scale-110" />
+            <div className="absolute inset-0 scale-110 rounded-3xl bg-gradient-to-r from-indigo-400 to-purple-400 opacity-20 blur-3xl" />
 
             {/* Main 404 text */}
-            <h1 className="text-5xl md:text-[8rem] font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 relative z-10 leading-none">
+            <h1 className="relative z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-5xl leading-none font-black text-transparent md:text-[8rem]">
               404
             </h1>
 
@@ -137,10 +137,10 @@ export default function Error404() {
 
         {/* Error Message */}
         <motion.div variants={itemVariants} className="mb-6">
-          <h2 className="text-2xl md:text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="mb-4 text-2xl font-bold text-gray-800 md:text-4xl">
             Oops! Page Not Found
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600 md:text-xl">
             The page you're looking for seems to have wandered off into the
             digital void. Don't worry though – we'll help you find your way back
             home.
@@ -154,7 +154,7 @@ export default function Error404() {
         >
           <div className="relative">
             <motion.div
-              className="w-32 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center"
+              className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100"
               whileHover={iconVariants.hover}
             >
               <MapPin size={48} className="text-indigo-600" />
@@ -162,7 +162,7 @@ export default function Error404() {
 
             {/* Animated search rings */}
             <motion.div
-              className="absolute inset-0 border-2 border-indigo-300 rounded-full"
+              className="absolute inset-0 rounded-full border-2 border-indigo-300"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 0, 0.5],
@@ -174,7 +174,7 @@ export default function Error404() {
               }}
             />
             <motion.div
-              className="absolute inset-0 border-2 border-purple-300 rounded-full"
+              className="absolute inset-0 rounded-full border-2 border-purple-300"
               animate={{
                 scale: [1, 1.4, 1],
                 opacity: [0.5, 0, 0.5],
@@ -192,7 +192,7 @@ export default function Error404() {
         {/* Action Buttons */}
         <motion.div
           variants={itemVariants}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+          className="mb-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <motion.div
             variants={buttonVariants}
@@ -201,7 +201,7 @@ export default function Error404() {
           >
             <Link
               to="/"
-              className="inline-flex items-center gap-3 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-2 font-semibold text-white shadow-lg transition-all duration-300 hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
             >
               <Home size={20} />
               Back to Home
@@ -215,7 +215,7 @@ export default function Error404() {
           >
             <button
               onClick={() => window.history.back()}
-              className="inline-flex items-center gap-3 px-6 py-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold rounded-2xl border-2 border-gray-200 hover:border-gray-300 shadow-lg hover:shadow-xl transition-all duration-300"
+              className="inline-flex items-center gap-3 rounded-2xl border-2 border-gray-200 bg-white px-6 py-2 font-semibold text-gray-700 shadow-lg transition-all duration-300 hover:border-gray-300 hover:bg-gray-50 hover:shadow-xl"
             >
               <ArrowLeft size={20} />
               Go Back
@@ -265,7 +265,7 @@ export default function Error404() {
             Still can't find what you're looking for?
             <a
               href="mailto:support@example.com"
-              className="text-indigo-600 hover:text-indigo-700 font-medium ml-1 hover:underline transition-colors"
+              className="ml-1 font-medium text-indigo-600 transition-colors hover:text-indigo-700 hover:underline"
             >
               Contact our support team
             </a>

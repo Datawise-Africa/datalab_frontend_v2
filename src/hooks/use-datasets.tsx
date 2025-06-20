@@ -1,5 +1,5 @@
-import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
-import React, { useCallback, useMemo, useState } from 'react';
+import type { IDataset } from '@/lib/types/data-set';
+import React, { useCallback, useMemo } from 'react';
 import {
   useQuery,
   useQueryClient,
@@ -11,50 +11,58 @@ import {
   DEFAULT_PAGINATION_META,
   type PaginatedResponse,
   type PaginationMetaInterface,
-  type PaginationParamsInterface,
 } from '@/constants/pagination';
-import { datasetsKeys } from '@/lib/features/dataset-keys';
+import {
+  datasetBookmarksKeys,
+  datasetsKeys,
+} from '@/lib/features/dataset-keys';
+import { useAuth } from '@/context/AuthProvider';
+import { extractCorrectErrorMessage } from '@/lib/error';
+import { useDatasetMapper } from './use-bookmarked-datasets';
+import {
+  useDatasetFilterManager,
+  useDatasetModal,
+  useDatasetPagination,
+  useDatasetSearch,
+  useDatasetSort,
+  useDatasetUI,
+} from '@/store/use-dataset-controls';
 
-export type DatasetSortOptions = 'Popular' | 'Most Recent';
+interface BookmarkResponse {
+  id: string;
+  dataset_id: string;
+  user_id: string;
+  created_at: string;
+}
 
 export default function useDatasets() {
-  const [searchedDatasets, setSearchedDatasets] = useState<IDataset[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
-  const [filters, setFilters] = useState<DatasetFilterOptions>({
-    accessLevel: [],
-    dataType: [],
-    region: [],
-    timeframe: [],
-  });
-  const [sort, setSort] = useState<DatasetSortOptions>('Most Recent');
-  const [modalMessage, setModalMessage] = useState<string>('');
-
-  // Pagination state
-  const [pagination, setPagination] = useState<PaginationParamsInterface>({
-    page: 1,
-    limit: DEFAULT_PAGINATION_META.limit || 10,
-  });
-
-  const api = useApi().publicApi;
+  const auth = useAuth();
+  const { privateApi, publicApi } = useApi();
   const queryClient = useQueryClient();
 
-  const showModal = useCallback((message: string) => {
-    setModalMessage(message);
-    setIsDatasetModalOpen(true);
-  }, []);
+  // Use Zustand store selectors
+  const { filters, activeFiltersCount } = useDatasetFilterManager();
 
-  const activeFilters = useMemo(
-    () => Object.values(filters).reduce((acc, val) => acc + val.length, 0),
-    [filters],
-  );
+  const {
+    pagination,
+    goToPage,
+    goToNextPage: storeGoToNextPage,
+    goToPreviousPage,
+    changePageSize,
+  } = useDatasetPagination();
+
+  const { searchedDatasets, hasSearched } = useDatasetSearch();
+
+  const { sort } = useDatasetSort();
+
+  const { showModal } = useDatasetModal();
+
+  const { isLoading: storeIsLoading, isLoadingNewPage: storeIsLoadingNewPage } =
+    useDatasetUI();
 
   // Build query parameters
   const buildQueryParams = useCallback(
-    (
-      paginationParams: PaginationParamsInterface,
-      sortParam: DatasetSortOptions,
-    ) => {
+    (paginationParams: typeof pagination, sortParam: typeof sort) => {
       const params = new URLSearchParams();
       params.append('page', paginationParams.page.toString());
       params.append('limit', paginationParams.limit.toString());
@@ -67,55 +75,33 @@ export default function useDatasets() {
     },
     [],
   );
-  console.log({ activeFilters, filters, pagination, sort });
 
   // Main datasets query with pagination
   const {
     data: datasetsResponse,
     isLoading: isDatasetsLoading,
     error: datasetsError,
-    isPlaceholderData: isDatasetsPlaceholderData,
   } = useQuery({
     queryKey: datasetsKeys.list(pagination, sort),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const queryParams = buildQueryParams(pagination, sort);
-      const response = await api.get<PaginatedResponse<IDataset>>(
+      const response = await publicApi.get<PaginatedResponse<IDataset>>(
         `/data/datasets/?${queryParams.toString()}`,
       );
       return response.data;
     },
-    placeholderData: keepPreviousData, // Keep previous data while loading new page
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
-  });
-
-  // Filtered datasets query with pagination
-  const {
-    data: filteredDatasetsResponse,
-    isLoading: isFilteredDataLoading,
-    error: filteredError,
-    isPlaceholderData: isFilteredPlaceholderData,
-  } = useQuery({
-    queryKey: datasetsKeys.filtered(filters, pagination, sort),
-    queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
-      const filtersParams = datasetFiltersToSearchParams(filters);
-      const queryParams = buildQueryParams(pagination, sort);
-
-      // Combine filter and pagination params
-      const combinedParams = new URLSearchParams([
-        ...Array.from(filtersParams.entries()),
-        ...Array.from(queryParams.entries()),
-      ]);
-
-      const response = await api.get<PaginatedResponse<IDataset>>(
-        `/data/filter/?${combinedParams.toString()}`,
-      );
-      return response.data;
+    initialData: () => {
+      if (activeFiltersCount > 0) {
+        return {
+          data: [],
+          meta: DEFAULT_PAGINATION_META,
+        };
+      }
+      return undefined;
     },
-    enabled: activeFilters > 0,
-    placeholderData: keepPreviousData,
-    staleTime: 2 * 60 * 1000, // 2 minutes for filtered data
-    gcTime: 10 * 60 * 1000, // 10 minutes
     retry: (failureCount, error) => {
       if (error && 'status' in error && error.status === 404) {
         return false;
@@ -124,34 +110,78 @@ export default function useDatasets() {
     },
   });
 
+  // Filtered datasets query with pagination
+  const {
+    data: filteredDatasetsResponse,
+    isLoading: isFilteredDataLoading,
+    error: filteredError,
+  } = useQuery({
+    queryKey: datasetsKeys.filtered(filters, pagination, sort),
+    queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
+      const filtersParams = datasetFiltersToSearchParams(filters);
+      const queryParams = buildQueryParams(pagination, sort);
+
+      const combinedParams = new URLSearchParams([
+        ...Array.from(filtersParams.entries()),
+        ...Array.from(queryParams.entries()),
+      ]);
+
+      const response = await publicApi.get<PaginatedResponse<IDataset>>(
+        `/data/filter/?${combinedParams.toString()}`,
+      );
+      return response.data;
+    },
+    enabled: activeFiltersCount > 0,
+    placeholderData: keepPreviousData,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error && 'status' in error && error.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    initialData: () => {
+      if (activeFiltersCount > 0) {
+        return {
+          data: [],
+          meta: DEFAULT_PAGINATION_META,
+        };
+      }
+      return undefined;
+    },
+  });
+
   // Handle filtered data errors
   React.useEffect(() => {
-    if (filteredError && activeFilters > 0) {
+    if (filteredError && activeFiltersCount > 0) {
       const noDataMessage = 'No data available under this category yet';
       console.error('Error fetching filtered data:', filteredError);
       showModal(noDataMessage);
     }
-  }, [filteredError, activeFilters, showModal]);
+  }, [filteredError, activeFiltersCount, showModal]);
 
   // Extract current data and pagination meta
   const currentResponse = useMemo(() => {
-    if (activeFilters > 0) {
+    if (activeFiltersCount > 0) {
       return filteredDatasetsResponse;
     }
     return datasetsResponse;
-  }, [activeFilters, filteredDatasetsResponse, datasetsResponse]);
+  }, [activeFiltersCount, filteredDatasetsResponse, datasetsResponse]);
 
-  const datasets = currentResponse?.data || [];
+  const rawDatasets = currentResponse?.data || [];
   const paginationMeta: PaginationMetaInterface =
     currentResponse?.meta || DEFAULT_PAGINATION_META;
-  console.log({ activeFilters, datasets, paginationMeta, sort });
 
-  // For search results, we'll handle them separately without server-side pagination
-  // since search is typically done on the frontend
+  // Map datasets with bookmark status
+  const enhancedDatasets = useDatasetMapper(rawDatasets);
+  const enhancedSearchResults = useDatasetMapper(searchedDatasets);
+
+  // For search results, handle them separately without server-side pagination
   const data = useMemo(() => {
-    if (hasSearched && searchedDatasets.length > 0) {
+    if (hasSearched && enhancedSearchResults.length > 0) {
       // For search results, apply client-side sorting
-      return [...searchedDatasets].sort((a, b) => {
+      return [...enhancedSearchResults].sort((a, b) => {
         if (sort === 'Popular') {
           return b.download_count - a.download_count;
         } else if (sort === 'Most Recent') {
@@ -163,91 +193,20 @@ export default function useDatasets() {
       });
     }
 
-    // Server-side sorted data
-    return datasets;
-  }, [datasets, searchedDatasets, hasSearched, sort]);
+    return enhancedDatasets;
+  }, [enhancedDatasets, enhancedSearchResults, hasSearched, sort]);
 
-  // Pagination handlers
-  const goToPage = useCallback((page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
-  }, []);
-
+  // Enhanced pagination handler that works with server pagination
   const goToNextPage = useCallback(() => {
-    if (paginationMeta.page < paginationMeta.totalPages) {
-      setPagination((prev) => ({ ...prev, page: prev.page + 1 }));
-    }
-  }, [paginationMeta.page, paginationMeta.totalPages]);
-
-  const goToPreviousPage = useCallback(() => {
-    if (paginationMeta.page > 1) {
-      setPagination((prev) => ({ ...prev, page: prev.page - 1 }));
-    }
-  }, [paginationMeta.page]);
-
-  const changePageSize = useCallback((limit: number) => {
-    setPagination({ page: 1, limit }); // Reset to first page when changing page size
-  }, []);
-
-  // Search handlers
-  const handleSearchResults = useCallback(
-    (results: IDataset[]) => {
-      setSearchedDatasets(results);
-      setHasSearched(true);
-      if (results.length === 0) {
-        showModal('No datasets found for your search');
-      }
-    },
-    [showModal],
-  );
-
-  const handleSearchReset = useCallback(() => {
-    if (searchedDatasets.length === 0) {
-      return;
-    }
-    setSearchedDatasets([]);
-    setHasSearched(false);
-  }, [searchedDatasets.length]);
-
-  // Enhanced filter setter with pagination reset
-  const setFiltersWithReset = useCallback(
-    (newFilters: DatasetFilterOptions) => {
-      const prevActiveFilters = Object.values(filters).reduce(
-        (acc, val) => acc + val.length,
-        0,
-      );
-      const newActiveFilters = Object.values(newFilters).reduce(
-        (acc, val) => acc + val.length,
-        0,
-      );
-
-      setFilters(newFilters);
-      // Reset to first page when filters change
-      setPagination((prev) => ({ ...prev, page: 1 }));
-
-      // Invalidate queries when switching between filtered/unfiltered
-      if (
-        (prevActiveFilters === 0 && newActiveFilters > 0) ||
-        (prevActiveFilters > 0 && newActiveFilters === 0)
-      ) {
-        queryClient.invalidateQueries({ queryKey: datasetsKeys.lists() });
-      }
-    },
-    [filters, queryClient],
-  );
-
-  // Enhanced sort setter with pagination reset
-  const setSortWithReset = useCallback((newSort: DatasetSortOptions) => {
-    setSort(newSort);
-    // Reset to first page when sort changes
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  }, []);
+    storeGoToNextPage(paginationMeta.total_pages);
+  }, [storeGoToNextPage, paginationMeta.total_pages]);
 
   // Prefetch next page for better UX
   const prefetchNextPage = useCallback(async () => {
-    if (paginationMeta.page < paginationMeta.totalPages) {
+    if (paginationMeta.page < paginationMeta.total_pages) {
       const nextPagePagination = { ...pagination, page: pagination.page + 1 };
 
-      if (activeFilters > 0) {
+      if (activeFiltersCount > 0) {
         await queryClient.prefetchQuery({
           queryKey: datasetsKeys.filtered(filters, nextPagePagination, sort),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
@@ -257,7 +216,7 @@ export default function useDatasets() {
               ...Array.from(filtersParams.entries()),
               ...Array.from(queryParams.entries()),
             ]);
-            const response = await api.get<PaginatedResponse<IDataset>>(
+            const response = await publicApi.get<PaginatedResponse<IDataset>>(
               `/data/filter/?${combinedParams.toString()}`,
             );
             return response.data;
@@ -269,7 +228,7 @@ export default function useDatasets() {
           queryKey: datasetsKeys.list(nextPagePagination, sort),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const queryParams = buildQueryParams(nextPagePagination, sort);
-            const response = await api.get<PaginatedResponse<IDataset>>(
+            const response = await publicApi.get<PaginatedResponse<IDataset>>(
               `/data/datasets/?${queryParams.toString()}`,
             );
             return response.data;
@@ -281,11 +240,11 @@ export default function useDatasets() {
   }, [
     paginationMeta,
     pagination,
-    activeFilters,
+    activeFiltersCount,
     filters,
     sort,
     queryClient,
-    api,
+    publicApi,
     buildQueryParams,
   ]);
 
@@ -296,46 +255,70 @@ export default function useDatasets() {
     }
   }, [isDatasetsLoading, isFilteredDataLoading, prefetchNextPage]);
 
-  // Combined loading state
-  const pageIsLoading = isDatasetsLoading || isFilteredDataLoading;
-  const isLoadingNewPage =
-    isDatasetsPlaceholderData || isFilteredPlaceholderData;
-
   // Refresh function for manual data refresh
   const refreshData = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: datasetsKeys.all });
   }, [queryClient]);
 
+  // Fetch user's bookmarks from backend
+  const fetchBookmarks = useCallback(async () => {
+    try {
+      const response = await privateApi.get<BookmarkResponse[]>(
+        '/data/saved-datasets/',
+      );
+      return response.data.map((bookmark) => bookmark.dataset_id);
+    } catch (error) {
+      throw new Error(extractCorrectErrorMessage(error));
+    }
+  }, [auth.isAuthenticated, privateApi]);
+
+  const {
+    data: bookmarkedDatasetIds,
+    isLoading: isBookmarkedDatasetIdsLoading,
+  } = useQuery({
+    queryKey: datasetBookmarksKeys.all,
+    queryFn: fetchBookmarks,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    retry: (failureCount, error) => {
+      if (error && 'status' in error && error.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
+    },
+    placeholderData: [],
+  });
+
+  // Check if dataset is bookmarked
+  const isDatasetBookmarked = useCallback(
+    (datasetId: string) => {
+      return bookmarkedDatasetIds?.includes(datasetId.toString()) || false;
+    },
+    [bookmarkedDatasetIds],
+  );
+
   // Pagination info for UI
   const paginationInfo = {
-    currentPage: paginationMeta.page,
-    totalPages: paginationMeta.totalPages,
-    totalItems: paginationMeta.totalDocs,
-    itemsPerPage: paginationMeta.limit,
-    hasNextPage: paginationMeta.page < paginationMeta.totalPages,
-    hasPreviousPage: paginationMeta.page > 1,
-    startItem: (paginationMeta.page - 1) * paginationMeta.limit + 1,
-    endItem: Math.min(
+    current_page: paginationMeta.page,
+    total_pages: paginationMeta.total_pages,
+    total_items: paginationMeta.total_docs,
+    items_per_page: paginationMeta.limit,
+    has_next_page: paginationMeta.page < paginationMeta.total_pages,
+    has_previous_page: paginationMeta.page > 1,
+    start_item: (paginationMeta.page - 1) * paginationMeta.limit + 1,
+    end_item: Math.min(
       paginationMeta.page * paginationMeta.limit,
-      paginationMeta.totalDocs,
+      paginationMeta.total_docs,
     ),
   };
 
   return {
     data,
-    isLoading: pageIsLoading,
-    isLoadingNewPage, // Useful for showing skeleton while keeping previous data
-    handleSearchResults,
-    handleSearchReset,
-    isDatasetModalOpen,
-    setIsDatasetModalOpen,
-    modalMessage,
-    setSort: setSortWithReset,
-    setFilters: setFiltersWithReset,
-    filters,
-    sort,
+    isLoading: storeIsLoading,
+    isLoadingNewPage: storeIsLoadingNewPage,
     // Pagination
-    pagination: paginationInfo,
+    paginationInfo,
     goToPage,
     goToNextPage,
     goToPreviousPage,
@@ -350,5 +333,11 @@ export default function useDatasets() {
     // Individual loading states
     isDatasetsLoading,
     isFilteredDataLoading,
+    isBookmarkedDatasetIdsLoading,
+    // Bookmarks
+    isDatasetBookmarked,
+    // Store state access (for components that need direct access)
   };
 }
+
+export type UseDatasetReturnType = ReturnType<typeof useDatasets>;

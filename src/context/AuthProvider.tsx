@@ -89,15 +89,16 @@ function useAuthQueue() {
     watchedQueue,
   };
 }
-
+const CookieManager = new Cookie<AuthState>();
 const initialState: AuthState = {
-  userId: Cookie.get('session_user_id') ?? null,
-  userRole: Cookie.get('session_userrole') ?? null,
-  accessToken: Cookie.get('session_access_token') ?? null,
-  refreshToken: Cookie.get('session_refresh_token') ?? null,
-  firstName: Cookie.get('session_first_name') ?? null,
-  lastName: Cookie.get('session_last_name') ?? null,
-  email: Cookie.get('session_email') ?? null,
+  userId: CookieManager.get('userId'),
+  userRole: CookieManager.get('userRole'),
+  accessToken: CookieManager.get('accessToken'),
+  refreshToken: CookieManager.get('refreshToken'),
+  firstName: CookieManager.get('firstName'),
+  lastName: CookieManager.get('lastName'),
+  email: CookieManager.get('email'),
+  fullName: CookieManager.get('fullName'),
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -108,13 +109,14 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const aQueue = useAuthQueue();
 
   const syncState = useCallback(() => {
-    Cookie.set('session_user_id', state.userId);
-    Cookie.set('session_userrole', state.userRole);
-    Cookie.set('session_access_token', state.accessToken);
-    Cookie.set('session_refresh_token', state.refreshToken);
-    Cookie.set('session_first_name', state.firstName);
-    Cookie.set('session_last_name', state.lastName);
-    Cookie.set('session_email', state.email);
+    CookieManager.set('userId', state.userId);
+    CookieManager.set('userRole', state.userRole);
+    CookieManager.set('accessToken', state.accessToken);
+    CookieManager.set('refreshToken', state.refreshToken);
+    CookieManager.set('firstName', state.firstName);
+    CookieManager.set('lastName', state.lastName);
+    CookieManager.set('email', state.email);
+    CookieManager.set('fullName', state.fullName);
   }, [state]);
   const isAuthenticated = useMemo(() => {
     return !!state.userId && !!state.accessToken;

@@ -38,13 +38,6 @@ const regionsOfOrigin = [
   'South America',
   'Oceania',
   'Global',
-
-  // { value: 'africa', label: 'Africa' },
-  // { value: 'asia', label: 'Asia' },
-  // { value: 'europe', label: 'Europe' },
-  // { value: 'North America', label: 'North America' },
-  // { value: 'South America', label: 'South America' },
-  // { value: 'Oceania', label: 'Oceania' },
 ];
 export default function DatasetUploadFormStep4({ form }: Step4Props) {
   return (

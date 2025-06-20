@@ -160,14 +160,14 @@ export default function BecomeDatasetCreatorPage() {
     authPerm.canAnyRole(['admin', 'dataset_creator'], auth.state.userRole)
   ) {
     return (
-      <div className="min-h-[calc(100vh_-_20rem)] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-none shadow-none">
-          <CardContent className="pt-6 border-none">
+      <div className="flex min-h-[calc(100vh_-_20rem)] items-center justify-center p-4">
+        <Card className="w-full max-w-md border-none text-center shadow-none">
+          <CardContent className="border-none pt-6">
             <div className="flex flex-col items-center gap-4">
               <LockKeyhole className="h-16 w-16 text-red-800/60" />
               <h1 className="text-2xl font-bold">Access Denied</h1>
-              <p className="text-gray-600 max-w-sm">
-                You already have access already as a dataset creator
+              <p className="max-w-sm text-gray-600">
+                You are already a dataset creator.
               </p>
               {/* <Button
                 onClick={() => (window.location.href = '/')}
@@ -183,9 +183,9 @@ export default function BecomeDatasetCreatorPage() {
   }
   if (currentStatus !== 'N/A') {
     return (
-      <div className="min-h-[calc(100vh_-_20rem)] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-none shadow-none">
-          <CardContent className="pt-6 border-none">
+      <div className="flex min-h-[calc(100vh_-_20rem)] items-center justify-center p-4">
+        <Card className="w-full max-w-md border-none text-center shadow-none">
+          <CardContent className="border-none pt-6">
             <div className="flex flex-col items-center gap-4">
               <CheckCircle className="h-16 w-16 text-green-500" />
               <h1 className="text-2xl font-bold">
@@ -209,13 +209,13 @@ export default function BecomeDatasetCreatorPage() {
   }
   if (requestSent) {
     return (
-      <div className="min-h-[calc(100vh_-_20rem)] flex items-center justify-center p-4">
-        <Card className="max-w-md w-full text-center border-none shadow-none">
-          <CardContent className="pt-6 border-none">
+      <div className="flex min-h-[calc(100vh_-_20rem)] items-center justify-center p-4">
+        <Card className="w-full max-w-md border-none text-center shadow-none">
+          <CardContent className="border-none pt-6">
             <div className="flex flex-col items-center gap-4">
               <div className="text-6xl text-blue-500">🚀</div>
               <h1 className="text-2xl font-bold">Application Sent!</h1>
-              <p className="text-gray-600 max-w-sm">
+              <p className="max-w-sm text-gray-600">
                 Your application has been received! We're reviewing your request
                 and will notify you via email once approved.
               </p>
@@ -232,12 +232,12 @@ export default function BecomeDatasetCreatorPage() {
     );
   }
   if (isLoading) {
-    <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
-      <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center gap-4 max-w-md w-full">
-        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm">
+      <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-lg bg-white p-6 shadow-lg">
+        <Loader2 className="text-primary h-10 w-10 animate-spin" />
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900">{'Loading'}</h3>
-          <p className="text-gray-600 mt-1">
+          <p className="mt-1 text-gray-600">
             {'Loading dataset creator application...'}
           </p>
         </div>
@@ -245,15 +245,15 @@ export default function BecomeDatasetCreatorPage() {
     </div>;
   }
   return (
-    <div className="min-h-screen ">
-      <div className="max-w-2xl mx-auto p-6">
-        <Card className="border-none ">
+    <div className="min-h-screen">
+      <div className="mx-auto max-w-2xl p-6">
+        <Card className="border-none">
           <CardHeader>
-            <CardTitle className="text-3xl font-bold text-center">
+            <CardTitle className="text-center text-3xl font-bold">
               Become a Dataset Creator
             </CardTitle>
           </CardHeader>
-          <CardContent className="border p-4 md:p-8 border-subtle">
+          <CardContent className="border-subtle border p-4 md:p-8">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
@@ -331,12 +331,12 @@ export default function BecomeDatasetCreatorPage() {
                       <FormControl>
                         <FormLabel
                           htmlFor={field.name}
-                          className="space-y-4 block"
+                          className="block space-y-4"
                         >
                           {/* Upload Area */}
                           <div
                             className={cn(
-                              'border-2 border-dashed rounded-lg p-8 text-center transition-colors',
+                              'rounded-lg border-2 border-dashed p-8 text-center transition-colors',
                               isDragOver
                                 ? 'border-primary bg-primary/5'
                                 : 'border-gray-300 hover:border-gray-400',
@@ -387,12 +387,12 @@ export default function BecomeDatasetCreatorPage() {
                                 {selectedFiles.map((file, index) => (
                                   <div
                                     key={index}
-                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+                                    className="flex items-center justify-between rounded-lg border bg-gray-50 p-3"
                                   >
                                     <div className="flex items-center gap-2">
                                       <FileText className="h-4 w-4 text-gray-500" />
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">
+                                      <div className="min-w-0 flex-1">
+                                        <p className="truncate text-sm font-medium">
                                           {file.name}
                                         </p>
                                         <p className="text-xs text-gray-500">
@@ -423,7 +423,7 @@ export default function BecomeDatasetCreatorPage() {
 
                 <Button
                   type="submit"
-                  className="w-full text-subtle disabled:cursor-not-allowed"
+                  className="text-subtle w-full disabled:cursor-not-allowed"
                   disabled={isFormLoadingOrSubmitting}
                 >
                   {isFormLoadingOrSubmitting ? (

@@ -10,24 +10,24 @@ const DataDashboards = () => {
   const renderAfyakenDashboard = () => setComponentToRender('AfyakenDashboard');
 
   return (
-    <div className="text-center mt-40">
+    <div className="mt-40 text-center">
       <div id="Buttons" className=" ">
         <button
           onClick={renderEdukenDashboard}
-          className="border border-n-3 py-3 px-4 md:px-9 rounded-xl hover:bg-n-5 cursor-pointer md:mr-10"
+          className="border-n-3 hover:bg-n-5 cursor-pointer rounded-xl border px-4 py-3 md:mr-10 md:px-9"
         >
           EduKen
         </button>
 
         <button
           onClick={renderAfyakenDashboard}
-          className="border border-n-3 py-3 px-4 md:px-9 rounded-xl hover:bg-n-5 cursor-pointer md:mr-10"
+          className="border-n-3 hover:bg-n-5 cursor-pointer rounded-xl border px-4 py-3 md:mr-10 md:px-9"
         >
           Afyaken
         </button>
       </div>
 
-      <div id="dashboards" className="child-container ">
+      <div id="dashboards" className="child-container">
         {componentToRender === 'EdukenDashboard' && <EdukenDashboard />}
         {componentToRender === 'AfyakenDashboard' && <AfyakenDashboard />}
       </div>

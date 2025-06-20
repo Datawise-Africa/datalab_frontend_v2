@@ -6,7 +6,7 @@ function Button({ className = '', children = 'Button', ...rest }: ButtonProps) {
   return (
     <button
       className={cn(
-        'bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#fcfcfc] cursor-pointer px-2 py-2 rounded',
+        'cursor-pointer rounded bg-gradient-to-b from-[#115443] to-[#26A37E] px-2 py-2 text-[#fcfcfc]',
 
         className,
       )}

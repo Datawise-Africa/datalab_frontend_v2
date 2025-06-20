@@ -14,15 +14,19 @@ import {
 import { Button } from '@/components/ui/button';
 import useDatasetCreator from '@/hooks/use-dataset-creator';
 import { cn } from '@/lib/utils';
-import {
-  getDatasetCreatorBadge,
-} from '@/lib/types/dataset-creator';
+import { getDatasetCreatorBadge } from '@/lib/types/dataset-creator';
 
 export function ApplicationsTable() {
   // const [applicants, setApplicants] = useState<Applicant[]>([])
-  const { data, handleChangeStatus, isStatusUpdateLoading, isLoading,setSelectedApplicantID,selectedApplicant,} =
-    useDatasetCreator();
-    // const approvedApplicants = filteredDataByStatus('Approved');
+  const {
+    data,
+    handleChangeStatus,
+    isStatusUpdateLoading,
+    isLoading,
+    setSelectedApplicantID,
+    selectedApplicant,
+  } = useDatasetCreator();
+  // const approvedApplicants = filteredDataByStatus('Approved');
 
   // const changeStatus = async (id: number, action: 'Approve' | 'Reject') => {
   //   if (action === 'Approve') return await handleApprove(id);
@@ -32,7 +36,7 @@ export function ApplicationsTable() {
   // const [selectedApplicant, setSelectedApplicant] =
   //   useState<BecomeDatasetCreatorType | null>(null);
   const [modalOpen, setModalOpen] = React.useState(false);
-  const openModal = (id:number) => {
+  const openModal = (id: number) => {
     setSelectedApplicantID(id);
     setModalOpen(true);
   };
@@ -85,53 +89,53 @@ export function ApplicationsTable() {
                 <TableCell>{applicant.affiliation}</TableCell>
                 <TableCell>{applicant.expertise}</TableCell>
                 <TableCell className="text-right">
-                 {new Date(applicant.created_at).toISOString().split('T')[0]}
+                  {new Date(applicant.created_at).toISOString().split('T')[0]}
                 </TableCell>
                 <TableCell>
                   <span
                     className={cn(
-                      'inline-flex items-center rounded-full  px-2 py-1 text-xs font-medium  ',
+                      'inline-flex items-center rounded-full px-2 py-1 text-xs font-medium',
                       getDatasetCreatorBadge(applicant.status),
                     )}
                   >
                     {applicant.status}
                   </span>
                 </TableCell>
-                <TableCell className="text-right  flex justify-end items-center space-x-2">
+                <TableCell className="flex items-center justify-end space-x-2 text-right">
                   {applicant.status === 'Pending' && (
                     <>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-white bg-[#26A37E] border border-[#26A37E] disabled:cursor-not-allowed"
+                        className="border border-[#26A37E] bg-[#26A37E] text-white disabled:cursor-not-allowed"
                         onClick={() =>
                           handleChangeStatus(applicant.id, 'Approved')
                         }
                         aria-label="Approve"
                       >
-                        <Check className="w-4 h-4" />
+                        <Check className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-[#EE3481] bg-white border border-[#EE3481]"
+                        className="border border-[#EE3481] bg-white text-[#EE3481]"
                         onClick={() =>
                           handleChangeStatus(applicant.id, 'Rejected')
                         }
                         aria-label="Reject"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-yellow-600 bg-yellow-100 border border-yellow-600"
+                        className="border border-yellow-600 bg-yellow-100 text-yellow-600"
                         onClick={() =>
                           handleChangeStatus(applicant.id, 'In review')
                         }
                         aria-label="Mark as In Review"
                       >
-                        <Hourglass className="w-4 h-4" />
+                        <Hourglass className="h-4 w-4" />
                       </Button>
                     </>
                   )}
@@ -140,14 +144,14 @@ export function ApplicationsTable() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-[#EE3481] bg-white border border-[#EE3481] "
+                      className="border border-[#EE3481] bg-white text-[#EE3481]"
                       onClick={() =>
                         handleChangeStatus(applicant.id, 'Rejected')
                       }
                       disabled={isStatusUpdateLoading}
                       aria-label="Mark as Rejected"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </Button>
                   )}
 
@@ -155,14 +159,14 @@ export function ApplicationsTable() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-white bg-[#26A37E] border border-[#26A37E] disabled:cursor-not-allowed"
+                      className="border border-[#26A37E] bg-[#26A37E] text-white disabled:cursor-not-allowed"
                       onClick={() =>
                         handleChangeStatus(applicant.id, 'Approved')
                       }
                       disabled={isStatusUpdateLoading}
                       aria-label="Mark as Approved"
                     >
-                      <Check className="w-4 h-4" />
+                      <Check className="h-4 w-4" />
                     </Button>
                   )}
                 </TableCell>
@@ -170,13 +174,12 @@ export function ApplicationsTable() {
                 <TableCell className="text-right">
                   <Button
                     onClick={() => openModal(applicant.id)}
-                    className="h-8 w-8 flex items-center justify-center bg-fffff hover:bg-white rounded-full"
+                    className="bg-fffff flex h-8 w-8 items-center justify-center rounded-full hover:bg-white"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </TableCell>
               </TableRow>
-
             ))
           )}
         </TableBody>

@@ -32,10 +32,10 @@ export default function ApprovedApplicantsTable() {
       `${applicant.user.first_name} ${applicant.user.last_name}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      applicant.user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      applicant.user.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
   console.log('All data:', data);
-console.log('Approved:', filteredDataByStatus('Approved'));
+  console.log('Approved:', filteredDataByStatus('Approved'));
 
   const [modalOpen, setModalOpen] = React.useState(false);
 
@@ -50,23 +50,25 @@ console.log('Approved:', filteredDataByStatus('Approved'));
   };
 
   if (isLoading) {
-    return <div className="py-10 text-center">Loading approved applicants...</div>;
+    return (
+      <div className="py-10 text-center">Loading approved applicants...</div>
+    );
   }
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm p-6">
+    <div className="rounded-lg border bg-white p-6 shadow-sm">
       <h1 className="text-2xl font-bold text-gray-900">
         Approved Creator Applications
       </h1>
       <p className="mt-1 text-gray-500">
-        Review and manage approved applications from  dataset creators.
+        Review and manage approved applications from dataset creators.
       </p>
 
-      <div className="mt-6 flex flex-col sm:flex-row gap-4">
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400" />
           <Input
-            className="pl-10 w-full"
+            className="w-full pl-10"
             placeholder="Search by name or email"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -122,7 +124,7 @@ console.log('Approved:', filteredDataByStatus('Approved'));
                   <TableCell className="text-right">
                     <Button
                       onClick={() => openModal(applicant.id)}
-                      className="h-8 w-8 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full"
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-100"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>

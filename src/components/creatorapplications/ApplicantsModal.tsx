@@ -31,17 +31,17 @@ export default function ApplicantDetailsModal({
   //   date ? new Date(date).toLocaleDateString() : 'N/A';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="bg-opacity-50 fixed inset-0 z-50 flex items-center justify-center bg-black">
+      <div className="mx-4 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white">
         <div className="p-6">
           {/* Header */}
-          <div className="flex justify-between items-start mb-8">
+          <div className="mb-8 flex items-start justify-between">
             <h2 className="text-2xl font-bold text-gray-900">
               Application Details
             </h2>
             <Button
               onClick={onClose}
-              className="text-gray-400 bg-white hover:white  transition-colors"
+              className="hover:white bg-white text-gray-400 transition-colors"
             >
               <X className="h-6 w-6" />
             </Button>
@@ -49,12 +49,12 @@ export default function ApplicantDetailsModal({
 
           {/* Applicant Basic Info */}
           <div className="mb-8">
-            <div className="flex justify-between items-start">
+            <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                <h3 className="mb-1 text-xl font-semibold text-gray-900">
                   {applicant.user.first_name} {applicant.user.last_name}
                 </h3>
-                <p className="text-gray-500 text-sm">{applicant.user.email}</p>
+                <p className="text-sm text-gray-500">{applicant.user.email}</p>
               </div>
               <span
                 className={cn(
@@ -70,16 +70,16 @@ export default function ApplicantDetailsModal({
           </div>
 
           {/* Info grid */}
-          <div className="space-y-6 mb-8">
-            <div className="flex justify-between items-center py-2">
+          <div className="mb-8 space-y-6">
+            <div className="flex items-center justify-between py-2">
               <span className="font-medium text-gray-900">Affiliation</span>
               <span className="text-gray-600">{applicant.affiliation}</span>
             </div>
-            <div className="flex justify-between items-center py-2">
+            <div className="flex items-center justify-between py-2">
               <span className="font-medium text-gray-900">Expertise</span>
               <span className="text-gray-600">{applicant.expertise}</span>
             </div>
-            <div className="flex justify-between items-center py-2">
+            <div className="flex items-center justify-between py-2">
               <span className="font-medium text-gray-900">Submitted</span>
               <span className="text-gray-600">
                 {applicant.created_at
@@ -99,11 +99,11 @@ export default function ApplicantDetailsModal({
 
           {/* Reason for Joining */}
           <div className="mb-8">
-            <h4 className="font-medium text-gray-900 mb-4">
+            <h4 className="mb-4 font-medium text-gray-900">
               Reason for Joining
             </h4>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-gray-700 text-sm leading-relaxed">
+            <div className="rounded-lg bg-gray-50 p-4">
+              <p className="text-sm leading-relaxed text-gray-700">
                 {applicant.reason_for_joining || 'No reason provided.'}
               </p>
             </div>
@@ -111,7 +111,7 @@ export default function ApplicantDetailsModal({
 
           {/* Attachments */}
           <div className="mb-8">
-            <h4 className="font-medium text-gray-900 mb-4">
+            <h4 className="mb-4 font-medium text-gray-900">
               Past Work Attachments
             </h4>
             <div className="space-y-2">
@@ -123,13 +123,13 @@ export default function ApplicantDetailsModal({
                       key={index}
                       className="flex items-center text-gray-600"
                     >
-                      <FileText className="h-4 w-4 mr-2 text-gray-400" />
+                      <FileText className="mr-2 h-4 w-4 text-gray-400" />
                       <span className="text-sm">{attachment.name}</span>
                     </div>
                   ),
                 )
               ) : (
-                <p className="text-gray-500 text-sm">No attachments provided</p>
+                <p className="text-sm text-gray-500">No attachments provided</p>
               )}
             </div>
           </div>
@@ -147,17 +147,17 @@ export default function ApplicantDetailsModal({
               <>
                 <button
                   onClick={() => handleChangeStatus(applicant.id, 'Rejected')}
-                  className="inline-flex items-center px-4 py-2 border border-red-300 text-red-700 rounded-md hover:bg-red-50 transition-colors font-medium text-sm"
+                  className="inline-flex items-center rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 transition-colors hover:bg-red-50"
                 >
-                  <X className="h-4 w-4 mr-1" />
+                  <X className="mr-1 h-4 w-4" />
                   Reject
                 </button>
                 <button
                   onClick={() => handleChangeStatus(applicant.id, 'Approved')}
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium text-sm"
+                  className="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
                 >
                   <svg
-                    className="h-4 w-4 mr-1"
+                    className="mr-1 h-4 w-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -183,9 +183,9 @@ export default function ApplicantDetailsModal({
                 </p>
                 <button
                   onClick={() => handleChangeStatus(applicant.id, 'Rejected')}
-                  className="inline-flex items-center px-4 py-2 border border-orange-300 text-orange-700 rounded-md hover:bg-orange-50 transition-colors font-medium text-sm"
+                  className="inline-flex items-center rounded-md border border-orange-300 px-4 py-2 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-50"
                 >
-                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  <AlertTriangle className="mr-1 h-4 w-4" />
                   Revoke Status
                 </button>
               </div>
@@ -193,10 +193,10 @@ export default function ApplicantDetailsModal({
             {applicant.status === 'Rejected' && (
               <button
                 onClick={() => handleChangeStatus(applicant.id, 'Approved')}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium text-sm"
+                className="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
               >
                 <svg
-                  className="h-4 w-4 mr-1"
+                  className="mr-1 h-4 w-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -216,10 +216,10 @@ export default function ApplicantDetailsModal({
                 {' '}
                 <button
                   onClick={() => handleChangeStatus(applicant.id, 'Approved')}
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors font-medium text-sm"
+                  className="inline-flex items-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
                 >
                   <svg
-                    className="h-4 w-4 mr-1"
+                    className="mr-1 h-4 w-4"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -235,16 +235,16 @@ export default function ApplicantDetailsModal({
                 </button>
                 <button
                   onClick={() => handleChangeStatus(applicant.id, 'Rejected')}
-                  className="inline-flex items-center px-4 py-2 border border-orange-300 text-orange-700 rounded-md hover:bg-orange-50 transition-colors font-medium text-sm"
+                  className="inline-flex items-center rounded-md border border-orange-300 px-4 py-2 text-sm font-medium text-orange-700 transition-colors hover:bg-orange-50"
                 >
-                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  <AlertTriangle className="mr-1 h-4 w-4" />
                   Reject
                 </button>
               </>
             )}
             <button
               onClick={onClose}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-white transition-colors font-medium text-sm"
+              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-white"
             >
               Close
             </button>
