@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
-import useDataModal from '@/store/useDataModal';
-import useDownloadDataModal from '@/store/useDownloadDataModal';
+import useDataModal from '@/store/use-data-modal';
+import useDownloadDataModal from '@/store/use-download-data-modal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
 import { useAuth } from '@/context/AuthProvider';
 import type { IDataset } from '@/lib/types/data-set';
@@ -11,7 +11,8 @@ import {
   useBookmarks,
   useDatasetMapper,
 } from '@/hooks/use-bookmarked-datasets';
-import useDatasets from '@/hooks/use-datasets';
+import DatasetGrid from '@/components/data-catalog/DatasetGrid';
+import { BookmarksEmptyState } from '@/components/empty-state';
 
 const SavedDatasets = () => {
   const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
@@ -19,30 +20,32 @@ const SavedDatasets = () => {
 
   const auth = useAuth();
   const { bookmarkedDatasets, isLoading } = useBookmarks();
-  const enahancedBookmarkedDatasets = useDatasetMapper(
+  const enhancedBookmarkedDatasets = useDatasetMapper(
     bookmarkedDatasets.map((item) => item?.dataset),
   );
-  const { handleShareDataset } = useDatasets();
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
+
+  // Get sidebar state for responsive grid
 
   const handleSingleDataModal = (dataset: IDataset) => {
     setSelectedDataset(dataset);
     dataModal.open();
   };
+  const authQueueMethods = (dataset: IDataset) => [
+    {
+      function: setDownloadDataset,
+      args: [dataset],
+    },
+    {
+      function: downloadDataModal.open,
+      args: [],
+    },
+  ];
 
   const handleDownloadDataClick = (dataset: IDataset) => {
     if (!auth.isAuthenticated) {
-      auth.queue.addToQueue([
-        {
-          function: setDownloadDataset,
-          args: [dataset],
-        },
-        {
-          function: downloadDataModal.open,
-          args: [],
-        },
-      ]);
+      auth.queue.addToQueue(authQueueMethods(dataset));
       auth.setIsAuthModalOpen(true);
       return;
     } else {
@@ -56,21 +59,26 @@ const SavedDatasets = () => {
       <main className="flex-1 py-8">
         {isLoading ? (
           <DatasetCardSkeleton />
-        ) : enahancedBookmarkedDatasets.length ? (
-          <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-4">
-            {enahancedBookmarkedDatasets.map((dataset) => (
-              <DatasetCard
-                key={dataset.id}
-                dataset={dataset}
-                handleDownloadDataClick={handleDownloadDataClick}
-                handleSingleDataModal={handleSingleDataModal}
-                handleShareDataset={handleShareDataset}
-                mode="bookmark"
-              />
-            ))}
-          </div>
+        ) : enhancedBookmarkedDatasets.length ? (
+          <DatasetGrid
+            datasets={enhancedBookmarkedDatasets}
+            paginate={false}
+            handleDownloadDataClick={handleDownloadDataClick}
+            handleSingleDataModal={handleSingleDataModal}
+            renderCards={(datasets) =>
+              datasets.map((dataset) => (
+                <DatasetCard
+                  key={dataset.id}
+                  dataset={dataset}
+                  handleDownloadDataClick={handleDownloadDataClick}
+                  handleSingleDataModal={handleSingleDataModal}
+                  mode="bookmark"
+                />
+              ))
+            }
+          />
         ) : (
-          <div>No bookmarked datasets found.</div>
+          <BookmarksEmptyState />
         )}
       </main>
       {selectedDataset && <SingleDataModal dataset={selectedDataset} />}

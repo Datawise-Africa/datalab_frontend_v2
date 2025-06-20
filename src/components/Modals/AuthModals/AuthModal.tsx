@@ -163,7 +163,7 @@ const AuthModal = () => {
             <p>
               Create an account or{' '}
               <span
-                className="underline cursor-pointer hover:underline"
+                className="cursor-pointer underline hover:underline"
                 onClick={toggleAuthMode}
               >
                 login to existing account
@@ -178,10 +178,10 @@ const AuthModal = () => {
               id="first_name"
               placeholder="Your first name"
               type="text"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {signupErrors.first_name && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {signupErrors.first_name.message}
               </p>
             )}
@@ -194,10 +194,10 @@ const AuthModal = () => {
               id="last_name"
               placeholder="Your last name"
               type="text"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {signupErrors.last_name && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {signupErrors.last_name.message}
               </p>
             )}
@@ -210,10 +210,10 @@ const AuthModal = () => {
               id="signup_email"
               placeholder="Your email address"
               type="email"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {signupErrors.email && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {signupErrors.email.message}
               </p>
             )}
@@ -226,10 +226,10 @@ const AuthModal = () => {
               id="signup_password"
               placeholder="Your password"
               type="password"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {signupErrors.password && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {signupErrors.password.message}
               </p>
             )}
@@ -240,7 +240,7 @@ const AuthModal = () => {
               {serverErrors.map((error: any, index) => (
                 <div
                   key={`error_${index}`}
-                  className="p-3 bg-red-50 text-red-700 rounded-lg"
+                  className="rounded-lg bg-red-50 p-3 text-red-700"
                 >
                   {typeof error === 'object'
                     ? error.message || JSON.stringify(error)
@@ -255,10 +255,10 @@ const AuthModal = () => {
           <Button
             type="submit"
             disabled={isSignupSubmitting}
-            className="w-full bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#E5E7EB] rounded px-2 py-3 mb-10 hover:from-[#072720] hover:to-[#072720] cursor-pointer transition transform duration-200 hover:translate-y-[3px] disabled:bg-gray-400 disabled:text-white disabled:cursor-not-allowed"
+            className="mb-10 w-full transform cursor-pointer rounded bg-gradient-to-b from-[#115443] to-[#26A37E] px-2 py-3 text-[#E5E7EB] transition duration-200 hover:translate-y-[3px] hover:from-[#072720] hover:to-[#072720] disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-white"
           >
             {isSignupSubmitting && (
-              <RotateCcw className="animate-spin mr-2" size={16} />
+              <RotateCcw className="mr-2 animate-spin" size={16} />
             )}
             {isSignupSubmitting ? 'Signing up...' : 'Sign up'}
           </Button>
@@ -273,7 +273,7 @@ const AuthModal = () => {
             <p>
               Sign in to your account or{' '}
               <span
-                className="underline cursor-pointer hover:underline"
+                className="cursor-pointer underline hover:underline"
                 onClick={toggleAuthMode}
               >
                 create a new account
@@ -288,10 +288,10 @@ const AuthModal = () => {
               id="login_email"
               placeholder="Your email address"
               type="email"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {loginErrors.email && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {loginErrors.email.message}
               </p>
             )}
@@ -304,10 +304,10 @@ const AuthModal = () => {
               id="login_password"
               placeholder="Your password"
               type="password"
-              className="w-full px-4 h-[54px] border border-gray-300 rounded-xl"
+              className="h-[54px] w-full rounded-xl border border-gray-300 px-4"
             />
             {loginErrors.password && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="mt-1 text-sm text-red-500">
                 {loginErrors.password.message}
               </p>
             )}
@@ -318,7 +318,7 @@ const AuthModal = () => {
               {serverErrors.map((error: any, index) => (
                 <div
                   key={`error_${index}`}
-                  className="p-3 bg-red-50 text-red-700 rounded-lg"
+                  className="rounded-lg bg-red-50 p-3 text-red-700"
                 >
                   {typeof error === 'object'
                     ? error.message || JSON.stringify(error)
@@ -333,10 +333,10 @@ const AuthModal = () => {
           <Button
             type="submit"
             disabled={isLoginSubmitting}
-            className="w-full bg-gradient-to-b from-[#115443] to-[#26A37E] text-[#E5E7EB] rounded px-2 py-3 mb-10 hover:from-[#072720] hover:to-[#072720] cursor-pointer transition transform duration-200 hover:translate-y-[3px] disabled:bg-gray-400 disabled:text-white disabled:cursor-not-allowed"
+            className="mb-10 w-full transform cursor-pointer rounded bg-gradient-to-b from-[#115443] to-[#26A37E] px-2 py-3 text-[#E5E7EB] transition duration-200 hover:translate-y-[3px] hover:from-[#072720] hover:to-[#072720] disabled:cursor-not-allowed disabled:bg-gray-400 disabled:text-white"
           >
             {isLoginSubmitting && (
-              <RotateCcw className="animate-spin mr-2" size={16} />
+              <RotateCcw className="mr-2 animate-spin" size={16} />
             )}
             {isLoginSubmitting ? 'Signing in...' : 'Sign in'}
           </Button>

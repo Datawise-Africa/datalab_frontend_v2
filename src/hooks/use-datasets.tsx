@@ -19,16 +19,14 @@ import {
 import { useAuth } from '@/context/AuthProvider';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { useDatasetMapper } from './use-bookmarked-datasets';
-import { FancyToast } from '@/lib/utils/toaster';
-import { ClipboardIcon } from 'lucide-react';
 import {
+  useDatasetFilterManager,
   useDatasetModal,
   useDatasetPagination,
   useDatasetSearch,
   useDatasetSort,
   useDatasetUI,
 } from '@/store/use-dataset-controls';
-import { useDatasetFilterManager } from './use-dataset-util';
 
 interface BookmarkResponse {
   id: string;
@@ -292,39 +290,6 @@ export default function useDatasets() {
     placeholderData: [],
   });
 
-  const handleShareDataset = useCallback(
-    async (dataset: IDataset) => {
-      const shareData = {
-        title: `Dataset: ${dataset.title}`,
-        text: `Check out this dataset: ${dataset.description.slice(0, 100)}...`,
-        url: `${window.location.origin}/datasets/${dataset.id}`,
-      };
-
-      try {
-        if (
-          navigator.share &&
-          navigator.canShare &&
-          navigator.canShare(shareData)
-        ) {
-          await navigator.share(shareData);
-          showModal('Dataset shared successfully!');
-        } else {
-          await navigator.clipboard.writeText(shareData.url);
-          FancyToast.success('Dataset link copied to clipboard!', {
-            duration: 3000,
-            position: 'top-right',
-            theme: 'light',
-            icon: <ClipboardIcon className="h-4 w-4" />,
-          });
-        }
-      } catch (error) {
-        console.error('Error sharing dataset:', error);
-        showModal(`Share this dataset: ${shareData.url}`);
-      }
-    },
-    [showModal],
-  );
-
   // Check if dataset is bookmarked
   const isDatasetBookmarked = useCallback(
     (datasetId: string) => {
@@ -371,7 +336,6 @@ export default function useDatasets() {
     isBookmarkedDatasetIdsLoading,
     // Bookmarks
     isDatasetBookmarked,
-    handleShareDataset,
     // Store state access (for components that need direct access)
   };
 }

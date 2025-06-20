@@ -188,15 +188,15 @@ const EdukenDashboard = memo(() => {
   }, [geojsonLayer, countyData, selectedCounty]);
 
   return (
-    <div className="bg-gray-900 p-4 mt-8">
-      <h1 className="text-white text-2xl font-bold mb-4">
+    <div className="mt-8 bg-gray-900 p-4">
+      <h1 className="mb-4 text-2xl font-bold text-white">
         EDUKEN DATA DASHBOARD
       </h1>
       <div className="grid grid-cols-4 gap-4">
         {/* Left Sidebar */}
-        <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
+        <div className="col-span-1 rounded-lg bg-gray-800 p-4">
           <div className="mb-4">
-            <h2 className="text-white text-lg mb-2">Institutions per County</h2>
+            <h2 className="mb-2 text-lg text-white">Institutions per County</h2>
             {selectedCounty && countyData ? (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -235,7 +235,7 @@ const EdukenDashboard = memo(() => {
           </div>
 
           <div>
-            <h2 className="text-white text-lg mb-2">Categories per County</h2>
+            <h2 className="mb-2 text-lg text-white">Categories per County</h2>
             {selectedCounty && countyData ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={getCategoriesChartData(selectedCounty)}>
@@ -256,16 +256,16 @@ const EdukenDashboard = memo(() => {
         </div>
 
         {/* Center: Kenya Map */}
-        <div className="col-span-2 bg-gray-700 p-4 rounded-lg">
-          <h2 className="text-white text-lg mb-2">Kenya Map</h2>
+        <div className="col-span-2 rounded-lg bg-gray-700 p-4">
+          <h2 className="mb-2 text-lg text-white">Kenya Map</h2>
           {/* Search Input */}
           <div className="relative mb-4">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md leading-5 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full rounded-md border border-gray-600 bg-gray-800 py-2 pr-3 pl-10 leading-5 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Search for a county..."
               value={searchTerm}
               onChange={(e) => handleSearch(e.target.value)}
@@ -279,11 +279,11 @@ const EdukenDashboard = memo(() => {
         </div>
 
         {/* Right Sidebar */}
-        <div className="col-span-1 bg-gray-800 p-4 rounded-lg">
-          <h2 className="text-white text-xl mb-2">
+        <div className="col-span-1 rounded-lg bg-gray-800 p-4">
+          <h2 className="mb-2 text-xl text-white">
             {selectedCounty || 'Select a county'}
           </h2>
-          <h3 className="text-white text-lg mb-2">QUALIFICATIONS PIE CHART</h3>
+          <h3 className="mb-2 text-lg text-white">QUALIFICATIONS PIE CHART</h3>
           {countyData && selectedCounty ? (
             <ResponsiveContainer width="100%" height={500}>
               <PieChart>

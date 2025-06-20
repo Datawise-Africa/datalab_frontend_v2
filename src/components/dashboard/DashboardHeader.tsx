@@ -14,8 +14,8 @@ export default function DashboardHeader({
   toggleSidebar,
 }: DashboardHeaderProps) {
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="flex items-center justify-between px-4 lg:px-6 py-3">
+    <header className="border-b border-gray-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 lg:px-6">
         {/* Left Section - Logo and Mobile Menu */}
         <div className="flex items-center space-x-4">
           {/* Mobile Menu Button */}
@@ -32,8 +32,8 @@ export default function DashboardHeader({
 
           {/* Logo */}
           <div className="flex items-center">
-            <div className="w-36 h-10 bg-gradient-to-r rounded-lg flex items-center justify-center">
-              <Link to={'/'} className="text-white font-bold text-sm">
+            <div className="flex h-10 w-36 items-center justify-center rounded-lg bg-gradient-to-r">
+              <Link to={'/'} className="text-sm font-bold text-white">
                 <img
                   src={'/assets/Datawise.svg'}
                   alt="Datawise logo"

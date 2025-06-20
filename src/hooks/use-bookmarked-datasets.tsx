@@ -97,7 +97,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         queryClient.getQueryData<IBookMarkedDataset[]>(
           datasetBookmarksKeys.all,
         ) || [];
-      queryClient.refetchQueries({
+      await queryClient.refetchQueries({
         queryKey: datasetsKeys.all,
         exact: true,
       });
@@ -165,7 +165,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         queryClient.getQueryData<IBookMarkedDataset[]>(
           datasetBookmarksKeys.all,
         ) || [];
-      queryClient.refetchQueries({
+      await queryClient.refetchQueries({
         queryKey: datasetsKeys.all,
         exact: true,
       });
@@ -200,8 +200,10 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         { theme: 'light', duration: 5000 },
       );
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: datasetBookmarksKeys.all });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: datasetBookmarksKeys.all,
+      });
     },
   });
 

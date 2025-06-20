@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '@/components/Modals/DataModals/Modal';
-import useDownloadDataModal from '@/store/useDownloadDataModal';
+import useDownloadDataModal from '@/store/use-download-data-modal';
 import CustomButton from '@/components/Modals/DataModals/CustomButton';
 // import { getAccessToken } from '@/lib/auth/actions';
 import { REACT_PUBLIC_API_HOST } from '@/constants';

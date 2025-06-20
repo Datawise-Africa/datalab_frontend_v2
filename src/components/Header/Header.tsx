@@ -48,11 +48,11 @@ const Header = () => {
   return (
     <div>
       <div
-        className={`fixed top-0 left-0 w-full z-50 lg:backdrop-blur-sm border-b border-[#DDDDDD]  ${
+        className={`fixed top-0 left-0 z-50 w-full border-b border-[#DDDDDD] lg:backdrop-blur-sm ${
           openNavigation ? 'bg-[]' : 'bg-[]'
         }`}
       >
-        <div className="container mx-auto flex items-center justify-between px-5 lg:px-8 max-lg:py-4 p-2">
+        <div className="container mx-auto flex items-center justify-between p-2 px-5 max-lg:py-4 lg:px-8">
           <Link to="/" className="w-[12rem]">
             <img
               src={'/assets/Datawise.svg'}
@@ -65,7 +65,7 @@ const Header = () => {
 
           {/* Mobile hamburger menu */}
           <button
-            className="lg:hidden text-white"
+            className="text-white lg:hidden"
             onClick={toggleNavigation}
             aria-label="Toggle navigation menu"
           >
@@ -104,27 +104,20 @@ const Header = () => {
 
           {/* Navigation and button container */}
           <div
-            className={`
-            ${openNavigation ? 'flex' : 'hidden'}
-            lg:flex lg:items-center lg:justify-between lg:flex-1
-            fixed lg:static top-[4rem] left-0 right-0 bottom-0
-            bg-[#0F2542] lg:bg-transparent
-            flex-col lg:flex-row
-            pt-8 lg:pt-0
-          `}
+            className={` ${openNavigation ? 'flex' : 'hidden'} fixed top-[4rem] right-0 bottom-0 left-0 flex-col bg-[#0F2542] pt-8 lg:static lg:flex lg:flex-1 lg:flex-row lg:items-center lg:justify-between lg:bg-transparent lg:pt-0`}
           >
-            <nav className="flex flex-col lg:flex-row items-center lg:mx-auto">
+            <nav className="flex flex-col items-center lg:mx-auto lg:flex-row">
               <div
                 className="relative z-2 flex flex-col items-center lg:flex-row"
                 ref={dropdownRef}
               >
                 {navigation.map((item) => (
-                  <div key={item.id} className="relative group mb-4 lg:mb-0">
+                  <div key={item.id} className="group relative mb-4 lg:mb-0">
                     <Link
                       to={item.url}
-                      className={`text-[#0F4539] px-4 py-2 font-semibold text-lg border-b-4  ${
+                      className={`border-b-4 px-4 py-2 text-lg font-semibold text-[#0F4539] ${
                         item.url === pathname
-                          ? 'border-[#188366] text-[#188366] rounded'
+                          ? 'rounded border-[#188366] text-[#188366]'
                           : 'border-transparent'
                       } group-hover:text-[#188366]`}
                       onClick={(e) => handleNavItemClick(e, item)}
@@ -132,7 +125,7 @@ const Header = () => {
                       <img
                         src={item.icon}
                         alt={`${item.title} icon`}
-                        className="inline-block w-4 h-4 mr-2"
+                        className="mr-2 inline-block h-4 w-4"
                       />
                       {item.title}
                     </Link>
