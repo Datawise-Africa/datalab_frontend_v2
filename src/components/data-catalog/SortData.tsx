@@ -1,4 +1,4 @@
-import type { DatasetSortOptions } from '@/hooks/use-datasets';
+import type { DatasetSortOptions } from '@/store/use-dataset-controls';
 
 type SortDataProps = {
   sortIsOpen: boolean;
@@ -10,12 +10,12 @@ const SortData = ({ sortIsOpen, toggleDropdown, onSort }: SortDataProps) => {
   const sortOptions = ['Popular', 'Most Recent'];
 
   return (
-    <div className="relative inline-block z-50">
+    <div className="relative z-50 inline-block">
       <div onClick={toggleDropdown} className="cursor-pointer">
         <p>Sort by</p>
       </div>
       {sortIsOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-[#FFFFFF] rounded-md shadow-lg">
+        <div className="absolute right-0 mt-2 w-40 rounded-md bg-[#FFFFFF] shadow-lg">
           {sortOptions.map((option, index) => (
             <div
               key={index}
@@ -23,7 +23,7 @@ const SortData = ({ sortIsOpen, toggleDropdown, onSort }: SortDataProps) => {
                 onSort(option as DatasetSortOptions); // Calls sorting function in `DataCatalog`
                 toggleDropdown(); // Closes dropdown
               }}
-              className="px-4 py-2 cursor-pointer hover:text-[#474060]"
+              className="cursor-pointer px-4 py-2 hover:text-[#474060]"
             >
               {option}
             </div>

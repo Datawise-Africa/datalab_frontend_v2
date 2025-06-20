@@ -400,7 +400,6 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
     state: { firstName, lastName },
   } = useAuth();
   const access = useCan();
-  console.log({ access });
 
   return (
     <DropdownMenuContent

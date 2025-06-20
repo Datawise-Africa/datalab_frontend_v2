@@ -52,6 +52,11 @@ export default function useApi() {
         originalRequest._retry = true;
 
         try {
+          if (!auth.state.refreshToken) {
+            console.error('No refresh token available');
+            auth.dispatch({ type: 'LOGOUT' });
+            return Promise.reject(error);
+          }
           const response = await publicApi.post(
             `/auth/refresh-token/`,
             {

@@ -10,81 +10,74 @@ import {
   PaginationPrevious,
 } from '../ui/pagination';
 import type { UseDatasetReturnType } from '@/hooks/use-datasets';
+import { useDatasetPagination } from '@/store/use-dataset-controls';
 type DatasetGridProps = {
   datasets: IDataset[];
   handleSingleDataModal: (dataset: IDataset) => void;
   handleDownloadDataClick: (dataset: IDataset) => void;
-  handleBookmarkDataset: (datasetId: IDataset['id']) => void;
-  handleQuickDownload: (dataset: IDataset) => void;
   handleShareDataset: (dataset: IDataset) => void;
-  pagination: UseDatasetReturnType['pagination'];
-  goToPage: UseDatasetReturnType['goToPage'];
-  goToNextPage: UseDatasetReturnType['goToNextPage'];
-  goToPreviousPage: UseDatasetReturnType['goToPreviousPage'];
-  changePageSize: UseDatasetReturnType['changePageSize'];
-  // isBookmarked?: (dataset: IDataset | number) => boolean;
-  // isBookmarksLoading?: boolean;
+  paginationInfo: UseDatasetReturnType['paginationInfo'];
 };
 
 const DatasetGrid = ({
   datasets,
   handleSingleDataModal,
   handleDownloadDataClick,
-  handleBookmarkDataset,
   handleShareDataset,
-  changePageSize,
-  goToNextPage,
-  goToPage,
-  goToPreviousPage,
-  handleQuickDownload,
-  pagination,
+  paginationInfo,
 }: DatasetGridProps) => {
   const {
-    currentPage,
-    endItem,
-    hasNextPage,
-    hasPreviousPage,
-    startItem,
-    totalItems,
-    itemsPerPage,
-    totalPages,
-  } = pagination;
+    changePageSize,
+    goToNextPage,
+    goToPage,
+    goToPreviousPage,
+    pagination,
+  } = useDatasetPagination();
+  const {
+    total_pages,
+    current_page,
+    start_item,
+    end_item,
+    has_next_page,
+    has_previous_page,
+    total_items,
+  } = paginationInfo;
 
   // Generate page numbers to display
   const generatePageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
 
-    if (totalPages <= maxVisiblePages) {
+    if (total_pages <= maxVisiblePages) {
       // Show all pages if total is less than max visible
-      for (let i = 1; i <= totalPages; i++) {
+      for (let i = 1; i <= total_pages; i++) {
         pages.push(i);
       }
     } else {
       // Show first page, current page range, and last page with ellipsis
-      if (currentPage <= 3) {
+      if (current_page <= 3) {
         // Show first few pages
         for (let i = 1; i <= 3; i++) {
           pages.push(i);
         }
         pages.push('ellipsis');
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
+        pages.push(total_pages);
+      } else if (current_page >= total_pages - 2) {
         // Show last few pages
         pages.push(1);
         pages.push('ellipsis');
-        for (let i = totalPages - 2; i <= totalPages; i++) {
+        for (let i = total_pages - 2; i <= total_pages; i++) {
           pages.push(i);
         }
       } else {
         // Show middle pages
         pages.push(1);
         pages.push('ellipsis');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+        for (let i = current_page - 1; i <= current_page + 1; i++) {
           pages.push(i);
         }
         pages.push('ellipsis');
-        pages.push(totalPages);
+        pages.push(total_pages);
       }
     }
 
@@ -102,9 +95,8 @@ const DatasetGrid = ({
               dataset={dataset}
               handleSingleDataModal={handleSingleDataModal}
               handleDownloadDataClick={handleDownloadDataClick}
-              handleBookmarkDataset={handleBookmarkDataset}
-              handleQuickDownload={handleQuickDownload}
               handleShareDataset={handleShareDataset}
+              mode="default"
               // isDatasetBookmarked={isDatasetBookmarked}
               // isBookmarksLoading={isBookmarksLoading}
             />
@@ -117,14 +109,14 @@ const DatasetGrid = ({
       )}
 
       {/* Pagination Section */}
-      {totalPages > 1 && (
+      {total_pages > 1 && (
         <div className="space-y-4">
           {/* Page Size Selector */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600">Show:</span>
               <select
-                value={itemsPerPage}
+                value={pagination.limit}
                 onChange={(e) => changePageSize(Number(e.target.value))}
                 className="rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:outline-none"
               >
@@ -138,7 +130,7 @@ const DatasetGrid = ({
 
             {/* Results Info */}
             <div className="text-sm text-gray-600">
-              Showing {startItem} to {endItem} of {totalItems} results
+              Showing {start_item} to {end_item} of {total_items} results
             </div>
           </div>
 
@@ -148,8 +140,8 @@ const DatasetGrid = ({
               {/* Previous Button */}
               <PaginationItem>
                 <PaginationPrevious
-                  onClick={hasPreviousPage ? goToPreviousPage : undefined}
-                  className={`cursor-pointer ${!hasPreviousPage ? 'pointer-events-none opacity-50' : 'hover:bg-gray-100'}`}
+                  onClick={has_previous_page ? goToPreviousPage : undefined}
+                  className={`cursor-pointer ${!has_previous_page ? 'pointer-events-none opacity-50' : 'hover:bg-gray-100'}`}
                 />
               </PaginationItem>
 
@@ -162,7 +154,7 @@ const DatasetGrid = ({
                     <PaginationLink
                       onClick={() => goToPage(page as number)}
                       className={`cursor-pointer ${
-                        currentPage === page
+                        current_page === page
                           ? 'bg-blue-600 text-white hover:bg-blue-700'
                           : 'hover:bg-gray-100'
                       }`}
@@ -176,8 +168,10 @@ const DatasetGrid = ({
               {/* Next Button */}
               <PaginationItem>
                 <PaginationNext
-                  onClick={hasNextPage ? goToNextPage : undefined}
-                  className={`cursor-pointer ${!hasNextPage ? 'pointer-events-none opacity-50' : 'hover:bg-gray-100'}`}
+                  onClick={() =>
+                    has_next_page ? goToNextPage(current_page + 1) : undefined
+                  }
+                  className={`cursor-pointer ${!has_next_page ? 'pointer-events-none opacity-50' : 'hover:bg-gray-100'}`}
                 />
               </PaginationItem>
             </PaginationContent>
@@ -189,20 +183,20 @@ const DatasetGrid = ({
             <input
               type="number"
               min={1}
-              max={totalPages}
+              max={total_pages}
               className="w-16 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:border-blue-500 focus:outline-none"
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   const page = parseInt((e.target as HTMLInputElement).value);
-                  if (page >= 1 && page <= totalPages) {
+                  if (page >= 1 && page <= total_pages) {
                     goToPage(page);
                     (e.target as HTMLInputElement).value = '';
                   }
                 }
               }}
-              placeholder={currentPage.toString()}
+              placeholder={current_page.toString()}
             />
-            <span className="text-sm text-gray-600">of {totalPages}</span>
+            <span className="text-sm text-gray-600">of {total_pages}</span>
           </div>
         </div>
       )}
