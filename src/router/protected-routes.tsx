@@ -20,7 +20,9 @@ const ApplicationsPage = lazy(
 );
 
 const AcccountSettings = lazy(() => import('@/pages/account-settings'));
-
+const DatasetCreatorReportsPage = lazy(
+  () => import('@/pages/DatasetCreatorReportsPage'),
+);
 export const protecteRoutes: RouteObject = {
   path: '/app',
   element: <ProtectedLayout />,
@@ -50,6 +52,12 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/account-settings',
       element: <Protect role="user" Component={AcccountSettings} />,
+    },
+    {
+      path: '/app/dataset-creator-reports',
+      element: (
+        <Protect role="dataset_creator" Component={DatasetCreatorReportsPage} />
+      ),
     },
   ],
 };

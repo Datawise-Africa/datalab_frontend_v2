@@ -44,7 +44,6 @@ export default function useSidebarLinks() {
           //   href: '#',
           //   badge: 'Pending',
           // },
-
         ],
       },
       {
@@ -67,7 +66,7 @@ export default function useSidebarLinks() {
           {
             label: 'My Reports',
             icon: Paperclip,
-            href: '#',
+            href: '/app/dataset-creator-reports',
           },
         ],
       },
