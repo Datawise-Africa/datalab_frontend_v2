@@ -61,7 +61,7 @@ export default function useSidebarLinks() {
           {
             label: 'Analytics',
             icon: BarChart,
-            href: '#',
+            href: '/app/dataset-creator-analytics',
           },
           {
             label: 'My Reports',
