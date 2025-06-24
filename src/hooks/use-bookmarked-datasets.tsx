@@ -74,9 +74,12 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
 
   // Derived data
   const bookmarkedDatasets = bookmarkedDatasetsResponse;
+  const bookmarkedDatasetsList = (bookmarkedDatasets || []).filter(
+    (d) => d?.['dataset'] && d.dataset.id,
+  ) as IBookMarkedDataset[];
   const bookmarkedDatasetIds = useMemo(
-    () => new Set(bookmarkedDatasets.map((d) => d.dataset.id.toString())),
-    [bookmarkedDatasets],
+    () => new Set(bookmarkedDatasetsList.map((d) => d.dataset.id.toString())),
+    [bookmarkedDatasetsList],
   );
 
   // Add bookmark mutation with optimistic update

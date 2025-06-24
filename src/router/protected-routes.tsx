@@ -19,6 +19,8 @@ const ApplicationsPage = lazy(
   () => import('@/components/creatorapplications/ApplicationsPage'),
 );
 
+const AcccountSettings = lazy(() => import('@/pages/account-settings'));
+
 export const protecteRoutes: RouteObject = {
   path: '/app',
   element: <ProtectedLayout />,
@@ -44,6 +46,10 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/applications/approvedcreators',
       element: <Protect role="admin" Component={ApprovedApplicantsTable} />,
+    },
+    {
+      path: '/app/account-settings',
+      element: <Protect role="user" Component={AcccountSettings} />,
     },
   ],
 };
