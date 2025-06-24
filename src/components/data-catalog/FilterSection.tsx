@@ -29,22 +29,22 @@ const FilterSection = ({
   };
 
   return (
-    <div className="max-w-24xl ">
+    <div className="max-w-24xl">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white border border-gray-300 rounded px-4 py-2 shadow-sm text-left text-md font-semibold text-gray-500 hover:bg-gray-50"
+        className="text-md w-full rounded border border-gray-300 bg-white px-4 py-2 text-left font-semibold text-gray-500 shadow-sm hover:bg-gray-50"
       >
         {title}
       </button>
 
       {/* Dropdown Checklist */}
       {isOpen && (
-        <div className="mt-2 border border-gray-200 rounded-lg shadow-md p-3 bg-white max-h-80 overflow-y-auto">
+        <div className="mt-2 max-h-80 overflow-y-auto rounded-lg border border-gray-200 bg-white p-3 shadow-md">
           {options.map((option, index) => (
             <label
               key={index}
-              className="flex items-center space-x-2 mb-1 cursor-pointer"
+              className="mb-1 flex cursor-pointer items-center space-x-2"
             >
               <input
                 type="checkbox"

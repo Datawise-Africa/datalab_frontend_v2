@@ -23,7 +23,7 @@ const DatasetHeader = ({
         <h2 className="h4 text-xl font-bold ">Datalab</h2>
       </div> */}
 
-      <div className="hidden lg:flex flex-grow  mt-2">
+      <div className="mt-2 hidden flex-grow lg:flex">
         <SearchDatasets
           onSearchResults={onSearchResults}
           onSearchReset={onSearchReset}

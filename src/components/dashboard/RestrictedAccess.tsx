@@ -20,23 +20,23 @@ export function RestrictedAccess({
 }: RestrictedAccessProps) {
   // const navigate = useNavigate();
   return (
-    <div className="flex items-center justify-center min-h-[70vh] p-4">
-      <Card className="max-w-2xl w-full p-6 border-none shadow-none">
+    <div className="flex min-h-[70vh] items-center justify-center p-4">
+      <Card className="w-full max-w-2xl border-none p-6 shadow-none">
         <div className="flex flex-col items-center text-center">
-          <div className="rounded-full bg-gray-100 p-3 mb-4">
+          <div className="mb-4 rounded-full bg-gray-100 p-3">
             <ShieldAlert className="h-10 w-10 text-red-500" />
           </div>
 
-          <h2 className="text-2xl font-bold tracking-tight mb-2 text-red-400">
+          <h2 className="mb-2 text-2xl font-bold tracking-tight text-red-400">
             {title}
           </h2>
 
           <p className="text-muted-foreground mb-6">{message}</p>
 
-          <div className="grid gap-3 w-full place-items-center">
+          <div className="grid w-full place-items-center gap-3">
             {showBackButton && (
-              <Button variant="outline" className="w-fit " asChild>
-                <Link to={backUrl} className="flex items-center text-primary">
+              <Button variant="outline" className="w-fit" asChild>
+                <Link to={backUrl} className="text-primary flex items-center">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Go Back
                 </Link>

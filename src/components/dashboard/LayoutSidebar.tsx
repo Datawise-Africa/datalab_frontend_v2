@@ -165,7 +165,11 @@ export default function LayoutSidebar({
         {/* Navigation Links */}
         <div className="flex-1 overflow-y-auto p-4">
           {!isCollapsed || isMobile ? (
-            <Accordion type="multiple" className="w-full space-y-2">
+            <Accordion
+              type="multiple"
+              className="w-full space-y-2"
+              defaultValue={['Menu']}
+            >
               {links.map((link) => (
                 <SidebarItem key={link.label} {...link} isCollapsed={false} />
               ))}
