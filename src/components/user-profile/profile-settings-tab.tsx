@@ -1,11 +1,8 @@
-import type React from 'react';
-
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -19,11 +16,10 @@ import {
   Mail,
   Phone,
   Building,
-  Briefcase,
   MapPin,
-  Upload,
   Loader2,
   Save,
+  Link2Icon,
 } from 'lucide-react'; // Import Loader2 for spinner
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,179 +31,242 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import Cropper from 'react-easy-crop';
-import { useAuth } from '@/context/AuthProvider';
+// import Cropper from 'react-easy-crop';
 import { IconInput } from '../ui/icon-input';
-import { z } from 'zod';
-
-const updateProfileSchema = z.object({
-  title: z.string().optional(),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  organization: z.string().optional(),
-  jobTitle: z.string().optional(),
-  location: z.string().optional(),
-  bio: z.string().optional(),
-});
-
-type ProfileFormValues = z.infer<typeof updateProfileSchema>;
+import { useUserProfile } from '@/api/profile/profile';
+import { cn } from '@/lib/utils';
+import { FancyToast } from '@/lib/utils/toaster';
+import { extractCorrectErrorMessage } from '@/lib/error';
+import {
+  updateProfileSchema,
+  type UpdateUserProfileDataType,
+} from '@/lib/schema/user-profile';
+// import Cropper from 'react-easy-crop';
+const userTitles = [
+  { value: 'Dr.', label: 'Dr.' },
+  { value: 'Mr.', label: 'Mr.' },
+  { value: 'Ms.', label: 'Ms.' },
+  { value: 'Mrs.', label: 'Mrs.' },
+  { value: 'Rev.', label: 'Rev.' },
+  { value: 'Mx.', label: 'Mx.' },
+  { value: 'Prof.', label: 'Prof.' },
+  { value: 'Eng.', label: 'Eng.' },
+  { value: 'Hon.', label: 'Hon.' },
+  { value: 'Sir', label: 'Sir' },
+];
 
 // Helper function to get a cropped image from a canvas
-const createImage = (url: string) =>
-  new Promise((resolve, reject) => {
-    const image = new Image();
-    image.addEventListener('load', () => resolve(image));
-    image.addEventListener('error', (error) => reject(error));
-    image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues
-    image.src = url;
-  });
+// const createImage = (url: string) =>
+//   new Promise((resolve, reject) => {
+//     const image = new Image();
+//     image.addEventListener('load', () => resolve(image));
+//     image.addEventListener('error', (error) => reject(error));
+//     image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues
+//     image.src = url;
+//   });
 
-async function getCroppedImg(
-  imageSrc: string,
-  pixelCrop: { x: number; y: number; width: number; height: number },
-) {
-  const image = (await createImage(imageSrc)) as HTMLImageElement;
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
+// async function getCroppedImg(
+//   imageSrc: string,
+//   pixelCrop: { x: number; y: number; width: number; height: number },
+// ) {
+//   const image = (await createImage(imageSrc)) as HTMLImageElement;
+//   const canvas = document.createElement('canvas');
+//   const ctx = canvas.getContext('2d');
 
-  if (!ctx) {
-    return null;
-  }
+//   if (!ctx) {
+//     return null;
+//   }
 
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
+//   const scaleX = image.naturalWidth / image.width;
+//   const scaleY = image.naturalHeight / image.height;
 
-  canvas.width = pixelCrop.width;
-  canvas.height = pixelCrop.height;
+//   canvas.width = pixelCrop.width;
+//   canvas.height = pixelCrop.height;
 
-  ctx.drawImage(
-    image,
-    pixelCrop.x * scaleX,
-    pixelCrop.y * scaleY,
-    pixelCrop.width * scaleX,
-    pixelCrop.height * scaleY,
-    0,
-    0,
-    pixelCrop.width,
-    pixelCrop.height,
-  );
+//   ctx.drawImage(
+//     image,
+//     pixelCrop.x * scaleX,
+//     pixelCrop.y * scaleY,
+//     pixelCrop.width * scaleX,
+//     pixelCrop.height * scaleY,
+//     0,
+//     0,
+//     pixelCrop.width,
+//     pixelCrop.height,
+//   );
 
-  // toDataURL returns the data URL directly, not through a callback
-  const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-  return dataUrl;
-}
+//   // toDataURL returns the data URL directly, not through a callback
+//   const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+//   return dataUrl;
+// }
 
 export default function ProfileSettings() {
-  const {
-    state: {
-      firstName: authFirstName,
-      lastName: authLastName,
-      email: authEmail,
-    },
-  } = useAuth();
-
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const [croppedImage, setCroppedImage] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false); // Loading state for avatar upload
-  const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for form submission
+  const { profile, updateProfile, isUpdating } = useUserProfile();
+  // const [imageSrc, setImageSrc] = useState<string | null>(null);
+  // const [crop, setCrop] = useState({ x: 0, y: 0 });
+  // const [zoom, setZoom] = useState(1);
+  // const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+  //   x: number;
+  //   y: number;
+  //   width: number;
+  //   height: number;
+  // } | null>(null);
+  const [croppedImage,] = useState<string | null>(null);
+  const [_isDialogOpen, ] = useState(false);
+  const [_isSaving, ] = useState(false); // Loading state for avatar upload
+  // const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for form submission
 
   // Initialize the form with React Hook Form
-  const form = useForm<ProfileFormValues>({
+  const form = useForm<UpdateUserProfileDataType>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
-      title: 'Dr.',
-      firstName: authFirstName || '',
-      lastName: authLastName || '',
-      email: authEmail || '',
-      phone: '',
-      organization: 'Datawise Africa',
-      jobTitle: '',
-      location: 'Nairobi, KE',
-      bio: '',
+      // id: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      profile: {
+        // id: undefined,
+        title: '',
+        avatar: '',
+        bio: '',
+        phone_number: '',
+        organization: '',
+        location: '',
+        linkedin_url: '',
+      },
     },
   });
 
   // Handle form submission
-  const onSubmit = (data: ProfileFormValues) => {
-    setIsSubmitting(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Profile updated:', data);
-      // Here you would typically make an API call to update the profile
-      // api.updateProfile(data).then(...).catch(...)
-
-      setIsSubmitting(false);
-    }, 1000);
-  };
-
-  const onCropComplete = useCallback(
-    (_croppedArea: any, croppedAreaPixels: any) => {
-      setCroppedAreaPixels(croppedAreaPixels);
-    },
-    [],
-  );
-
-  const onFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        const file = e.target.files[0];
-        const imageDataUrl = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.addEventListener(
-            'load',
-            () => resolve(reader.result as string),
-            false,
-          );
-          reader.readAsDataURL(file);
+  const onSubmit = form.handleSubmit(async (data) => {
+    await updateProfile(data, {
+      onSuccess: () => {
+        // console.log('Profile updated successfully');
+        FancyToast.success('Profile updated successfully', {
+          autoClose: true,
         });
-        setImageSrc(imageDataUrl);
+        // Optionally, you can show a success message or reset the form
+      },
+      onError: (error) => {
+        console.error('Error updating profile:', error);
+        FancyToast.error(
+          extractCorrectErrorMessage(
+            error,
+            'Failed to update profile. Please try again.',
+          ),
+          {
+            autoClose: true,
+          },
+        );
+        // Optionally, you can show an error message to the user
+      },
+    });
+  });
+
+  // const _onCropComplete = useCallback(
+  //   (_croppedArea: any, croppedAreaPixels: any) => {
+  //     setCroppedAreaPixels(croppedAreaPixels);
+  //   },
+  //   [],
+  // );
+
+  // const _onFileChange = useCallback(
+  //   async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     if (e.target.files && e.target.files.length > 0) {
+  //       const file = e.target.files[0];
+  //       const imageDataUrl = await new Promise<string>((resolve) => {
+  //         const reader = new FileReader();
+  //         reader.addEventListener(
+  //           'load',
+  //           () => resolve(reader.result as string),
+  //           false,
+  //         );
+  //         reader.readAsDataURL(file);
+  //       });
+  //       setImageSrc(imageDataUrl);
+  //     }
+  //   },
+  //   [],
+  // );
+
+  // const _showCroppedImage = useCallback(async () => {
+  //   setIsSaving(true); // Start loading
+  //   try {
+  //     if (imageSrc && croppedAreaPixels) {
+  //       const croppedImageResult = await getCroppedImg(
+  //         imageSrc,
+  //         croppedAreaPixels,
+  //       );
+  //       // Simulate an upload delay
+  //       await new Promise((resolve) => setTimeout(resolve, 1500));
+  //       setCroppedImage(croppedImageResult);
+
+  //       // Update the form with the base64 image
+  //       if (croppedImageResult) {
+  //         form.setValue('profile.avatar', croppedImageResult);
+  //         console.log('Updated form with new avatar');
+  //       }
+
+  //       setIsDialogOpen(false); // Close dialog after cropping
+  //       setImageSrc(null); // Clear image source from cropper
+  //     }
+  //   } catch (e) {
+  //     console.error(e);
+  //     // Optionally show an error message to the user
+  //   } finally {
+  //     setIsSaving(false); // End loading
+  //   }
+  // }, [imageSrc, croppedAreaPixels, form]);
+
+  const watchProfileChanges = useCallback(
+    function () {
+      // console.log('Watching profile changes:', profile);
+
+      if (
+        profile &&
+        typeof profile === 'object' &&
+        !Array.isArray(profile) &&
+        profile !== null &&
+        profile !== undefined &&
+        Object.keys(profile).length > 0
+      ) {
+        form.reset({
+          // id: profile.id || '',
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          email: profile.email || '',
+          profile: {
+            // id: profile.profile?.id,
+            title: profile.profile?.title || '',
+            avatar: profile.profile?.avatar || '',
+            bio: profile.profile?.bio || '',
+            phone_number: profile.profile?.phone_number || '',
+            organization: profile.profile?.organization || '',
+            location: profile.profile?.location || '',
+            linkedin_url: profile.profile?.linkedin_url || '',
+          },
+        });
+        console.log('Form reset wit/h profile data:', form.getValues());
       }
     },
-    [],
+    [profile],
   );
 
-  const showCroppedImage = useCallback(async () => {
-    setIsSaving(true); // Start loading
-    try {
-      if (imageSrc && croppedAreaPixels) {
-        const croppedImageResult = await getCroppedImg(
-          imageSrc,
-          croppedAreaPixels,
-        );
-        // Simulate an upload delay
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setCroppedImage(croppedImageResult);
-        setIsDialogOpen(false); // Close dialog after cropping
-        setImageSrc(null); // Clear image source from cropper
-      }
-    } catch (e) {
-      console.error(e);
-      // Optionally show an error message to the user
-    } finally {
-      setIsSaving(false); // End loading
+  // Watch for changes in the profile data and reset the form
+  useEffect(() => {
+    watchProfileChanges();
+  }, [profile, watchProfileChanges]);
+
+  const imageUrl = useMemo(() => {
+    if (croppedImage) {
+      return croppedImage;
     }
-  }, [imageSrc, croppedAreaPixels]);
+    if (form.getValues().profile.avatar) {
+      return form.getValues().profile.avatar;
+    }
+    return profile?.profile?.avatar || null;
+  }, [croppedImage, form]);
+  // console.log({ imageUrl, profile });
 
   return (
     <Card className="border-primary/30 bg-white">
@@ -221,15 +280,15 @@ export default function ProfileSettings() {
         <div className="flex items-center gap-4">
           <Avatar className="h-20 w-20 border-2 border-gray-300">
             <AvatarImage
-              src={croppedImage || '/placeholder.svg?height=80&width=80'}
+              src={form.watch('profile.avatar')! || imageUrl!}
               alt="Avatar"
             />
             <AvatarFallback>
-              {form.getValues().firstName?.[0]}
-              {form.getValues().lastName?.[0]}
+              {form.getValues().first_name?.[0]}
+              {form.getValues().last_name?.[0]}
             </AvatarFallback>
           </Avatar>
-          <div className="flex gap-2">
+          {/* <div className="flex gap-2">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">Change Avatar</Button>
@@ -255,7 +314,7 @@ export default function ProfileSettings() {
                         <Input
                           id="avatar-upload"
                           type="file"
-                          accept="image/*"
+                          accept=".png, .jpeg, .jpg, image/png, image/jpeg"
                           onChange={onFileChange}
                           className="sr-only"
                         />
@@ -325,18 +384,23 @@ export default function ProfileSettings() {
             <Button
               variant="destructive"
               className="border border-red-300 text-red-500"
+              onClick={() => {
+                setCroppedImage(null);
+                form.setValue('profile.avatar', '');
+                console.log('Avatar removed');
+              }}
             >
               Remove
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
+          <form onSubmit={onSubmit} className="grid gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField
                 control={form.control}
-                name="title"
+                name="profile.title"
                 render={({ field }) => (
                   <FormItem className="grid w-full gap-2">
                     <FormLabel>Title</FormLabel>
@@ -349,42 +413,49 @@ export default function ProfileSettings() {
                           <SelectValue placeholder="Select title" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Dr.">Dr.</SelectItem>
-                        <SelectItem value="Mr.">Mr.</SelectItem>
-                        <SelectItem value="Ms.">Ms.</SelectItem>
-                        <SelectItem value="Mx.">Mx.</SelectItem>
+                      <SelectContent className="border-primary/30 w-full border bg-white">
+                        {userTitles.map((title) => (
+                          <SelectItem
+                            key={title.value}
+                            value={title.value}
+                            className={cn('hover:bg-primary/30', {
+                              'bg-primary/10': field.value === title.value,
+                            })}
+                          >
+                            {title.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="firstName"
+                name="first_name"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="lastName"
+                name="last_name"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -404,14 +475,14 @@ export default function ProfileSettings() {
                         placeholder="Enter your email"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="phone"
+                name="profile.phone_number"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel>Phone Number</FormLabel>
@@ -424,14 +495,14 @@ export default function ProfileSettings() {
                         placeholder="Enter your phone number"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="organization"
+                name="profile.organization"
                 render={({ field }) => (
                   <FormItem className="grid gap-2">
                     <FormLabel>Organization</FormLabel>
@@ -445,12 +516,12 @@ export default function ProfileSettings() {
                         placeholder="Enter your organization"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="jobTitle"
                 render={({ field }) => (
@@ -466,14 +537,14 @@ export default function ProfileSettings() {
                         placeholder="Enter your job title"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className='text-red-500' />
                   </FormItem>
                 )}
-              />
+              /> */}
 
               <FormField
                 control={form.control}
-                name="location"
+                name="profile.location"
                 render={({ field }) => (
                   <FormItem className="grid gap-2 sm:col-span-2">
                     <FormLabel>Location</FormLabel>
@@ -485,14 +556,34 @@ export default function ProfileSettings() {
                         placeholder="Enter your location"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="profile.linkedin_url"
+                render={({ field }) => (
+                  <FormItem className="grid gap-2 sm:col-span-2">
+                    <FormLabel>LinkedIn URL</FormLabel>
+                    <FormControl>
+                      <IconInput
+                        {...field}
+                        className="pl-9"
+                        leftIcon={
+                          <Link2Icon className="h-4 w-4 text-gray-500" />
+                        }
+                        placeholder="Enter your LinkedIn URL"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="bio"
+                name="profile.bio"
                 render={({ field }) => (
                   <FormItem className="grid gap-2 sm:col-span-2">
                     <FormLabel>Bio</FormLabel>
@@ -503,7 +594,7 @@ export default function ProfileSettings() {
                         placeholder="Enter your bio"
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500" />
                   </FormItem>
                 )}
               />
@@ -513,9 +604,9 @@ export default function ProfileSettings() {
               <Button
                 type="submit"
                 className="flex items-center gap-2 text-white"
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting || isUpdating}
               >
-                {isSubmitting ? (
+                {form.formState.isSubmitting || isUpdating ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Updating Profile...

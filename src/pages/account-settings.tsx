@@ -1,3 +1,4 @@
+import { useUserProfile } from '@/api/profile/profile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProfilePageLoader from '@/components/user-profile/profile-page-loader';
 import { cn } from '@/lib/utils';
@@ -16,12 +17,15 @@ const ProfileSecuritySettingsTab = lazy(
 );
 const tabOptions = [
   { value: 'profile', label: 'Profile' },
-  { value: 'notifications', label: 'Notifications' },
-  { value: 'billing', label: 'Billing Options' },
+  // { value: 'notifications', label: 'Notifications' },
+  // { value: 'billing', label: 'Billing Options' },
   { value: 'security', label: 'Security' },
 ] as const;
 export default function AccountSettings() {
   const [tab, setTab] = React.useState('profile');
+  const { profile } = useUserProfile();
+  console.log({ profile });
+
   return (
     <div>
       <div className="mx-auto max-w-4xl px-4 py-8">

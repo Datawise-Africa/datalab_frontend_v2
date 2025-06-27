@@ -430,7 +430,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
       {/* <DropdownMenuSeparator /> */}
       <hr className="text-subtle my-1" />
       <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
-        <Link to={'/#'} className="flex items-center">
+        <Link to={'/app/account-settings'} className="flex items-center">
           <User className="mr-2 h-5 w-5" />
           <span className="text-sm font-medium">Profile</span>
         </Link>

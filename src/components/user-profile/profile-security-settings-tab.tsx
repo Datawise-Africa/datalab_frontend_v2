@@ -9,10 +9,64 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useForm } from 'react-hook-form';
+import {
+  changePasswordResolver,
+  type ChangePasswordDataType,
+} from '@/lib/schema/user-profile';
+import { useUserProfile } from '@/api/profile/profile';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '../ui/form';
+import { FancyToast } from '@/lib/utils/toaster';
+import { extractCorrectErrorMessage } from '@/lib/error';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthProvider';
 
 export default function ProfileSecuritySettingsTab() {
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+  const auth = useAuth();
+  const form = useForm<ChangePasswordDataType>({
+    resolver: changePasswordResolver,
+    defaultValues: {
+      confirm_new_password: '',
+      current_password: '',
+      new_password: '',
+    },
+  });
+  const { changePassword, isChangingPassword } = useUserProfile();
+  const submit = form.handleSubmit((data) => {
+    changePassword(data, {
+      onError: (error) => {
+        console.error('Error changing password:', error);
+        FancyToast.error(
+          extractCorrectErrorMessage(
+            error,
+            'Password update failed.Try again later!',
+          ),
+          { theme: 'light' },
+        );
+      },
+      onSuccess: () => {
+        console.log('Password changed successfully');
+        FancyToast.success('Password updated successfully!', {
+          duration: 3000,
+          theme: 'light',
+        });
+        form.reset();
+        setChangePasswordOpen(false);
+        auth.dispatch(auth.actions.LOGOUT()); // Logout user after password change
+      },
+    });
+  });
+  console.log(form.formState.errors);
+
   return (
     <Card className="mx-auto my-8 border border-gray-200 bg-white shadow-sm">
       <CardHeader>
@@ -22,7 +76,7 @@ export default function ProfileSecuritySettingsTab() {
         </CardTitle>
       </CardHeader>
       <CardContent className="grid gap-6">
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="grid gap-1">
             <p className="font-semibold">Two-Factor Authentication</p>
             <p className="text-sm text-gray-500">
@@ -37,7 +91,7 @@ export default function ProfileSecuritySettingsTab() {
               Enable
             </Button>
           </div>
-        </div>
+        </div> */}
         <div className="flex items-center justify-between">
           <div className="grid gap-1">
             <p className="font-semibold">Change Password</p>
@@ -45,7 +99,7 @@ export default function ProfileSecuritySettingsTab() {
               Update your password regularly for better security
             </p>
           </div>
-          <Sheet>
+          <Sheet open={changePasswordOpen} onOpenChange={setChangePasswordOpen}>
             <SheetTrigger asChild>
               <Button variant="outline">Change Password</Button>
             </SheetTrigger>
@@ -57,33 +111,76 @@ export default function ProfileSecuritySettingsTab() {
                   account security.
                 </SheetDescription>
               </SheetHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="current-password">Current Password</Label>
-                  <Input
-                    id="current-password"
-                    type="password"
-                    placeholder="Enter current password"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="new-password">New Password</Label>
-                  <Input
-                    id="new-password"
-                    type="password"
-                    placeholder="Enter new password"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="confirm-password">Confirm New Password</Label>
-                  <Input
-                    id="confirm-password"
-                    type="password"
-                    placeholder="Confirm new password"
-                  />
-                </div>
-                <Button type="submit">Update Password</Button>
-              </div>
+              <Form {...form}>
+                <form className="grid gap-4 py-4" onSubmit={submit}>
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="current_password"
+                      render={({ field }) => (
+                        <FormItem className="grid gap-2">
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder="Enter your current password"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-500" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="new_password"
+                      render={({ field }) => (
+                        <FormItem className="grid gap-2">
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="password"
+                              autoComplete="new-password"
+                              placeholder="Enter the new password"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-500" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <FormField
+                      control={form.control}
+                      name="confirm_new_password"
+                      render={({ field }) => (
+                        <FormItem className="grid gap-2">
+                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="password"
+                              autoComplete="new-password"
+                              placeholder="Confirm your new password"
+                            />
+                          </FormControl>
+                          <FormMessage className="text-red-500" />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    disabled={isChangingPassword || form.formState.isSubmitting}
+                    className="text-white disabled:bg-gray-300 disabled:text-gray-500"
+                  >
+                    Update Password
+                  </Button>
+                </form>
+              </Form>
             </SheetContent>
           </Sheet>
         </div>

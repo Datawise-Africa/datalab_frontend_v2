@@ -89,7 +89,7 @@ const CustomToast: React.FC<CustomToastProps & { t: any }> = ({
 
   const getThemeClasses = () => {
     const baseClasses =
-      'relative overflow-hidden rounded-xl shadow-2xl border backdrop-blur-sm';
+      'relative overflow-hidden rounded-xl shadow-2xl border backdrop-blur-sm border';
 
     switch (theme) {
       case 'light':

@@ -274,7 +274,7 @@ export default function BecomeDatasetCreatorPage() {
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -294,7 +294,7 @@ export default function BecomeDatasetCreatorPage() {
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -316,7 +316,7 @@ export default function BecomeDatasetCreatorPage() {
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
@@ -416,7 +416,7 @@ export default function BecomeDatasetCreatorPage() {
                           )}
                         </FormLabel>
                       </FormControl>
-                      <FormMessage />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
