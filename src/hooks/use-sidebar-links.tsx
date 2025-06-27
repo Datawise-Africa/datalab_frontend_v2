@@ -62,12 +62,12 @@ export default function useSidebarLinks() {
           {
             label: 'Analytics',
             icon: BarChart,
-            href: '#',
+            href: '/app/dataset-creator-analytics',
           },
           {
             label: 'My Reports',
             icon: Paperclip,
-            href: '#',
+            href: '/app/dataset-creator-reports',
           },
         ],
       },

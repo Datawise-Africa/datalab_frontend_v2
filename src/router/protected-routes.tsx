@@ -19,6 +19,13 @@ const ApplicationsPage = lazy(
   () => import('@/components/creatorapplications/ApplicationsPage'),
 );
 
+const AcccountSettings = lazy(() => import('@/pages/account-settings'));
+const DatasetCreatorReportsPage = lazy(
+  () => import('@/pages/DatasetCreatorReportsPage'),
+);
+const DatasetCreatorAnalyticsPage = lazy(
+  () => import('@/pages/DatasetCreatorAnalyticsPage'),
+);
 export const protecteRoutes: RouteObject = {
   path: '/app',
   element: <ProtectedLayout />,
@@ -44,6 +51,25 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/applications/approvedcreators',
       element: <Protect role="admin" Component={ApprovedApplicantsTable} />,
+    },
+    {
+      path: '/app/account-settings',
+      element: <Protect role="user" Component={AcccountSettings} />,
+    },
+    {
+      path: '/app/dataset-creator-reports',
+      element: (
+        <Protect role="dataset_creator" Component={DatasetCreatorReportsPage} />
+      ),
+    },
+    {
+      path: '/app/dataset-creator-analytics',
+      element: (
+        <Protect
+          role="dataset_creator"
+          Component={DatasetCreatorAnalyticsPage}
+        />
+      ),
     },
   ],
 };

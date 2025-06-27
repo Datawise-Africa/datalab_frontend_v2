@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useState } from 'react';
 import ApplicantDetailsModal from './ApplicantsModal';
 import { MoreVertical, Search } from 'lucide-react';

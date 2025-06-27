@@ -401,7 +401,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
   const {
     dispatch,
     actions,
-    state: { firstName, lastName },
+    state: { fullName, userRole },
   } = useAuth();
   const access = useCan();
 
@@ -416,32 +416,39 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
           <Avatar className="h-8 w-8">
             <AvatarImage src="" alt="User Avatar" className="border" />
             <AvatarFallback className="border">
-              {firstName.charAt(0)}
-              {lastName.charAt(0)}
+              {fullName
+                ? `${fullName.charAt(0)}${fullName.split(' ')[1]?.charAt(0)}`
+                : 'NA'}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">Data Explorer</span>
-            <span className="text-sm font-medium">
-              {firstName} {lastName}
-            </span>
+            <span className="text-sm font-medium">{fullName}</span>
           </div>
         </div>
       </DropdownMenuLabel>
       {/* <DropdownMenuSeparator /> */}
       <hr className="text-subtle my-1" />
       <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
-        <Link to={'/#'} className="flex items-center">
+        <Link to={'/app/account-settings'} className="flex items-center">
           <User className="mr-2 h-5 w-5" />
           <span className="text-sm font-medium">Profile</span>
         </Link>
       </DropdownMenuItem>
-      <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
-        <Link to={'/#'} className="flex items-center">
-          <LucideCog className="mr-2 h-5 w-5" />
-          <span className="text-sm font-medium">Upload Dataset</span>
-        </Link>
-      </DropdownMenuItem>
+      {AuthPerm.getInstance().canAnyRole(
+        ['dataset_creator', 'admin'],
+        userRole,
+      ) && (
+        <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
+          <Link
+            to={'/app/dataset-creator-dashboard/'}
+            className="flex items-center"
+          >
+            <LucideCog className="mr-2 h-5 w-5" />
+            <span className="text-sm font-medium">Upload Dataset</span>
+          </Link>
+        </DropdownMenuItem>
+      )}
       {!access.is_admin && !access.is_dataset_creator && (
         <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
           <Link
