@@ -25,6 +25,7 @@ import { getIntendedAudienceIcon } from '@/lib/get-intended-audience-icon';
 import { cn } from '@/lib/utils';
 import { useBookmarks } from '@/hooks/use-bookmarked-datasets';
 import { shareDataset } from '@/lib/utils/share-dataset.tsx';
+import { useNavigate } from 'react-router-dom';
 
 type DatasetCardProps<T = IDataset> = {
   dataset: T;
@@ -63,6 +64,7 @@ const DatasetCard = <T = IDataset,>({
       await addBookmarkMutation.mutateAsync(datasetId);
     }
   };
+  const navigate = useNavigate();
 
   return (
     <div className="group flex w-full flex-col rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md">
@@ -268,7 +270,11 @@ const DatasetCard = <T = IDataset,>({
         <div className="flex gap-2 sm:gap-3">
           <Button
             variant={'outline'}
-            onClick={() => handleSingleDataModal(dataset as T)}
+            onClick={() => {
+              navigate(`/datasets/${dataset.id}`);
+              // If you want to handle the modal instead of navigation, uncomment below
+              // handleSingleDataModal(dataset as T)
+            }}
             className="flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border border-gray-300 px-2 py-2 text-xs text-gray-700 transition-colors hover:bg-gray-50 sm:gap-2 sm:px-4 sm:text-sm"
           >
             <Eye className="h-3 w-3 sm:h-4 sm:w-4" />

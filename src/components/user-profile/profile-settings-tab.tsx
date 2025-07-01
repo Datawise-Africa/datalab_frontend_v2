@@ -111,9 +111,9 @@ export default function ProfileSettings() {
   //   width: number;
   //   height: number;
   // } | null>(null);
-  const [croppedImage,] = useState<string | null>(null);
-  const [_isDialogOpen, ] = useState(false);
-  const [_isSaving, ] = useState(false); // Loading state for avatar upload
+  const [croppedImage] = useState<string | null>(null);
+  const [_isDialogOpen] = useState(false);
+  const [_isSaving] = useState(false); // Loading state for avatar upload
   // const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for form submission
 
   // Initialize the form with React Hook Form

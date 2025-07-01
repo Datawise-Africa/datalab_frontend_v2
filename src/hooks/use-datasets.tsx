@@ -35,7 +35,9 @@ interface BookmarkResponse {
   created_at: string;
 }
 
-export default function useDatasets() {
+export default function useDatasets(
+  datasetId?: string, // Optional datasetId for single dataset queries
+) {
   const auth = useAuth();
   const { privateApi, publicApi } = useApi();
   const queryClient = useQueryClient();
@@ -149,6 +151,29 @@ export default function useDatasets() {
         };
       }
       return undefined;
+    },
+  });
+  // Single dataset
+  const {
+    data: singleDatasetResponse,
+    isLoading: isSingleDatasetLoading,
+    error: singleDatasetError,
+  } = useQuery({
+    queryKey: datasetsKeys.detail('datasetId'),
+    queryFn: async () => {
+      const response = await publicApi.get<IDataset>(
+        `/data/datasets/${datasetId}/`,
+      );
+      return response.data;
+    },
+    enabled: Boolean(datasetId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    retry: (failureCount, error) => {
+      if (error && 'status' in error && error.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 
@@ -281,6 +306,7 @@ export default function useDatasets() {
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    enabled: auth.isAuthenticated,
     retry: (failureCount, error) => {
       if (error && 'status' in error && error.status === 404) {
         return false;
@@ -315,8 +341,10 @@ export default function useDatasets() {
 
   return {
     data,
+    singleDataset: singleDatasetResponse,
     isLoading: storeIsLoading,
     isLoadingNewPage: storeIsLoadingNewPage,
+    isSingleDatasetLoading,
     // Pagination
     paginationInfo,
     goToPage,
@@ -330,6 +358,7 @@ export default function useDatasets() {
     // Error states
     datasetsError,
     filteredError,
+    singleDatasetError,
     // Individual loading states
     isDatasetsLoading,
     isFilteredDataLoading,
