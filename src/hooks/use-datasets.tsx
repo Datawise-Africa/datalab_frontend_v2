@@ -159,7 +159,7 @@ export default function useDatasets(
     isLoading: isSingleDatasetLoading,
     error: singleDatasetError,
   } = useQuery({
-    queryKey: datasetsKeys.detail('datasetId'),
+    queryKey: datasetsKeys.detail(datasetId||''),
     queryFn: async () => {
       const response = await publicApi.get<IDataset>(
         `/data/datasets/${datasetId}/`,

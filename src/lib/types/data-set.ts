@@ -108,6 +108,7 @@ export interface IDataset {
   review_count: number;
   average_review: number;
   dataset_size: number;
+  views_count: number;
 }
 
 export type DatasetFilterOptions = {

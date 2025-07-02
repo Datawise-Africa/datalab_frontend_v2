@@ -38,6 +38,14 @@ import {
   PieChart,
   WorldMap,
 } from '@/components/ui/charts';
+import { useDatasetCreatorAnalyticsQuery } from '@/api/dataset-creator-analytics/query';
+import { useMultipleDatasetStatuses } from '@/hooks/use-dataset-creator-datasets';
+import {
+  useDatasetAnalyticsData,
+  useDatasetCreatorAnalyticsFilters,
+  type DatasetCreateorAnalyticsFilter,
+} from '@/store/dataset-creator-analytics-store';
+import { ChartAreaDefault } from '@/components/ui/charts/chart-area-default';
 
 // Mock Data for Charts
 const overviewData = {
@@ -199,6 +207,17 @@ const columns: ColumnDef<Dataset>[] = [
 ];
 
 export default function AnalyticsPage() {
+  const { datasetOverviewQuery, ds, selectedDatasetQuery } =
+    useDatasetCreatorAnalyticsQuery();
+  const { dateRangeOptions, filters, setFilters, labels } =
+    useDatasetCreatorAnalyticsFilters();
+  const { queries } = useMultipleDatasetStatuses(
+    ['PB'],
+    {},
+    { limit: 10, page: 1 },
+  );
+  const published = queries.PB;
+  // const { selectedDatasetId } = useSelectedDatasetId();
   const [data, setData] = useState<Dataset[]>([]);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -312,6 +331,19 @@ export default function AnalyticsPage() {
     );
   }, [fetchTableData, globalFilter, sorting]); // Add sorting to dependencies
 
+  const { getAreaChartData, setAnalyticsData } = useDatasetAnalyticsData();
+  const watchSelectedDataset = useCallback(() => {
+    if (selectedDatasetQuery.data) {
+      setAnalyticsData(selectedDatasetQuery.data.daily_views);
+    }
+  }, [selectedDatasetQuery.data]);
+  useEffect(() => {
+    if (ds.selectedDatasetId) {
+      watchSelectedDataset();
+    }
+  }, [ds.selectedDatasetId, watchSelectedDataset]);
+  const { xDataKey, yDataKey, chartData } = getAreaChartData();
+
   return (
     <div className="grid gap-8">
       <div className="grid gap-2">
@@ -343,28 +375,30 @@ export default function AnalyticsPage() {
           </Select>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
-            <div className="text-2xl font-bold">{overviewData.views.value}</div>
-            <div className="text-sm text-gray-500">Views</div>
-            <div className="flex items-center text-sm">
-              {overviewData.views.direction === 'up' ? (
-                <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-              ) : (
-                <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
-              )}
-              <span
-                className={
-                  overviewData.views.direction === 'up'
-                    ? 'text-green-500'
-                    : 'text-red-500'
-                }
-              >
-                {overviewData.views.change}
-              </span>
-              <span className="ml-1 text-gray-500">vs last 30 days</span>
+          {datasetOverviewQuery.data?.map((ds) => (
+            <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
+              <div className="text-2xl font-bold">{ds.total}</div>
+              <div className="text-sm text-gray-500">{ds.label}</div>
+              <div className="flex items-center text-sm">
+                {overviewData.views.direction === 'up' ? (
+                  <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                ) : (
+                  <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+                )}
+                <span
+                  className={
+                    overviewData.views.direction === 'up'
+                      ? 'text-green-500'
+                      : 'text-red-500'
+                  }
+                >
+                  {overviewData.views.change}
+                </span>
+                <span className="ml-1 text-gray-500">vs last 30 days</span>
+              </div>
             </div>
-          </div>
-          <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
+          ))}
+          {/* <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
             <div className="text-2xl font-bold">
               {overviewData.downloads.value}
             </div>
@@ -434,7 +468,7 @@ export default function AnalyticsPage() {
                 updated in last 30 days
               </span>
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 
@@ -444,23 +478,23 @@ export default function AnalyticsPage() {
           <CardTitle className="text-lg font-semibold">
             Individual Dataset Insights
           </CardTitle>
-          <Select defaultValue="east-african-yields">
+          <Select
+            value={ds.selectedDatasetId!}
+            onValueChange={ds.setSelectedDatasetId}
+          >
             <SelectTrigger className="w-fit border border-gray-200">
               <SelectValue placeholder="East African Agricultural Yields (2015-2023)" />
             </SelectTrigger>
             <SelectContent className="border border-gray-200 bg-white">
-              <SelectItem
-                value="east-african-yields"
-                className="hover:bg-primary/20"
-              >
-                East African Agricultural Yields (2015-2023)
-              </SelectItem>
-              <SelectItem
-                value="urban-transport"
-                className="hover:bg-primary/20"
-              >
-                Urban Transportation Patterns - Nairobi
-              </SelectItem>
+              {published.data.map((ds) => (
+                <SelectItem
+                  value={ds.id}
+                  key={ds.id}
+                  className="hover:bg-primary/20"
+                >
+                  {ds.title}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </CardHeader>
@@ -507,37 +541,40 @@ export default function AnalyticsPage() {
             <div className="border border-gray-200 bg-white p-4 shadow">
               <div className="mb-2 flex items-center justify-between">
                 <h3 className="font-semibold">Views</h3>
-                <Select defaultValue="last-month">
+                <Select
+                  defaultValue="1m"
+                  onValueChange={(value) =>
+                    setFilters({
+                      range: value as DatasetCreateorAnalyticsFilter['range'],
+                    })
+                  }
+                >
                   <SelectTrigger className="h-8 w-[120px] border border-gray-200 text-sm">
                     <SelectValue placeholder="Last Month" />
                   </SelectTrigger>
                   <SelectContent className="border border-gray-200 bg-white">
-                    <SelectItem
-                      value="last-month"
-                      className="hover:bg-primary/20"
-                    >
-                      Last Month
-                    </SelectItem>
-                    <SelectItem
-                      value="last-quarter"
-                      className="hover:bg-primary/20"
-                    >
-                      Last Quarter
-                    </SelectItem>
-                    <SelectItem
-                      value="last-year"
-                      className="hover:bg-primary/20"
-                    >
-                      Last Year
-                    </SelectItem>
+                    {dateRangeOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="hover:bg-primary/20"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <LineChart
+              {/* <LineChart
                 data={individualDatasetViewsData}
                 // width={400}
                 // height={200}
                 className="w-full"
+              /> */}
+              <ChartAreaDefault
+                xDataKey={xDataKey}
+                yDataKey={yDataKey}
+                chartData={chartData}
               />
             </div>
             <div className="border border-gray-200 bg-white p-4 shadow">
@@ -569,12 +606,12 @@ export default function AnalyticsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <LineChart
+              {/* <LineChart
                 data={individualDatasetDownloadsData}
                 width={400}
                 height={200}
                 lineColor="#F59E0B"
-              />
+              /> */}
             </div>
           </div>
         </CardContent>

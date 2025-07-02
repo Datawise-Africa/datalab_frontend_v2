@@ -47,9 +47,12 @@ const datasetFileSchema = z.object({
 
 const datasetFilesSchema = z.object({
   data_files: z.array(datasetFileSchema),
+  removed_data_files: z.array(z.string()).optional(),
   // .min(1, 'At least one data file is required'),
   metadata_files: z.array(datasetFileSchema).optional(),
+  removed_metadata_files: z.array(z.string()).optional(),
   datasheet_files: z.array(datasetFileSchema).optional(),
+  removed_datasheet_files: z.array(z.string()).optional(),
 });
 
 const datasetUploadAuthorSchema = z.object({
@@ -77,6 +80,7 @@ export type DatasetUploadAuthorSchemaType = z.infer<
 const attributionSchema = z.object({
   authors: z.array(z.coerce.number()).default([]),
   new_authors: z.array(datasetUploadAuthorSchema),
+  remove_authors: z.array(z.coerce.number()).optional(),
   doi_citation: z.string().optional(),
   license: z.coerce
     .number({

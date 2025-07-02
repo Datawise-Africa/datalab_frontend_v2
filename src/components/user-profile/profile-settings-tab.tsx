@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,14 +12,14 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  User,
-  Mail,
-  Phone,
   Building,
-  MapPin,
-  Loader2,
-  Save,
   Link2Icon,
+  Loader2,
+  Mail,
+  MapPin,
+  Phone,
+  Save, Upload,
+  User
 } from 'lucide-react'; // Import Loader2 for spinner
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-// import Cropper from 'react-easy-crop';
+import Cropper from 'react-easy-crop';
 import { IconInput } from '../ui/icon-input';
 import { useUserProfile } from '@/api/profile/profile';
 import { cn } from '@/lib/utils';
@@ -41,79 +41,77 @@ import {
   updateProfileSchema,
   type UpdateUserProfileDataType,
 } from '@/lib/schema/user-profile';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription, DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog.tsx';
+import { Label } from '@/components/ui/label.tsx';
+import { USER_TITLES } from '@/constants/user-titles.ts';
 // import Cropper from 'react-easy-crop';
-const userTitles = [
-  { value: 'Dr.', label: 'Dr.' },
-  { value: 'Mr.', label: 'Mr.' },
-  { value: 'Ms.', label: 'Ms.' },
-  { value: 'Mrs.', label: 'Mrs.' },
-  { value: 'Rev.', label: 'Rev.' },
-  { value: 'Mx.', label: 'Mx.' },
-  { value: 'Prof.', label: 'Prof.' },
-  { value: 'Eng.', label: 'Eng.' },
-  { value: 'Hon.', label: 'Hon.' },
-  { value: 'Sir', label: 'Sir' },
-];
+
 
 // Helper function to get a cropped image from a canvas
-// const createImage = (url: string) =>
-//   new Promise((resolve, reject) => {
-//     const image = new Image();
-//     image.addEventListener('load', () => resolve(image));
-//     image.addEventListener('error', (error) => reject(error));
-//     image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues
-//     image.src = url;
-//   });
+const createImage = (url: string) =>
+  new Promise((resolve, reject) => {
+    const image = new Image();
+    image.addEventListener('load', () => resolve(image));
+    image.addEventListener('error', (error) => reject(error));
+    image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues
+    image.src = url;
+  });
 
-// async function getCroppedImg(
-//   imageSrc: string,
-//   pixelCrop: { x: number; y: number; width: number; height: number },
-// ) {
-//   const image = (await createImage(imageSrc)) as HTMLImageElement;
-//   const canvas = document.createElement('canvas');
-//   const ctx = canvas.getContext('2d');
+async function getCroppedImg(
+  imageSrc: string,
+  pixelCrop: { x: number; y: number; width: number; height: number },
+) {
+  const image = (await createImage(imageSrc)) as HTMLImageElement;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
-//   if (!ctx) {
-//     return null;
-//   }
+  if (!ctx) {
+    return null;
+  }
 
-//   const scaleX = image.naturalWidth / image.width;
-//   const scaleY = image.naturalHeight / image.height;
+  const scaleX = image.naturalWidth / image.width;
+  const scaleY = image.naturalHeight / image.height;
 
-//   canvas.width = pixelCrop.width;
-//   canvas.height = pixelCrop.height;
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
 
-//   ctx.drawImage(
-//     image,
-//     pixelCrop.x * scaleX,
-//     pixelCrop.y * scaleY,
-//     pixelCrop.width * scaleX,
-//     pixelCrop.height * scaleY,
-//     0,
-//     0,
-//     pixelCrop.width,
-//     pixelCrop.height,
-//   );
+  ctx.drawImage(
+    image,
+    pixelCrop.x * scaleX,
+    pixelCrop.y * scaleY,
+    pixelCrop.width * scaleX,
+    pixelCrop.height * scaleY,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height,
+  );
 
-//   // toDataURL returns the data URL directly, not through a callback
-//   const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-//   return dataUrl;
-// }
+  // toDataURL returns the data URL directly, not through a callback
+  return canvas.toDataURL('image/jpeg', 0.8);
+}
 
 export default function ProfileSettings() {
   const { profile, updateProfile, isUpdating } = useUserProfile();
-  // const [imageSrc, setImageSrc] = useState<string | null>(null);
-  // const [crop, setCrop] = useState({ x: 0, y: 0 });
-  // const [zoom, setZoom] = useState(1);
-  // const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
-  //   x: number;
-  //   y: number;
-  //   width: number;
-  //   height: number;
-  // } | null>(null);
-  const [croppedImage] = useState<string | null>(null);
-  const [_isDialogOpen] = useState(false);
-  const [_isSaving] = useState(false); // Loading state for avatar upload
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
+  const [croppedImage,setCroppedImage] = useState<string | null>(null);
+  const [isDialogOpen,setIsDialogOpen] = useState(false);
+  const [isSaving,setIsSaving] = useState(false); // Loading state for avatar upload
   // const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for form submission
 
   // Initialize the form with React Hook Form
@@ -163,60 +161,60 @@ export default function ProfileSettings() {
     });
   });
 
-  // const _onCropComplete = useCallback(
-  //   (_croppedArea: any, croppedAreaPixels: any) => {
-  //     setCroppedAreaPixels(croppedAreaPixels);
-  //   },
-  //   [],
-  // );
+  const onCropComplete = useCallback(
+    (_croppedArea: any, croppedAreaPixels: any) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    [],
+  );
 
-  // const _onFileChange = useCallback(
-  //   async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     if (e.target.files && e.target.files.length > 0) {
-  //       const file = e.target.files[0];
-  //       const imageDataUrl = await new Promise<string>((resolve) => {
-  //         const reader = new FileReader();
-  //         reader.addEventListener(
-  //           'load',
-  //           () => resolve(reader.result as string),
-  //           false,
-  //         );
-  //         reader.readAsDataURL(file);
-  //       });
-  //       setImageSrc(imageDataUrl);
-  //     }
-  //   },
-  //   [],
-  // );
+  const onFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const file = e.target.files[0];
+        const imageDataUrl = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.addEventListener(
+            'load',
+            () => resolve(reader.result as string),
+            false,
+          );
+          reader.readAsDataURL(file);
+        });
+        setImageSrc(imageDataUrl);
+      }
+    },
+    [],
+  );
 
-  // const _showCroppedImage = useCallback(async () => {
-  //   setIsSaving(true); // Start loading
-  //   try {
-  //     if (imageSrc && croppedAreaPixels) {
-  //       const croppedImageResult = await getCroppedImg(
-  //         imageSrc,
-  //         croppedAreaPixels,
-  //       );
-  //       // Simulate an upload delay
-  //       await new Promise((resolve) => setTimeout(resolve, 1500));
-  //       setCroppedImage(croppedImageResult);
+  const showCroppedImage = useCallback(async () => {
+    setIsSaving(true); // Start loading
+    try {
+      if (imageSrc && croppedAreaPixels) {
+        const croppedImageResult = await getCroppedImg(
+          imageSrc,
+          croppedAreaPixels,
+        );
+        // Simulate an upload delay
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        setCroppedImage(croppedImageResult);
 
-  //       // Update the form with the base64 image
-  //       if (croppedImageResult) {
-  //         form.setValue('profile.avatar', croppedImageResult);
-  //         console.log('Updated form with new avatar');
-  //       }
+        // Update the form with the base64 image
+        if (croppedImageResult) {
+          form.setValue('profile.avatar', croppedImageResult);
+          console.log('Updated form with new avatar');
+        }
 
-  //       setIsDialogOpen(false); // Close dialog after cropping
-  //       setImageSrc(null); // Clear image source from cropper
-  //     }
-  //   } catch (e) {
-  //     console.error(e);
-  //     // Optionally show an error message to the user
-  //   } finally {
-  //     setIsSaving(false); // End loading
-  //   }
-  // }, [imageSrc, croppedAreaPixels, form]);
+        setIsDialogOpen(false); // Close dialog after cropping
+        setImageSrc(null); // Clear image source from cropper
+      }
+    } catch (e) {
+      console.error(e);
+      // Optionally show an error message to the user
+    } finally {
+      setIsSaving(false); // End loading
+    }
+  }, [imageSrc, croppedAreaPixels, form]);
 
   const watchProfileChanges = useCallback(
     function () {
@@ -288,7 +286,7 @@ export default function ProfileSettings() {
               {form.getValues().last_name?.[0]}
             </AvatarFallback>
           </Avatar>
-          {/* <div className="flex gap-2">
+          <div className="flex gap-2">
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">Change Avatar</Button>
@@ -392,7 +390,7 @@ export default function ProfileSettings() {
             >
               Remove
             </Button>
-          </div> */}
+          </div>
         </div>
 
         <Form {...form}>
@@ -408,21 +406,20 @@ export default function ProfileSettings() {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
+                      {field.value}
                       <FormControl>
                         <SelectTrigger className="w-full border-gray-300">
-                          <SelectValue placeholder="Select title" />
+                          <SelectValue placeholder="Mr/Mrs" className={'placeholder:!text-gray-200/20'} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="border-primary/30 w-full border bg-white">
-                        {userTitles.map((title) => (
+                        {USER_TITLES.map((title) => (
                           <SelectItem
-                            key={title.value}
-                            value={title.value}
-                            className={cn('hover:bg-primary/30', {
-                              'bg-primary/10': field.value === title.value,
-                            })}
+                            key={title}
+                            value={title}
+                            className={cn('hover:bg-primary/30')}
                           >
-                            {title.label}
+                            {title}
                           </SelectItem>
                         ))}
                       </SelectContent>

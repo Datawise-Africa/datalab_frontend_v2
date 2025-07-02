@@ -40,6 +40,7 @@ import {
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 import { MultiSelect } from '../ui/multi-select';
 import { type IFormAuthor } from '@/hooks/use-authors';
+import { USER_TITLES } from '@/constants/user-titles.ts';
 
 type Step3Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
@@ -65,20 +66,7 @@ const baseAuthors: Author[] = [
   //   affiliation: '',
   // },
 ];
-const authorTitles = [
-  'Dr.',
-  'Prof.',
-  'Mr.',
-  'Ms.',
-  'Mrs.',
-  'Mx.',
-  'Eng.',
-  'PhD',
-  'MSc',
-  'BSc',
-  'MBA',
-  'MA',
-];
+
 
 export default function DatasetUploadFormStep3({
   form,
@@ -181,7 +169,7 @@ export default function DatasetUploadFormStep3({
                             <SelectValue placeholder="Mr./Mrs." />
                           </SelectTrigger>
                           <SelectContent className="border-primary/30 w-full bg-white">
-                            {authorTitles.map((title) => (
+                            {USER_TITLES.map((title) => (
                               <SelectItem key={title} value={title}>
                                 {title}
                               </SelectItem>

@@ -7,7 +7,7 @@ import type {
   UpdateUserProfileDataType,
 } from '@/lib/schema/user-profile';
 
-function castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
+function _castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
   // Check if the image is a valid URL or Base64 string
   const image = payload.profile.avatar || '';
   const isBase64 =
@@ -87,7 +87,7 @@ export function useUserProfile() {
   ): Promise<UserProfileType> {
     const { data } = await privateApi.put<UserProfileType>(
       '/auth/me/',
-      castProfileUpdatePayload(profileData),
+      profileData,
     );
     return data;
   }
