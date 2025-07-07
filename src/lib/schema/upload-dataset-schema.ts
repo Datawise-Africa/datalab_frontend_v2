@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const datasetUploadBasicInfoSchema = z
   .object({
+    dataset_id: z.string().optional(),
     title: z
       .string({ required_error: 'Title is required' })
       .min(1, 'Title is required'),
@@ -80,7 +81,8 @@ export type DatasetUploadAuthorSchemaType = z.infer<
 const attributionSchema = z.object({
   authors: z.array(z.coerce.number()).default([]),
   new_authors: z.array(datasetUploadAuthorSchema),
-  remove_authors: z.array(z.coerce.number()).optional(),
+  removed_authors: z.array(z.coerce.number()).optional(),
+  added_authors: z.array(z.coerce.number()).optional(),
   doi_citation: z.string().optional(),
   license: z.coerce
     .number({

@@ -69,5 +69,5 @@ export const cookieOptions = {
 // export const REACT_PUBLIC_API_HOST = "http://localhost:8000"
 
 export const REACT_PUBLIC_API_HOST =
-  'https://2224-102-211-145-241.ngrok-free.app';
+  'https://cecd-105-160-60-19.ngrok-free.app';
 // 'https://backend.datawiseafrica.com';

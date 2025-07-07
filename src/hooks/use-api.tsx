@@ -26,9 +26,8 @@ export default function useApi() {
         headers: {
           Accept: 'text/csv',
           'Content-Type': 'text/csv',
-            responseType: 'text/plain; charset=UTF-8',
+          responseType: 'text/plain; charset=UTF-8',
         },
-
       });
       return response.data;
     } catch (error) {

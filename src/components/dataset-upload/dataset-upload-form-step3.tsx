@@ -67,7 +67,6 @@ const baseAuthors: Author[] = [
   // },
 ];
 
-
 export default function DatasetUploadFormStep3({
   form,
   existingAuthors,

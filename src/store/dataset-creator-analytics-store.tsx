@@ -74,8 +74,12 @@ export interface DatasetCreatorAnalyticsStore {
   setFilters: (filters: DatasetCreateorAnalyticsFilter) => void;
   dateRangeOptions: typeof dateRangeOptions;
   labels: string[];
-  analyticsData: {daily_views:SingleDatasetViewsAnalyticsType['daily_views']}
-  setAnalyticsData: (data:SingleDatasetViewsAnalyticsType['daily_views']) => void;
+  analyticsData: {
+    daily_views: SingleDatasetViewsAnalyticsType['daily_views'];
+  };
+  setAnalyticsData: (
+    data: SingleDatasetViewsAnalyticsType['daily_views'],
+  ) => void;
   getAreaChartData: () => {
     xDataKey: string;
     yDataKey: string;
@@ -101,9 +105,12 @@ export const useDatasetCreatorAnalyticsStore =
     analyticsData: {
       daily_views: [],
     },
-    setAnalyticsData: (data) => set({ analyticsData: {
-      daily_views: data,
-    } }),
+    setAnalyticsData: (data) =>
+      set({
+        analyticsData: {
+          daily_views: data,
+        },
+      }),
     getAreaChartData: () => {
       const { filters, labels, analyticsData } = get();
       const { daily_views } = analyticsData;

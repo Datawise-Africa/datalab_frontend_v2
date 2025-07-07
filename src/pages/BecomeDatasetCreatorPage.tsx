@@ -34,8 +34,8 @@ import { AuthPerm } from '@/lib/auth/perm';
 import { formatFileSize } from '../lib/utils/format-file-size';
 import { Badge } from '@/components/ui/badge';
 import type { PaginatedGetBecomeDatasetCreatorResponse } from '@/lib/types/dataset-creator';
-import toast from 'react-hot-toast';
 import { extractCorrectErrorMessage } from '@/lib/error';
+import { toast } from 'sonner';
 type ApprovalStatus =
   PaginatedGetBecomeDatasetCreatorResponse['data'][number]['status'];
 const getStatusBadgeClass = (status: ApprovalStatus | 'N/A' | 'Confirmed') => {

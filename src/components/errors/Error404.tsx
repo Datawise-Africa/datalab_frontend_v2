@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, easeInOut, easeOut } from 'framer-motion';
 import { Home, ArrowLeft, Compass, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -21,7 +21,7 @@ export default function Error404() {
       opacity: 1,
       transition: {
         duration: 0.6,
-        ease: 'easeOut',
+        ease: easeOut,
       },
     },
   };
@@ -31,25 +31,6 @@ export default function Error404() {
     visible: {
       scale: 1,
       rotate: 0,
-      transition: {
-        duration: 1,
-        ease: 'easeOut',
-        type: 'spring',
-        stiffness: 100,
-      },
-    },
-  };
-
-  const floatingVariants = {
-    floating: {
-      y: [-15, 15, -15],
-      x: [-5, 5, -5],
-      rotate: [-5, 5, -5],
-      transition: {
-        duration: 4,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      },
     },
   };
 
@@ -59,7 +40,7 @@ export default function Error404() {
       y: -2,
       transition: {
         duration: 0.2,
-        ease: 'easeInOut',
+        ease: easeInOut,
       },
     },
     tap: {
@@ -72,10 +53,23 @@ export default function Error404() {
       rotate: 360,
       transition: {
         duration: 0.6,
-        ease: 'easeInOut',
+        ease: easeInOut,
       },
     },
   };
+
+  // Floating animation keyframes and transitions
+  const floatingKeyframes = {
+    y: [-15, 15, -15],
+    x: [-5, 5, -5],
+    rotate: [-5, 5, -5],
+  };
+  const floatingTransition = (delay = 0) => ({
+    duration: 4,
+    repeat: Infinity,
+    ease: easeInOut,
+    delay,
+  });
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
@@ -83,28 +77,23 @@ export default function Error404() {
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <motion.div
           className="absolute top-20 left-20 h-32 w-32 rounded-full bg-indigo-100 opacity-30"
-          animate={floatingVariants.floating}
+          animate={floatingKeyframes}
+          transition={floatingTransition()}
         />
         <motion.div
           className="absolute top-40 right-32 h-24 w-24 rounded-full bg-purple-100 opacity-30"
-          animate={{
-            ...floatingVariants.floating,
-            transition: { ...floatingVariants.floating.transition, delay: 1 },
-          }}
+          animate={floatingKeyframes}
+          transition={floatingTransition(1)}
         />
         <motion.div
           className="absolute bottom-32 left-32 h-20 w-20 rounded-full bg-blue-100 opacity-30"
-          animate={{
-            ...floatingVariants.floating,
-            transition: { ...floatingVariants.floating.transition, delay: 2 },
-          }}
+          animate={floatingKeyframes}
+          transition={floatingTransition(2)}
         />
         <motion.div
           className="absolute right-20 bottom-20 h-16 w-16 rounded-full bg-pink-100 opacity-30"
-          animate={{
-            ...floatingVariants.floating,
-            transition: { ...floatingVariants.floating.transition, delay: 0.5 },
-          }}
+          animate={floatingKeyframes}
+          transition={floatingTransition(0.5)}
         />
       </div>
 
@@ -115,7 +104,11 @@ export default function Error404() {
         animate="visible"
       >
         {/* 404 Number Display */}
-        <motion.div className="relative mb-8" variants={numberVariants}>
+        <motion.div
+          className="relative mb-8"
+          variants={numberVariants}
+          transition={{ type: 'spring', stiffness: 100, duration: 1 }}
+        >
           <div className="relative inline-block">
             {/* Glowing background effect */}
             <div className="absolute inset-0 scale-110 rounded-3xl bg-gradient-to-r from-indigo-400 to-purple-400 opacity-20 blur-3xl" />
@@ -128,7 +121,8 @@ export default function Error404() {
             {/* Floating compass icon */}
             <motion.div
               className="absolute -top-4 -right-4 md:-top-8 md:-right-8"
-              animate={floatingVariants.floating}
+              animate={floatingKeyframes}
+              transition={floatingTransition()}
             >
               <Compass size={48} className="text-indigo-400 opacity-60" />
             </motion.div>
@@ -170,7 +164,7 @@ export default function Error404() {
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: easeInOut,
               }}
             />
             <motion.div
@@ -182,7 +176,7 @@ export default function Error404() {
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: easeInOut,
                 delay: 0.5,
               }}
             />
@@ -222,39 +216,6 @@ export default function Error404() {
             </button>
           </motion.div>
         </motion.div>
-
-        {/* Search Suggestion */}
-        {/* <motion.div
-          variants={itemVariants}
-          className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 border border-gray-200 shadow-lg"
-        >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Search size={24} className="text-indigo-600" />
-            <h3 className="text-xl font-semibold text-gray-800">
-              Looking for something specific?
-            </h3>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-3">
-            {['Dashboard', 'Profile', 'Settings', 'Help Center', 'Contact'].map(
-              (item, index) => (
-                <motion.div
-                  key={item}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1 + index * 0.1, duration: 0.3 }}
-                >
-                  <Link
-                    to={`/${item.toLowerCase().replace(' ', '-')}`}
-                    className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium transition-colors duration-200 hover:scale-105 transform"
-                  >
-                    {item}
-                  </Link>
-                </motion.div>
-              ),
-            )}
-          </div>
-        </motion.div> */}
 
         {/* Footer Message */}
         <motion.div

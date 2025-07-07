@@ -3,12 +3,11 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthProvider';
 import AuthModal from '@/components/Modals/AuthModals/AuthModal';
 import SplashScreen from '@/components/SplashScreen';
-import { Toaster } from 'react-hot-toast';
 import { ThemeProvider } from '@/context/theme-provider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { FancyToaster } from '@/lib/utils/toaster';
 import { useSidebarInit } from '@/store/use-sidebar-store.tsx';
+import { Toaster } from '@/components/ui/sonner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +31,6 @@ const BaseWrapper = () => {
   return (
     <Suspense fallback={<SplashScreen />}>
       <QueryClientProvider client={queryClient}>
-        <FancyToaster />
         <ReactQueryDevtools initialIsOpen={false} />
         <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
           {/* AuthProvider wraps the entire app to manage authentication state */}

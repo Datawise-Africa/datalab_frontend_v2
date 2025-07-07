@@ -20,6 +20,7 @@ import { useAuth } from '@/context/AuthProvider';
 import DatasetCreatorDashboardDatasetCard from '@/components/dashboard/DatasetCreatorDashboardDatasetCard';
 import type { IDataset } from '@/lib/types/data-set';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 type TabTypes = 'drafts' | 'published' | 'archived';
 
 export default function DatasetCreatorsDashboard() {
@@ -72,9 +73,13 @@ export default function DatasetCreatorsDashboard() {
       await mut.deleteDataset.mutateAsync(datasetId, {
         onSuccess: () => {
           console.log('Dataset deleted successfully');
+          toast.success('Dataset deleted successfully', {});
         },
         onError: (error) => {
           console.error('Error deleting dataset:', error);
+          toast.error(
+            `Failed to delete dataset: ${error.message || 'Unknown error'}`,
+          );
         },
       });
     } catch (err) {}
@@ -89,6 +94,7 @@ export default function DatasetCreatorsDashboard() {
       updateSelectedDatasetOnModalClose();
     };
   }, [updateSelectedDatasetOnModalClose]);
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -256,6 +262,7 @@ export default function DatasetCreatorsDashboard() {
                     dataset={dataset}
                     onEdit={handleEditDataset}
                     onDelete={handleDeleteDataset}
+                    // changeStatus={changeStatus}
                   />
                 ))
               )}

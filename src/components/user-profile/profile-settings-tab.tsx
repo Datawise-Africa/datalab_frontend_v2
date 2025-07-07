@@ -18,8 +18,9 @@ import {
   Mail,
   MapPin,
   Phone,
-  Save, Upload,
-  User
+  Save,
+  Upload,
+  User,
 } from 'lucide-react'; // Import Loader2 for spinner
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,7 +36,6 @@ import Cropper from 'react-easy-crop';
 import { IconInput } from '../ui/icon-input';
 import { useUserProfile } from '@/api/profile/profile';
 import { cn } from '@/lib/utils';
-import { FancyToast } from '@/lib/utils/toaster';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   updateProfileSchema,
@@ -44,15 +44,16 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription, DialogFooter,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from '@/components/ui/dialog.tsx';
 import { Label } from '@/components/ui/label.tsx';
 import { USER_TITLES } from '@/constants/user-titles.ts';
+import { toast } from 'sonner';
 // import Cropper from 'react-easy-crop';
-
 
 // Helper function to get a cropped image from a canvas
 const createImage = (url: string) =>
@@ -109,9 +110,9 @@ export default function ProfileSettings() {
     width: number;
     height: number;
   } | null>(null);
-  const [croppedImage,setCroppedImage] = useState<string | null>(null);
-  const [isDialogOpen,setIsDialogOpen] = useState(false);
-  const [isSaving,setIsSaving] = useState(false); // Loading state for avatar upload
+  const [croppedImage, setCroppedImage] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // Loading state for avatar upload
   // const [isSubmitting, setIsSubmitting] = useState(false); // Loading state for form submission
 
   // Initialize the form with React Hook Form
@@ -140,21 +141,17 @@ export default function ProfileSettings() {
     await updateProfile(data, {
       onSuccess: () => {
         // console.log('Profile updated successfully');
-        FancyToast.success('Profile updated successfully', {
-          autoClose: true,
-        });
+        toast.success('Profile updated successfully', {});
         // Optionally, you can show a success message or reset the form
       },
       onError: (error) => {
         console.error('Error updating profile:', error);
-        FancyToast.error(
+        toast.error(
           extractCorrectErrorMessage(
             error,
             'Failed to update profile. Please try again.',
           ),
-          {
-            autoClose: true,
-          },
+          {},
         );
         // Optionally, you can show an error message to the user
       },
@@ -409,7 +406,10 @@ export default function ProfileSettings() {
                       {field.value}
                       <FormControl>
                         <SelectTrigger className="w-full border-gray-300">
-                          <SelectValue placeholder="Mr/Mrs" className={'placeholder:!text-gray-200/20'} />
+                          <SelectValue
+                            placeholder="Mr/Mrs"
+                            className={'placeholder:!text-gray-200/20'}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="border-primary/30 w-full border bg-white">

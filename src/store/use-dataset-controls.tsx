@@ -117,7 +117,7 @@ const calculateActiveFilters = (filters: DatasetFilterOptions): number => {
   return Object.values(filters).reduce((acc, val) => acc + val.length, 0);
 };
 
-export const useDatasetStore = create<DatasetStore>()(
+export const useDatasetControlsStore = create<DatasetStore>()(
   devtools(
     (set, get) => ({
       ...initialState,
@@ -344,7 +344,7 @@ export const useDatasetStore = create<DatasetStore>()(
 
 // Selectors for better performance
 export function useDatasetFilters() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       filters: state.filters,
       activeFiltersCount: state.activeFiltersCount,
@@ -358,7 +358,7 @@ export function useDatasetFilters() {
 }
 
 export function useDatasetPagination() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       pagination: state.pagination,
       setPagination: state.setPagination,
@@ -373,7 +373,7 @@ export function useDatasetPagination() {
 }
 
 export function useDatasetSearch() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       searchedDatasets: state.searchedDatasets,
       hasSearched: state.hasSearched,
@@ -390,7 +390,7 @@ export function useDatasetSearch() {
 }
 
 export function useDatasetSort() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       sort: state.sort,
       setSort: state.setSort,
@@ -400,7 +400,7 @@ export function useDatasetSort() {
 }
 
 export function useDatasetModal() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       isDatasetModalOpen: state.isDatasetModalOpen,
       modalMessage: state.modalMessage,
@@ -414,7 +414,7 @@ export function useDatasetModal() {
 }
 
 export function useDatasetUI() {
-  const state = useDatasetStore(
+  const state = useDatasetControlsStore(
     useShallow((state) => ({
       isLoading: state.isLoading,
       isLoadingNewPage: state.isLoadingNewPage,
@@ -427,15 +427,19 @@ export function useDatasetUI() {
 
 // Computed selectors
 export function useActiveFiltersCount() {
-  return useDatasetStore(useShallow((state) => state.activeFiltersCount));
+  return useDatasetControlsStore(
+    useShallow((state) => state.activeFiltersCount),
+  );
 }
 
 export function useHasActiveFilters() {
-  return useDatasetStore(useShallow((state) => state.activeFiltersCount > 0));
+  return useDatasetControlsStore(
+    useShallow((state) => state.activeFiltersCount > 0),
+  );
 }
 
 export function usePaginationInfo() {
-  return useDatasetStore(
+  return useDatasetControlsStore(
     useShallow((state) => ({
       currentPage: state.pagination.page,
       pageSize: state.pagination.limit,
@@ -459,7 +463,7 @@ export const useDatasetSearchManager = () => {
     setIsSearchLoading,
   } = useDatasetSearch();
 
-  const { showModal } = useDatasetStore();
+  const { showModal } = useDatasetControlsStore();
 
   const handleSearch = useCallback(
     (results: IDataset[], query: string) => {
@@ -595,7 +599,7 @@ export const useDatasetPaginationManager = () => {
  * Use this in sort components
  */
 export const useDatasetSortManager = () => {
-  const { sort, setSort } = useDatasetStore(
+  const { sort, setSort } = useDatasetControlsStore(
     useShallow((state) => ({
       sort: state.sort,
       setSort: state.setSort,
@@ -630,7 +634,7 @@ export const useDatasetModalManager = () => {
     setModalMessage,
     showModal,
     hideModal,
-  } = useDatasetStore((state) => ({
+  } = useDatasetControlsStore((state) => ({
     isDatasetModalOpen: state.isDatasetModalOpen,
     modalMessage: state.modalMessage,
     setIsDatasetModalOpen: state.setIsDatasetModalOpen,
@@ -654,7 +658,7 @@ export const useDatasetModalManager = () => {
  * Use this when you only need to read the current state
  */
 export const useDatasetState = () => {
-  return useDatasetStore(
+  return useDatasetControlsStore(
     useShallow((state) => ({
       filters: state.filters,
       sort: state.sort,
@@ -679,7 +683,7 @@ export const useDatasetStateReset = () => {
     resetPagination,
     resetAllFiltersAndPagination,
     resetToInitialState,
-  } = useDatasetStore((state) => ({
+  } = useDatasetControlsStore((state) => ({
     resetSearch: state.resetSearch,
     resetFilters: state.resetFilters,
     resetPagination: state.resetPagination,
@@ -703,7 +707,7 @@ export const useDatasetStateReset = () => {
 export const useDatasetURLSync = () => {
   const { filters, sort, pagination, searchQuery } = useDatasetState();
   const { setFilters } = useDatasetFilters();
-  const { setSort } = useDatasetStore();
+  const { setSort } = useDatasetControlsStore();
   const { setPagination } = useDatasetPagination();
   const { setSearchQuery } = useDatasetSearch();
 

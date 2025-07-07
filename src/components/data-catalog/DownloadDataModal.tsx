@@ -4,7 +4,6 @@ import useDownloadDataModal from '@/store/use-download-data-modal';
 import CustomButton from '@/components/Modals/DataModals/CustomButton';
 // import { getAccessToken } from '@/lib/auth/actions';
 import { REACT_PUBLIC_API_HOST } from '@/constants';
-import { Toaster, toast } from 'react-hot-toast';
 import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
 import company_icon from '/assets/datalab/company-icon-dark.svg';
 import student_icon from '/assets/datalab/student-icon-dark.svg';
@@ -21,6 +20,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type DownloadDataModalProps = {
   dataset: IDataset;
@@ -498,7 +498,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'Verification',
       details: (
         <>
-          <Toaster />
+          {/* <Toaster /> */}
           <div className="rounded-md bg-white p-4 shadow">
             <div className="flex justify-between bg-white">
               <h3 className="text-xl font-semibold text-[#4B5563]">

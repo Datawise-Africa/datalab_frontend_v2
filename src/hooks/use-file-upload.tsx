@@ -21,7 +21,7 @@ export interface FileUpload {
   error?: string;
 }
 
-export function getFileIcon  (fileType: string) {
+export function getFileIcon(fileType: string) {
   switch (fileType) {
     case 'application/pdf':
       return FileType2Icon;
@@ -69,7 +69,7 @@ type AllowedMime = keyof typeof mimeMapping; //| (string & {});
 type FileUploadMode = 'single' | 'multiple';
 
 interface UseFileUploadProps {
-  mode:FileUploadMode;
+  mode: FileUploadMode;
   onUploadStart?: (file: FileUpload) => void;
   onUploadProgress?: (file: FileUpload) => void;
   onFilesUploaded?: (files: FileUpload[]) => void;
@@ -78,17 +78,19 @@ interface UseFileUploadProps {
   acceptedFileTypes: AllowedMime[]; // default is all mime types
 }
 
-export function useFileUpload({
-  mode,
-  onUploadProgress,
-  onFilesUploaded,
-  onUploadError,
-  maximumFileSize,
-  acceptedFileTypes,
-}: UseFileUploadProps={
-  mode:'single',
-  acceptedFileTypes:[]
-}) {
+export function useFileUpload(
+  {
+    mode,
+    onUploadProgress,
+    onFilesUploaded,
+    onUploadError,
+    maximumFileSize,
+    acceptedFileTypes,
+  }: UseFileUploadProps = {
+    mode: 'single',
+    acceptedFileTypes: [],
+  },
+) {
   const MAX_FILE_SIZE = useMemo(
     () => maximumFileSize || 10 * 1024 * 1024,
     [maximumFileSize],
@@ -134,8 +136,6 @@ export function useFileUpload({
       return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     return `${(size / (1024 * 1024 * 1024 * 1024)).toFixed(2)} TB`;
   }, []);
-
-
 
   const validateFile = useCallback(
     (file: File): string | null => {

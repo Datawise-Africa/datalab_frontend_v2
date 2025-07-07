@@ -32,12 +32,7 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import { fetchDatasets, type Dataset } from '@/actions/analytics';
 import { Loader2 } from 'lucide-react';
-import {
-  BarChart,
-  LineChart,
-  PieChart,
-  WorldMap,
-} from '@/components/ui/charts';
+import { BarChart, PieChart, WorldMap } from '@/components/ui/charts';
 import { useDatasetCreatorAnalyticsQuery } from '@/api/dataset-creator-analytics/query';
 import { useMultipleDatasetStatuses } from '@/hooks/use-dataset-creator-datasets';
 import {
@@ -54,26 +49,6 @@ const overviewData = {
   avgRating: { value: '4.3', change: '+0.0%', direction: 'neutral' },
   totalDatasets: { value: '12', change: '-', direction: 'neutral' },
 };
-
-const individualDatasetViewsData = [
-  { date: 'Jan', value: 3000, value2: 2500 },
-  { date: 'Feb', value: 4000, value2: 3000 },
-  { date: 'Mar', value: 7000, value2: 5000 },
-  { date: 'Apr', value: 9000, value2: 6000 },
-  { date: 'May', value: 6000, value2: 4500 },
-  { date: 'Jun', value: 5000, value2: 4000 },
-  { date: 'Jul', value: 4500, value2: 3800 },
-];
-
-const individualDatasetDownloadsData = [
-  { date: 'Jan', value: 10000 },
-  { date: 'Feb', value: 12000 },
-  { date: 'Mar', value: 15000 },
-  { date: 'Apr', value: 18000 },
-  { date: 'May', value: 22000 },
-  { date: 'Jun', value: 25000 },
-  { date: 'Jul', value: 28000 },
-];
 
 const geographicData = [
   { label: 'Africa', value: 1200 },
@@ -209,8 +184,7 @@ const columns: ColumnDef<Dataset>[] = [
 export default function AnalyticsPage() {
   const { datasetOverviewQuery, ds, selectedDatasetQuery } =
     useDatasetCreatorAnalyticsQuery();
-  const { dateRangeOptions, filters, setFilters, labels } =
-    useDatasetCreatorAnalyticsFilters();
+  const { dateRangeOptions, setFilters } = useDatasetCreatorAnalyticsFilters();
   const { queries } = useMultipleDatasetStatuses(
     ['PB'],
     {},

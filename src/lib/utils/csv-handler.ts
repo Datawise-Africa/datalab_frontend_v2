@@ -6,10 +6,10 @@
  * @author Felix Orinda
  * @license MIT
  */
-import Papa, { ParseResult, ParseError } from 'papaparse';
-import axios, { AxiosResponse } from 'axios';
+import Papa, { type ParseResult, type ParseError } from 'papaparse';
+import axios, { type AxiosResponse } from 'axios';
 
-interface CsvParseOptions<T = any> {
+interface CsvParseOptions {
   delimiter?: string;
   header?: boolean;
   skipEmptyLines?: boolean;
@@ -31,7 +31,7 @@ export class CsvHandler {
    */
   static async parseCsvFromUrl<T = any>(
     url: string,
-    options: CsvParseOptions<T> = {}
+    options: CsvParseOptions = {},
   ): Promise<{
     data: T[];
     errors: ParseError[];
@@ -47,7 +47,7 @@ export class CsvHandler {
         transformValue = (v: string) => v.trim(),
         dynamicTyping = true,
         fileName,
-        onError
+        onError,
       } = options;
 
       const response: AxiosResponse<string> = await axios.get(url, {
@@ -56,7 +56,7 @@ export class CsvHandler {
       });
 
       return new Promise((resolve, reject) => {
-        Papa.parse<string>(response.data, {
+        Papa.parse<T>(response.data, {
           header,
           skipEmptyLines,
           delimiter,
@@ -65,20 +65,23 @@ export class CsvHandler {
           dynamicTyping,
           complete: (results: ParseResult<T>) => {
             if (results.errors.length > 0) {
-              results.errors.forEach(error => onError?.(error));
-              console.warn('CSV parsing completed with warnings:', results.errors);
+              results.errors.forEach((error) => onError?.(error));
+              console.warn(
+                'CSV parsing completed with warnings:',
+                results.errors,
+              );
             }
             resolve({
               data: results.data,
               errors: results.errors,
               meta: results.meta,
-              fileName
+              fileName,
             });
           },
           error: (error: Error) => {
             console.error('CSV parsing failed:', error);
             reject(error);
-          }
+          },
         });
       });
     } catch (error) {
@@ -119,11 +122,22 @@ export class CsvHandler {
    */
   static jsonToCsv<T extends Record<string, any>>(
     data: T[],
-    fields?: (keyof T)[]
+    fields?: (keyof T)[],
   ): string {
-    return Papa.unparse(data, {
-      fields: fields as string[],
-      skipEmptyLines: true
+    const filteredData =
+      fields && fields.length > 0
+        ? data.map((row) =>
+            fields.reduce(
+              (acc, field) => {
+                acc[field as string] = row[field];
+                return acc;
+              },
+              {} as Record<string, any>,
+            ),
+          )
+        : data;
+    return Papa.unparse(filteredData, {
+      skipEmptyLines: true,
     });
   }
 }

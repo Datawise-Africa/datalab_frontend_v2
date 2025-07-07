@@ -1,15 +1,10 @@
-'use client';
-
-import { TrendingUp } from 'lucide-react';
 import { Area, AreaChart, CartesianGrid, Legend, XAxis, YAxis } from 'recharts';
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import {
   type ChartConfig,
@@ -36,7 +31,7 @@ type Props = {
 };
 export function ChartAreaDefault({ chartData, xDataKey, yDataKey }: Props) {
   return (
-    <Card className='w-full border-none'>
+    <Card className="w-full border-none">
       <CardHeader>
         {/* <CardTitle>Area Chart</CardTitle>
         <CardDescription>
@@ -53,7 +48,7 @@ export function ChartAreaDefault({ chartData, xDataKey, yDataKey }: Props) {
               right: 12,
             }}
           >
-            <CartesianGrid vertical={true}  accumulate={'sum'} mode={''}/>
+            <CartesianGrid vertical={true} accumulate={'sum'} mode={''} />
             <XAxis
               dataKey={xDataKey || 'xLabel'}
               tickLine={false}
@@ -61,8 +56,8 @@ export function ChartAreaDefault({ chartData, xDataKey, yDataKey }: Props) {
               tickMargin={8}
               // tickFormatter={(value) => value.slice(0, 3)}
             />
-            <YAxis/>
-            <Legend/>
+            <YAxis />
+            <Legend />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dashed" />}
@@ -74,9 +69,7 @@ export function ChartAreaDefault({ chartData, xDataKey, yDataKey }: Props) {
               fillOpacity={0.4}
               stroke="var(--color-primary)"
               amplitude={0.4}
-
             />
-
           </AreaChart>
         </ChartContainer>
       </CardContent>

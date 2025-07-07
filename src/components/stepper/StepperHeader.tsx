@@ -19,13 +19,13 @@ const stepCircleVariants = {
   completed: { scale: 1, rotate: 360 },
 };
 
-const progressBarVariants = {
-  initial: { width: '0%' },
-  animate: (width: string) => ({
-    width,
-    transition: { duration: 0.8, ease: 'easeInOut' },
-  }),
-};
+// const progressBarVariants = {
+//   initial: { width: '0%' },
+//   animate: (width: string) => ({
+//     width,
+//     transition: { duration: 0.8, ease: [0.42, 0, 0.58, 1] }, // cubic-bezier for easeInOut
+//   }),
+// };
 
 const validationDotVariants = {
   initial: { scale: 0, opacity: 0 },
@@ -384,10 +384,10 @@ export function StepperHeader({
           <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
             <motion.div
               className="h-full bg-purple-600"
-              variants={progressBarVariants}
-              initial="initial"
-              animate="animate"
-              custom={`${((activeStep + (completedSteps.has(activeStep) ? 1 : 0)) / steps.length) * 100}%`}
+              style={{
+                width: `${((activeStep + (completedSteps.has(activeStep) ? 1 : 0)) / steps.length) * 100}%`,
+              }}
+              transition={{ duration: 0.8, ease: [0.42, 0, 0.58, 1] }}
             />
           </div>
         </div>
@@ -657,10 +657,10 @@ export function StepperHeader({
           >
             <motion.div
               className="h-full bg-blue-500"
-              variants={progressBarVariants}
-              initial="initial"
-              animate="animate"
-              custom={`${((activeStep + (completedSteps.has(activeStep) ? 1 : 0)) / steps.length) * 100}%`}
+              style={{
+                width: `${((activeStep + (completedSteps.has(activeStep) ? 1 : 0)) / steps.length) * 100}%`,
+              }}
+              transition={{ duration: 0.8, ease: [0.42, 0, 0.58, 1] }}
             />
           </motion.div>
         </div>
