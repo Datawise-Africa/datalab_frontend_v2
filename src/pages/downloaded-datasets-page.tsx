@@ -3,7 +3,7 @@ import {
   type DownloadedDatasetType,
 } from '@/hooks/use-user-dataset-downloads';
 import { useState } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -19,8 +19,6 @@ import { Separator } from '@/components/ui/separator';
 import {
   Star,
   Calendar,
-  Globe,
-  Mail,
   User,
   Target,
   FileText,
@@ -30,9 +28,9 @@ import {
   ThumbsDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/AuthProvider';
 import moment from 'moment';
 import { useSidebar } from '@/store/use-sidebar-store';
+import { Badge } from '@/components/ui/badge';
 
 type ReviewType = {
   id: number;
@@ -465,9 +463,7 @@ function DatasetCardSkeleton() {
 
 // Dataset Card Component
 function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
-  const {
-    state: { fullName },
-  } = useAuth();
+
   // const [rating, setRating] = useState(0)
   // const [isRated, setIsRated] = useState(false)
   const [showReviews, setShowReviews] = useState(false);
@@ -499,7 +495,14 @@ function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1 space-y-2">
-            {/* <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2">{dataset.dataset}</CardTitle> */}
+            <CardTitle className="line-clamp-2 text-xl font-bold text-gray-900">
+              {dataset.dataset.title}
+            </CardTitle>
+            <p>
+              <Badge className="text-sm text-gray-600" variant={'outline'}>
+                {dataset.dataset.category.title}
+              </Badge>
+            </p>
             <div className="flex items-center text-sm text-gray-500">
               <Calendar className="mr-1 h-4 w-4" />
               Downloaded on {moment(dataset.download_date).format('LL')}
@@ -560,15 +563,15 @@ function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
               </div>
             </div>
 
-            <div className="flex items-start space-x-2">
+            {/* <div className="flex items-start space-x-2">
               <Mail className="mt-0.5 h-4 w-4 flex-shrink-0 text-orange-500" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Contact</p>
                 <p className="text-sm text-gray-600">{dataset.email_address}</p>
               </div>
-            </div>
+            </div> */}
 
-            <div className="flex items-start space-x-2">
+            {/* <div className="flex items-start space-x-2">
               <Globe className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-500" />
               <div>
                 <p className="text-sm font-medium text-gray-700">
@@ -576,7 +579,7 @@ function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
                 </p>
                 <p className="text-sm text-gray-600">{fullName}</p>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 

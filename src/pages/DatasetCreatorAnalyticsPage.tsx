@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -15,7 +20,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { ArrowDown, ArrowUp, Search, ArrowUpDown } from 'lucide-react'; // Import ArrowUpDown
+import {
+  ArrowDown,
+  ArrowUp,
+  Search,
+  ArrowUpDown,
+  FileText,
+  Database,
+} from 'lucide-react'; // Import ArrowUpDown
 
 import * as d3 from 'd3';
 import { Button } from '@/components/ui/button';
@@ -32,15 +44,31 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import { fetchDatasets, type Dataset } from '@/actions/analytics';
 import { Loader2 } from 'lucide-react';
-import { BarChart, PieChart, WorldMap } from '@/components/ui/charts';
-import { useDatasetCreatorAnalyticsQuery } from '@/api/dataset-creator-analytics/query';
+import {
+  BarChart,
+  PieChart,
+  WorldMap,
+} from '@/components/ui/charts';
+import {
+  useDatasetCreatorAnalyticsQuery,
+  type DatasetCreatorOverviewAnalyticsType,
+} from '@/api/dataset-creator-analytics/query';
 import { useMultipleDatasetStatuses } from '@/hooks/use-dataset-creator-datasets';
 import {
   useDatasetAnalyticsData,
   useDatasetCreatorAnalyticsFilters,
   type DatasetCreateorAnalyticsFilter,
 } from '@/store/dataset-creator-analytics-store';
-import { ChartAreaDefault } from '@/components/ui/charts/chart-area-default';
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import moment from 'moment';
 
 // Mock Data for Charts
 const overviewData = {
@@ -76,9 +104,11 @@ const mapDataPoints = [
   { lat: 61.52, lon: 105.31, value: 20, label: 'Russia Data Hub' }, // Russia
 ];
 
-const columns: ColumnDef<Dataset>[] = [
+const columns: ColumnDef<
+  DatasetCreatorOverviewAnalyticsType['top_performing_datasets'][number]
+>[] = [
   {
-    accessorKey: 'datasetName',
+    accessorKey: 'title',
     header: ({ column }) => {
       return (
         <Button
@@ -95,7 +125,7 @@ const columns: ColumnDef<Dataset>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'industry',
+    accessorKey: 'category',
     header: ({ column }) => {
       return (
         <Button
@@ -112,7 +142,7 @@ const columns: ColumnDef<Dataset>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'downloads',
+    accessorKey: 'download_count',
     header: ({ column }) => {
       return (
         <Button
@@ -129,7 +159,7 @@ const columns: ColumnDef<Dataset>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'views',
+    accessorKey: 'views_count',
     header: ({ column }) => {
       return (
         <Button
@@ -146,7 +176,7 @@ const columns: ColumnDef<Dataset>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'rating',
+    accessorKey: 'average_rating',
     header: ({ column }) => {
       return (
         <Button
@@ -163,7 +193,7 @@ const columns: ColumnDef<Dataset>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'submitted',
+    accessorKey: 'created_at',
     header: ({ column }) => {
       return (
         <Button
@@ -176,7 +206,7 @@ const columns: ColumnDef<Dataset>[] = [
         </Button>
       );
     },
-    cell: (info) => info.getValue(),
+    cell: (info) => moment(info.getValue()!).format('LL'),
     enableSorting: true,
   },
 ];
@@ -192,7 +222,7 @@ export default function AnalyticsPage() {
   );
   const published = queries.PB;
   // const { selectedDatasetId } = useSelectedDatasetId();
-  const [data, setData] = useState<Dataset[]>([]);
+  const [, setData] = useState<Dataset[]>([]);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [globalFilter, setGlobalFilter] = useState('');
@@ -238,7 +268,7 @@ export default function AnalyticsPage() {
   );
 
   const table = useReactTable({
-    data,
+    data: datasetOverviewQuery.data?.top_performing_datasets || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -305,10 +335,11 @@ export default function AnalyticsPage() {
     );
   }, [fetchTableData, globalFilter, sorting]); // Add sorting to dependencies
 
-  const { getAreaChartData, setAnalyticsData } = useDatasetAnalyticsData();
+  const { getViewsChartsData, getDownloadsChartsData, setAnalyticsData } =
+    useDatasetAnalyticsData();
   const watchSelectedDataset = useCallback(() => {
     if (selectedDatasetQuery.data) {
-      setAnalyticsData(selectedDatasetQuery.data.daily_views);
+      setAnalyticsData(selectedDatasetQuery.data);
     }
   }, [selectedDatasetQuery.data]);
   useEffect(() => {
@@ -316,7 +347,12 @@ export default function AnalyticsPage() {
       watchSelectedDataset();
     }
   }, [ds.selectedDatasetId, watchSelectedDataset]);
-  const { xDataKey, yDataKey, chartData } = getAreaChartData();
+
+  // const { xDataKey, yDataKey, chartData } = getAreaChartData();
+  const viewsChartData = getViewsChartsData();
+  const downloadsChartData = getDownloadsChartsData();
+  console.log('viewsChartData', viewsChartData);
+  console.log('downloadsChartData', downloadsChartData);
 
   return (
     <div className="grid gap-8">
@@ -348,228 +384,407 @@ export default function AnalyticsPage() {
             </SelectContent>
           </Select>
         </CardHeader>
+        {/**
+         * total_views: number;
+         * total_downloads: number;
+         * average_rating: number;
+         * total_datasets: number;
+         */}
         <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {datasetOverviewQuery.data?.map((ds) => (
-            <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
-              <div className="text-2xl font-bold">{ds.total}</div>
-              <div className="text-sm text-gray-500">{ds.label}</div>
-              <div className="flex items-center text-sm">
-                {overviewData.views.direction === 'up' ? (
-                  <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                ) : (
-                  <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
-                )}
-                <span
-                  className={
-                    overviewData.views.direction === 'up'
-                      ? 'text-green-500'
-                      : 'text-red-500'
-                  }
-                >
-                  {overviewData.views.change}
-                </span>
-                <span className="ml-1 text-gray-500">vs last 30 days</span>
-              </div>
-            </div>
-          ))}
-          {/* <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
+          {/* Views */}
+          <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
             <div className="text-2xl font-bold">
-              {overviewData.downloads.value}
+              {datasetOverviewQuery.data?.total_views}
             </div>
-            <div className="text-sm text-gray-500">Downloads</div>
+            <div className="text-sm text-gray-500">Total views</div>
             <div className="flex items-center text-sm">
-              {overviewData.downloads.direction === 'up' ? (
+              {datasetOverviewQuery.data?.views_last_30d_percent! > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  overviewData.downloads.direction === 'up'
+                  datasetOverviewQuery.data?.views_last_30d_percent! > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {overviewData.downloads.change}
+                {datasetOverviewQuery.data?.views_last_30d_percent!}%
               </span>
               <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
           </div>
+          {/* Downloads */}
           <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
             <div className="text-2xl font-bold">
-              {overviewData.avgRating.value}
+              {datasetOverviewQuery.data?.total_downloads}
             </div>
-            <div className="text-sm text-gray-500">Avg Rating</div>
+            <div className="text-sm text-gray-500">Total Downloads</div>
             <div className="flex items-center text-sm">
-              {overviewData.avgRating.direction === 'up' ? (
+              {overviewData.views.direction === 'up' ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  overviewData.avgRating.direction === 'up'
+                  overviewData.views.direction === 'up'
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {overviewData.avgRating.change}
+                {overviewData.views.change}
               </span>
-              <span className="ml-1 text-gray-500">out of 5.0</span>
+              <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
           </div>
+          {/* Rating */}
           <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
             <div className="text-2xl font-bold">
-              {overviewData.totalDatasets.value}
+              {datasetOverviewQuery.data?.average_rating}
+            </div>
+            <div className="text-sm text-gray-500">Average Rating</div>
+            <div className="flex items-center text-sm">
+              {datasetOverviewQuery.data?.ratings_last_30d_percent! > 0 ? (
+                <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+              ) : (
+                <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+              )}
+              <span
+                className={
+                  datasetOverviewQuery.data?.ratings_last_30d_percent! > 0
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                }
+              >
+                {datasetOverviewQuery.data?.ratings_last_30d_percent!}%
+              </span>
+              <span className="ml-1 text-gray-500">vs last 30 days</span>
+            </div>
+          </div>
+          {/* Total datasets */}
+          <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
+            <div className="text-2xl font-bold">
+              {datasetOverviewQuery.data?.total_datasets}
             </div>
             <div className="text-sm text-gray-500">Total Datasets</div>
             <div className="flex items-center text-sm">
-              {overviewData.totalDatasets.direction === 'up' ? (
+              {datasetOverviewQuery.data?.new_datasets_last_30d_percent! > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  overviewData.totalDatasets.direction === 'up'
+                  datasetOverviewQuery.data?.new_datasets_last_30d_percent! > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {overviewData.totalDatasets.change}
+                {datasetOverviewQuery.data?.new_datasets_last_30d_percent!}%
               </span>
-              <span className="ml-1 text-gray-500">
-                updated in last 30 days
-              </span>
+              <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
-          </div> */}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Individual Dataset Insights */}
-      <Card className="border-primary/20 border-none bg-white shadow-none">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-lg font-semibold">
-            Individual Dataset Insights
-          </CardTitle>
-          <Select
-            value={ds.selectedDatasetId!}
-            onValueChange={ds.setSelectedDatasetId}
-          >
-            <SelectTrigger className="w-fit border border-gray-200">
-              <SelectValue placeholder="East African Agricultural Yields (2015-2023)" />
-            </SelectTrigger>
-            <SelectContent className="border border-gray-200 bg-white">
-              {published.data.map((ds) => (
-                <SelectItem
-                  value={ds.id}
-                  key={ds.id}
-                  className="hover:bg-primary/20"
-                >
-                  {ds.title}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardHeader>
-        <CardContent className="grid gap-6">
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-              <div className="text-2xl font-bold">3.2K</div>
-              <div className="text-sm text-gray-500">Views</div>
-              <div className="flex items-center text-sm">
-                <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                <span className="text-green-500">+32%</span>
-                <span className="ml-1 text-gray-500">vs last 30 days</span>
-              </div>
-            </div>
-            <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-              <div className="text-2xl font-bold">4</div>
-              <div className="text-sm text-gray-500">Downloads</div>
-              <div className="flex items-center text-sm">
-                <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
-                <span className="text-red-500">-42%</span>
-                <span className="ml-1 text-gray-500">vs last 30 days</span>
-              </div>
-            </div>
-            <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-              <div className="text-2xl font-bold">4.3</div>
-              <div className="text-sm text-gray-500">Avg Rating</div>
-              <div className="flex items-center text-sm">
-                <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                <span className="text-green-500">+0.2%</span>
-                <span className="ml-1 text-gray-500"></span>
-              </div>
-            </div>
-            <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-              <div className="text-2xl font-bold">4</div>
-              <div className="text-sm text-gray-500">Total Comments</div>
-              <div className="flex items-center text-sm">
-                <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                <span className="text-green-500">-</span>
-                <span className="ml-1 text-gray-500"></span>
-              </div>
-            </div>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="border border-gray-200 bg-white p-4 shadow">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-semibold">Views</h3>
-                <Select
-                  defaultValue="1m"
-                  onValueChange={(value) =>
-                    setFilters({
-                      range: value as DatasetCreateorAnalyticsFilter['range'],
-                    })
-                  }
-                >
-                  <SelectTrigger className="h-8 w-[120px] border border-gray-200 text-sm">
-                    <SelectValue placeholder="Last Month" />
-                  </SelectTrigger>
-                  <SelectContent className="border border-gray-200 bg-white">
-                    {dateRangeOptions.map((option) => (
+      {/* Individual dataset */}
+      {!ds.selectedDatasetId ? (
+        <div className="mx-auto w-full max-w-4xl p-6">
+          {published.data.length <= 0 ? (
+            <Card className="border-2 border-dashed border-gray-200">
+              <CardContent className="flex h-64 flex-col items-center justify-center space-y-4 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                  <Database className="h-8 w-8 text-gray-400" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    No datasets available
+                  </h3>
+                  <p className="max-w-sm text-sm text-gray-500">
+                    Please publish a dataset to view insights and start
+                    analyzing your data.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border border-gray-200 shadow-sm">
+              <CardContent className="flex h-64 flex-col items-center justify-center space-y-6 p-8 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+                  <FileText className="h-8 w-8 text-blue-500" />
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Select a Dataset
+                  </h3>
+                  <p className="max-w-sm text-sm text-gray-500">
+                    Choose a dataset from your published collection to view
+                    detailed insights and analytics.
+                  </p>
+                </div>
+
+                <div className="w-full max-w-md space-y-2">
+                  <Select
+                    value={ds.selectedDatasetId || ''}
+                    onValueChange={ds.setSelectedDatasetId}
+                  >
+                    <SelectTrigger className="h-12 w-full border-gray-200 transition-all hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-gray-400" />
+                        <SelectValue placeholder="Choose a dataset..." />
+                      </div>
+                      {/* <ChevronDown className="w-4 h-4 text-gray-400" /> */}
+                    </SelectTrigger>
+                    <SelectContent className="border border-gray-200 bg-white shadow-lg">
                       <SelectItem
-                        key={option.value}
-                        value={option.value}
-                        className="hover:bg-primary/20"
+                        value={null!}
+                        className="text-gray-500 hover:bg-gray-50"
+                        disabled
                       >
-                        {option.label}
+                        Please select a dataset
                       </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      {published.data.map((dataset) => (
+                        <SelectItem
+                          value={dataset.id}
+                          key={dataset.id}
+                          className="cursor-pointer py-3 hover:bg-blue-50 focus:bg-blue-50"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-gray-400" />
+                            <span className="font-medium">{dataset.title}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <p className="text-xs text-gray-400">
+                    {published.data.length} dataset
+                    {published.data.length !== 1 ? 's' : ''} available
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      ) : (
+        <>
+          {/* Individual Dataset Insights */}
+          <Card className="border-primary/20 border-none bg-white shadow-none">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-lg font-semibold">
+                Individual Dataset Insights
+              </CardTitle>
+              <Select
+                value={ds.selectedDatasetId || ''}
+                onValueChange={ds.setSelectedDatasetId}
+              >
+                <SelectTrigger className="h-12 w-fit border-gray-200 transition-all hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                  <div className="flex items-center gap-2">
+                    <Database className="h-4 w-4 text-gray-400" />
+                    <SelectValue placeholder="Choose a dataset..." />
+                  </div>
+                  {/* <ChevronDown className="w-4 h-4 text-gray-400" /> */}
+                </SelectTrigger>
+                <SelectContent className="border border-gray-200 bg-white shadow-lg">
+                  <SelectItem
+                    value={null!}
+                    className="text-gray-500 hover:bg-gray-50"
+                    disabled
+                  >
+                    Please select a dataset
+                  </SelectItem>
+                  {published.data.map((dataset) => (
+                    <SelectItem
+                      value={dataset.id}
+                      key={dataset.id}
+                      className="cursor-pointer py-3 hover:bg-blue-50 focus:bg-blue-50"
+                    >
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-400" />
+                        <span className="font-medium">{dataset.title}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent className="grid gap-6">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
+                  <div className="text-2xl font-bold">3.2K</div>
+                  <div className="text-sm text-gray-500">Views</div>
+                  <div className="flex items-center text-sm">
+                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                    <span className="text-green-500">+32%</span>
+                    <span className="ml-1 text-gray-500">vs last 30 days</span>
+                  </div>
+                </div>
+                <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
+                  <div className="text-2xl font-bold">4</div>
+                  <div className="text-sm text-gray-500">Downloads</div>
+                  <div className="flex items-center text-sm">
+                    <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+                    <span className="text-red-500">-42%</span>
+                    <span className="ml-1 text-gray-500">vs last 30 days</span>
+                  </div>
+                </div>
+                <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
+                  <div className="text-2xl font-bold">4.3</div>
+                  <div className="text-sm text-gray-500">Avg Rating</div>
+                  <div className="flex items-center text-sm">
+                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                    <span className="text-green-500">+0.2%</span>
+                    <span className="ml-1 text-gray-500"></span>
+                  </div>
+                </div>
+                <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
+                  <div className="text-2xl font-bold">4</div>
+                  <div className="text-sm text-gray-500">Total Comments</div>
+                  <div className="flex items-center text-sm">
+                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                    <span className="text-green-500">-</span>
+                    <span className="ml-1 text-gray-500"></span>
+                  </div>
+                </div>
               </div>
-              {/* <LineChart
-                data={individualDatasetViewsData}
-                // width={400}
-                // height={200}
-                className="w-full"
-              /> */}
-              <ChartAreaDefault
-                xDataKey={xDataKey}
-                yDataKey={yDataKey}
-                chartData={chartData}
-              />
-            </div>
-            <div className="border border-gray-200 bg-white p-4 shadow">
-              <div className="mb-2 flex items-center justify-between">
-                <h3 className="font-semibold">Downloads</h3>
-                <Select defaultValue="last-month">
-                  <SelectTrigger className="h-8 w-[120px] border border-gray-200 text-sm">
-                    <SelectValue placeholder="Last Month" />
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="border border-gray-200 bg-white p-4 shadow">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="font-semibold">Views</h3>
+                    <Select
+                      defaultValue="1m"
+                      onValueChange={(value) =>
+                        setFilters({
+                          range:
+                            value as DatasetCreateorAnalyticsFilter['range'],
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-8 w-48 border border-gray-200 text-sm">
+                        <SelectValue placeholder="Last Month" />
+                      </SelectTrigger>
+                      <SelectContent className="border border-gray-200 bg-white">
+                        {dateRangeOptions.map((option) => (
+                          <SelectItem
+                            key={option.value}
+                            value={option.value}
+                            className="hover:bg-primary/20"
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        width={500}
+                        height={400}
+                        data={viewsChartData.chartData}
+                        margin={{
+                          top: 10,
+                          right: 30,
+                          left: 0,
+                          bottom: 0,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey={viewsChartData.xDataKey} />
+                        <YAxis />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey={viewsChartData.yDataKey}
+                          stroke="#8884d8"
+                          fill="#8884d8"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="border border-gray-200 bg-white p-4 shadow">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h3 className="font-semibold">Downloads</h3>
+                    <Select
+                      defaultValue="1m"
+                      onValueChange={(value) =>
+                        setFilters({
+                          range:
+                            value as DatasetCreateorAnalyticsFilter['range'],
+                        })
+                      }
+                    >
+                      <SelectTrigger className="h-8 w-48 border border-gray-200 text-sm">
+                        <SelectValue placeholder="Last Month" />
+                      </SelectTrigger>
+                      <SelectContent className="border border-gray-200 bg-white">
+                        {dateRangeOptions.map((option) => (
+                          <SelectItem
+                            key={option.value}
+                            value={option.value}
+                            className="hover:bg-primary/20"
+                          >
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        width={500}
+                        height={400}
+                        data={downloadsChartData.chartData}
+                        margin={{
+                          top: 10,
+                          right: 30,
+                          left: 0,
+                          bottom: 0,
+                        }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey={downloadsChartData.xDataKey} />
+                        <YAxis />
+                        <Tooltip />
+                        <Area
+                          type="monotone"
+                          dataKey={downloadsChartData.yDataKey}
+                          stroke="#8884d8"
+                          fill="#8884d8"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Geographic Distribution & User Categories */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="border-primary/20 border-none bg-white shadow">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg font-semibold">
+                  Geographic Distribution
+                </CardTitle>
+                <Select defaultValue="all-time">
+                  <SelectTrigger className="w-[120px] border border-gray-200">
+                    <SelectValue placeholder="All Time" />
                   </SelectTrigger>
                   <SelectContent className="border border-gray-200 bg-white">
                     <SelectItem
-                      value="last-month"
+                      value="all-time"
                       className="hover:bg-primary/20"
                     >
-                      Last Month
-                    </SelectItem>
-                    <SelectItem
-                      value="last-quarter"
-                      className="hover:bg-primary/20"
-                    >
-                      Last Quarter
+                      All Time
                     </SelectItem>
                     <SelectItem
                       value="last-year"
@@ -577,96 +792,78 @@ export default function AnalyticsPage() {
                     >
                       Last Year
                     </SelectItem>
+                    <SelectItem
+                      value="last-month"
+                      className="hover:bg-primary/20"
+                    >
+                      Last Month
+                    </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              {/* <LineChart
-                data={individualDatasetDownloadsData}
-                width={400}
-                height={200}
-                lineColor="#F59E0B"
-              /> */}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Geographic Distribution & User Categories */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="border-primary/20 border-none bg-white shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-semibold">
-              Geographic Distribution
-            </CardTitle>
-            <Select defaultValue="all-time">
-              <SelectTrigger className="w-[120px] border border-gray-200">
-                <SelectValue placeholder="All Time" />
-              </SelectTrigger>
-              <SelectContent className="border border-gray-200 bg-white">
-                <SelectItem value="all-time" className="hover:bg-primary/20">
-                  All Time
-                </SelectItem>
-                <SelectItem value="last-year" className="hover:bg-primary/20">
-                  Last Year
-                </SelectItem>
-                <SelectItem value="last-month" className="hover:bg-primary/20">
-                  Last Month
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </CardHeader>
-          <CardContent>
-            <BarChart data={geographicData} width={400} height={200} />
-          </CardContent>
-        </Card>
-        <Card className="border-primary/20 border-none bg-white shadow">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-lg font-semibold">
-              User Categories
-            </CardTitle>
-            <Select defaultValue="all-time">
-              <SelectTrigger className="w-[120px] border border-gray-200">
-                <SelectValue placeholder="All Time" />
-              </SelectTrigger>
-              <SelectContent className="border border-gray-200 bg-white">
-                <SelectItem value="all-time" className="hover:bg-primary/20">
-                  All Time
-                </SelectItem>
-                <SelectItem value="last-year" className="hover:bg-primary/20">
-                  Last Year
-                </SelectItem>
-                <SelectItem value="last-month" className="hover:bg-primary/20">
-                  Last Month
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </CardHeader>
-          <CardContent className="flex items-center justify-center">
-            <PieChart data={userCategoriesData} width={250} height={250} />
-            <div className="ml-4 grid gap-2">
-              {userCategoriesData.map((d, i) => (
-                <div key={d.label} className="flex items-center gap-2">
-                  <span
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: d3.schemeCategory10[i] }}
-                  ></span>
-                  <span className="text-sm">{d.label}</span>
+              </CardHeader>
+              <CardContent>
+                <BarChart data={geographicData} width={400} height={200} />
+              </CardContent>
+            </Card>
+            <Card className="border-primary/20 border-none bg-white shadow">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg font-semibold">
+                  User Categories
+                </CardTitle>
+                <Select defaultValue="all-time">
+                  <SelectTrigger className="w-[120px] border border-gray-200">
+                    <SelectValue placeholder="All Time" />
+                  </SelectTrigger>
+                  <SelectContent className="border border-gray-200 bg-white">
+                    <SelectItem
+                      value="all-time"
+                      className="hover:bg-primary/20"
+                    >
+                      All Time
+                    </SelectItem>
+                    <SelectItem
+                      value="last-year"
+                      className="hover:bg-primary/20"
+                    >
+                      Last Year
+                    </SelectItem>
+                    <SelectItem
+                      value="last-month"
+                      className="hover:bg-primary/20"
+                    >
+                      Last Month
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </CardHeader>
+              <CardContent className="flex items-center justify-center">
+                <PieChart data={userCategoriesData} width={250} height={250} />
+                <div className="ml-4 grid gap-2">
+                  {userCategoriesData.map((d, i) => (
+                    <div key={d.label} className="flex items-center gap-2">
+                      <span
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: d3.schemeCategory10[i] }}
+                      ></span>
+                      <span className="text-sm">{d.label}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      {/* Global Map */}
-      <Card className="border-primary/20 border-none bg-white shadow">
-        <CardHeader>
-          <CardTitle>Dataset Geographic Mapping</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <WorldMap dataPoints={mapDataPoints} width={800} height={400} />
-        </CardContent>
-      </Card>
+          {/* Global Map */}
+          <Card className="border-primary/20 border-none bg-white shadow">
+            <CardHeader>
+              <CardTitle>Dataset Geographic Mapping</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WorldMap dataPoints={mapDataPoints} width={800} height={400} />
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Top Performing Datasets */}
       <Card className="border-primary/20 border-none bg-white shadow">

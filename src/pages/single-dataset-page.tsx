@@ -139,7 +139,7 @@ export default function SingleDatasetPage() {
           <BeautifulCsvTable csvDataOverall={csvDataOverall} />
         )}
 
-        {/* Dataset Overview */}
+        {/* Dataset Overview  CSV data preview */}
         <Card className="border-gray-200 bg-white">
           <CardHeader>
             <CardTitle>Dataset Overview</CardTitle>
@@ -190,48 +190,7 @@ export default function SingleDatasetPage() {
             </div>
           </CardContent>
         </Card>
-        {/* CSV data preview */}
-        {csvJsonData.length > 0 && (
-          <Card className="border-gray-200 bg-white">
-            <CardHeader>
-              <CardTitle>Sample Data Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                        Column 1
-                      </th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                        Column 2
-                      </th>
-                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
-                        Column 3
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {csvJsonData.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        <td className="px-4 py-2 text-sm text-gray-700">
-                          {row[0]}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-700">
-                          {row[1]}
-                        </td>
-                        <td className="px-4 py-2 text-sm text-gray-700">
-                          {row[2]}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
         {/* Additional Information */}
         <Card className="border-gray-200 bg-white">
           <CardHeader>
@@ -239,7 +198,7 @@ export default function SingleDatasetPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Data Collection Methodology
                 </h3>
@@ -249,7 +208,7 @@ export default function SingleDatasetPage() {
                   All data points validated by local agricultural extension
                   officers.
                 </p>
-              </div>
+              </div> */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Usage License
