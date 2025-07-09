@@ -4,7 +4,6 @@ import useDownloadDataModal from '@/store/use-download-data-modal';
 import CustomButton from '@/components/Modals/DataModals/CustomButton';
 // import { getAccessToken } from '@/lib/auth/actions';
 import { REACT_PUBLIC_API_HOST } from '@/constants';
-import { Toaster, toast } from 'react-hot-toast';
 import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
 import company_icon from '/assets/datalab/company-icon-dark.svg';
 import student_icon from '/assets/datalab/student-icon-dark.svg';
@@ -21,6 +20,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type DownloadDataModalProps = {
   dataset: IDataset;
@@ -48,12 +48,18 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     intended_use: '',
     project_description: false,
   });
-
-  const [formData, setFormData] = useState({
+  type FormDataType = {
+    dataset: string; // Assuming dataset.id is a string
+    intended_use: string;
+    project_description: string;
+    intended_audience: string;
+    email_address: string;
+  };
+  const [formData, setFormData] = useState<FormDataType>({
     dataset: dataset.id,
     intended_use: '', // For the select box
     project_description: '', // For the textarea
-    profiteer: '',
+    intended_audience: '',
     email_address: '', // For the email input
   });
 
@@ -83,7 +89,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
   const handleCardClick = (profiteer: string) => {
     setSelectedCard(profiteer);
 
-    setFormData({ ...formData, profiteer: profiteer });
+    setFormData({ ...formData, intended_audience: profiteer });
   };
 
   const areAllFieldsFilled =
@@ -164,23 +170,24 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
       if (response.ok) {
         console.log('Data sent successfully!');
+
+        // Retrieve the URL where the file can be downloaded
+        const fileUrl = dataset.data_files[0].s3_url;
+
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.setAttribute('download', ''); // This helps with download behavior
+
+        // Append to the document, trigger the click, and remove the element
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Data downloaded successfully!');
         downloadDataModal.close();
       } else {
         console.error(`Error: ${response.status} - ${response.statusText}`);
       }
-
-      // Retrieve the URL where the file can be downloaded
-      const fileUrl = dataset.data_files[0].s3_url;
-
-      // Create a temporary anchor element
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.setAttribute('download', ''); // This helps with download behavior
-
-      // Append to the document, trigger the click, and remove the element
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     } catch (error) {
       console.log(formData);
       console.log('Access Token:', auth.state.accessToken);
@@ -498,7 +505,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'Verification',
       details: (
         <>
-          <Toaster />
+          {/* <Toaster /> */}
           <div className="rounded-md bg-white p-4 shadow">
             <div className="flex justify-between bg-white">
               <h3 className="text-xl font-semibold text-[#4B5563]">
@@ -649,6 +656,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
                 {codeSent && !isVerified && (
                   <button
+                    type="button"
                     onClick={handleAction}
                     disabled={!isResendEnabled}
                     className="rounded-md bg-gray-500 px-4 py-2 text-white"

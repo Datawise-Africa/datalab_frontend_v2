@@ -13,11 +13,17 @@ import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { Progress } from '../ui/progress';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
+import type { IDataset } from '@/lib/types/data-set';
+import { MultiSelect } from '../ui/multi-select';
 
 type Step2Props = {
   form: UseFormReturn<UploadDatasetSchemaType>;
+  files: Pick<IDataset, 'data_files' | 'metadata_files' | 'datasheet_files'>;
 };
-export default function DatasetUploadFormStep2({ form }: Step2Props) {
+export default function DatasetUploadFormStep2({
+  form,
+  files: uploadedFiles,
+}: Step2Props) {
   const formatFile = ({ name, base64 }: FileUpload) => ({
     file_name: name,
     base64: base64!,
@@ -223,6 +229,38 @@ export default function DatasetUploadFormStep2({ form }: Step2Props) {
           ) : (
             <p className="text-sm text-gray-500">No files uploaded yet</p>
           )}
+          {uploadedFiles.data_files.length > 0 && (
+            <div className="border-primary/30 mt-4 flex flex-col gap-2 rounded border border-dotted p-4">
+              <h3 className="text-lg font-semibold text-red-500">
+                Uploaded Data Files
+              </h3>
+              <FormField
+                control={form.control}
+                name={`step_2.removed_data_files`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select files to remove</FormLabel>
+                    <FormControl className="">
+                      <MultiSelect
+                        {...field}
+                        options={uploadedFiles.data_files.map((dataFile) => ({
+                          value: dataFile.s3_url,
+                          label: `${dataFile.file_name} (${dataFile.file_size_display})`,
+                        }))}
+                        mode="multiple"
+                        value={field.value as unknown as string[]}
+                        chipVariant="default"
+                        onChange={field.onChange}
+                        placeholder="Select files to remove"
+                        className="border-primary/30 w-full bg-white"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs text-red-500" />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
         </div>
       </div>
       {/* Metadata files */}
@@ -306,6 +344,41 @@ export default function DatasetUploadFormStep2({ form }: Step2Props) {
           ) : (
             <p className="text-sm text-gray-500">No files uploaded yet</p>
           )}
+          {uploadedFiles.metadata_files.length > 0 && (
+            <div className="border-primary/30 mt-4 flex flex-col gap-2 rounded border border-dotted p-4">
+              <h3 className="text-lg font-semibold text-red-500">
+                Uploaded metadata files
+              </h3>
+              <FormField
+                control={form.control}
+                name={`step_2.removed_metadata_files`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select files to remove</FormLabel>
+                    <FormControl className="">
+                      <MultiSelect
+                        {...field}
+                        options={uploadedFiles.metadata_files.map(
+                          (dataFile) => ({
+                            value: dataFile.s3_url,
+                            label: `${dataFile.file_name} (${dataFile.file_size_display})`,
+                          }),
+                        )}
+                        mode="multiple"
+                        value={field.value as unknown as string[]}
+                        chipVariant="default"
+                        onChange={field.onChange}
+                        placeholder="Select files to remove"
+                        className="border-primary/30 w-full bg-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage className="text-xs text-red-500" />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
         </div>
       </div>
       {/* Datasheet files */}
@@ -388,6 +461,41 @@ export default function DatasetUploadFormStep2({ form }: Step2Props) {
             </ul>
           ) : (
             <p className="text-sm text-gray-500">No files uploaded yet</p>
+          )}
+          {uploadedFiles.datasheet_files.length > 0 && (
+            <div className="border-primary/30 mt-4 flex flex-col gap-2 rounded border border-dotted p-4">
+              <h3 className="text-lg font-semibold text-red-500">
+                Uploaded Datasheet Files
+              </h3>
+              <FormField
+                control={form.control}
+                name={`step_2.removed_datasheet_files`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select files to remove</FormLabel>
+                    <FormControl className="">
+                      <MultiSelect
+                        {...field}
+                        options={uploadedFiles.datasheet_files.map(
+                          (dataFile) => ({
+                            value: dataFile.s3_url,
+                            label: `${dataFile.file_name} (${dataFile.file_size_display})`,
+                          }),
+                        )}
+                        mode="multiple"
+                        value={field.value as unknown as string[]}
+                        chipVariant="default"
+                        onChange={field.onChange}
+                        placeholder="Select files to remove"
+                        className="border-primary/30 w-full bg-white"
+                      />
+                    </FormControl>
+
+                    <FormMessage className="text-xs text-red-500" />
+                  </FormItem>
+                )}
+              />
+            </div>
           )}
         </div>
       </div>

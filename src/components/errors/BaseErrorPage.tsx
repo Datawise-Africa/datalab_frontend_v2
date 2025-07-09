@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, easeInOut, easeOut } from 'framer-motion';
 import { AlertTriangle, Home, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Link, useRouteError } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ export default function BaseErrorPage() {
       opacity: 1,
       transition: {
         duration: 0.5,
-        ease: 'easeOut',
+        ease: easeOut,
       },
     },
   };
@@ -37,19 +37,13 @@ export default function BaseErrorPage() {
     visible: {
       scale: 1,
       rotate: 0,
-      transition: {
-        duration: 0.8,
-        ease: 'easeOut',
-        type: 'spring',
-        stiffness: 100,
-      },
     },
     hover: {
       scale: 1.1,
       rotate: 15,
       transition: {
         duration: 0.3,
-        ease: 'easeInOut',
+        ease: easeInOut,
       },
     },
   };
@@ -59,7 +53,7 @@ export default function BaseErrorPage() {
       scale: 1.05,
       transition: {
         duration: 0.2,
-        ease: 'easeInOut',
+        ease: easeInOut,
       },
     },
     tap: {
@@ -73,7 +67,7 @@ export default function BaseErrorPage() {
       transition: {
         duration: 3,
         repeat: Infinity,
-        ease: 'easeInOut',
+        ease: easeInOut,
       },
     },
   };
@@ -113,6 +107,12 @@ export default function BaseErrorPage() {
           className="mb-8 flex justify-center"
           variants={iconVariants}
           whileHover="hover"
+          transition={{
+            type: 'spring',
+            stiffness: 100,
+            duration: 0.8,
+            ease: easeOut,
+          }}
         >
           <div className="relative">
             <div className="absolute inset-0 rounded-full bg-red-100 opacity-50 blur-xl" />

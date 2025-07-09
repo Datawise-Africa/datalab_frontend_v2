@@ -7,48 +7,48 @@ import type {
   UpdateUserProfileDataType,
 } from '@/lib/schema/user-profile';
 
-function castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
-  // Check if the image is a valid URL or Base64 string
-  const image = payload.profile.avatar || '';
-  const isBase64 =
-    image.includes('data:image/') ||
-    image.includes('data:application/') ||
-    image.includes('data:audio/') ||
-    image.includes('data:video/') ||
-    image.includes('data:image/svg+xml') ||
-    image.includes('data:image/gif') ||
-    image.includes('data:image/png') ||
-    image.includes('data:image/jpeg') ||
-    image.includes('data:image/webp') ||
-    image.includes('data:image/bmp') ||
-    image.includes('data:image/tiff');
-  const isUrl = image.startsWith('http://') || image.startsWith('https://');
-  if (isUrl) {
-    return {
-      ...payload,
-      profile: {
-        ...payload.profile,
-        avatar: null,
-      },
-    };
-  }
-  if (isBase64) {
-    return {
-      ...payload,
-      profile: {
-        ...payload.profile,
-        avatar: image,
-      },
-    };
-  }
-  return {
-    ...payload,
-    profile: {
-      ...payload.profile,
-      avatar: null,
-    },
-  };
-}
+// function _castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
+//   // Check if the image is a valid URL or Base64 string
+//   const image = payload.profile.avatar || '';
+//   const isBase64 =
+//     image.includes('data:image/') ||
+//     image.includes('data:application/') ||
+//     image.includes('data:audio/') ||
+//     image.includes('data:video/') ||
+//     image.includes('data:image/svg+xml') ||
+//     image.includes('data:image/gif') ||
+//     image.includes('data:image/png') ||
+//     image.includes('data:image/jpeg') ||
+//     image.includes('data:image/webp') ||
+//     image.includes('data:image/bmp') ||
+//     image.includes('data:image/tiff');
+//   const isUrl = image.startsWith('http://') || image.startsWith('https://');
+//   if (isUrl) {
+//     return {
+//       ...payload,
+//       profile: {
+//         ...payload.profile,
+//         avatar: null,
+//       },
+//     };
+//   }
+//   if (isBase64) {
+//     return {
+//       ...payload,
+//       profile: {
+//         ...payload.profile,
+//         avatar: image,
+//       },
+//     };
+//   }
+//   return {
+//     ...payload,
+//     profile: {
+//       ...payload.profile,
+//       avatar: null,
+//     },
+//   };
+// }
 
 export type UserProfileType = {
   id: string;
@@ -87,7 +87,7 @@ export function useUserProfile() {
   ): Promise<UserProfileType> {
     const { data } = await privateApi.put<UserProfileType>(
       '/auth/me/',
-      castProfileUpdatePayload(profileData),
+      profileData,
     );
     return data;
   }

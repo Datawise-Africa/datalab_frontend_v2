@@ -1,13 +1,20 @@
-import { protecteRoutes } from './protected-routes';
+import { appProtectedRoutes } from './protected-routes';
 import React from 'react';
 const DataCatalog = React.lazy(() => import('@/pages/Homepage'));
 const Reports = React.lazy(() => import('@/pages/reports/Reports'));
 const DataDashboards = React.lazy(() => import('@/pages/DataDashboards'));
+const SingleDatasetPage = React.lazy(
+  () => import('@/pages/single-dataset-page'),
+);
 
 const baseRoutes = [
   {
     path: '/',
     element: <DataCatalog />,
+  },
+  {
+    path: '/datasets/:id',
+    element: <SingleDatasetPage />,
   },
   {
     path: '/data-dashboards',
@@ -18,7 +25,7 @@ const baseRoutes = [
     element: <Reports />,
   },
 
-  protecteRoutes,
+  appProtectedRoutes,
 ];
 
 export default baseRoutes;

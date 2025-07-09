@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '../ui/dialog';
 import { Button } from '../ui/button';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Form } from '../ui/form';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import {
@@ -42,6 +42,7 @@ import type { IDataset } from '@/lib/types/data-set.ts';
 import { useAuthors } from '@/hooks/use-authors.tsx';
 import { useLicences } from '@/hooks/use-licences.tsx';
 import { useDatasetCategories } from '@/hooks/use-dataset-categories.tsx';
+import { toast } from 'sonner';
 
 const _steps = [
   {
@@ -116,6 +117,7 @@ export default function DatasetUploadForm({
     resolver: zodResolver(uploadDatasetSchema),
     defaultValues: {
       step_1: {
+        dataset_id: undefined,
         category: undefined,
         title: '',
         description: '',
@@ -183,6 +185,9 @@ export default function DatasetUploadForm({
       }
       await mut.saveDraft.mutateAsync(data, {
         onSuccess: () => {
+          toast.success('Draft saved successfully!', {
+            description: 'Your dataset draft has been saved.',
+          });
           handleToggleFormModal?.(false);
           setStep(1);
           form.reset();
@@ -191,11 +196,12 @@ export default function DatasetUploadForm({
       });
     } catch (error) {
       setError(extractCorrectErrorMessage(error));
+      toast.error(extractCorrectErrorMessage(error, 'Something went wrong'), {
+        description: 'Please try again later.',
+      });
     }
   });
   const handleUpdateDraft = form.handleSubmit(async (data) => {
-    console.log('Updating dataset draft with data:', data);
-
     try {
       // Validate the current step before saving
       const isValid = form.trigger(`step_${step}` as Step);
@@ -203,8 +209,11 @@ export default function DatasetUploadForm({
         setError('Please fill out all required fields before saving.');
         return;
       }
-      await mut.updateDataset.mutateAsync([dataset?.id!, data, 'DF'], {
+      await mut.updateDataset.mutateAsync([dataset?.id!, data], {
         onSuccess: () => {
+          toast.success('Draft updated successfully!', {
+            description: 'Your dataset draft has been updated.',
+          });
           handleToggleFormModal?.(false);
           setStep(1);
           form.reset();
@@ -213,53 +222,12 @@ export default function DatasetUploadForm({
       });
     } catch (error) {
       setError(extractCorrectErrorMessage(error));
+      toast.error(extractCorrectErrorMessage(error, 'Something went wrong'), {
+        description: 'Please try again later.',
+      });
     }
   });
 
-  const createdDataset = form.handleSubmit(async (data) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // const response =
-      await mut.createDataset.mutateAsync(data, {
-        onError: (error) => {
-          setError(extractCorrectErrorMessage(error));
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          handleToggleFormModal?.(false);
-          setStep(1);
-          form.reset();
-        },
-      });
-    } catch (error) {
-      setError(extractCorrectErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  });
-  const publishDataset = form.handleSubmit(async (data) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      // const response =
-      await mut.publishDataset.mutateAsync([dataset?.id!, data, 'PB'], {
-        onError: (error) => {
-          setError(extractCorrectErrorMessage(error));
-          setIsLoading(false);
-        },
-        onSuccess: () => {
-          handleToggleFormModal?.(false);
-          setStep(1);
-          form.reset();
-        },
-      });
-    } catch (error) {
-      setError(extractCorrectErrorMessage(error));
-    } finally {
-      setIsLoading(false);
-    }
-  });
   const isFormLoading =
     isLoading ||
     form.formState.isSubmitting ||
@@ -278,6 +246,7 @@ export default function DatasetUploadForm({
           is_premium: dataset.is_premium,
           price: dataset.price || 0,
           is_private: dataset.is_private,
+          dataset_id: dataset.id,
         },
         step_2: {
           data_files: [],
@@ -290,6 +259,8 @@ export default function DatasetUploadForm({
           authors: (dataset.authors.map((au) => '' + au.id) ||
             []) as unknown as number[],
           doi_citation: dataset.doi_citation || '',
+          added_authors: [],
+          removed_authors: [],
         },
         step_4: {
           audience_data: {
@@ -332,6 +303,114 @@ export default function DatasetUploadForm({
     }
   }, [isFormModalOpen, resetFormWithDefaults]);
   const isLastStep = step === _steps.length;
+
+  const formType = useMemo(() => {
+    const isUpdate =
+      form.watch('step_1.dataset_id') !== undefined &&
+      form.watch('step_1.dataset_id') !== '';
+    return isUpdate ? 'update' : 'create';
+  }, [form.watch('step_1.dataset_id')]);
+
+  const createdDataset = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // const response =
+      await mut.createDataset.mutateAsync(data, {
+        onSuccess: () => {
+          toast.success('Dataset created successfully!', {
+            description: 'Your dataset is now live.',
+          });
+          handleToggleFormModal?.(false);
+          setStep(1);
+          form.reset();
+        },
+        onError: (error) => {
+          setError(extractCorrectErrorMessage(error));
+          toast.error(
+            extractCorrectErrorMessage(error, 'Failed to create dataset'),
+          );
+          setIsLoading(false);
+        },
+      });
+    } catch (error) {
+      setError(extractCorrectErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  });
+
+  const publishDataset = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await mut.updateDataset.mutateAsync([data.step_1.dataset_id!, data], {
+        onError: (error) => {
+          setError(extractCorrectErrorMessage(error));
+          toast.error(
+            `Failed to publish dataset: ${error.message || 'Unknown error'}`,
+          );
+          setIsLoading(false);
+        },
+        onSuccess: () => {
+          toast.success('Dataset published successfully!', {
+            description: 'Your dataset is now live.',
+          });
+          handleToggleFormModal?.(false);
+          setStep(1);
+          form.reset();
+        },
+      });
+    } catch (error) {
+      setError(extractCorrectErrorMessage(error));
+    } finally {
+      setIsLoading(false);
+    }
+  });
+  const watchedAuthors = (form.watch('step_3.authors') ?? []).map(
+    (author) => '' + author,
+  );
+
+  const watchAuthorsChange = useCallback(() => {
+    if (formType !== 'update' || !dataset) return;
+    /**
+     * When updating authors, we need to ensure that:
+     * 1. For newly added authors already existing in the DB, we can either remove or add new ones.
+     * 2. For removal the authors are in the dataset but not in the form authors.
+     * 3. For new ones they are in the form but not in the dataset.
+     */
+
+    const oldAuthors = (dataset.authors.map((au) => au.id) || []).map(
+      (author) => '' + author,
+    );
+
+    const newlyAddedAuthors = watchedAuthors.filter(
+      (author) => !oldAuthors.includes('' + author),
+    );
+    const removedAuthors = oldAuthors.filter(
+      (author) => !watchedAuthors.includes('' + author),
+    );
+    if (newlyAddedAuthors.length > 0) {
+      form.setValue(
+        'step_3.added_authors',
+        newlyAddedAuthors as unknown as number[],
+      );
+    } else {
+      form.setValue('step_3.added_authors', []);
+    }
+
+    if (removedAuthors.length > 0) {
+      form.setValue(
+        'step_3.removed_authors',
+        removedAuthors as unknown as number[],
+      );
+    } else {
+      form.setValue('step_3.removed_authors', []);
+    }
+  }, [watchedAuthors, formType, dataset, form]);
+  useEffect(() => {
+    watchAuthorsChange();
+  }, [watchAuthorsChange]);
 
   return (
     <Dialog open={isFormModalOpen} onOpenChange={handleToggleFormModal}>
@@ -394,12 +473,15 @@ export default function DatasetUploadForm({
                 <DialogTitle className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-sm font-bold text-transparent">
                   {currentStep?.header.title}
                 </DialogTitle>
-                <DialogDescription className="text-sm leading-relaxed text-gray-600">
+                <DialogDescription
+                  asChild
+                  className="text-sm leading-relaxed text-gray-600"
+                >
                   <p>{currentStep?.header.description}</p>
                 </DialogDescription>
               </div>
               <div>
-                {!isLastStep && !dataset && (
+                {!isLastStep && formType === 'create' && (
                   <Button
                     type="button"
                     variant={'outline'}
@@ -415,7 +497,7 @@ export default function DatasetUploadForm({
                     <span>Save Draft</span>
                   </Button>
                 )}
-                {!isLastStep && dataset && (
+                {!isLastStep && formType === 'update' && (
                   <Button
                     type="button"
                     variant={'outline'}
@@ -448,7 +530,22 @@ export default function DatasetUploadForm({
                   />
                 )}
                 {step === 2 && (
-                  <DatasetUploadFormStep2 form={form as FormType} />
+                  <DatasetUploadFormStep2
+                    form={form as FormType}
+                    files={
+                      formType === 'update' && dataset
+                        ? {
+                            data_files: dataset.data_files,
+                            metadata_files: dataset.metadata_files,
+                            datasheet_files: dataset.datasheet_files,
+                          }
+                        : {
+                            data_files: [],
+                            metadata_files: [],
+                            datasheet_files: [],
+                          }
+                    }
+                  />
                 )}
                 {step === 3 && (
                   <DatasetUploadFormStep3
@@ -506,9 +603,9 @@ export default function DatasetUploadForm({
                     </Button>
                   ) : (
                     <>
-                      {dataset ? (
+                      {formType === 'update' ? (
                         <Button
-                          onClick={createdDataset}
+                          onClick={publishDataset}
                           disabled={isFormLoading}
                           variant="default"
                           type="button"
@@ -524,7 +621,7 @@ export default function DatasetUploadForm({
                         </Button>
                       ) : (
                         <Button
-                          onClick={publishDataset}
+                          onClick={createdDataset}
                           disabled={isFormLoading}
                           variant="default"
                           type="button"

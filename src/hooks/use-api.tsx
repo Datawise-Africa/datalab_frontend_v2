@@ -25,6 +25,8 @@ export default function useApi() {
       const response = await axios.get(url, {
         headers: {
           Accept: 'text/csv',
+          'Content-Type': 'text/csv',
+          responseType: 'text/plain; charset=UTF-8',
         },
       });
       return response.data;

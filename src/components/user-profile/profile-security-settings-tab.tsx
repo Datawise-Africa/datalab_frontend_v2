@@ -24,10 +24,10 @@ import {
   FormLabel,
   FormMessage,
 } from '../ui/form';
-import { FancyToast } from '@/lib/utils/toaster';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthProvider';
+import { toast } from 'sonner';
 
 export default function ProfileSecuritySettingsTab() {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -45,19 +45,17 @@ export default function ProfileSecuritySettingsTab() {
     changePassword(data, {
       onError: (error) => {
         console.error('Error changing password:', error);
-        FancyToast.error(
+        toast.error(
           extractCorrectErrorMessage(
             error,
             'Password update failed.Try again later!',
           ),
-          { theme: 'light' },
         );
       },
       onSuccess: () => {
         console.log('Password changed successfully');
-        FancyToast.success('Password updated successfully!', {
-          duration: 3000,
-          theme: 'light',
+        toast.success('Password updated successfully!', {
+          // duration: 3000,
         });
         form.reset();
         setChangePasswordOpen(false);

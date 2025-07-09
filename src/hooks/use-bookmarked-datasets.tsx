@@ -2,13 +2,13 @@ import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthProvider';
 import useApi from './use-api';
-import { FancyToast } from '@/lib/utils/toaster';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   datasetBookmarksKeys,
   datasetsKeys,
 } from '@/lib/features/dataset-keys';
 import type { IDataset } from '@/lib/types/data-set';
+import { toast } from 'sonner';
 
 interface IBookMarkedDataset {
   id: number;
@@ -117,8 +117,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       return { previousBookmarks };
     },
     onSuccess: () => {
-      FancyToast.success('Dataset saved successfully!', {
-        theme: 'light',
+      toast.success('Dataset saved successfully!', {
         duration: 3000,
       });
     },
@@ -131,12 +130,12 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         );
       }
 
-      FancyToast.error(
+      toast.error(
         extractCorrectErrorMessage(
           error,
           'Failed to save dataset. Please try again.',
         ),
-        { theme: 'light', duration: 5000 },
+        { duration: 5000 },
       );
     },
     onSettled: () => {
@@ -181,8 +180,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       return { previousBookmarks };
     },
     onSuccess: () => {
-      FancyToast.success('Dataset removed from saved items!', {
-        theme: 'light',
+      toast.success('Dataset removed from saved items!', {
         duration: 3000,
       });
     },
@@ -195,12 +193,12 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         );
       }
 
-      FancyToast.error(
+      toast.error(
         extractCorrectErrorMessage(
           error,
           'Failed to remove bookmark. Please try again.',
         ),
-        { theme: 'light', duration: 5000 },
+        { duration: 5000 },
       );
     },
     onSettled: async () => {
