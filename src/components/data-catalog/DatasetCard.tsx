@@ -18,6 +18,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import moment from 'moment';
@@ -112,9 +113,12 @@ const DatasetCard = <T = IDataset,>({
               className="border-primary/30 w-48 bg-white shadow-xl sm:w-56"
               avoidCollisions={true}
             >
+              <DropdownMenuLabel className="border-primary/10 text-primary border-b px-3 py-2 text-sm font-semibold">
+                Dataset Actions
+              </DropdownMenuLabel>
               <DropdownMenuItem
                 className={cn(
-                  'cursor-pointer text-xs disabled:cursor-not-allowed sm:text-sm',
+                  'hover:bg-primary/5 hover:text-primary focus:bg-primary/10 focus:text-primary flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150',
                   {
                     'cursor-progress opacity-50': isAddingBookmark,
                   },
@@ -152,7 +156,7 @@ const DatasetCard = <T = IDataset,>({
 
               <DropdownMenuItem
                 onClick={() => shareDataset(dataset)}
-                className="cursor-pointer text-xs sm:text-sm"
+                className="hover:bg-primary/5 hover:text-primary focus:bg-primary/10 focus:text-primary flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150"
               >
                 <Link className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 Copy Link
@@ -160,7 +164,7 @@ const DatasetCard = <T = IDataset,>({
 
               <DropdownMenuItem
                 onClick={() => handleSingleDataModal(dataset as T)}
-                className="cursor-pointer text-xs sm:text-sm"
+                className="hover:bg-primary/5 hover:text-primary focus:bg-primary/10 focus:text-primary flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150"
               >
                 <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 View Details
@@ -168,7 +172,7 @@ const DatasetCard = <T = IDataset,>({
 
               <DropdownMenuItem
                 onClick={() => handleDownloadDataClick?.(dataset as T)}
-                className="cursor-pointer text-xs sm:text-sm"
+                className="hover:bg-primary/5 hover:text-primary focus:bg-primary/10 focus:text-primary flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150"
               >
                 <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                 Download

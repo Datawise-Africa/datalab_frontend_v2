@@ -1,4 +1,4 @@
-import { protecteRoutes } from './protected-routes';
+import { appProtectedRoutes } from './protected-routes';
 import React from 'react';
 const DataCatalog = React.lazy(() => import('@/pages/Homepage'));
 const Reports = React.lazy(() => import('@/pages/reports/Reports'));
@@ -25,7 +25,7 @@ const baseRoutes = [
     element: <Reports />,
   },
 
-  protecteRoutes,
+  appProtectedRoutes,
 ];
 
 export default baseRoutes;

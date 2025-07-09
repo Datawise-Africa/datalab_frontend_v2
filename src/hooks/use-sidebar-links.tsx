@@ -37,13 +37,13 @@ export default function useSidebarLinks() {
             icon: Bookmark,
             href: '/app/saved-datasets',
           },
-          // {
-          //   label: 'My Downloads',
-          //   icon: Download,
+          {
+            label: 'My Downloads',
+            icon: Download,
 
-          //   href: '#',
-          //   badge: 'Pending',
-          // },
+            href: '/app/my-downloads',
+            badge: 'Pending',
+          },
         ],
       },
       {

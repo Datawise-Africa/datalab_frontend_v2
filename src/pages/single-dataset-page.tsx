@@ -11,10 +11,14 @@ import { SingleDatasetRating } from '@/components/single-dataset/single-dataset-
 import useDownloadDataModal from '@/store/use-download-data-modal';
 import { useDatasetStore } from '@/store/dataset-store';
 import DownloadDataModal from '@/components/data-catalog/DownloadDataModal';
+import { CsvHandler } from '@/lib/utils/csv-handler';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import BeautifulCsvTable from '@/components/data-catalog/beautiful-csv-datatable';
 
 export default function SingleDatasetPage() {
   const { id } = useParams<{ id: string }>();
   const { singleDataset, isSingleDatasetLoading } = useDatasets(id);
+  const [csvJsonData, setCsvJSONData] = useState<any[]>([]);
   const { isTracking } = useDatasetViewTracker(id!);
   const { downloadDataset } = useDatasetStore();
   const downloadDataModal = useDownloadDataModal();
@@ -28,6 +32,45 @@ export default function SingleDatasetPage() {
     // For now, just simulate a delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
+
+  const checkCsvData = useCallback(async () => {
+    if (!singleDataset || singleDataset.data_files.length === 0) {
+      return;
+    }
+    const isCsv = singleDataset.data_files.some(
+      (file) =>
+        file.content_type.includes('csv') || file.s3_url.endsWith('.csv'),
+    );
+    if (!isCsv) {
+      return;
+    }
+    const feedback = await CsvHandler.parseCsvFromUrl(
+      singleDataset.data_files[0].s3_url,
+    );
+    setCsvJSONData(feedback.data);
+    console.log('Parsed CSV feedback:', { feedback });
+  }, [singleDataset]);
+  useEffect(() => {
+    if (singleDataset) {
+      checkCsvData();
+    }
+  }, [singleDataset, checkCsvData]);
+  const csvDataOverall = useMemo(() => {
+    if (csvJsonData.length === 0) {
+      return {
+        headers: [],
+        data: [],
+      };
+    }
+    // Assuming the first row is the header
+    const headers = Object.keys(csvJsonData[0]);
+    // Extract the first three columns for display
+    const firstTenRows = csvJsonData.slice(0, 10);
+    return {
+      headers,
+      data: firstTenRows,
+    };
+  }, [csvJsonData]);
 
   if (!id || isSingleDatasetLoading) {
     return (
@@ -92,6 +135,9 @@ export default function SingleDatasetPage() {
         />
 
         {/* Sample Data Preview */}
+        {csvDataOverall.data.length > 0 && (
+          <BeautifulCsvTable csvDataOverall={csvDataOverall} />
+        )}
 
         {/* Dataset Overview */}
         <Card className="border-gray-200 bg-white">
@@ -144,7 +190,48 @@ export default function SingleDatasetPage() {
             </div>
           </CardContent>
         </Card>
-
+        {/* CSV data preview */}
+        {csvJsonData.length > 0 && (
+          <Card className="border-gray-200 bg-white">
+            <CardHeader>
+              <CardTitle>Sample Data Preview</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
+                        Column 1
+                      </th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
+                        Column 2
+                      </th>
+                      <th className="px-4 py-2 text-left text-sm font-medium text-gray-500">
+                        Column 3
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {csvJsonData.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {row[0]}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {row[1]}
+                        </td>
+                        <td className="px-4 py-2 text-sm text-gray-700">
+                          {row[2]}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
         {/* Additional Information */}
         <Card className="border-gray-200 bg-white">
           <CardHeader>

@@ -530,7 +530,22 @@ export default function DatasetUploadForm({
                   />
                 )}
                 {step === 2 && (
-                  <DatasetUploadFormStep2 form={form as FormType} />
+                  <DatasetUploadFormStep2
+                    form={form as FormType}
+                    files={
+                      formType === 'update' && dataset
+                        ? {
+                            data_files: dataset.data_files,
+                            metadata_files: dataset.metadata_files,
+                            datasheet_files: dataset.datasheet_files,
+                          }
+                        : {
+                            data_files: [],
+                            metadata_files: [],
+                            datasheet_files: [],
+                          }
+                    }
+                  />
                 )}
                 {step === 3 && (
                   <DatasetUploadFormStep3
