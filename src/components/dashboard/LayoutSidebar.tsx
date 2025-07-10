@@ -32,7 +32,7 @@ import {
 import { cn } from '@/lib/utils';
 import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
 import { useAuth } from '@/context/AuthProvider';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import type { SidebarLinkType } from '@/lib/types/sidebar';
 import { AuthPerm } from '@/lib/auth/perm';
 import { IconParkOutlineDataUser } from '../icons/IconParkOutlineDataUser';
@@ -142,7 +142,9 @@ export default function LayoutSidebar({
                     <Link
                       to={'/app/dataset-creator-dashboard/'}
                       // variant="default"
-                      className={`text-subtle bg-primary flex w-full items-center justify-center space-x-2 rounded py-3 ${isCollapsed && !isMobile ? 'px-0' : 'px-4'} `}
+                      className={cn(
+                        `text-subtle bg-primary flex w-full items-center justify-center space-x-2 rounded py-3 ${isCollapsed && !isMobile ? 'px-0' : 'px-4'}`,
+                      )}
                     >
                       <LucidePlus className="h-4 w-4" />
                       {(!isCollapsed || isMobile) && (
@@ -279,9 +281,13 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
                 className="flex h-10 w-full items-center justify-center p-0"
                 asChild
               >
-                <Link
+                <NavLink
                   to={props.href}
-                  className="flex h-10 w-full items-center justify-center p-0"
+                  className={({ isActive }) =>
+                    cn('flex h-full w-full items-center justify-center p-0', {
+                      'bg-primary/30': isActive,
+                    })
+                  } // Highlight active link
                 >
                   {/* Icon */}
                   {props.icon && (
@@ -297,7 +303,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
                       )}
                     </span>
                   )}
-                </Link>
+                </NavLink>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" className="text-subtle">
@@ -313,9 +319,13 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button variant="ghost" asChild>
-                    <Link
+                    <NavLink
                       to={child.href}
-                      className="flex h-10 w-full items-center justify-center p-0"
+                      className={({ isActive }) =>
+                        cn('flex h-10 w-full items-center justify-center p-0', {
+                          'bg-primary/30': isActive,
+                        })
+                      }
                     >
                       {child.icon && (
                         <span className="flex h-5 w-5 items-center justify-center">
@@ -330,7 +340,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
                           )}
                         </span>
                       )}
-                    </Link>
+                    </NavLink>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="text-subtle">
@@ -377,7 +387,14 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
       variant="ghost"
       className="h-auto w-full justify-start rounded-md px-3 py-2 hover:bg-gray-50"
     >
-      <Link to={props.href} className="flex items-center space-x-3">
+      <NavLink
+        to={props.href}
+        className={({ isActive }) =>
+          cn('flex h-full w-full items-center space-x-3', {
+            'bg-primary/30': isActive,
+          })
+        }
+      >
         {props.icon && (
           <span className="flex h-5 w-5 items-center justify-center text-gray-600">
             {typeof props.icon !== 'string' ? (
@@ -392,7 +409,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
           </span>
         )}
         <span className="text-sm font-medium">{props.label}</span>
-      </Link>
+      </NavLink>
     </Button>
   );
 }

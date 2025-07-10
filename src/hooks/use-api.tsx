@@ -4,25 +4,17 @@ import { useAuth } from '@/context/AuthProvider';
 
 export default function useApi() {
   const auth = useAuth();
-  const privateApi = axios.create({
+  const api = axios.create({
     baseURL: REACT_PUBLIC_API_HOST,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      Authorization: `JWT ${auth.state.accessToken}`,
     },
   });
 
-  const publicApi = axios.create({
-    baseURL: REACT_PUBLIC_API_HOST,
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  });
   const getDataFile = async (url: string) => {
     try {
-      const response = await axios.get(url, {
+      const response = await api.get(url, {
         headers: {
           Accept: 'text/csv',
           'Content-Type': 'text/csv',
@@ -36,74 +28,71 @@ export default function useApi() {
     }
   };
   // Add Authorization token to requests
-  privateApi.interceptors.request.use((config) => {
-    if (auth.state?.accessToken) {
+  api.interceptors.request.use((config) => {
+    if (auth.isAuthenticated) {
       config.headers.Authorization = `JWT ${auth.state?.accessToken}`;
     }
     return config;
   });
 
   // Handle 401 responses
-  privateApi.interceptors.response.use(
+  api.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
-      // Prevent infinite retry loops
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        try {
-          if (!auth.state.refreshToken) {
-            console.error('No refresh token available');
-            auth.dispatch({ type: 'LOGOUT' });
-            return Promise.reject(error);
-          }
-          const response = await publicApi.post(
-            `/auth/refresh-token/`,
-            {
-              ...(auth.isAuthenticated
-                ? {
-                    grant_type: 'refresh_token',
-                    refresh_token: auth.state?.refreshToken,
-                  }
-                : {}),
-            },
-            {
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            },
-          );
-          auth.dispatch(
-            auth.actions.REFRESH({
-              accessToken: response.data.access_token,
-              refreshToken: response.data.refresh_token,
-            }),
-          );
-          // Retry the original request with new access token
-          originalRequest.headers.Authorization = `JWT ${response.data.access_token}`;
-          return privateApi.request(originalRequest);
-          // } else {
-          //   console.error('Token refresh failed:', response);
-          // }
-        } catch (refreshError) {
-          console.error('Refresh error:', refreshError);
-          // Logout user after failed retry
-          auth.dispatch({ type: 'LOGOUT' });
-        }
-      } else if (error.response?.status === 401 && originalRequest._retry) {
-        // Second 401 even after retry — force logout
-        auth.dispatch({ type: 'LOGOUT' });
+      // Only handle 401 errors and avoid infinite loops
+      if (error.response?.status !== 401 || originalRequest._retry) {
+        // For non-401 errors or already-retried requests, reject immediately
+        return Promise.reject(error);
       }
 
-      return Promise.reject(error);
+      // Mark the request to prevent infinite retries
+      originalRequest._retry = true;
+
+      // Check if we have a refresh token
+      if (!auth.state.refreshToken) {
+        console.error('No refresh token available');
+        auth.dispatch({ type: 'LOGOUT' });
+        return Promise.reject(error);
+      }
+
+      try {
+        console.log('Attempting to refresh token');
+        const response = await api.post(
+          '/auth/refresh-token/',
+          {
+            refresh_token: auth.state.refreshToken,
+          },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            // _noAuth: true, // Add this to prevent the interceptor from intercepting this request
+          },
+        );
+
+        // Update auth state with new tokens
+        auth.dispatch(
+          auth.actions.REFRESH({
+            accessToken: response.data.access_token,
+            refreshToken: response.data.refresh_token,
+          }),
+        );
+
+        // Update the original request header
+        originalRequest.headers.Authorization = `JWT ${response.data.access_token}`;
+
+        // Retry the original request with new token
+        return api(originalRequest);
+      } catch (refreshError) {
+        console.error('Refresh token failed:', refreshError);
+        auth.dispatch({ type: 'LOGOUT' });
+        return Promise.reject(refreshError);
+      }
     },
   );
 
   return {
     getDataFile,
-    privateApi,
-    publicApi,
+    api,
   };
 }

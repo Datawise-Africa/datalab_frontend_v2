@@ -12,10 +12,10 @@ export type DatasetCreatorOverviewAnalyticsType = {
   total_downloads: number;
   average_rating: number;
   total_datasets: number;
-  views_last_30d_percent: number;
-  downloads_last_30d_percent: number;
-  ratings_last_30d_percent: number;
-  new_datasets_last_30d_percent: number;
+  views_growth: number;
+  downloads_growth: number;
+  ratings_growth: number;
+  new_datasets_growth: number;
   top_performing_datasets: {
     id: string;
     title: string;
@@ -38,34 +38,30 @@ export type SingleDatasetViewsAnalyticsType = {
   range_end: string;
   daily_views: { view_date: string; views_count: number }[];
   daily_downloads: { download_date: string; downloads_count: number }[];
+  total_comments: number;
+  views_growth: number;
+  downloads_growth: number;
+  ratings_growth: number;
+  comments_growth: number;
+  intended_use_distribution: {
+    label: string;
+    count: number;
+    percent: number;
+  }[];
 };
-
-
 
 export const useDatasetCreatorAnalyticsQuery = () => {
   const { selectedDatasetId, setSelectedDatasetId } = useSelectedDatasetId();
   const { filters } = useDatasetCreatorAnalyticsFilters();
   const auth = useAuth();
-  const { privateApi } = useApi();
+  const { api } = useApi();
 
   async function fetchDatasetCreatorAnalytics() {
     try {
-      const { data } =
-        await privateApi.get<DatasetCreatorOverviewAnalyticsType>(
-          `/data/datasets-analytics/`,
-        );
-      // const f = Object.entries(data).reduce<FormattedOverviewAnalyticsType>(
-      //   (acc, [key, value]) => {
-      //     const formattedKey = key.replace(/_/g, ' ');
-      //     acc[formattedKey] = {
-      //       total: value as number,
-      //       label: formattedKey.charAt(0).toUpperCase() + formattedKey.slice(1),
-      //     };
-      //     return acc;
-      //   },
-      //   {},
-      // );
-      // return Object.values(f);
+      const { data } = await api.get<DatasetCreatorOverviewAnalyticsType>(
+        `/data/datasets-analytics/`,
+      );
+
       return data;
     } catch (error) {
       throw new Error(
@@ -79,7 +75,7 @@ export const useDatasetCreatorAnalyticsQuery = () => {
 
   async function fetchSelectedDatasetAnalytics() {
     try {
-      const { data } = await privateApi.get<SingleDatasetViewsAnalyticsType>(
+      const { data } = await api.get<SingleDatasetViewsAnalyticsType>(
         `/data/datasets-analytics/${selectedDatasetId}/`,
       );
       return data;
@@ -96,7 +92,7 @@ export const useDatasetCreatorAnalyticsQuery = () => {
   const datasetOverviewQuery = useQuery({
     queryKey: [datasetCreatorAnalyticsKeys.overview],
     queryFn: fetchDatasetCreatorAnalytics,
-    enabled: !!selectedDatasetId && auth.isAuthenticated,
+    enabled: auth.isAuthenticated,
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
   });

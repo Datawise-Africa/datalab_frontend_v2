@@ -200,10 +200,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
   const validateEmail = () => {
     const emailTypeValidation: Record<string, boolean> = {
-      Company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
-      'Non-Profit': email.endsWith('.org'),
-      Student: email.endsWith('.edu'),
-      Public: true,
+      company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
+      non_profit: email.endsWith('.org'),
+      students: email.endsWith('.edu'),
+      public: true,
     };
     return emailTypeValidation[selectedCard];
   };
@@ -312,53 +312,53 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     console.log('🔄 handleAction completed');
   };
 
-  const [rating, setRating] = useState(0);
-  const [message, setMessage] = useState(''); // For success/error messages
+  // const [rating, setRating] = useState(0);
+  const [message, _setMessage] = useState(''); // For success/error messages
 
-  const handleStarClick = async (value: number) => {
-    if (!dataset?.id) {
-      setMessage('Error: Dataset ID is missing.');
-      return;
-    }
+  // const handleStarClick = async (value: number) => {
+  //   if (!dataset?.id) {
+  //     setMessage('Error: Dataset ID is missing.');
+  //     return;
+  //   }
 
-    setRating(value);
-    setMessage('Submitting...'); // Show loading state
+  //   setRating(value);
+  //   setMessage('Submitting...'); // Show loading state
 
-    try {
-      if (!auth.state.accessToken) {
-        setMessage('Error: Authentication required.');
-        return;
-      }
+  //   try {
+  //     if (!auth.state.accessToken) {
+  //       setMessage('Error: Authentication required.');
+  //       return;
+  //     }
 
-      const response = await fetch(`${REACT_PUBLIC_API_HOST}/data/reviews/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${auth.state.accessToken}`,
-        },
-        body: JSON.stringify({
-          dataset: dataset.id, // Ensure it's a valid integer
-          rating: value,
-        }),
-      });
+  //     const response = await fetch(`${REACT_PUBLIC_API_HOST}/data/reviews/`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `JWT ${auth.state.accessToken}`,
+  //       },
+  //       body: JSON.stringify({
+  //         dataset: dataset.id, // Ensure it's a valid integer
+  //         rating: value,
+  //       }),
+  //     });
 
-      const data = await response.json(); // Read response body
-      console.log('Response:', response.status, data); // Log details
+  //     const data = await response.json(); // Read response body
+  //     console.log('Response:', response.status, data); // Log details
 
-      if (response.ok) {
-        setMessage('Thank you for your rating!');
-      } else {
-        setMessage(
-          `Failed to submit rating: ${data.detail || 'Unknown error'}`,
-        );
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setMessage('Error submitting rating.');
-    }
+  //     if (response.ok) {
+  //       setMessage('Thank you for your rating!');
+  //     } else {
+  //       setMessage(
+  //         `Failed to submit rating: ${data.detail || 'Unknown error'}`,
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch error:', error);
+  //     setMessage('Error submitting rating.');
+  //   }
 
-    setTimeout(() => setMessage(''), 3000);
-  };
+  //   setTimeout(() => setMessage(''), 3000);
+  // };
 
   const contentMap: Record<
     string,
@@ -566,22 +566,22 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 {[
                   {
-                    type: 'Company',
+                    type: 'company',
                     icon: <Building />,
                     description: 'Business Email Required.',
                   },
                   {
-                    type: 'Non-Profit',
+                    type: 'non_profit',
                     icon: <Handshake />,
                     description: 'NGO or .org Email Required.',
                   },
                   {
-                    type: 'Student',
+                    type: 'students',
                     icon: <GraduationCap />,
                     description: 'University/Educational Email Required.',
                   },
                   {
-                    type: 'Public',
+                    type: 'public',
                     icon: <Users />,
                     description: 'Personal Email Required.',
                   },
@@ -943,7 +943,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
             {/* Rate This Dataset */}
             <div className="mt-6 text-center">
-              <h3 className="text-lg font-semibold text-[#4B5563]">
+              {/* <h3 className="text-lg font-semibold text-[#4B5563]">
                 Rate This Dataset
               </h3>
               <div className="mt-2 flex justify-center">
@@ -961,7 +961,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                     <path d="M12 17.27l6.18 3.73-1.64-7.03 5.46-4.73-7.19-.61L12 2 9.19 8.63l-7.19.61 5.46 4.73L5.82 21z" />
                   </svg>
                 ))}
-              </div>
+              </div> */}
               {message && (
                 <p className="mt-2 text-sm text-green-500">{message}</p>
               )}

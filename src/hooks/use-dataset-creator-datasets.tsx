@@ -35,7 +35,7 @@ export function useDatasetCreatorDatasets(
     DEFAULT_PAGINATION_META,
   );
 
-  const api = useApi().privateApi;
+  const { api } = useApi();
 
   const endpoints: Record<DatasetStatus, string> = {
     DF: '/data/datasets-drafts',
@@ -192,7 +192,7 @@ export function useMultipleDatasetStatuses(
 
 // Dataset mutations hook
 export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
-  const api = useApi().privateApi;
+  const { api } = useApi();
   const queryClient = useQueryClient();
   type UpdateMutationType = [IDataset['id'], UploadDatasetSchemaType];
 

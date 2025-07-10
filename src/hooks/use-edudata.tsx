@@ -7,7 +7,7 @@ export function useEduData() {
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
-  const api = useApi().publicApi;
+  const { api } = useApi();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);

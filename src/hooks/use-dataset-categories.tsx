@@ -11,13 +11,13 @@ export interface IDatasetCategory {
 }
 
 export function useDatasetCategories() {
-  const { privateApi } = useApi();
+  const { api } = useApi();
 
   const fetchDatasetCategories = useCallback(async (): Promise<
     IDatasetCategory[]
   > => {
     try {
-      const { data } = await privateApi.get<IDatasetCategory[]>(
+      const { data } = await api.get<IDatasetCategory[]>(
         '/data/dataset-categories/',
       );
       return data;
@@ -25,7 +25,7 @@ export function useDatasetCategories() {
       console.error('Error fetching dataset categories:', error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [privateApi]);
+  }, [api]);
 
   return useQuery({
     queryKey: datasetCategoriesKeys.all,

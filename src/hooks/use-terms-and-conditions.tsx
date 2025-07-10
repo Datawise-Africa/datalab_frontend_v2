@@ -5,8 +5,7 @@ import { termsAndConditionsQueryKeys } from '@/lib/features/terms-and-condition-
 import { extractCorrectErrorMessage } from '@/lib/error';
 
 export function useTermsAndConditions() {
-  const api = useApi().privateApi;
-
+  const { api } = useApi();
   const fetchTermsAndConditions = useCallback(async () => {
     try {
       const res = await api.get('/data/terms-and-conditions/');
