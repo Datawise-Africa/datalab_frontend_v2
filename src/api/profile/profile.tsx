@@ -74,28 +74,25 @@ export type UserProfileUpdateType = Omit<UserProfileType, 'id'> & {
 
 export function useUserProfile() {
   const { isAuthenticated } = useAuth();
-  const { privateApi } = useApi();
+  const { api } = useApi();
   const queryClient = useQueryClient();
 
   async function fetchProfile(): Promise<UserProfileType> {
-    const { data } = await privateApi.get<UserProfileType>('/auth/me/');
+    const { data } = await api.get<UserProfileType>('/auth/me/');
     return data;
   }
 
   async function updateProfile(
     profileData: UpdateUserProfileDataType,
   ): Promise<UserProfileType> {
-    const { data } = await privateApi.put<UserProfileType>(
-      '/auth/me/',
-      profileData,
-    );
+    const { data } = await api.put<UserProfileType>('/auth/me/', profileData);
     return data;
   }
 
   async function changePassword(
     payload: ChangePasswordDataType,
   ): Promise<void> {
-    await privateApi.post('/auth/change-password/', {
+    await api.post('/auth/change-password/', {
       old_password: payload.current_password,
       new_password: payload.new_password,
     });

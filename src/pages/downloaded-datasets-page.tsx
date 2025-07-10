@@ -463,7 +463,6 @@ function DatasetCardSkeleton() {
 
 // Dataset Card Component
 function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
-
   // const [rating, setRating] = useState(0)
   // const [isRated, setIsRated] = useState(false)
   const [showReviews, setShowReviews] = useState(false);

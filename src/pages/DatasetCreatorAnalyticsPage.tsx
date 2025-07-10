@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -29,7 +24,6 @@ import {
   Database,
 } from 'lucide-react'; // Import ArrowUpDown
 
-import * as d3 from 'd3';
 import { Button } from '@/components/ui/button';
 import {
   type ColumnDef,
@@ -41,14 +35,9 @@ import {
   type SortingState, // Import SortingState
   getSortedRowModel, // Import getSortedRowModel
 } from '@tanstack/react-table';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { fetchDatasets, type Dataset } from '@/actions/analytics';
 import { Loader2 } from 'lucide-react';
-import {
-  BarChart,
-  PieChart,
-  WorldMap,
-} from '@/components/ui/charts';
 import {
   useDatasetCreatorAnalyticsQuery,
   type DatasetCreatorOverviewAnalyticsType,
@@ -63,6 +52,10 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -70,39 +63,31 @@ import {
 } from 'recharts';
 import moment from 'moment';
 
-// Mock Data for Charts
-const overviewData = {
-  views: { value: '23.2K', change: '+32%', direction: 'up' },
-  downloads: { value: '74', change: '-42%', direction: 'down' },
-  avgRating: { value: '4.3', change: '+0.0%', direction: 'neutral' },
-  totalDatasets: { value: '12', change: '-', direction: 'neutral' },
-};
+// const geographicData = [
+//   { label: 'Africa', value: 1200 },
+//   { label: 'North America', value: 950 },
+//   { label: 'Europe', value: 820 },
+//   { label: 'Asia', value: 570 },
+//   { label: 'Asia-Pacific', value: 350 },
+// ];
 
-const geographicData = [
-  { label: 'Africa', value: 1200 },
-  { label: 'North America', value: 950 },
-  { label: 'Europe', value: 820 },
-  { label: 'Asia', value: 570 },
-  { label: 'Asia-Pacific', value: 350 },
-];
+// const userCategoriesData = [
+//   { label: 'Students', value: 40 },
+//   { label: 'Non-Profit', value: 25 },
+//   { label: 'Public Sector', value: 20 },
+//   { label: 'Companies', value: 15 },
+// ];
 
-const userCategoriesData = [
-  { label: 'Students', value: 40 },
-  { label: 'Non-Profit', value: 25 },
-  { label: 'Public Sector', value: 20 },
-  { label: 'Companies', value: 15 },
-];
-
-const mapDataPoints = [
-  { lat: 0.0, lon: 25.0, value: 100, label: 'Africa Data Hub' }, // Central Africa
-  { lat: 39.8, lon: -98.6, value: 80, label: 'North America Data Hub' }, // Central US
-  { lat: 54.5, lon: -3.4, value: 60, label: 'Europe Data Hub' }, // UK
-  { lat: 34.0, lon: 108.0, value: 40, label: 'Asia Data Hub' }, // China
-  { lat: -25.27, lon: 133.77, value: 30, label: 'Australia Data Hub' }, // Australia
-  { lat: -14.23, lon: -51.92, value: 70, label: 'South America Data Hub' }, // Brazil
-  { lat: 20.59, lon: 78.96, value: 90, label: 'India Data Hub' }, // India
-  { lat: 61.52, lon: 105.31, value: 20, label: 'Russia Data Hub' }, // Russia
-];
+// const mapDataPoints = [
+//   { lat: 0.0, lon: 25.0, value: 100, label: 'Africa Data Hub' }, // Central Africa
+//   { lat: 39.8, lon: -98.6, value: 80, label: 'North America Data Hub' }, // Central US
+//   { lat: 54.5, lon: -3.4, value: 60, label: 'Europe Data Hub' }, // UK
+//   { lat: 34.0, lon: 108.0, value: 40, label: 'Asia Data Hub' }, // China
+//   { lat: -25.27, lon: 133.77, value: 30, label: 'Australia Data Hub' }, // Australia
+//   { lat: -14.23, lon: -51.92, value: 70, label: 'South America Data Hub' }, // Brazil
+//   { lat: 20.59, lon: 78.96, value: 90, label: 'India Data Hub' }, // India
+//   { lat: 61.52, lon: 105.31, value: 20, label: 'Russia Data Hub' }, // Russia
+// ];
 
 const columns: ColumnDef<
   DatasetCreatorOverviewAnalyticsType['top_performing_datasets'][number]
@@ -351,9 +336,32 @@ export default function AnalyticsPage() {
   // const { xDataKey, yDataKey, chartData } = getAreaChartData();
   const viewsChartData = getViewsChartsData();
   const downloadsChartData = getDownloadsChartsData();
-  console.log('viewsChartData', viewsChartData);
-  console.log('downloadsChartData', downloadsChartData);
-
+  const singleDatasetAnalytics = useMemo(() => {
+    if (!selectedDatasetQuery.data) return null;
+    const {
+      average_rating,
+      comments_growth,
+      views_growth,
+      downloads_growth,
+      total_comments,
+      ratings_growth,
+      views,
+      downloads,
+      review_count,
+    } = selectedDatasetQuery.data;
+    return {
+      average_rating,
+      comments_growth,
+      views_growth,
+      downloads_growth,
+      total_comments,
+      ratings_growth,
+      views,
+      downloads,
+      review_count,
+    };
+  }, [selectedDatasetQuery.data]);
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
   return (
     <div className="grid gap-8">
       <div className="grid gap-2">
@@ -384,12 +392,7 @@ export default function AnalyticsPage() {
             </SelectContent>
           </Select>
         </CardHeader>
-        {/**
-         * total_views: number;
-         * total_downloads: number;
-         * average_rating: number;
-         * total_datasets: number;
-         */}
+
         <CardContent className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {/* Views */}
           <div className="grid gap-1 rounded-lg border border-gray-300 bg-white p-4 shadow">
@@ -398,19 +401,19 @@ export default function AnalyticsPage() {
             </div>
             <div className="text-sm text-gray-500">Total views</div>
             <div className="flex items-center text-sm">
-              {datasetOverviewQuery.data?.views_last_30d_percent! > 0 ? (
+              {datasetOverviewQuery.data?.views_growth! > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  datasetOverviewQuery.data?.views_last_30d_percent! > 0
+                  datasetOverviewQuery.data?.views_growth! > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {datasetOverviewQuery.data?.views_last_30d_percent!}%
+                {datasetOverviewQuery.data?.views_growth ?? 0}%
               </span>
               <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
@@ -422,19 +425,19 @@ export default function AnalyticsPage() {
             </div>
             <div className="text-sm text-gray-500">Total Downloads</div>
             <div className="flex items-center text-sm">
-              {overviewData.views.direction === 'up' ? (
+              {(datasetOverviewQuery.data?.downloads_growth || 0) > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  overviewData.views.direction === 'up'
+                  (datasetOverviewQuery.data?.downloads_growth || 0) > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {overviewData.views.change}
+                {datasetOverviewQuery.data?.downloads_growth || 0}%
               </span>
               <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
@@ -446,19 +449,19 @@ export default function AnalyticsPage() {
             </div>
             <div className="text-sm text-gray-500">Average Rating</div>
             <div className="flex items-center text-sm">
-              {datasetOverviewQuery.data?.ratings_last_30d_percent! > 0 ? (
+              {datasetOverviewQuery.data?.ratings_growth! > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  datasetOverviewQuery.data?.ratings_last_30d_percent! > 0
+                  datasetOverviewQuery.data?.ratings_growth! > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {datasetOverviewQuery.data?.ratings_last_30d_percent!}%
+                {datasetOverviewQuery.data?.ratings_growth ?? 0}%
               </span>
               <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
@@ -470,19 +473,19 @@ export default function AnalyticsPage() {
             </div>
             <div className="text-sm text-gray-500">Total Datasets</div>
             <div className="flex items-center text-sm">
-              {datasetOverviewQuery.data?.new_datasets_last_30d_percent! > 0 ? (
+              {datasetOverviewQuery.data?.new_datasets_growth! > 0 ? (
                 <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
               ) : (
                 <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
               )}
               <span
                 className={
-                  datasetOverviewQuery.data?.new_datasets_last_30d_percent! > 0
+                  datasetOverviewQuery.data?.new_datasets_growth! > 0
                     ? 'text-green-500'
                     : 'text-red-500'
                 }
               >
-                {datasetOverviewQuery.data?.new_datasets_last_30d_percent!}%
+                {datasetOverviewQuery.data?.new_datasets_growth ?? 0}%
               </span>
               <span className="ml-1 text-gray-500">vs last 30 days</span>
             </div>
@@ -616,40 +619,102 @@ export default function AnalyticsPage() {
             <CardContent className="grid gap-6">
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-                  <div className="text-2xl font-bold">3.2K</div>
+                  <div className="text-2xl font-bold">
+                    {singleDatasetAnalytics?.views || 0}
+                  </div>
                   <div className="text-sm text-gray-500">Views</div>
                   <div className="flex items-center text-sm">
-                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                    <span className="text-green-500">+32%</span>
-                    <span className="ml-1 text-gray-500">vs last 30 days</span>
+                    {(singleDatasetAnalytics?.views_growth || 0) > 0 ? (
+                      <>
+                        <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                        <span className="text-green-500">
+                          +{singleDatasetAnalytics?.views_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+                        <span className="text-red-500">
+                          -{singleDatasetAnalytics?.views_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-                  <div className="text-2xl font-bold">4</div>
+                  <div className="text-2xl font-bold">
+                    {singleDatasetAnalytics?.downloads || 0}
+                  </div>
                   <div className="text-sm text-gray-500">Downloads</div>
                   <div className="flex items-center text-sm">
-                    <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
-                    <span className="text-red-500">-42%</span>
-                    <span className="ml-1 text-gray-500">vs last 30 days</span>
+                    {(singleDatasetAnalytics?.downloads_growth || 0) < 0 ? (
+                      <>
+                        <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+                        <span className="text-red-500">
+                          -{singleDatasetAnalytics?.downloads_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                        <span className="text-green-500">
+                          +{singleDatasetAnalytics?.downloads_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-                  <div className="text-2xl font-bold">4.3</div>
+                  <div className="text-2xl font-bold">
+                    {singleDatasetAnalytics?.average_rating || 0}
+                  </div>
                   <div className="text-sm text-gray-500">Avg Rating</div>
                   <div className="flex items-center text-sm">
-                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                    <span className="text-green-500">+0.2%</span>
-                    <span className="ml-1 text-gray-500"></span>
+                    {(singleDatasetAnalytics?.ratings_growth || 0) < 0 ? (
+                      <>
+                        <ArrowDown className="mr-1 h-4 w-4 text-red-500" />
+                        <span className="text-red-500">
+                          -{singleDatasetAnalytics?.ratings_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                        <span className="text-green-500">
+                          +{singleDatasetAnalytics?.ratings_growth || 0}%
+                        </span>
+                        <span className="ml-1 text-gray-500">
+                          vs last 30 days
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="grid gap-1 rounded-lg border border-gray-200 p-4 shadow">
-                  <div className="text-2xl font-bold">4</div>
-                  <div className="text-sm text-gray-500">Total Comments</div>
-                  <div className="flex items-center text-sm">
-                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
-                    <span className="text-green-500">-</span>
-                    <span className="ml-1 text-gray-500"></span>
+                  <div className="text-2xl font-bold">
+                    {singleDatasetAnalytics?.review_count || 0}
                   </div>
+                  <div className="text-sm text-gray-500">Total Reviews</div>
+                  {/* <div className="flex items-center text-sm">
+                    <ArrowUp className="mr-1 h-4 w-4 text-green-500" />
+                    <span className="text-green-500">-{singleDatasetAnalytics?.rev || 0}%</span>
+                    <span className="ml-1 text-gray-500">vs last 30 days</span>
+                  </div> */}
                 </div>
               </div>
               <div className="grid gap-6 md:grid-cols-2">
@@ -769,8 +834,8 @@ export default function AnalyticsPage() {
           </Card>
 
           {/* Geographic Distribution & User Categories */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="border-primary/20 border-none bg-white shadow">
+          <div className="grid gap-6 lg:grid-cols-1">
+            {/* <Card className="border-primary/20 border-none bg-white shadow">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-semibold">
                   Geographic Distribution
@@ -804,13 +869,13 @@ export default function AnalyticsPage() {
               <CardContent>
                 <BarChart data={geographicData} width={400} height={200} />
               </CardContent>
-            </Card>
+            </Card> */}
             <Card className="border-primary/20 border-none bg-white shadow">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-lg font-semibold">
                   User Categories
                 </CardTitle>
-                <Select defaultValue="all-time">
+                {/* <Select defaultValue="all-time">
                   <SelectTrigger className="w-[120px] border border-gray-200">
                     <SelectValue placeholder="All Time" />
                   </SelectTrigger>
@@ -834,34 +899,103 @@ export default function AnalyticsPage() {
                       Last Month
                     </SelectItem>
                   </SelectContent>
-                </Select>
+                </Select> */}
               </CardHeader>
               <CardContent className="flex items-center justify-center">
-                <PieChart data={userCategoriesData} width={250} height={250} />
-                <div className="ml-4 grid gap-2">
-                  {userCategoriesData.map((d, i) => (
-                    <div key={d.label} className="flex items-center gap-2">
-                      <span
-                        className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: d3.schemeCategory10[i] }}
-                      ></span>
-                      <span className="text-sm">{d.label}</span>
+                <div style={{ width: '100%', height: 400 }}>
+                  {selectedDatasetQuery.data?.intended_use_distribution.reduce(
+                    (acc, item) => acc + item.count,
+                    0,
+                  ) === 0 ? (
+                    <div className="flex flex-col items-center justify-center rounded-lg border-gray-100 bg-white p-6 text-center">
+                      <div className="mb-4 text-gray-400">
+                        {/* <!-- Heroicon outline/document-magnifying-glass (or any appropriate icon) --> */}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                          className="mx-auto h-12 w-12"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9zm3.75 11.625a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                          />
+                        </svg>
+                      </div>
+                      <h2 className="mb-1 text-lg font-medium text-gray-700">
+                        No Download Insights Available
+                      </h2>
+                      <p className="text-gray-500">
+                        We couldn't find any download data for the selected
+                        dataset.
+                      </p>
+
+                      {/* <!-- Optional action button --> */}
+                      <button
+                        disabled
+                        className="mt-4 rounded-md bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600 transition-colors duration-200 hover:bg-blue-100"
+                      >
+                        Select another dataset to view insights
+                      </button>
                     </div>
-                  ))}
+                  ) : (
+                    <ResponsiveContainer>
+                      <PieChart>
+                        <Pie
+                          data={
+                            (
+                              selectedDatasetQuery.data
+                                ?.intended_use_distribution || []
+                            ).filter((entry) => entry.count > 0) || []
+                          }
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={150}
+                          fill="#8884d8"
+                          dataKey="count"
+                          nameKey="label"
+                          label={({ name, percent }) =>
+                            `${name}: ${percent.toFixed(0)}%`
+                          }
+                        >
+                          {(
+                            selectedDatasetQuery.data
+                              ?.intended_use_distribution || []
+                          ).map((_entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value, _name, props) => [
+                            value,
+                            `${props.payload.percent}%`,
+                          ]}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Global Map */}
-          <Card className="border-primary/20 border-none bg-white shadow">
+          {/* <Card className="border-primary/20 border-none bg-white shadow">
             <CardHeader>
               <CardTitle>Dataset Geographic Mapping</CardTitle>
             </CardHeader>
             <CardContent>
               <WorldMap dataPoints={mapDataPoints} width={800} height={400} />
             </CardContent>
-          </Card>
+          </Card> */}
         </>
       )}
 

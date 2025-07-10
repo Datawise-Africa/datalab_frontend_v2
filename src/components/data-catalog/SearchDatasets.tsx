@@ -18,7 +18,7 @@ const SearchDatasets = ({
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { publicApi } = useApi();
+  const { api } = useApi();
   const fetchResults = async () => {
     if (!searchText.trim()) {
       setError(null);
@@ -33,7 +33,7 @@ const SearchDatasets = ({
       const queryString = `query=${encodeURIComponent(searchText)}`;
       const url = `/data/filter/search/?${queryString}`;
 
-      const response = await publicApi.get(url);
+      const response = await api.get(url);
 
       if (response.data && Array.isArray(response.data)) {
         onSearchResults(response.data);

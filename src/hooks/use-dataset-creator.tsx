@@ -41,7 +41,7 @@ export default function useDatasetCreator(
   const auth = useAuth();
 
   const [isLoading, setIsLoading] = React.useState(false);
-  const api = useApi().privateApi;
+  const { api } = useApi();
   const [data, setData] = React.useState<
     PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);

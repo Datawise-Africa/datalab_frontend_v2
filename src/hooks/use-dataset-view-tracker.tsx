@@ -7,8 +7,7 @@ export function useDatasetViewTracker(datasetId: string) {
   const hasTrackedView = useRef(false);
   const startTime = useRef<number>(Date.now());
   const auth = useAuth();
-  const { privateApi, publicApi } = useApi();
-  const api = auth?.isAuthenticated ? privateApi : publicApi;
+  const { api } = useApi();
 
   function updateViewCount(datasetId: string) {
     return api.post(

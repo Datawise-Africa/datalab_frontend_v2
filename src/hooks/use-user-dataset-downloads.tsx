@@ -39,13 +39,11 @@ export function useUserDownloadedDatasets() {
   }
   const auth = useAuth();
   const userId = auth?.state?.userId;
-  const { privateApi } = useApi();
+  const { api } = useApi();
 
   async function fetchUserDownloadedDatasets() {
     try {
-      const response = await privateApi.get<
-        PaginatedResponse<DownloadedDatasetType>
-      >(
+      const response = await api.get<PaginatedResponse<DownloadedDatasetType>>(
         `/data/dataset_downloads/?page=${pagination.page}&limit=${pagination.limit}`,
       );
       return response.data; // Assuming the API returns an array of downloaded datasets
