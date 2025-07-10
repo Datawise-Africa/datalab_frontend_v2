@@ -51,21 +51,20 @@ const transformLicenceData = (licenceResp: LicenceResponse): ILicence[] =>
   }));
 
 export function useLicences() {
-  const { privateApi } = useApi();
+  const { api } = useApi();
 
   // Memoize the fetch function to prevent unnecessary re-renders
   const fetchLicences = useMemo(
     () => async (): Promise<ILicence[]> => {
       try {
-        const response =
-          await privateApi.get<LicenceResponse>('/data/license/');
+        const response = await api.get<LicenceResponse>('/data/license/');
         return transformLicenceData(response.data);
       } catch (error) {
         console.error('Error fetching licences:', error);
         throw new Error(extractCorrectErrorMessage(error));
       }
     },
-    [privateApi],
+    [api],
   );
   const licenceQuery = useQuery({
     queryKey: licenceQueryKeys.all,

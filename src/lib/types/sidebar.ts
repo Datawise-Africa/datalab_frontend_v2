@@ -10,4 +10,5 @@ export type SidebarLinkType = {
   requiredRole?: AuthUserRoleType;
   requiresAuth?: boolean;
   children?: SidebarLinkType[];
+  isActive?: boolean; // Optional property to indicate if the link is active
 };

@@ -35,9 +35,11 @@ interface BookmarkResponse {
   created_at: string;
 }
 
-export default function useDatasets() {
+export default function useDatasets(
+  datasetId?: string, // Optional datasetId for single dataset queries
+) {
   const auth = useAuth();
-  const { privateApi, publicApi } = useApi();
+  const { api } = useApi();
   const queryClient = useQueryClient();
 
   // Use Zustand store selectors
@@ -85,7 +87,7 @@ export default function useDatasets() {
     queryKey: datasetsKeys.list(pagination, sort),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const queryParams = buildQueryParams(pagination, sort);
-      const response = await publicApi.get<PaginatedResponse<IDataset>>(
+      const response = await api.get<PaginatedResponse<IDataset>>(
         `/data/datasets/?${queryParams.toString()}`,
       );
       return response.data;
@@ -126,7 +128,7 @@ export default function useDatasets() {
         ...Array.from(queryParams.entries()),
       ]);
 
-      const response = await publicApi.get<PaginatedResponse<IDataset>>(
+      const response = await api.get<PaginatedResponse<IDataset>>(
         `/data/filter/?${combinedParams.toString()}`,
       );
       return response.data;
@@ -149,6 +151,27 @@ export default function useDatasets() {
         };
       }
       return undefined;
+    },
+  });
+  // Single dataset
+  const {
+    data: singleDatasetResponse,
+    isLoading: isSingleDatasetLoading,
+    error: singleDatasetError,
+  } = useQuery({
+    queryKey: datasetsKeys.detail(datasetId || ''),
+    queryFn: async () => {
+      const response = await api.get<IDataset>(`/data/datasets/${datasetId}/`);
+      return response.data;
+    },
+    enabled: Boolean(datasetId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    retry: (failureCount, error) => {
+      if (error && 'status' in error && error.status === 404) {
+        return false;
+      }
+      return failureCount < 2;
     },
   });
 
@@ -216,7 +239,7 @@ export default function useDatasets() {
               ...Array.from(filtersParams.entries()),
               ...Array.from(queryParams.entries()),
             ]);
-            const response = await publicApi.get<PaginatedResponse<IDataset>>(
+            const response = await api.get<PaginatedResponse<IDataset>>(
               `/data/filter/?${combinedParams.toString()}`,
             );
             return response.data;
@@ -228,7 +251,7 @@ export default function useDatasets() {
           queryKey: datasetsKeys.list(nextPagePagination, sort),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const queryParams = buildQueryParams(nextPagePagination, sort);
-            const response = await publicApi.get<PaginatedResponse<IDataset>>(
+            const response = await api.get<PaginatedResponse<IDataset>>(
               `/data/datasets/?${queryParams.toString()}`,
             );
             return response.data;
@@ -244,7 +267,7 @@ export default function useDatasets() {
     filters,
     sort,
     queryClient,
-    publicApi,
+    api,
     buildQueryParams,
   ]);
 
@@ -263,14 +286,14 @@ export default function useDatasets() {
   // Fetch user's bookmarks from backend
   const fetchBookmarks = useCallback(async () => {
     try {
-      const response = await privateApi.get<BookmarkResponse[]>(
+      const response = await api.get<BookmarkResponse[]>(
         '/data/saved-datasets/',
       );
       return response.data.map((bookmark) => bookmark.dataset_id);
     } catch (error) {
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [auth.isAuthenticated, privateApi]);
+  }, [auth.isAuthenticated, api]);
 
   const {
     data: bookmarkedDatasetIds,
@@ -281,6 +304,7 @@ export default function useDatasets() {
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
+    enabled: auth.isAuthenticated,
     retry: (failureCount, error) => {
       if (error && 'status' in error && error.status === 404) {
         return false;
@@ -315,8 +339,10 @@ export default function useDatasets() {
 
   return {
     data,
+    singleDataset: singleDatasetResponse,
     isLoading: storeIsLoading,
     isLoadingNewPage: storeIsLoadingNewPage,
+    isSingleDatasetLoading,
     // Pagination
     paginationInfo,
     goToPage,
@@ -330,6 +356,7 @@ export default function useDatasets() {
     // Error states
     datasetsError,
     filteredError,
+    singleDatasetError,
     // Individual loading states
     isDatasetsLoading,
     isFilteredDataLoading,

@@ -27,7 +27,7 @@ const AuthModal = () => {
     isAuthModalOpen,
     queue: authQueue,
   } = useAuth();
-  const { publicApi } = useApi();
+  const { api } = useApi();
 
   // Setup React Hook Form for login
   const {
@@ -71,7 +71,7 @@ const AuthModal = () => {
   const onLoginSubmit = async (formData: LoginFormValues) => {
     setServerErrors([]);
     try {
-      const { data } = await publicApi.post<RegisterOrLoginResponse>(
+      const { data } = await api.post<RegisterOrLoginResponse>(
         '/auth/login/',
         formData,
       );
@@ -115,7 +115,7 @@ const AuthModal = () => {
         password: data.password,
       };
 
-      const { data: respData } = await publicApi.post<RegisterOrLoginResponse>(
+      const { data: respData } = await api.post<RegisterOrLoginResponse>(
         '/auth/register/',
         formData,
       );

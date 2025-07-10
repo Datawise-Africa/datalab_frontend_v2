@@ -15,10 +15,27 @@ import {
 } from 'lucide-react';
 import type { SidebarLinkType } from '@/lib/types/sidebar';
 import { validateSidebarLink } from '@/lib/utils/validate-sidebar-link';
+import { useLocation } from 'react-router-dom';
 
 export default function useSidebarLinks() {
   const auth = useAuth();
-
+  const pathName = useLocation().pathname;
+  const recursivelyMakeLinksActive = function (pathName: string) {
+    return (link: SidebarLinkType): SidebarLinkType => {
+      const isActive =
+        link.href === pathName ||
+        (link.children &&
+          link.children.some((child) => child.href === pathName)) ||
+        false;
+      return {
+        ...link,
+        isActive,
+        children: link.children
+          ? link.children.map(recursivelyMakeLinksActive(pathName))
+          : undefined,
+      };
+    };
+  };
   const filteredLinks = useMemo(() => {
     const sidebarLinks: SidebarLinkType[] = [
       {
@@ -37,14 +54,13 @@ export default function useSidebarLinks() {
             icon: Bookmark,
             href: '/app/saved-datasets',
           },
-          // {
-          //   label: 'My Downloads',
-          //   icon: Download,
+          {
+            label: 'My Downloads',
+            icon: Download,
 
-          //   href: '#',
-          //   badge: 'Pending',
-          // },
-
+            href: '/app/my-downloads',
+            badge: 'Pending',
+          },
         ],
       },
       {
@@ -102,8 +118,9 @@ export default function useSidebarLinks() {
     ];
     return sidebarLinks
       .map(validateSidebarLink(auth.isAuthenticated, auth.state.userRole))
-      .filter((link): link is SidebarLinkType => link !== null);
-  }, [auth.isAuthenticated, auth.state.userRole]);
+      .filter((link): link is SidebarLinkType => link !== null)
+      .map(recursivelyMakeLinksActive(pathName));
+  }, [auth.isAuthenticated, auth.state.userRole, pathName]);
 
   return {
     links: filteredLinks,

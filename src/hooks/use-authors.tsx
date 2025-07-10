@@ -14,20 +14,18 @@ export interface IFormAuthor {
 }
 
 export function useAuthors() {
-  const { privateApi } = useApi();
+  const { api } = useApi();
 
   const fetchAuthors = useCallback(async (): Promise<IFormAuthor[]> => {
     try {
-      const { data } = await privateApi.get<IFormAuthor[]>(
-        '/data/dataset-authors/',
-      );
+      const { data } = await api.get<IFormAuthor[]>('/data/dataset-authors/');
       return data;
     } catch (error) {
       // Fixed typo: "licences" -> "authors"
       console.error('Error fetching authors:', error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [privateApi]);
+  }, [api]);
 
   return useQuery({
     queryKey: authorKeys.all,

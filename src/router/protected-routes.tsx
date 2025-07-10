@@ -26,7 +26,9 @@ const DatasetCreatorReportsPage = lazy(
 const DatasetCreatorAnalyticsPage = lazy(
   () => import('@/pages/DatasetCreatorAnalyticsPage'),
 );
-export const protecteRoutes: RouteObject = {
+
+const MyDownloadsPage = lazy(() => import('@/pages/downloaded-datasets-page'));
+export const appProtectedRoutes: RouteObject = {
   path: '/app',
   element: <ProtectedLayout />,
   children: [
@@ -47,6 +49,10 @@ export const protecteRoutes: RouteObject = {
     {
       path: '/app/saved-datasets',
       element: <Protect role="user" Component={SavedDatasetsPage} />,
+    },
+    {
+      path: '/app/my-downloads',
+      element: <Protect role="user" Component={MyDownloadsPage} />,
     },
     {
       path: '/app/applications/approvedcreators',

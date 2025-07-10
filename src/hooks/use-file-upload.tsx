@@ -21,15 +21,24 @@ export interface FileUpload {
   error?: string;
 }
 
-// const mimeGroups = {
-//     documents: [
-//         'application/pdf',
-//         'application/msword',
-//         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-//     ],
-//     images: ['image/jpeg', 'image/png', 'image/gif'],
-//     text: ['text/plain', 'text/csv'],
-// } satisfies Record<string, readonly string[]>;
+export function getFileIcon(fileType: string) {
+  switch (fileType) {
+    case 'application/pdf':
+      return FileType2Icon;
+    case 'application/msword':
+    case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      return FileTextIcon;
+    case 'image/jpeg':
+    case 'image/png':
+    case 'image/gif':
+      return ImageIcon;
+    case 'text/plain':
+    case 'text/csv':
+      return FileType;
+    default:
+      return PaperclipIcon;
+  }
+}
 
 const mimeMapping = {
   word: 'application/msword',
@@ -59,8 +68,8 @@ const mimeMapping = {
 type AllowedMime = keyof typeof mimeMapping; //| (string & {});
 type FileUploadMode = 'single' | 'multiple';
 
-interface UseFileUploadProps<T extends FileUploadMode> {
-  mode: T;
+interface UseFileUploadProps {
+  mode: FileUploadMode;
   onUploadStart?: (file: FileUpload) => void;
   onUploadProgress?: (file: FileUpload) => void;
   onFilesUploaded?: (files: FileUpload[]) => void;
@@ -69,14 +78,19 @@ interface UseFileUploadProps<T extends FileUploadMode> {
   acceptedFileTypes: AllowedMime[]; // default is all mime types
 }
 
-export function useFileUpload<T extends FileUploadMode>({
-  mode,
-  onUploadProgress,
-  onFilesUploaded,
-  onUploadError,
-  maximumFileSize,
-  acceptedFileTypes,
-}: UseFileUploadProps<T>) {
+export function useFileUpload(
+  {
+    mode,
+    onUploadProgress,
+    onFilesUploaded,
+    onUploadError,
+    maximumFileSize,
+    acceptedFileTypes,
+  }: UseFileUploadProps = {
+    mode: 'single',
+    acceptedFileTypes: [],
+  },
+) {
   const MAX_FILE_SIZE = useMemo(
     () => maximumFileSize || 10 * 1024 * 1024,
     [maximumFileSize],
@@ -121,25 +135,6 @@ export function useFileUpload<T extends FileUploadMode>({
     if (size < 1024 * 1024 * 1024 * 1024)
       return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
     return `${(size / (1024 * 1024 * 1024 * 1024)).toFixed(2)} TB`;
-  }, []);
-
-  const getFileIcon = useCallback((fileType: string) => {
-    switch (fileType) {
-      case 'application/pdf':
-        return FileType2Icon;
-      case 'application/msword':
-      case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        return FileTextIcon;
-      case 'image/jpeg':
-      case 'image/png':
-      case 'image/gif':
-        return ImageIcon;
-      case 'text/plain':
-      case 'text/csv':
-        return FileType;
-      default:
-        return PaperclipIcon;
-    }
   }, []);
 
   const validateFile = useCallback(

@@ -25,7 +25,7 @@ export default function DatasetFilterToolbar() {
     useDatasetSearchManager();
   const { setSort } = useDatasetSortManager();
 
-  const api = useApi().publicApi;
+  const { api } = useApi();
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {

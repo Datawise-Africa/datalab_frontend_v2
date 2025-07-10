@@ -7,7 +7,7 @@ import {
 } from './tooltip';
 import { Fragment } from 'react';
 import { cn } from '@/lib/utils';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, easeInOut } from 'framer-motion';
 
 // Validation status type
 export type StepperValidationStatus =
@@ -28,7 +28,7 @@ const progressBarVariants = {
   initial: { width: '0%' },
   animate: (width: string) => ({
     width,
-    transition: { duration: 0.8, ease: 'easeInOut' },
+    transition: { duration: 0.8, ease: easeInOut },
   }),
 };
 

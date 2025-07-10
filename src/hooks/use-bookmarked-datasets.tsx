@@ -2,13 +2,13 @@ import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/context/AuthProvider';
 import useApi from './use-api';
-import { FancyToast } from '@/lib/utils/toaster';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   datasetBookmarksKeys,
   datasetsKeys,
 } from '@/lib/features/dataset-keys';
 import type { IDataset } from '@/lib/types/data-set';
+import { toast } from 'sonner';
 
 interface IBookMarkedDataset {
   id: number;
@@ -35,13 +35,13 @@ class BookmarkError extends Error {
 export function useBookmarks(options: UseBookmarksOptions = {}) {
   const { enableAutoRefresh = true } = options;
   const auth = useAuth();
-  const { privateApi } = useApi();
+  const { api } = useApi();
   const queryClient = useQueryClient();
 
   // Fetch bookmarked datasets
   const fetchBookmarkedDatasets = useCallback(async () => {
     try {
-      const response = await privateApi.get<IBookMarkedDataset[]>(
+      const response = await api.get<IBookMarkedDataset[]>(
         '/data/saved-datasets/',
       );
       return response.data;
@@ -49,7 +49,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       console.error('Failed to fetch bookmarked datasets:', error);
       throw error;
     }
-  }, [privateApi]);
+  }, [api]);
 
   // Query for bookmarked datasets
   const {
@@ -91,7 +91,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       if (bookmarkedDatasetIds.has(datasetId)) {
         throw new BookmarkError('This dataset is already saved.');
       }
-      await privateApi.post('/data/saved-datasets/', { dataset: datasetId });
+      await api.post('/data/saved-datasets/', { dataset: datasetId });
     },
     onMutate: async (_datasetId) => {
       await queryClient.cancelQueries({ queryKey: datasetBookmarksKeys.all });
@@ -117,8 +117,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       return { previousBookmarks };
     },
     onSuccess: () => {
-      FancyToast.success('Dataset saved successfully!', {
-        theme: 'light',
+      toast.success('Dataset saved successfully!', {
         duration: 3000,
       });
     },
@@ -131,12 +130,12 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         );
       }
 
-      FancyToast.error(
+      toast.error(
         extractCorrectErrorMessage(
           error,
           'Failed to save dataset. Please try again.',
         ),
-        { theme: 'light', duration: 5000 },
+        { duration: 5000 },
       );
     },
     onSettled: () => {
@@ -159,7 +158,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         throw new BookmarkError('This dataset is not saved.');
       }
 
-      await privateApi.delete(`/data/saved-datasets/${bookmarkToRemove.id}/`);
+      await api.delete(`/data/saved-datasets/${bookmarkToRemove.id}/`);
     },
     onMutate: async (_datasetId) => {
       await queryClient.cancelQueries({ queryKey: datasetBookmarksKeys.all });
@@ -181,8 +180,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       return { previousBookmarks };
     },
     onSuccess: () => {
-      FancyToast.success('Dataset removed from saved items!', {
-        theme: 'light',
+      toast.success('Dataset removed from saved items!', {
         duration: 3000,
       });
     },
@@ -195,12 +193,12 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         );
       }
 
-      FancyToast.error(
+      toast.error(
         extractCorrectErrorMessage(
           error,
           'Failed to remove bookmark. Please try again.',
         ),
-        { theme: 'light', duration: 5000 },
+        { duration: 5000 },
       );
     },
     onSettled: async () => {

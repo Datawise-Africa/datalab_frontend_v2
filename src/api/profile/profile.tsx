@@ -7,48 +7,48 @@ import type {
   UpdateUserProfileDataType,
 } from '@/lib/schema/user-profile';
 
-function castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
-  // Check if the image is a valid URL or Base64 string
-  const image = payload.profile.avatar || '';
-  const isBase64 =
-    image.includes('data:image/') ||
-    image.includes('data:application/') ||
-    image.includes('data:audio/') ||
-    image.includes('data:video/') ||
-    image.includes('data:image/svg+xml') ||
-    image.includes('data:image/gif') ||
-    image.includes('data:image/png') ||
-    image.includes('data:image/jpeg') ||
-    image.includes('data:image/webp') ||
-    image.includes('data:image/bmp') ||
-    image.includes('data:image/tiff');
-  const isUrl = image.startsWith('http://') || image.startsWith('https://');
-  if (isUrl) {
-    return {
-      ...payload,
-      profile: {
-        ...payload.profile,
-        avatar: null,
-      },
-    };
-  }
-  if (isBase64) {
-    return {
-      ...payload,
-      profile: {
-        ...payload.profile,
-        avatar: image,
-      },
-    };
-  }
-  return {
-    ...payload,
-    profile: {
-      ...payload.profile,
-      avatar: null,
-    },
-  };
-}
+// function _castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
+//   // Check if the image is a valid URL or Base64 string
+//   const image = payload.profile.avatar || '';
+//   const isBase64 =
+//     image.includes('data:image/') ||
+//     image.includes('data:application/') ||
+//     image.includes('data:audio/') ||
+//     image.includes('data:video/') ||
+//     image.includes('data:image/svg+xml') ||
+//     image.includes('data:image/gif') ||
+//     image.includes('data:image/png') ||
+//     image.includes('data:image/jpeg') ||
+//     image.includes('data:image/webp') ||
+//     image.includes('data:image/bmp') ||
+//     image.includes('data:image/tiff');
+//   const isUrl = image.startsWith('http://') || image.startsWith('https://');
+//   if (isUrl) {
+//     return {
+//       ...payload,
+//       profile: {
+//         ...payload.profile,
+//         avatar: null,
+//       },
+//     };
+//   }
+//   if (isBase64) {
+//     return {
+//       ...payload,
+//       profile: {
+//         ...payload.profile,
+//         avatar: image,
+//       },
+//     };
+//   }
+//   return {
+//     ...payload,
+//     profile: {
+//       ...payload.profile,
+//       avatar: null,
+//     },
+//   };
+// }
 
 export type UserProfileType = {
   id: string;
@@ -74,28 +74,25 @@ export type UserProfileUpdateType = Omit<UserProfileType, 'id'> & {
 
 export function useUserProfile() {
   const { isAuthenticated } = useAuth();
-  const { privateApi } = useApi();
+  const { api } = useApi();
   const queryClient = useQueryClient();
 
   async function fetchProfile(): Promise<UserProfileType> {
-    const { data } = await privateApi.get<UserProfileType>('/auth/me/');
+    const { data } = await api.get<UserProfileType>('/auth/me/');
     return data;
   }
 
   async function updateProfile(
     profileData: UpdateUserProfileDataType,
   ): Promise<UserProfileType> {
-    const { data } = await privateApi.put<UserProfileType>(
-      '/auth/me/',
-      castProfileUpdatePayload(profileData),
-    );
+    const { data } = await api.put<UserProfileType>('/auth/me/', profileData);
     return data;
   }
 
   async function changePassword(
     payload: ChangePasswordDataType,
   ): Promise<void> {
-    await privateApi.post('/auth/change-password/', {
+    await api.post('/auth/change-password/', {
       old_password: payload.current_password,
       new_password: payload.new_password,
     });

@@ -4,7 +4,6 @@ import useDownloadDataModal from '@/store/use-download-data-modal';
 import CustomButton from '@/components/Modals/DataModals/CustomButton';
 // import { getAccessToken } from '@/lib/auth/actions';
 import { REACT_PUBLIC_API_HOST } from '@/constants';
-import { Toaster, toast } from 'react-hot-toast';
 import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
 import company_icon from '/assets/datalab/company-icon-dark.svg';
 import student_icon from '/assets/datalab/student-icon-dark.svg';
@@ -21,6 +20,7 @@ import {
   Users,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 type DownloadDataModalProps = {
   dataset: IDataset;
@@ -48,12 +48,18 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     intended_use: '',
     project_description: false,
   });
-
-  const [formData, setFormData] = useState({
+  type FormDataType = {
+    dataset: string; // Assuming dataset.id is a string
+    intended_use: string;
+    project_description: string;
+    intended_audience: string;
+    email_address: string;
+  };
+  const [formData, setFormData] = useState<FormDataType>({
     dataset: dataset.id,
     intended_use: '', // For the select box
     project_description: '', // For the textarea
-    profiteer: '',
+    intended_audience: '',
     email_address: '', // For the email input
   });
 
@@ -83,7 +89,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
   const handleCardClick = (profiteer: string) => {
     setSelectedCard(profiteer);
 
-    setFormData({ ...formData, profiteer: profiteer });
+    setFormData({ ...formData, intended_audience: profiteer });
   };
 
   const areAllFieldsFilled =
@@ -164,23 +170,24 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
       if (response.ok) {
         console.log('Data sent successfully!');
+
+        // Retrieve the URL where the file can be downloaded
+        const fileUrl = dataset.data_files[0].s3_url;
+
+        // Create a temporary anchor element
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.setAttribute('download', ''); // This helps with download behavior
+
+        // Append to the document, trigger the click, and remove the element
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Data downloaded successfully!');
         downloadDataModal.close();
       } else {
         console.error(`Error: ${response.status} - ${response.statusText}`);
       }
-
-      // Retrieve the URL where the file can be downloaded
-      const fileUrl = dataset.data_files[0].s3_url;
-
-      // Create a temporary anchor element
-      const link = document.createElement('a');
-      link.href = fileUrl;
-      link.setAttribute('download', ''); // This helps with download behavior
-
-      // Append to the document, trigger the click, and remove the element
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     } catch (error) {
       console.log(formData);
       console.log('Access Token:', auth.state.accessToken);
@@ -193,10 +200,10 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
   const validateEmail = () => {
     const emailTypeValidation: Record<string, boolean> = {
-      Company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
-      'Non-Profit': email.endsWith('.org'),
-      Student: email.endsWith('.edu'),
-      Public: true,
+      company: /@([a-zA-Z0-9-]+\.)+com$/.test(email),
+      non_profit: email.endsWith('.org'),
+      students: email.endsWith('.edu'),
+      public: true,
     };
     return emailTypeValidation[selectedCard];
   };
@@ -305,53 +312,53 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     console.log('🔄 handleAction completed');
   };
 
-  const [rating, setRating] = useState(0);
-  const [message, setMessage] = useState(''); // For success/error messages
+  // const [rating, setRating] = useState(0);
+  const [message, _setMessage] = useState(''); // For success/error messages
 
-  const handleStarClick = async (value: number) => {
-    if (!dataset?.id) {
-      setMessage('Error: Dataset ID is missing.');
-      return;
-    }
+  // const handleStarClick = async (value: number) => {
+  //   if (!dataset?.id) {
+  //     setMessage('Error: Dataset ID is missing.');
+  //     return;
+  //   }
 
-    setRating(value);
-    setMessage('Submitting...'); // Show loading state
+  //   setRating(value);
+  //   setMessage('Submitting...'); // Show loading state
 
-    try {
-      if (!auth.state.accessToken) {
-        setMessage('Error: Authentication required.');
-        return;
-      }
+  //   try {
+  //     if (!auth.state.accessToken) {
+  //       setMessage('Error: Authentication required.');
+  //       return;
+  //     }
 
-      const response = await fetch(`${REACT_PUBLIC_API_HOST}/data/reviews/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `JWT ${auth.state.accessToken}`,
-        },
-        body: JSON.stringify({
-          dataset: dataset.id, // Ensure it's a valid integer
-          rating: value,
-        }),
-      });
+  //     const response = await fetch(`${REACT_PUBLIC_API_HOST}/data/reviews/`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `JWT ${auth.state.accessToken}`,
+  //       },
+  //       body: JSON.stringify({
+  //         dataset: dataset.id, // Ensure it's a valid integer
+  //         rating: value,
+  //       }),
+  //     });
 
-      const data = await response.json(); // Read response body
-      console.log('Response:', response.status, data); // Log details
+  //     const data = await response.json(); // Read response body
+  //     console.log('Response:', response.status, data); // Log details
 
-      if (response.ok) {
-        setMessage('Thank you for your rating!');
-      } else {
-        setMessage(
-          `Failed to submit rating: ${data.detail || 'Unknown error'}`,
-        );
-      }
-    } catch (error) {
-      console.error('Fetch error:', error);
-      setMessage('Error submitting rating.');
-    }
+  //     if (response.ok) {
+  //       setMessage('Thank you for your rating!');
+  //     } else {
+  //       setMessage(
+  //         `Failed to submit rating: ${data.detail || 'Unknown error'}`,
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Fetch error:', error);
+  //     setMessage('Error submitting rating.');
+  //   }
 
-    setTimeout(() => setMessage(''), 3000);
-  };
+  //   setTimeout(() => setMessage(''), 3000);
+  // };
 
   const contentMap: Record<
     string,
@@ -498,7 +505,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       title: 'Verification',
       details: (
         <>
-          <Toaster />
+          {/* <Toaster /> */}
           <div className="rounded-md bg-white p-4 shadow">
             <div className="flex justify-between bg-white">
               <h3 className="text-xl font-semibold text-[#4B5563]">
@@ -559,22 +566,22 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
               <div className="mt-4 grid grid-cols-2 gap-4">
                 {[
                   {
-                    type: 'Company',
+                    type: 'company',
                     icon: <Building />,
                     description: 'Business Email Required.',
                   },
                   {
-                    type: 'Non-Profit',
+                    type: 'non_profit',
                     icon: <Handshake />,
                     description: 'NGO or .org Email Required.',
                   },
                   {
-                    type: 'Student',
+                    type: 'students',
                     icon: <GraduationCap />,
                     description: 'University/Educational Email Required.',
                   },
                   {
-                    type: 'Public',
+                    type: 'public',
                     icon: <Users />,
                     description: 'Personal Email Required.',
                   },
@@ -649,6 +656,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
                 {codeSent && !isVerified && (
                   <button
+                    type="button"
                     onClick={handleAction}
                     disabled={!isResendEnabled}
                     className="rounded-md bg-gray-500 px-4 py-2 text-white"
@@ -935,7 +943,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
             {/* Rate This Dataset */}
             <div className="mt-6 text-center">
-              <h3 className="text-lg font-semibold text-[#4B5563]">
+              {/* <h3 className="text-lg font-semibold text-[#4B5563]">
                 Rate This Dataset
               </h3>
               <div className="mt-2 flex justify-center">
@@ -953,7 +961,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                     <path d="M12 17.27l6.18 3.73-1.64-7.03 5.46-4.73-7.19-.61L12 2 9.19 8.63l-7.19.61 5.46 4.73L5.82 21z" />
                   </svg>
                 ))}
-              </div>
+              </div> */}
               {message && (
                 <p className="mt-2 text-sm text-green-500">{message}</p>
               )}

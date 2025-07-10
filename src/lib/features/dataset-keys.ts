@@ -6,6 +6,8 @@ import type { DatasetSortOptions } from '@/store/use-dataset-controls';
 export const datasetsKeys = {
   all: ['datasets'] as const,
   lists: () => [...datasetsKeys.all, 'list'] as const,
+  detail: (datasetId: string) =>
+    [...datasetsKeys.all, `dataset-${datasetId}`, datasetId] as const,
   list: (pagination: PaginationParamsInterface, sort: DatasetSortOptions) =>
     [...datasetsKeys.lists(), pagination, sort] as const,
   filtered: (

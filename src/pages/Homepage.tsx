@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import DatasetGrid from '../components/data-catalog/DatasetGrid';
 import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/use-data-modal';
@@ -9,10 +8,17 @@ import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
 import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
+import { useDatasetStore } from '@/store/dataset-store';
 
 const Homepage = () => {
-  const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
-  const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
+  const {
+    setDownloadDataset,
+    setSelectedDataset,
+    downloadDataset,
+    selectedDataset,
+  } = useDatasetStore();
+  // const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
+  // const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
   const auth = useAuth();
   const datasets = useDatasets();
   const dataModal = useDataModal();
