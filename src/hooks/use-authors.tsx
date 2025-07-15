@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { authorKeys } from '@/lib/features/author-keys';
+import { useAxios } from './use-axios';
 
 export interface IFormAuthor {
   id: number;
@@ -14,18 +14,18 @@ export interface IFormAuthor {
 }
 
 export function useAuthors() {
-  const { api } = useApi();
 
+const axiosClient = useAxios();
   const fetchAuthors = useCallback(async (): Promise<IFormAuthor[]> => {
     try {
-      const { data } = await api.get<IFormAuthor[]>('/data/dataset-authors/');
+      const { data } = await axiosClient.get<IFormAuthor[]>('/data/dataset-authors/');
       return data;
     } catch (error) {
       // Fixed typo: "licences" -> "authors"
       console.error('Error fetching authors:', error);
-      throw new Error(extractCorrectErrorMessage(error));
+      throw new Error(extractCorrectErrorMessage(error, 'Failed to fetch authors'));
     }
-  }, [api]);
+  }, []);
 
   return useQuery({
     queryKey: authorKeys.all,

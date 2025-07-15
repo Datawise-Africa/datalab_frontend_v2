@@ -1,20 +1,23 @@
 import AuthModal from '@/components/Modals/AuthModals/AuthModal';
-import { useAuth } from '@/context/AuthProvider';
+import { useAuthContext } from '@/context/AuthProvider';
+import { useAuthStore } from '@/store/auth-store';
 import { useCallback, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 export default function ProtectedLayout() {
-  const auth = useAuth();
-  const authCheck = useCallback(() => {}, [auth.isAuthenticated]);
+  const { setIsAuthModalOpen, isAuthModalOpen } = useAuthContext();
+  const { is_authenticated, user } = useAuthStore();
+  const authCheck = useCallback(() => {}, [is_authenticated]);
   useEffect(() => {
-    if (!auth.isAuthenticated) {
+    if (!is_authenticated) {
       console.log('User is not authenticated');
 
-      auth.setIsAuthModalOpen(true);
+      setIsAuthModalOpen(true);
     }
-  }, [auth.isAuthenticated]);
+    console.log({ is_authenticated, user });
+  }, [is_authenticated]);
   useEffect(() => {
     authCheck();
   }, [authCheck]);
-  return auth.isAuthModalOpen ? <AuthModal /> : <Outlet />;
+  return isAuthModalOpen ? <AuthModal /> : <Outlet />;
 }

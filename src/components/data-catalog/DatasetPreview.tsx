@@ -4,24 +4,42 @@ import Papa from 'papaparse';
 
 // import apiService from '../../services/apiService';
 import type { IDatasetDataFile } from '@/lib/types/data-set';
-import useApi from '@/hooks/use-api';
+import { useAxios } from '@/hooks/use-axios';
+import { extractCorrectErrorMessage } from '@/lib/error';
 
 type DatasetPreviewProps = {
   dataFiles: IDatasetDataFile[];
 };
 
 const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
+  const axiosClient = useAxios();
   const [csvData, setCsvData] = useState<any[]>([]);
   const [error, setError] = useState(null);
-  const { getDataFile: gDFileurl } = useApi();
+  const getDataFile = async (url: string) => {
+    try {
+      const response = await axiosClient.get(url, {
+        headers: {
+          Accept: 'text/csv',
+          'Content-Type': 'text/csv',
+          responseType: 'text/plain; charset=UTF-8',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching data file:', error);
+      throw Error(
+        extractCorrectErrorMessage(error, 'Failed to fetch data file'),
+      );
+    }
+  };
   useEffect(() => {
     if (dataFiles.length > 0) {
       const csvFileUrl = dataFiles[0]?.s3_url;
 
       if (csvFileUrl) {
-        const getDataFile = async () => {
+        const getDataFile_ = async () => {
           try {
-            const response = await gDFileurl(csvFileUrl);
+            const response = await getDataFile(csvFileUrl);
             const csvText = await (response as any).text();
             const parsed = Papa.parse(csvText, {
               header: true,
@@ -42,7 +60,7 @@ const DatasetPreview = ({ dataFiles }: DatasetPreviewProps) => {
             console.error('Error fetching the data file:', error);
           }
         };
-        getDataFile();
+        getDataFile_();
       }
     }
   }, [dataFiles]);

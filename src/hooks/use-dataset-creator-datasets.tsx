@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
-import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   datasetCreatorDatasetkeys,
@@ -15,6 +14,8 @@ import {
   type PaginationParamsInterface,
 } from '@/constants/pagination';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
+import { useAxios } from './use-axios';
+
 
 export interface DatasetMutationCallbacks {
   onSuccess?: (data: IDataset) => void;
@@ -28,6 +29,7 @@ export function useDatasetCreatorDatasets(
   initialFilters: DatasetFilters = {},
   initialPagination: PaginationParamsInterface = DEFAULT_PAGINATION,
 ) {
+  const axiosClient = useAxios();
   const [filters, setFilters] = useState<DatasetFilters>(initialFilters);
   const [pagination, setPagination] =
     useState<PaginationParamsInterface>(initialPagination);
@@ -35,7 +37,7 @@ export function useDatasetCreatorDatasets(
     DEFAULT_PAGINATION_META,
   );
 
-  const { api } = useApi();
+
 
   const endpoints: Record<DatasetStatus, string> = {
     DF: '/data/datasets-drafts',
@@ -68,7 +70,7 @@ export function useDatasetCreatorDatasets(
       const endpoint = endpoints[status];
       const url = queryParams ? `${endpoint}?${queryParams}` : endpoint;
 
-      const response = await api.get<PaginatedResponse<IDataset>>(url);
+      const response = await axiosClient.get<PaginatedResponse<IDataset>>(url);
 
       // Update pagination metadata
       setPaginationMeta(response.data.meta);
@@ -78,7 +80,7 @@ export function useDatasetCreatorDatasets(
       console.error(`Error fetching ${status} datasets:`, error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [api, status, queryParams]);
+  }, [ status, queryParams]);
 
   // Query key that includes all parameters for proper caching
   const queryKey = useMemo(
@@ -169,6 +171,7 @@ export function useMultipleDatasetStatuses(
   filters: DatasetFilters = {},
   pagination: PaginationParamsInterface = DEFAULT_PAGINATION,
 ) {
+
   const queries = statuses.reduce(
     (acc, status) => {
       acc[status] = useDatasetCreatorDatasets(status, filters, pagination);
@@ -192,7 +195,7 @@ export function useMultipleDatasetStatuses(
 
 // Dataset mutations hook
 export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
-  const { api } = useApi();
+const axiosClient = useAxios();
   const queryClient = useQueryClient();
   type UpdateMutationType = [IDataset['id'], UploadDatasetSchemaType];
 
@@ -220,7 +223,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       try {
         const transformedData = transformData(payload);
         (transformedData as any)['status'] = 'PB'; // Ensure published status
-        const response = await api.post<IDataset>(
+        const response = await axiosClient.post<IDataset>(
           createDatasetEndpoint,
           transformedData,
         );
@@ -248,7 +251,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       try {
         const payloadData = transformData(payload);
 
-        const response = await api.post<IDataset>(
+        const response = await axiosClient.post<IDataset>(
           `${updateEndpoint}`,
           payloadData,
         );
@@ -292,7 +295,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
         const transformedData = transformData(updateData);
-        const response = await api.post<IDataset>(
+        const response = await axiosClient.post<IDataset>(
           `${updateEndpoint}${id}`,
           transformedData,
         );
@@ -339,7 +342,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
         const transformedData = transformData(updateData);
-        const response = await api.put<IDataset>(
+        const response = await axiosClient.put<IDataset>(
           `${updateEndpoint}${id}/`,
           transformedData,
         );
@@ -368,7 +371,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
       DatasetStatus,
     ]): Promise<IDataset> => {
       try {
-        const response = await api.patch<IDataset>(
+        const response = await axiosClient.patch<IDataset>(
           `/data/datasets/${id}/update-status/`,
           {
             status: newStatus,
@@ -397,7 +400,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
   const archiveDataset = useMutation({
     mutationFn: async (id: string): Promise<IDataset> => {
       try {
-        const response = await api.post<IDataset>(
+        const response = await axiosClient.post<IDataset>(
           `${updateEndpoint}${id}/archive`,
         );
         return response.data;
@@ -422,7 +425,7 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
   const deleteDataset = useMutation({
     mutationFn: async (id: string): Promise<void> => {
       try {
-        await api.delete(`${updateEndpoint}${id}`);
+        await axiosClient.delete(`${updateEndpoint}${id}`);
       } catch (error) {
         console.error('Error deleting dataset:', error);
         throw new Error(extractCorrectErrorMessage(error));

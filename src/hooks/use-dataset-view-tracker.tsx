@@ -1,19 +1,20 @@
 import { useEffect, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useAuth } from '@/context/AuthProvider';
-import useApi from './use-api';
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from './use-axios';
 
 export function useDatasetViewTracker(datasetId: string) {
   const hasTrackedView = useRef(false);
   const startTime = useRef<number>(Date.now());
   const auth = useAuth();
-  const { api } = useApi();
+  const axiosClient = useAxios();
+
 
   function updateViewCount(datasetId: string) {
-    return api.post(
+    return axiosClient.post(
       `/data/datasets/${datasetId}/track_view/`,
       {
-        dataset_id: auth?.isAuthenticated ? datasetId : null,
+        dataset_id: auth?.is_authenticated ? datasetId : null,
       },
       {
         headers: {

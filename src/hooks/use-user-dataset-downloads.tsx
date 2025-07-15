@@ -1,12 +1,12 @@
-import { useAuth } from '@/context/AuthProvider';
 import { datasetDownloadKeys } from '@/lib/features/dataset-download-keys';
 import { useQuery } from '@tanstack/react-query';
-import useApi from './use-api';
 import { useMemo, useState } from 'react';
 import type {
   PaginatedResponse,
   PaginationParamsInterface,
 } from '@/constants/pagination';
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from './use-axios';
 
 export type DownloadedDatasetType = {
   id: number;
@@ -26,6 +26,7 @@ export type DownloadedDatasetType = {
 };
 
 export function useUserDownloadedDatasets() {
+  const axiosClient = useAxios();
   const [pagination, setPagination] = useState<PaginationParamsInterface>({
     limit: 50,
     page: 1,
@@ -38,12 +39,12 @@ export function useUserDownloadedDatasets() {
     }));
   }
   const auth = useAuth();
-  const userId = auth?.state?.userId;
-  const { api } = useApi();
+  const userId = auth?.user?.user_id;
+
 
   async function fetchUserDownloadedDatasets() {
     try {
-      const response = await api.get<PaginatedResponse<DownloadedDatasetType>>(
+      const response = await axiosClient.get<PaginatedResponse<DownloadedDatasetType>>(
         `/data/dataset_downloads/?page=${pagination.page}&limit=${pagination.limit}`,
       );
       return response.data; // Assuming the API returns an array of downloaded datasets
@@ -54,7 +55,7 @@ export function useUserDownloadedDatasets() {
   }
 
   const userDownloadsQuery = useQuery({
-    queryKey: datasetDownloadKeys.userDownloads(userId),
+    queryKey: datasetDownloadKeys.userDownloads(userId!),
     queryFn: fetchUserDownloadedDatasets,
     enabled: !!userId, // Only run the query if userId is available
     refetchOnWindowFocus: false, // Optional: Prevent refetching on window focus

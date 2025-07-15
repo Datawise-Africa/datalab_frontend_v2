@@ -26,8 +26,8 @@ import {
 } from '../ui/form';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthProvider';
 import { toast } from 'sonner';
+import { useAuth } from '@/store/auth-store';
 
 export default function ProfileSecuritySettingsTab() {
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
@@ -59,7 +59,7 @@ export default function ProfileSecuritySettingsTab() {
         });
         form.reset();
         setChangePasswordOpen(false);
-        auth.dispatch(auth.actions.LOGOUT()); // Logout user after password change
+        auth.logout(); // Logout user after password change
       },
     });
   });

@@ -3,11 +3,11 @@ import type {
   PaginatedGetBecomeDatasetCreatorResponse,
 } from '@/lib/types/dataset-creator';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import useApi from './use-api';
 import type { BecomeDatasetCreatorSchema } from '@/lib/schema/become-dataset-creator-schema';
 import { extractCorrectErrorMessage } from '@/lib/error';
-import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from './use-axios';
 type Props = {
   shouldFetch?: boolean;
   statusFilter?: DatasetCreatorStatus;
@@ -39,9 +39,9 @@ export default function useDatasetCreator(
 ) {
   const authPerm = AuthPerm.getInstance();
   const auth = useAuth();
-
+const axiosClient = useAxios();
   const [isLoading, setIsLoading] = React.useState(false);
-  const { api } = useApi();
+
   const [data, setData] = React.useState<
     PaginatedGetBecomeDatasetCreatorResponse['data']
   >([]);
@@ -54,9 +54,10 @@ export default function useDatasetCreator(
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await api.get<PaginatedGetBecomeDatasetCreatorResponse>(
-        '/users/become-dataset-creator/',
-      );
+      const response =
+        await axiosClient.get<PaginatedGetBecomeDatasetCreatorResponse>(
+          '/users/become-dataset-creator/',
+        );
       if (Array.isArray(response.data.data)) {
         setData(response.data.data);
       }
@@ -65,17 +66,20 @@ export default function useDatasetCreator(
     } finally {
       setIsLoading(false);
     }
-  }, [auth.isAuthenticated]);
+  }, [auth.is_authenticated]);
   const refreshData = useCallback(async () => {
-    if (auth.isAuthenticated) {
+    if (auth.is_authenticated) {
       await fetchData();
     }
-  }, [auth.isAuthenticated, fetchData]);
+  }, [auth.is_authenticated, fetchData]);
   const createDatasetCreator = useCallback(
     async (data: BecomeDatasetCreatorSchema) => {
       setIsLoading(true);
       try {
-        const response = await api.post('/users/become-dataset-creator/', data);
+        const response = await axiosClient.post(
+          '/users/become-dataset-creator/',
+          data,
+        );
         return response.data;
       } catch (error) {
         console.error(extractCorrectErrorMessage(error));
@@ -83,10 +87,10 @@ export default function useDatasetCreator(
         setIsLoading(false);
       }
     },
-    [api],
+    [],
   );
   useEffect(() => {
-    if (!shouldFetch || !auth.isAuthenticated) return;
+    if (!shouldFetch || !auth.is_authenticated) return;
     fetchData();
   }, [fetchData, shouldFetch]);
 
@@ -97,7 +101,9 @@ export default function useDatasetCreator(
     setIsStatusUpdateLoading(true);
     try {
       // const response =
-      await api.put(`/users/become-dataset-creator/${id}/ `, { status });
+      await axiosClient.put(`/users/become-dataset-creator/${id}/ `, {
+        status,
+      });
       setData(
         data.map((applicant) =>
           applicant.id === id ? { ...applicant, status: status } : applicant,
@@ -115,16 +121,16 @@ export default function useDatasetCreator(
     }
     if (
       data[0].status === 'Approved' ||
-      (auth.isAuthenticated &&
+      (auth.is_authenticated &&
         authPerm.hasAnyPermission(
           ['dataset_creator', 'admin'],
-          auth.state.userRole,
+          auth?.user!.user_role!,
         ))
     ) {
       return 'Confirmed';
     }
     return data[0].status || 'N/A';
-  }, [data, auth.isAuthenticated, authPerm, auth.state.userRole, data]);
+  }, [data, auth.is_authenticated, authPerm, auth?.user, data]);
 
   const selectedApplicant = useMemo(() => {
     return selectedApplicantID

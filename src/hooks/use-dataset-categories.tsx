@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { datasetCategoriesKeys } from '@/lib/features/dataset-categories-keys';
+import { useAxios } from './use-axios';
+
 
 export interface IDatasetCategory {
   id: number;
@@ -11,13 +12,13 @@ export interface IDatasetCategory {
 }
 
 export function useDatasetCategories() {
-  const { api } = useApi();
+const axiosClient = useAxios();
 
   const fetchDatasetCategories = useCallback(async (): Promise<
     IDatasetCategory[]
   > => {
     try {
-      const { data } = await api.get<IDatasetCategory[]>(
+      const { data } = await axiosClient.get<IDatasetCategory[]>(
         '/data/dataset-categories/',
       );
       return data;
@@ -25,7 +26,7 @@ export function useDatasetCategories() {
       console.error('Error fetching dataset categories:', error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [api]);
+  }, []);
 
   return useQuery({
     queryKey: datasetCategoriesKeys.all,
