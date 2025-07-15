@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { datasetsKeys } from '@/lib/features/dataset-keys';
+import { useAuth } from './auth-store';
 export type DatasetSortOptions = 'Popular' | 'Most Recent';
 
 interface DatasetState {
@@ -510,7 +511,7 @@ export const useDatasetFilterManager = () => {
   } = useDatasetFilters();
 
   const queryClient = useQueryClient();
-
+const {session_id} =useAuth()
   const handleFilterChange = useCallback(
     (newFilters: DatasetFilterOptions) => {
       const prevActiveFilters = activeFiltersCount;
@@ -526,7 +527,7 @@ export const useDatasetFilterManager = () => {
         (prevActiveFilters === 0 && newActiveFilters > 0) ||
         (prevActiveFilters > 0 && newActiveFilters === 0)
       ) {
-        queryClient.invalidateQueries({ queryKey: datasetsKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: datasetsKeys.lists(session_id!) });
       }
     },
     [activeFiltersCount, setFilters, queryClient],

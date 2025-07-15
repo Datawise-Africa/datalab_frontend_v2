@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 import type { AuthUser, LoginPayload } from '@/lib/types/auth';
 import { useShallow } from 'zustand/react/shallow';
-
+import { v4 as uuid } from 'uuid';
 interface AuthState {
   user: AuthUser | null;
   access_token: string | null;
   refresh_token: string | null;
   is_authenticated: boolean;
+  session_id?: string;
+  setSessionId?: (session_id: string) => void;
   setUser: (user: AuthUser) => void;
   setTokens: (access_token: string, refresh_token: string) => void;
   setAccessToken: (access_token: string) => void;
@@ -24,6 +26,7 @@ export const useAuthStore = create<AuthState>()(
         access_token: null,
         refresh_token: null,
         is_authenticated: false,
+        session_id: uuid(),
         setUser: (user) => set({ user }),
         setTokens: (access_token, refresh_token) =>
           set({ access_token, refresh_token, is_authenticated: true }),
@@ -42,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
             access_token: payload.access_token,
             refresh_token: payload.refresh_token,
             is_authenticated: true,
+            session_id: uuid(),
           }),
         logout: () =>
           set({
@@ -49,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
             access_token: null,
             refresh_token: null,
             is_authenticated: false,
+            session_id: uuid(),
           }),
       }),
       {
@@ -74,6 +79,7 @@ export function useAuth() {
       access_token: state.access_token,
       refresh_token: state.refresh_token,
       is_authenticated: state.is_authenticated,
+      session_id: state.session_id,
       setUser: state.setUser,
       setTokens: state.setTokens,
       setAccessToken: state.setAccessToken,
