@@ -5,6 +5,7 @@ import {
   type DatasetCreatorReportFilters,
 } from '@/store/dataset-creator-report-filters';
 import { useQuery } from '@tanstack/react-query';
+import { useAxios } from './use-axios';
 
 const reportKeys = {
   datasets: ['ds-reports'] as const,
@@ -13,14 +14,17 @@ const reportKeys = {
 };
 
 export default function useDatasetCreatorReport() {
-  const { filters, } = useDatasetCreatorReportFiltersStore();
+  const { filters, getEncodedURLParams } =
+    useDatasetCreatorReportFiltersStore();
   const { data } = useDatasetCreatorDatasets('PB');
   const auth = useAuth();
+  const api = useAxios();
 
-  function fetchReports() {
+  async function fetchReports() {
     // This function can be used to fetch reports based on the current filters
     // For now, it just returns the datasets
-    return [];
+    const { data } = await api.get('data/reports/?' + getEncodedURLParams());
+    return data;
   }
 
   const {
@@ -33,7 +37,7 @@ export default function useDatasetCreatorReport() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    enabled: auth.is_authenticated,
+    enabled: auth.is_authenticated && filters.dataset.length > 0,
   });
 
   return {

@@ -33,10 +33,11 @@ type DatasetCreatorReportFiltersStore = {
   dateRangeOptions?: { label: string; value: string }[];
   filters: DatasetCreatorReportFilters;
   setFilters: (filters: Partial<DatasetCreatorReportFilters>) => void;
+  getEncodedURLParams: () => string;
 };
 
 export const useDatasetCreatorReportFiltersStore =
-  create<DatasetCreatorReportFiltersStore>((set) => ({
+  create<DatasetCreatorReportFiltersStore>((set, get) => ({
     filters: {
       dataset: [],
       date_range: 'past_month',
@@ -49,4 +50,16 @@ export const useDatasetCreatorReportFiltersStore =
       set((state) => ({
         filters: { ...state.filters, ...filters },
       })),
+    getEncodedURLParams: () => {
+      const { dataset, date_range, metrics } = get().filters;
+      const urlParams = new URLSearchParams();
+      if (dataset.length > 0) {
+        urlParams.append('dataset_id', dataset.join('&dataset_id='));
+      }
+      urlParams.append('date_range', date_range);
+      if (metrics.length > 0) {
+        urlParams.append('metrics', metrics.join('&metrics='));
+      }
+      return urlParams.toString();
+    },
   }));
