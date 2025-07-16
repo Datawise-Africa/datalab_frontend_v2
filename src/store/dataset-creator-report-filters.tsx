@@ -54,7 +54,7 @@ export const useDatasetCreatorReportFiltersStore =
       const { dataset, date_range, metrics } = get().filters;
       const urlParams = new URLSearchParams();
       if (dataset.length > 0) {
-        urlParams.append('dataset_id', dataset.join('&dataset_id='));
+        urlParams.append('dataset', dataset.join('&dataset='));
       }
       urlParams.append('date_range', date_range);
       if (metrics.length > 0) {
