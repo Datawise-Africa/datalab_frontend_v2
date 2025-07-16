@@ -103,7 +103,7 @@ export default function useSidebarLinks() {
           },
           {
             label: 'Approved Creators',
-            href: '/app/applications/approvedcreators',
+            href: '/app/approved-creators',
             icon: UserCheck,
           },
           // {

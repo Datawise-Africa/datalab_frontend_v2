@@ -7,16 +7,33 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Eye, Star, MessageSquare, Download, FileText, X } from 'lucide-react';
+import { Eye, FileText } from 'lucide-react';
 import { Sheet, SheetTrigger } from '@/components/ui/sheet';
 import { ReportPreviewSheet } from '@/components/reports/report-preview-sheet';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { cn } from '@/lib/utils';
+import { useDatasetCreatorReportFiltersStore } from '@/store/dataset-creator-report-filters';
+import useDatasetCreatorReport from '@/hooks/use-dataset-creator-report';
 
 export default function DatasetCreatorReportsPage() {
+  const { dateRangeOptions, metricsOptions, filters, setFilters } =
+    useDatasetCreatorReportFiltersStore();
+  const { isReportsLoading, isReportsError, datasets } =
+    useDatasetCreatorReport();
+  function handleMetricChange(value: string) {
+    setFilters({
+      metrics: filters.metrics.includes(value)
+        ? filters.metrics.filter((m) => m !== value)
+        : [...filters.metrics, value],
+    });
+  }
+
+  function handleDateRangeChange(value: string) {
+    setFilters({ date_range: value });
+  }
+
   return (
     <div className="mx-auto grid max-w-6xl gap-8">
       <div className="grid gap-2">
@@ -34,27 +51,19 @@ export default function DatasetCreatorReportsPage() {
             </CardHeader>
             <CardContent className="grid gap-4">
               <MultiSelect
+                onChange={(selected) => {
+                  setFilters({
+                    dataset: Array.isArray(selected) ? selected : [selected],
+                  });
+                }}
+                value={filters.dataset}
                 className="focus:border-primary/40 focus:ring-primary/40 w-full border border-gray-300 bg-white text-gray-800"
-                options={[
-                  {
-                    value: 'dataset1',
-                    label: 'East African Agricultural Yields (2015-2023)',
-                  },
-                  {
-                    value: 'dataset2',
-                    label: 'Urban Transportation Patterns - Nairobi',
-                  },
-                  {
-                    value: 'dataset3',
-                    label: 'West African Healthcare Access Indicators',
-                  },
-                  {
-                    value: 'dataset4',
-                    label: 'Global Climate Data (1900-2020)',
-                  },
-                ]}
+                options={datasets.map((dataset) => ({
+                  label: dataset.title,
+                  value: dataset.id,
+                }))}
               />
-              <div className="flex flex-wrap gap-2">
+              {/* <div className="flex flex-wrap gap-2">
                 <Badge
                   variant="secondary"
                   className="flex items-center gap-1 pr-1"
@@ -94,7 +103,7 @@ export default function DatasetCreatorReportsPage() {
                     <X className="h-3 w-3" />
                   </Button>
                 </Badge>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
@@ -105,7 +114,11 @@ export default function DatasetCreatorReportsPage() {
             <CardContent className="grid gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="date-range">Date Range</Label>
-                <Select defaultValue="past-month">
+                <Select
+                  defaultValue="past-month"
+                  value={filters.date_range}
+                  onValueChange={handleDateRangeChange}
+                >
                   <SelectTrigger
                     id="date-range"
                     className="w-full border border-gray-300 bg-white text-gray-800"
@@ -113,42 +126,21 @@ export default function DatasetCreatorReportsPage() {
                     <SelectValue placeholder="Past Month" />
                   </SelectTrigger>
                   <SelectContent className="max-h-60 border border-gray-300 bg-white">
-                    <SelectItem
-                      value="past-month"
-                      className={cn(
-                        'selection:bg-primary/20 hover:bg-primary/30',
-                      )}
-                    >
-                      Past Month
-                    </SelectItem>
-                    <SelectItem
-                      value="past-quarter"
-                      className={cn(
-                        'selection:bg-primary/20 hover:bg-primary/30',
-                      )}
-                    >
-                      Past Quarter
-                    </SelectItem>
-                    <SelectItem
-                      value="past-year"
-                      className={cn(
-                        'selection:bg-primary/20 hover:bg-primary/30',
-                      )}
-                    >
-                      Past Year
-                    </SelectItem>
-                    <SelectItem
-                      value="custom"
-                      className={cn(
-                        'selection:bg-primary/20 hover:bg-primary/30',
-                      )}
-                    >
-                      Custom Range
-                    </SelectItem>
+                    {dateRangeOptions!.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className={cn(
+                          'selection:bg-primary/20 hover:bg-primary/30',
+                        )}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 <Label htmlFor="report-type">Report</Label>
                 <Select defaultValue="summary">
                   <SelectTrigger
@@ -184,11 +176,11 @@ export default function DatasetCreatorReportsPage() {
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
-          <Card className="border border-gray-200 bg-white shadow-sm">
+          {/* <Card className="border border-gray-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle>Filters</CardTitle>
             </CardHeader>
@@ -331,41 +323,27 @@ export default function DatasetCreatorReportsPage() {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           <Card className="border border-gray-200 bg-white shadow-sm">
             <CardHeader>
               <CardTitle>Metrics to include</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-              <div className="flex items-center gap-2">
-                <Checkbox id="views" defaultChecked />
-                <Label htmlFor="views" className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" />
-                  Views
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="ratings" />
-                <Label htmlFor="ratings" className="flex items-center gap-1">
-                  <Star className="h-4 w-4" />
-                  Ratings
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="comments" />
-                <Label htmlFor="comments" className="flex items-center gap-1">
-                  <MessageSquare className="h-4 w-4" />
-                  Comments
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox id="downloads" />
-                <Label htmlFor="downloads" className="flex items-center gap-1">
-                  <Download className="h-4 w-4" />
-                  Downloads
-                </Label>
-              </div>
+              {metricsOptions?.map(({ Icon, label, value }) => (
+                <div className="flex items-center gap-2" key={value}>
+                  <Checkbox
+                    id={value}
+                    value={filters.metrics}
+                    key={value}
+                    onCheckedChange={() => handleMetricChange(value)}
+                  />
+                  <Label htmlFor={value} className="flex items-center gap-1">
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </Label>
+                </div>
+              ))}
             </CardContent>
           </Card>
         </div>
@@ -391,6 +369,7 @@ export default function DatasetCreatorReportsPage() {
               <SheetTrigger asChild>
                 <Button
                   variant="outline"
+                  disabled={isReportsLoading || isReportsError}
                   className="w-full border-green-600 text-green-600 hover:bg-green-50"
                 >
                   <Eye className="mr-2 h-4 w-4" />
