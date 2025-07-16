@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>()(
           set({ access_token, refresh_token, is_authenticated: true }),
         setAccessToken: (access_token) => set({ access_token }),
         setIsAuthenticated: (is_authenticated) => set({ is_authenticated }),
-        login: (payload) =>
+        login: (payload) => {
           set({
             user: {
               user_id: payload.user_id,
@@ -46,7 +46,8 @@ export const useAuthStore = create<AuthState>()(
             refresh_token: payload.refresh_token,
             is_authenticated: true,
             session_id: uuid(),
-          }),
+          });
+        },
         logout: () =>
           set({
             user: null,
@@ -66,10 +67,10 @@ export const useAuthStore = create<AuthState>()(
           is_authenticated: state.is_authenticated,
         }),
         version: 1,
-      }
+      },
     ),
-    { name: 'AuthStore' }
-  )
+    { name: 'AuthStore' },
+  ),
 );
 
 export function useAuth() {
@@ -86,6 +87,6 @@ export function useAuth() {
       setIsAuthenticated: state.setIsAuthenticated,
       login: state.login,
       logout: state.logout,
-    }))
+    })),
   );
 }

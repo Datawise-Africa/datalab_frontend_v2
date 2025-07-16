@@ -143,15 +143,15 @@ export default function useDatasets(
       }
       return failureCount < 2;
     },
-    initialData: () => {
-      if (activeFiltersCount > 0) {
-        return {
-          data: [],
-          meta: DEFAULT_PAGINATION_META,
-        };
-      }
-      return undefined;
-    },
+    // initialData: () => {
+    //   if (activeFiltersCount > 0) {
+    //     return {
+    //       data: [],
+    //       meta: DEFAULT_PAGINATION_META,
+    //     };
+    //   }
+    //   return undefined;
+    // },
   });
   // Single dataset
   const {

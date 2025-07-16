@@ -136,7 +136,7 @@ export default function LayoutSidebar({
 
           {/* Upload Button */}
           {is_authenticated &&
-            authPerm.hasPermission('dataset_creator', user!.user_role) && (
+            authPerm.hasPermission('dataset_creator', user?.user_role!) && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
