@@ -1,54 +1,11 @@
-import useApi from '@/hooks/use-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { profileKeys } from './profile-keys';
-import { useAuth } from '@/context/AuthProvider';
 import type {
   ChangePasswordDataType,
   UpdateUserProfileDataType,
 } from '@/lib/schema/user-profile';
-
-// function _castProfileUpdatePayload(payload: UpdateUserProfileDataType) {
-//   // Check if the image is a valid URL or Base64 string
-//   const image = payload.profile.avatar || '';
-//   const isBase64 =
-//     image.includes('data:image/') ||
-//     image.includes('data:application/') ||
-//     image.includes('data:audio/') ||
-//     image.includes('data:video/') ||
-//     image.includes('data:image/svg+xml') ||
-//     image.includes('data:image/gif') ||
-//     image.includes('data:image/png') ||
-//     image.includes('data:image/jpeg') ||
-//     image.includes('data:image/webp') ||
-//     image.includes('data:image/bmp') ||
-//     image.includes('data:image/tiff');
-//   const isUrl = image.startsWith('http://') || image.startsWith('https://');
-//   if (isUrl) {
-//     return {
-//       ...payload,
-//       profile: {
-//         ...payload.profile,
-//         avatar: null,
-//       },
-//     };
-//   }
-//   if (isBase64) {
-//     return {
-//       ...payload,
-//       profile: {
-//         ...payload.profile,
-//         avatar: image,
-//       },
-//     };
-//   }
-//   return {
-//     ...payload,
-//     profile: {
-//       ...payload.profile,
-//       avatar: null,
-//     },
-//   };
-// }
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from '@/hooks/use-axios';
 
 export type UserProfileType = {
   id: string;
@@ -73,26 +30,29 @@ export type UserProfileUpdateType = Omit<UserProfileType, 'id'> & {
 };
 
 export function useUserProfile() {
-  const { isAuthenticated } = useAuth();
-  const { api } = useApi();
+  const { is_authenticated } = useAuth();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   async function fetchProfile(): Promise<UserProfileType> {
-    const { data } = await api.get<UserProfileType>('/auth/me/');
+    const { data } = await axiosClient.get<UserProfileType>('/auth/me/');
     return data;
   }
 
   async function updateProfile(
     profileData: UpdateUserProfileDataType,
   ): Promise<UserProfileType> {
-    const { data } = await api.put<UserProfileType>('/auth/me/', profileData);
+    const { data } = await axiosClient.put<UserProfileType>(
+      '/auth/me/',
+      profileData,
+    );
     return data;
   }
 
   async function changePassword(
     payload: ChangePasswordDataType,
   ): Promise<void> {
-    await api.post('/auth/change-password/', {
+    await axiosClient.post('/auth/change-password/', {
       old_password: payload.current_password,
       new_password: payload.new_password,
     });
@@ -103,7 +63,7 @@ export function useUserProfile() {
     queryFn: fetchProfile,
     placeholderData: (prev) => prev, // Use previous data to indicate loading state
     // initialData: {} as UserProfileType, // Start with no initial data
-    enabled: isAuthenticated, // Only fetch if authenticated
+    enabled: is_authenticated, // Only fetch if authenticated
     staleTime: 1000 * 60 * 5, // 5 minutes
     refetchOnWindowFocus: false, // Reduce unnecessary refetches
     retry: (failureCount, error: any) => {

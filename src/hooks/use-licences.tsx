@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { licenceQueryKeys } from '@/lib/features/licences-keys';
 import type { PaginatedResponse } from '@/constants/pagination';
+import { useAxios } from './use-axios';
 
 export interface ILicence {
   id: number;
@@ -51,20 +51,20 @@ const transformLicenceData = (licenceResp: LicenceResponse): ILicence[] =>
   }));
 
 export function useLicences() {
-  const { api } = useApi();
-
+  const axiosClient = useAxios();
   // Memoize the fetch function to prevent unnecessary re-renders
   const fetchLicences = useMemo(
     () => async (): Promise<ILicence[]> => {
       try {
-        const response = await api.get<LicenceResponse>('/data/license/');
+        const response =
+          await axiosClient.get<LicenceResponse>('/data/license/');
         return transformLicenceData(response.data);
       } catch (error) {
         console.error('Error fetching licences:', error);
         throw new Error(extractCorrectErrorMessage(error));
       }
     },
-    [api],
+    [],
   );
   const licenceQuery = useQuery({
     queryKey: licenceQueryKeys.all,

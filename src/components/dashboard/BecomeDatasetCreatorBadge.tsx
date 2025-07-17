@@ -16,8 +16,8 @@ import {
 } from '../ui/tooltip';
 import { Link } from 'react-router-dom';
 import useDatasetCreator from '@/hooks/use-dataset-creator';
-import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
+import { useAuth } from '@/store/auth-store';
 
 type BecomeDatasetCreatorBadgeProps = {
   collapsed?: boolean;
@@ -80,7 +80,7 @@ export default function BecomeDatasetCreatorBadge({
 }: BecomeDatasetCreatorBadgeProps) {
   const [show, setShow] = useState(true);
   const authPerm = AuthPerm.getInstance();
-  const { isAuthenticated, state } = useAuth();
+  const { is_authenticated, user } = useAuth();
   const { currentStatus, isLoading } = useDatasetCreator();
 
   /**
@@ -95,14 +95,14 @@ export default function BecomeDatasetCreatorBadge({
   if (
     isLoading ||
     currentStatus === 'Confirmed' ||
-    (isAuthenticated &&
-      authPerm.hasAnyPermission(['admin', 'dataset_creator'], state.userRole))
+    (is_authenticated &&
+      authPerm.hasAnyPermission(['admin', 'dataset_creator'], user!.user_role!))
   ) {
     return <></>;
   }
 
   // If we have a status (request has been made)
-  if (currentStatus !== 'N/A' && isAuthenticated) {
+  if (currentStatus !== 'N/A' && is_authenticated) {
     const statusInfo = getStatusInfo(currentStatus);
     const StatusIcon = statusInfo.icon;
 

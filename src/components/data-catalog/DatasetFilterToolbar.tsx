@@ -10,22 +10,22 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { DatasetFilterOptions, IDataset } from '@/lib/types/data-set';
 import { datasetFilterOptions } from '@/lib/data/dataset-filter-options';
-import useApi from '@/hooks/use-api';
 import type { PaginatedResponse } from '@/constants/pagination';
 import {
   useDatasetFilterManager,
   useDatasetSearchManager,
   useDatasetSortManager,
 } from '@/store/use-dataset-controls';
+import { useAxios } from '@/hooks/use-axios';
 
 export default function DatasetFilterToolbar() {
+  const axiosClient = useAxios();
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const { filters, resetFilters } = useDatasetFilterManager();
   const { handleSearch, searchQuery, clearSearch, setIsSearchLoading } =
     useDatasetSearchManager();
   const { setSort } = useDatasetSortManager();
 
-  const { api } = useApi();
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,7 +56,7 @@ export default function DatasetFilterToolbar() {
 
       const {
         data: { data },
-      } = await api.get<PaginatedResponse<IDataset>>(url);
+      } = await axiosClient.get<PaginatedResponse<IDataset>>(url);
 
       if (data && Array.isArray(data)) {
         handleSearch(data, query);

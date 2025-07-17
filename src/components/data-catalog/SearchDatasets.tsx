@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-// import apiService from '../../services/apiService';
 import type { IDataset } from '@/lib/types/data-set';
 import { cn } from '@/lib/utils';
-import useApi from '@/hooks/use-api';
+import { useAxios } from '@/hooks/use-axios';
 
 type SearchDatasetsProps = {
   className?: string;
@@ -18,7 +17,7 @@ const SearchDatasets = ({
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { api } = useApi();
+  const axiosClient = useAxios();
   const fetchResults = async () => {
     if (!searchText.trim()) {
       setError(null);
@@ -33,7 +32,7 @@ const SearchDatasets = ({
       const queryString = `query=${encodeURIComponent(searchText)}`;
       const url = `/data/filter/search/?${queryString}`;
 
-      const response = await api.get(url);
+      const response = await axiosClient.get(url);
 
       if (response.data && Array.isArray(response.data)) {
         onSearchResults(response.data);

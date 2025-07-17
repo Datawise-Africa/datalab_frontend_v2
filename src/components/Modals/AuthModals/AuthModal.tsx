@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Modal from './Modal';
-import { useAuth } from '@/context/AuthProvider';
-import useApi from '@/hooks/use-api';
 import type { RegisterOrLoginResponse } from '@/lib/types/auth';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { Button } from '@/components/ui/button';
@@ -14,20 +12,21 @@ import {
   type LoginFormValues,
   type SignupFormValues,
 } from '@/lib/schema/auth-schema';
+import { useAuthStore } from '@/store/auth-store';
+import { useAuthContext } from '@/context/AuthProvider';
+import { useAxios } from '@/hooks/use-axios';
 
 const AuthModal = () => {
+  const axiosClient = useAxios();
   const [isSignUp, setIsSignUp] = useState(false);
   const [serverErrors, setServerErrors] = useState<string[]>([]);
-
+  const authStore = useAuthStore();
   // const authModal = useAuthModal();
   const {
-    dispatch,
-    actions,
     setIsAuthModalOpen,
     isAuthModalOpen,
     queue: authQueue,
-  } = useAuth();
-  const { api } = useApi();
+  } = useAuthContext();
 
   // Setup React Hook Form for login
   const {
@@ -71,23 +70,32 @@ const AuthModal = () => {
   const onLoginSubmit = async (formData: LoginFormValues) => {
     setServerErrors([]);
     try {
-      const { data } = await api.post<RegisterOrLoginResponse>(
+      const { data } = await axiosClient.post<RegisterOrLoginResponse>(
         '/auth/login/',
         formData,
       );
 
       if (data.access_token) {
-        dispatch(
-          actions.LOGIN({
-            accessToken: data.access_token,
-            refreshToken: data.refresh_token,
-            firstName: data.first_name,
-            lastName: data.last_name,
-            userId: data.id,
-            userRole: data.user_role,
-            email: data.email,
-          }),
-        );
+        // dispatch(
+        //   actions.LOGIN({
+        //     accessToken: data.access_token,
+        //     refreshToken: data.refresh_token,
+        //     firstName: data.first_name,
+        //     lastName: data.last_name,
+        //     userId: data.id,
+        //     userRole: data.user_role,
+        //     email: data.email,
+        //   }),
+        // );
+        authStore.login({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          user_id: data.id,
+          user_role: data.user_role,
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+        });
         // authModal.close();
         // if (navUrl) {
         //   navigate(navUrl);
@@ -115,23 +123,22 @@ const AuthModal = () => {
         password: data.password,
       };
 
-      const { data: respData } = await api.post<RegisterOrLoginResponse>(
-        '/auth/register/',
-        formData,
-      );
+      const { data: respData } =
+        await axiosClient.post<RegisterOrLoginResponse>(
+          '/auth/register/',
+          formData,
+        );
 
       if (respData.access_token) {
-        dispatch(
-          actions.LOGIN({
-            accessToken: respData.access_token,
-            refreshToken: respData.refresh_token,
-            firstName: respData.first_name,
-            lastName: respData.last_name,
-            userId: respData.id,
-            userRole: respData.user_role,
-            email: respData.email,
-          }),
-        );
+        authStore.login({
+          access_token: respData.access_token,
+          refresh_token: respData.refresh_token,
+          user_id: respData.id,
+          user_role: respData.user_role,
+          first_name: respData.first_name,
+          last_name: respData.last_name,
+          email: respData.email,
+        });
         // authModal.close();
         await authQueue.processQueue();
         setIsAuthModalOpen(false);

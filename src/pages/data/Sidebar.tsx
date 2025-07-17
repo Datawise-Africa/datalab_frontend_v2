@@ -3,23 +3,17 @@ import { Menu, Compass, Bookmark, ChevronRight } from 'lucide-react';
 import { X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../../components/designs/Button';
-// import { useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
+import { useAuthContext } from '@/context/AuthProvider';
+import { useAuth } from '@/store/auth-store';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const authPerm = AuthPerm.getInstance();
-  const {
-    state,
-    dispatch,
-    actions,
-    isAuthenticated,
-    setIsAuthModalOpen,
-    queue: authQueue,
-  } = useAuth();
+  const { setIsAuthModalOpen, queue: authQueue } = useAuthContext();
+  const { is_authenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   // const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -34,14 +28,14 @@ export default function Sidebar() {
 
   const handleLoginClick = () => {
     // handleAuthModalToggle();
-    if (!isAuthenticated) {
+    if (!is_authenticated) {
       setIsAuthModalOpen(true);
     }
   };
 
   const handleLogout = () => {
     console.log('Logging out...');
-    dispatch(actions.LOGOUT());
+    logout();
   };
   // useEffect(() => {
   //   if (!state.userId) {
@@ -51,7 +45,7 @@ export default function Sidebar() {
 
   const handleBecomeDatasetCreator = () => {
     // handleAuthModalToggle();
-    if (!isAuthenticated) {
+    if (!is_authenticated) {
       authQueue.addToQueue({
         function: navigate,
         args: ['/become-dataset-creator'],
@@ -102,7 +96,7 @@ export default function Sidebar() {
 
         {/* Auth & Upload Buttons */}
         <div className="mb-8">
-          {state.userId ? (
+          {user?.user_id ? (
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu((prev) => !prev)}
@@ -119,10 +113,10 @@ export default function Sidebar() {
                   {!collapsed && (
                     <div className="flex flex-col items-start">
                       <span className="text-xs font-medium text-gray-500">
-                        {state.userRole}
+                        {user.user_role}
                       </span>
                       <span className="text-sm font-semibold">
-                        {state.firstName} {state.lastName}
+                        {user.first_name} {user.last_name}
                       </span>
                     </div>
                   )}
@@ -179,8 +173,8 @@ export default function Sidebar() {
             </button>
           )}
 
-          {isAuthenticated &&
-            authPerm.hasPermission('dataset_creator', state.userRole) && (
+          {is_authenticated &&
+            authPerm.hasPermission('dataset_creator', user?.user_role!) && (
               <Link
                 to={'/app/dataset-creator-dashboard'}
                 className={`mb-8 flex w-full items-center justify-center rounded bg-gradient-to-b from-[#115443] to-[#26A37E] text-white ${

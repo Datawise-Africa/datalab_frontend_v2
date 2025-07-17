@@ -1,5 +1,3 @@
-import { useAuth } from '@/context/AuthProvider';
-import useApi from '@/hooks/use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   useDatasetCreatorAnalyticsFilters,
@@ -7,6 +5,9 @@ import {
 } from '@/store/dataset-creator-analytics-store';
 import { useQuery } from '@tanstack/react-query';
 import { datasetCreatorAnalyticsKeys } from './keys';
+
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from '@/hooks/use-axios';
 export type DatasetCreatorOverviewAnalyticsType = {
   total_views: number;
   total_downloads: number;
@@ -54,13 +55,14 @@ export const useDatasetCreatorAnalyticsQuery = () => {
   const { selectedDatasetId, setSelectedDatasetId } = useSelectedDatasetId();
   const { filters } = useDatasetCreatorAnalyticsFilters();
   const auth = useAuth();
-  const { api } = useApi();
+  const axiosClient = useAxios();
 
   async function fetchDatasetCreatorAnalytics() {
     try {
-      const { data } = await api.get<DatasetCreatorOverviewAnalyticsType>(
-        `/data/datasets-analytics/`,
-      );
+      const { data } =
+        await axiosClient.get<DatasetCreatorOverviewAnalyticsType>(
+          `/data/datasets-analytics/`,
+        );
 
       return data;
     } catch (error) {
@@ -75,7 +77,7 @@ export const useDatasetCreatorAnalyticsQuery = () => {
 
   async function fetchSelectedDatasetAnalytics() {
     try {
-      const { data } = await api.get<SingleDatasetViewsAnalyticsType>(
+      const { data } = await axiosClient.get<SingleDatasetViewsAnalyticsType>(
         `/data/datasets-analytics/${selectedDatasetId}/`,
       );
       return data;
@@ -92,7 +94,7 @@ export const useDatasetCreatorAnalyticsQuery = () => {
   const datasetOverviewQuery = useQuery({
     queryKey: [datasetCreatorAnalyticsKeys.overview],
     queryFn: fetchDatasetCreatorAnalytics,
-    enabled: auth.isAuthenticated,
+    enabled: auth.is_authenticated,
     refetchOnWindowFocus: false,
     placeholderData: (prev) => prev,
   });
@@ -101,7 +103,7 @@ export const useDatasetCreatorAnalyticsQuery = () => {
       datasetCreatorAnalyticsKeys.individual(selectedDatasetId!, filters),
     ],
     queryFn: fetchSelectedDatasetAnalytics,
-    enabled: !!selectedDatasetId && auth.isAuthenticated,
+    enabled: !!selectedDatasetId && auth.is_authenticated,
     refetchOnWindowFocus: false,
   });
 

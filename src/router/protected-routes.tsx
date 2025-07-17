@@ -55,7 +55,7 @@ export const appProtectedRoutes: RouteObject = {
       element: <Protect role="user" Component={MyDownloadsPage} />,
     },
     {
-      path: '/app/applications/approvedcreators',
+      path: '/app/approved-creators',
       element: <Protect role="admin" Component={ApprovedApplicantsTable} />,
     },
     {

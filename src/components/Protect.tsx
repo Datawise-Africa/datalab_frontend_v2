@@ -1,8 +1,8 @@
-import { useAuth } from '@/context/AuthProvider';
 import type { AuthUserRoleType } from '@/lib/types/auth-context';
 import React, { useMemo } from 'react';
 import { RestrictedAccess } from './dashboard/RestrictedAccess';
 import { AuthPerm } from '@/lib/auth/perm';
+import { useAuth } from '@/store/auth-store';
 
 type BasePropType = Record<string, any> & {
   children?: React.ReactNode;
@@ -13,18 +13,18 @@ type ProtectProps = {
   props?: BasePropType;
 };
 export default function Protect({ role, Component, props = {} }: ProtectProps) {
-  const { state, isAuthenticated } = useAuth();
+  const { is_authenticated, user } = useAuth();
   const perm = AuthPerm.getInstance();
   const userHasAccess = useMemo(() => {
     return (
-      isAuthenticated &&
-      state.userRole &&
-      perm.hasPermission(role, state.userRole)
+      is_authenticated &&
+      user?.user_role &&
+      perm.hasPermission(role, user.user_role)
     );
-  }, [role, isAuthenticated, state.userRole]);
+  }, [role, is_authenticated, user?.user_role]);
   return (
     <div>
-      {isAuthenticated && userHasAccess ? (
+      {is_authenticated && userHasAccess ? (
         <Component {...props} />
       ) : (
         <RestrictedAccess />

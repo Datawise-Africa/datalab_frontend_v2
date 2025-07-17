@@ -1,11 +1,11 @@
-import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
+import { useAuth } from '@/store/auth-store';
 import { useMemo } from 'react';
 
 function useCan() {
   const authPerm = AuthPerm.getInstance();
-  const { isAuthenticated, state } = useAuth();
-  if (!isAuthenticated) {
+  const { is_authenticated, user } = useAuth();
+  if (!is_authenticated) {
     return {
       is_admin: false,
       is_dataset_creator: false,
@@ -14,13 +14,13 @@ function useCan() {
 
   const access = useMemo(() => {
     return {
-      is_admin: authPerm.hasPermission('admin', state.userRole),
+      is_admin: authPerm.hasPermission('admin', user!.user_role),
       is_dataset_creator: authPerm.hasPermission(
         'dataset_creator',
-        state.userRole,
+        user!.user_role,
       ),
     };
-  }, [state.userRole, isAuthenticated]);
+  }, [user!.user_role, is_authenticated]);
 
   return access;
 }

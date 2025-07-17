@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { useAuth } from '@/context/AuthProvider';
 import {
   BarChart,
   Bookmark,
@@ -16,6 +15,7 @@ import {
 import type { SidebarLinkType } from '@/lib/types/sidebar';
 import { validateSidebarLink } from '@/lib/utils/validate-sidebar-link';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/store/auth-store';
 
 export default function useSidebarLinks() {
   const auth = useAuth();
@@ -103,7 +103,7 @@ export default function useSidebarLinks() {
           },
           {
             label: 'Approved Creators',
-            href: '/app/applications/approvedcreators',
+            href: '/app/approved-creators',
             icon: UserCheck,
           },
           // {
@@ -117,10 +117,10 @@ export default function useSidebarLinks() {
       },
     ];
     return sidebarLinks
-      .map(validateSidebarLink(auth.isAuthenticated, auth.state.userRole))
+      .map(validateSidebarLink(auth.is_authenticated, auth.user?.user_role!))
       .filter((link): link is SidebarLinkType => link !== null)
       .map(recursivelyMakeLinksActive(pathName));
-  }, [auth.isAuthenticated, auth.state.userRole, pathName]);
+  }, [auth.is_authenticated, auth.user?.user_role, pathName]);
 
   return {
     links: filteredLinks,

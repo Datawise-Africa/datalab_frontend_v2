@@ -29,13 +29,13 @@ import {
 } from '@/lib/schema/become-dataset-creator-schema';
 import useDatasetCreator from '@/hooks/use-dataset-creator';
 import { Base64FileManager } from '@/lib/utils/base-64-file-manager';
-import { useAuth } from '@/context/AuthProvider';
 import { AuthPerm } from '@/lib/auth/perm';
 import { formatFileSize } from '../lib/utils/format-file-size';
 import { Badge } from '@/components/ui/badge';
 import type { PaginatedGetBecomeDatasetCreatorResponse } from '@/lib/types/dataset-creator';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { toast } from 'sonner';
+import { useAuth } from '@/store/auth-store';
 type ApprovalStatus =
   PaginatedGetBecomeDatasetCreatorResponse['data'][number]['status'];
 const getStatusBadgeClass = (status: ApprovalStatus | 'N/A' | 'Confirmed') => {
@@ -156,8 +156,8 @@ export default function BecomeDatasetCreatorPage() {
   }, [form.formState.isSubmitting, isLoading]);
   // const already;
   if (
-    auth.isAuthenticated &&
-    authPerm.canAnyRole(['admin', 'dataset_creator'], auth.state.userRole)
+    auth.is_authenticated &&
+    authPerm.canAnyRole(['admin', 'dataset_creator'], auth.user!.user_role)
   ) {
     return (
       <div className="flex min-h-[calc(100vh_-_20rem)] items-center justify-center p-4">

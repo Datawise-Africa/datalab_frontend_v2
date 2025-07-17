@@ -1,15 +1,5 @@
-import type { AuthUserRoleType } from '@/lib/types/auth-context';
+import type { LoginPayload } from '@/lib/types/auth';
 import type { InferActions } from '@/lib/types/utils';
-
-type LoginPayload = {
-  userId: string;
-  userRole: AuthUserRoleType;
-  accessToken: string;
-  refreshToken: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-};
 
 export const authProviderActions = {
   LOGIN: (payload: LoginPayload) =>

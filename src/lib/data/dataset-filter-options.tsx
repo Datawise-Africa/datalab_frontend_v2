@@ -41,7 +41,7 @@ export const datasetFilterOptions = {
     // students: 'Student',
     public: {
       label: 'Public Access',
-      value: 'public_sector',
+      value: 'public',
     },
     non_profit: {
       label: 'Non-Profit',
@@ -49,11 +49,11 @@ export const datasetFilterOptions = {
     },
     commercial: {
       label: 'Commercial',
-      value: 'commercial',
+      value: 'company',
     },
     students: {
       label: 'Student',
-      value: 'student_academics',
+      value: 'students',
     },
   },
   dataType: {
