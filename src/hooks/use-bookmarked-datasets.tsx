@@ -1,7 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/context/AuthProvider';
-import useApi from './use-api';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import {
   datasetBookmarksKeys,
@@ -9,6 +7,8 @@ import {
 } from '@/lib/features/dataset-keys';
 import type { IDataset } from '@/lib/types/data-set';
 import { toast } from 'sonner';
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from './use-axios';
 
 interface IBookMarkedDataset {
   id: number;
@@ -35,13 +35,13 @@ class BookmarkError extends Error {
 export function useBookmarks(options: UseBookmarksOptions = {}) {
   const { enableAutoRefresh = true } = options;
   const auth = useAuth();
-  const { api } = useApi();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   // Fetch bookmarked datasets
   const fetchBookmarkedDatasets = useCallback(async () => {
     try {
-      const response = await api.get<IBookMarkedDataset[]>(
+      const response = await axiosClient.get<IBookMarkedDataset[]>(
         '/data/saved-datasets/',
       );
       return response.data;
@@ -49,7 +49,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
       console.error('Failed to fetch bookmarked datasets:', error);
       throw error;
     }
-  }, [api]);
+  }, []);
 
   // Query for bookmarked datasets
   const {
@@ -61,7 +61,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
   } = useQuery({
     queryKey: datasetBookmarksKeys.all,
     queryFn: fetchBookmarkedDatasets,
-    enabled: auth.isAuthenticated,
+    enabled: auth.is_authenticated,
     staleTime: enableAutoRefresh ? 30_000 : 120_000,
     gcTime: 600_000,
     retry: (failureCount, error) => {
@@ -85,13 +85,13 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
   // Add bookmark mutation with optimistic update
   const addBookmarkMutation = useMutation({
     mutationFn: async (datasetId: string) => {
-      if (!auth.isAuthenticated) {
+      if (!auth.is_authenticated) {
         throw new BookmarkError('Please log in to save datasets.');
       }
       if (bookmarkedDatasetIds.has(datasetId)) {
         throw new BookmarkError('This dataset is already saved.');
       }
-      await api.post('/data/saved-datasets/', { dataset: datasetId });
+      await axiosClient.post('/data/saved-datasets/', { dataset: datasetId });
     },
     onMutate: async (_datasetId) => {
       await queryClient.cancelQueries({ queryKey: datasetBookmarksKeys.all });
@@ -104,15 +104,6 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         queryKey: datasetsKeys.all,
         exact: true,
       });
-      // Optimistically add to bookmarks
-      // queryClient.setQueryData(datasetBookmarksKeys.all, [
-      //   ...previousBookmarks,
-      //   {
-      //     id: Math.random(), // Temporary ID
-      //     dataset: { id: datasetId } as IDataset,
-      //     user: auth.state?.userId || 'random-user-id', // Temporary user ID
-      //   } as IBookMarkedDataset,
-      // ]);
 
       return { previousBookmarks };
     },
@@ -146,7 +137,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
   // Remove bookmark mutation with optimistic update
   const removeBookmarkMutation = useMutation({
     mutationFn: async (datasetId: string) => {
-      if (!auth.isAuthenticated) {
+      if (!auth.is_authenticated) {
         throw new BookmarkError('Please log in to manage bookmarks.');
       }
 
@@ -158,7 +149,7 @@ export function useBookmarks(options: UseBookmarksOptions = {}) {
         throw new BookmarkError('This dataset is not saved.');
       }
 
-      await api.delete(`/data/saved-datasets/${bookmarkToRemove.id}/`);
+      await axiosClient.delete(`/data/saved-datasets/${bookmarkToRemove.id}/`);
     },
     onMutate: async (_datasetId) => {
       await queryClient.cancelQueries({ queryKey: datasetBookmarksKeys.all });

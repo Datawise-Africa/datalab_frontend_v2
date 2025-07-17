@@ -31,12 +31,13 @@ import {
 } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import BecomeDatasetCreatorBadge from './BecomeDatasetCreatorBadge';
-import { useAuth } from '@/context/AuthProvider';
 import { Link, NavLink } from 'react-router-dom';
 import type { SidebarLinkType } from '@/lib/types/sidebar';
 import { AuthPerm } from '@/lib/auth/perm';
 import { IconParkOutlineDataUser } from '../icons/IconParkOutlineDataUser';
 import useCan from '@/hooks/use-can';
+import { useAuthContext } from '@/context/AuthProvider';
+import { useAuth } from '@/store/auth-store';
 
 type LayoutSidebarProps = {
   links: SidebarLinkType[];
@@ -57,8 +58,8 @@ export default function LayoutSidebar({
   toggleSidebar,
   closeSidebar,
 }: LayoutSidebarProps) {
-  const { isAuthenticated, state: authState, setIsAuthModalOpen } = useAuth();
-
+  const { setIsAuthModalOpen } = useAuthContext();
+  const { user, is_authenticated } = useAuth();
   const authPerm = AuthPerm.getInstance();
   // Don't render sidebar on mobile if it's not open
   if (isMobile && !isOpen) return null;
@@ -134,8 +135,8 @@ export default function LayoutSidebar({
           )}
 
           {/* Upload Button */}
-          {isAuthenticated &&
-            authPerm.hasPermission('dataset_creator', authState.userRole) && (
+          {is_authenticated &&
+            authPerm.hasPermission('dataset_creator', user?.user_role!) && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -191,7 +192,7 @@ export default function LayoutSidebar({
             collapsed={isCollapsed}
             isMobile={isMobile}
           />
-          {isAuthenticated ? (
+          {is_authenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -204,17 +205,17 @@ export default function LayoutSidebar({
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={''} />
                       <AvatarFallback className="border-subtle border">
-                        {authState.firstName!.charAt(0)}
-                        {authState.lastName!.charAt(0)}
+                        {user!.first_name!.charAt(0)}
+                        {user!.last_name!.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     {(!isCollapsed || isMobile) && (
                       <div className="flex flex-col items-start">
                         <span className="text-sm font-medium">
-                          {authState.firstName} {authState.lastName}
+                          {user!.first_name} {user!.last_name}
                         </span>
                         <span className="text-xs text-gray-500">
-                          {authState.email}
+                          {user!.email}
                         </span>
                       </div>
                     )}
@@ -415,11 +416,7 @@ function SidebarItem(props: SidebarLinkType & { isCollapsed?: boolean }) {
 }
 
 function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
-  const {
-    dispatch,
-    actions,
-    state: { fullName, userRole },
-  } = useAuth();
+  const { user, logout } = useAuth();
   const access = useCan();
 
   return (
@@ -433,14 +430,14 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
           <Avatar className="h-8 w-8">
             <AvatarImage src="" alt="User Avatar" className="border" />
             <AvatarFallback className="border">
-              {fullName
-                ? `${fullName.charAt(0)}${fullName.split(' ')[1]?.charAt(0)}`
+              {user
+                ? `${user.full_name.charAt(0)}${user.full_name.split(' ')[1]?.charAt(0)}`
                 : 'NA'}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <span className="text-xs text-gray-500">Data Explorer</span>
-            <span className="text-sm font-medium">{fullName}</span>
+            <span className="text-sm font-medium">{user!.full_name}</span>
           </div>
         </div>
       </DropdownMenuLabel>
@@ -454,7 +451,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
       </DropdownMenuItem>
       {AuthPerm.getInstance().canAnyRole(
         ['dataset_creator', 'admin'],
-        userRole,
+        user!?.user_role,
       ) && (
         <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
           <Link
@@ -494,7 +491,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
         <Button
           variant="ghost"
           className="inline-flex w-full cursor-pointer items-center justify-baseline text-left"
-          onClick={() => dispatch(actions.LOGOUT())}
+          onClick={() => logout()}
         >
           <LucideLogOut className="mr-2 h-5 w-5" />
 

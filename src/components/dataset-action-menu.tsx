@@ -12,9 +12,11 @@ import { MoreHorizontal, Download, Send } from 'lucide-react';
 
 import { shareDataset } from '@/lib/utils/share-dataset';
 import type { IDataset } from '@/lib/types/data-set';
-import { useAuth } from '@/context/AuthProvider';
+// import { useAuth } from '@/context/AuthProvider';
 import { useDatasetStore } from '@/store/dataset-store';
 import useDownloadDataModal from '@/store/use-download-data-modal';
+import { useAuth } from '@/store/auth-store';
+import { useAuthContext } from '@/context/AuthProvider';
 
 interface DatasetActionsMenuProps {
   // datasetId: string;
@@ -27,11 +29,12 @@ export function DatasetActionsMenu({ dataset }: DatasetActionsMenuProps) {
   const downloadDataModal = useDownloadDataModal();
   // const { id: datasetId, title: datasetTitle } = dataset;
   const auth = useAuth();
+  const { setIsAuthModalOpen, queue } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDownloadDataClick = (dataset: IDataset) => {
-    if (!auth.isAuthenticated) {
-      auth.queue.addToQueue([
+    if (!auth.is_authenticated) {
+      queue.addToQueue([
         {
           function: setDownloadDataset,
           args: [dataset],
@@ -41,7 +44,7 @@ export function DatasetActionsMenu({ dataset }: DatasetActionsMenuProps) {
           args: [],
         },
       ]);
-      auth.setIsAuthModalOpen(true);
+      setIsAuthModalOpen(true);
       return;
     } else {
       setDownloadDataset(dataset);

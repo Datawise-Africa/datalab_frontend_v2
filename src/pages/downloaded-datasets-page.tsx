@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import moment from 'moment';
 import { useSidebar } from '@/store/use-sidebar-store';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 
 type ReviewType = {
   id: number;
@@ -676,7 +677,7 @@ export default function DownloadedDatasetsPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="space-y-4 text-center">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-100">
-            <FileText className="h-8 w-8 text-blue-600" />
+            <FileText className="text-primary h-8 w-8" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">
             No Downloaded Datasets
@@ -685,7 +686,12 @@ export default function DownloadedDatasetsPage() {
             You haven't downloaded any datasets yet. Start exploring our dataset
             collection to find data for your projects.
           </p>
-          <Button>Browse Datasets</Button>
+          <Link
+            to={'/'}
+            className="bg-primary hover:bg-preimary/90 inline-block rounded px-4 py-2 text-white"
+          >
+            Browse Datasets
+          </Link>
         </div>
       </div>
     );

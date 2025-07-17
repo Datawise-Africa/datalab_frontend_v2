@@ -17,21 +17,27 @@ export const datasetCreatorDatasetkeys = {
     status: DatasetStatus,
     filters: DatasetFilters = {},
     pagination: PaginationParamsInterface,
+    sessionId: string,
   ) =>
     [
       ...datasetCreatorDatasetkeys.all,
       status,
       { filters, pagination },
+      sessionId,
     ] as const,
 
   // Legacy support for existing code
-  draft: () => [...datasetCreatorDatasetkeys.all, 'draft'] as const,
-  published: () => [...datasetCreatorDatasetkeys.all, 'published'] as const,
-  archived: () => [...datasetCreatorDatasetkeys.all, 'archived'] as const,
+  draft: (sessionId: string) =>
+    [...datasetCreatorDatasetkeys.all, 'draft', sessionId] as const,
+  published: (sessionId: string) =>
+    [...datasetCreatorDatasetkeys.all, 'published', sessionId] as const,
+  archived: (sessionId: string) =>
+    [...datasetCreatorDatasetkeys.all, 'archived', sessionId] as const,
 
   // Invalidation helpers
   invalidateStatus: (status: DatasetStatus) =>
     [...datasetCreatorDatasetkeys.all, status] as const,
 
-  invalidateAll: () => datasetCreatorDatasetkeys.all,
+  invalidateAll: (sessionId: string) =>
+    [...datasetCreatorDatasetkeys.all, sessionId] as const,
 };

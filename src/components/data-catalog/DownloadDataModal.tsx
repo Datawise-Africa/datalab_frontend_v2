@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import Modal from '@/components/Modals/DataModals/Modal';
 import useDownloadDataModal from '@/store/use-download-data-modal';
 import CustomButton from '@/components/Modals/DataModals/CustomButton';
-// import { getAccessToken } from '@/lib/auth/actions';
-import { REACT_PUBLIC_API_HOST } from '@/constants';
 import non_profit_icon from '/assets/datalab/non-profit-icon-dark.svg';
 import company_icon from '/assets/datalab/company-icon-dark.svg';
 import student_icon from '/assets/datalab/student-icon-dark.svg';
@@ -11,7 +9,6 @@ import public_icon from '/assets/datalab/public2-icon-dark.svg';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
 
 import type { IDataset } from '@/lib/types/data-set';
-import { useAuth } from '@/context/AuthProvider';
 import {
   Building,
   Check,
@@ -21,6 +18,9 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/store/auth-store';
+import { extractCorrectErrorMessage } from '@/lib/error';
+import { useAxios } from '@/hooks/use-axios';
 
 type DownloadDataModalProps = {
   dataset: IDataset;
@@ -33,7 +33,7 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
   const [selectedFormat, setSelectedFormat] = useState('csv');
   const [downloading] = useState(false);
   const auth = useAuth();
-
+  const axiosClient = useAxios();
   const [selectedCard, setSelectedCard] = useState('');
   const [email, setEmail] = useState('');
   const [codeSent, setCodeSent] = useState(false);
@@ -149,27 +149,16 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     }
     console.log(formData);
     // const accessToken = await getAccessToken();
-    if (!auth.state.accessToken) {
+    if (!auth.access_token) {
       setErrorMessage('Failed to retrieve access token.');
       return;
     }
 
     try {
-      const response = await fetch(
-        `${REACT_PUBLIC_API_HOST}/data/dataset_downloads/`,
-        {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            Authorization: `JWT ${auth.state.accessToken}`,
-          },
-          body: JSON.stringify(formData),
-        },
-      );
+      await axiosClient.post(`/data/dataset_downloads/`, formData);
 
-      if (response.ok) {
-        console.log('Data sent successfully!');
+      // if (response.ok) {
+      console.log('Data sent successfully!');
 
         // Retrieve the URL where the file can be downloaded
         const fileUrl = dataset.data_files[0].s3_url;
@@ -179,18 +168,18 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
         link.href = fileUrl;
         link.setAttribute('download', ''); // This helps with download behavior
 
-        // Append to the document, trigger the click, and remove the element
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success('Data downloaded successfully!');
-        downloadDataModal.close();
-      } else {
-        console.error(`Error: ${response.status} - ${response.statusText}`);
-      }
+      // Append to the document, trigger the click, and remove the element
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Data downloaded successfully!');
+      downloadDataModal.close();
+      // } else {
+      //   console.error(`Error: ${response.status} - ${response.statusText}`);
+      // }
     } catch (error) {
       console.log(formData);
-      console.log('Access Token:', auth.state.accessToken);
+      console.log('Access Token:', auth.access_token);
 
       console.error('Error downloading data:', error);
       alert('Failed to download data. Please try again.');
@@ -207,110 +196,82 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
     };
     return emailTypeValidation[selectedCard];
   };
+  // Helper functions
+  const handleSendOtp = async () => {
+    console.log('📨 Sending OTP to:', email);
+    await axiosClient.post(`/data/generate-otp/`, { email });
 
-  const handleAction = async () => {
-    if (!email) {
-      setErrorMessage('Please enter your email.');
-      return;
-    }
-
-    if (!validateEmail()) {
-      setErrorMessage('Invalid email for selected category.');
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage('');
-
-    try {
-      // const accessToken = await getAccessToken();
-      // console.log({ accessToken });
-
-      if (!auth.state.accessToken) {
-        setErrorMessage('Failed to retrieve access token.');
-        console.log(' Error: Access token not available');
-        return;
-      }
-
-      if (!codeSent) {
-        console.log('📨 Sending OTP to:', email);
-
-        try {
-          const response = await fetch(
-            `${REACT_PUBLIC_API_HOST}/data/generate-otp/`,
-            {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-                Authorization: `JWT ${auth.state.accessToken}`,
-              },
-              body: JSON.stringify({ email }),
-            },
-          );
-
-          console.log(' OTP Request Response:', response.status);
-          const data = await response.json();
-          console.log(' Response Body:', data);
-
-          if (!response.ok)
-            throw new Error(data?.detail || 'Failed to send OTP.');
-
-          setCodeSent(true);
-          toast.success(`Verification code sent to ${email}`);
-          setIsResendEnabled(false);
-          setTimeout(() => setIsResendEnabled(true), 60000);
-        } catch (error: any) {
-          setErrorMessage(error.message);
-          toast.error('Failed to send OTP. Try again.');
-          console.error(' Error Sending OTP:', error);
-        }
-      } else {
-        console.log('✅ Verifying OTP:', verificationCode);
-
-        try {
-          const response = await fetch(
-            `${REACT_PUBLIC_API_HOST}/data/verify-otp/`,
-            {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ email, code: verificationCode }),
-            },
-          );
-
-          console.log('📡 OTP Verification Response:', response.status);
-          const data = await response.json();
-          console.log('📡 Verification Response Body:', data);
-
-          if (
-            response.ok &&
-            data.message.toLowerCase().includes('otp validated successfully')
-          ) {
-            console.log(' OTP Verified Successfully');
-            setIsVerified(true);
-            toast.success('OTP Validated Successfully');
-          } else {
-            setErrorMessage('Incorrect OTP. Try again.');
-            toast.error('Incorrect OTP. Try again.');
-          }
-        } catch (error) {
-          setErrorMessage('An error occurred. Please try again.');
-          toast.error('An error occurred. Please try again.');
-          console.error(' Error Verifying OTP:', error);
-        }
-      }
-    } catch (error: any) {
-      console.error('❌ General Error:', error);
-      setErrorMessage(error.message || 'An unexpected error occurred.');
-      toast.error('An unexpected error occurred.');
-    }
-
-    setLoading(false);
-    console.log('🔄 handleAction completed');
+    setCodeSent(true);
+    toast.success(`Verification code sent to ${email}`);
+    setIsResendEnabled(false);
+    setTimeout(() => setIsResendEnabled(true), 60000);
   };
+
+  const handleVerifyOtp = async () => {
+    try {
+      setIsResendEnabled(false);
+      console.log('✅ Verifying OTP:', verificationCode);
+      const { data, status } = await axiosClient.post(`/data/verify-otp/`, {
+        email,
+        code: verificationCode,
+      });
+
+      console.log('📡 OTP Verification Response:', { status, data });
+
+      if (
+        status === 200 &&
+        data.message.toLowerCase().includes('otp validated successfully')
+      ) {
+        setIsVerified(true);
+        toast.success('OTP Validated Successfully');
+      } else {
+        setIsResendEnabled(false);
+        throw new Error('Incorrect OTP. Try again.');
+      }
+    } catch (error) {
+      setIsResendEnabled(true);
+      throw new Error(
+        extractCorrectErrorMessage(
+          error,
+          'Failed to verify OTP. Please try again.',
+        ),
+      );
+    }
+  };
+  const handleAction =
+    (action: 'sendOtp' | 'verifyOtp' | 'resendOtp') => async () => {
+      // Validate inputs
+      if (!email) return setErrorMessage('Please enter your email.');
+      if (!validateEmail())
+        return setErrorMessage('Invalid email for selected category.');
+      if (!auth.access_token) {
+        setErrorMessage('Failed to retrieve access token.');
+        return console.log('Error: Access token not available');
+      }
+
+      setLoading(true);
+      setErrorMessage('');
+
+      try {
+        if (action === 'sendOtp') {
+          await handleSendOtp();
+        } else if (action === 'resendOtp') {
+          await handleSendOtp();
+        } else {
+          await handleVerifyOtp();
+        }
+      } catch (error: any) {
+        const message = extractCorrectErrorMessage(
+          error,
+          'An unexpected error occurred.',
+        );
+        setErrorMessage(message);
+        toast.error(message);
+        console.error(`❌ ${action} Error:`, error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   // const [rating, setRating] = useState(0);
   const [message, _setMessage] = useState(''); // For success/error messages
@@ -642,22 +603,28 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
 
               {/* Buttons */}
               <div className="mt-4 flex flex-wrap gap-4">
-                <button
-                  onClick={handleAction}
-                  disabled={loading}
-                  className="rounded-md bg-[#ddeeff] px-4 py-2 text-[#0E0C15]"
-                >
-                  {loading
-                    ? 'Processing...'
-                    : codeSent
-                      ? 'Verify OTP'
-                      : 'Send OTP'}
-                </button>
+                {codeSent ? (
+                  <button
+                    onClick={handleAction('verifyOtp')}
+                    disabled={loading}
+                    className="rounded-md bg-[#ddeeff] px-4 py-2 text-[#0E0C15]"
+                  >
+                    {loading ? 'Processing...' : 'Verify OTP'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleAction('sendOtp')}
+                    disabled={loading}
+                    className="rounded-md bg-[#ddeeff] px-4 py-2 text-[#0E0C15]"
+                  >
+                    {loading ? 'Processing...' : 'Send OTP'}
+                  </button>
+                )}
 
                 {codeSent && !isVerified && (
                   <button
                     type="button"
-                    onClick={handleAction}
+                    onClick={handleAction('sendOtp')}
                     disabled={!isResendEnabled}
                     className="rounded-md bg-gray-500 px-4 py-2 text-white"
                   >

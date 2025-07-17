@@ -5,10 +5,28 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Eye } from 'lucide-react';
+import { Eye, Printer } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useMemo } from 'react';
+import useDatasetCreatorReport from '@/hooks/use-dataset-creator-report';
+import useDownloadReportsPdf from '@/hooks/use-download-pdf';
 
 export function ReportPreviewSheet() {
+  const { generateReportAndDownloadPDF, isDownloading } =
+    useDownloadReportsPdf();
+  const { reports, selectedDatasets, filters } = useDatasetCreatorReport();
+
+  const reportsData = useMemo(() => {
+    return (
+      reports || {
+        views: 0,
+        downloads: 0,
+        ratings: 0,
+        comments: 0,
+      }
+    );
+  }, [reports]);
+
   return (
     <SheetContent
       side="right"
@@ -20,69 +38,68 @@ export function ReportPreviewSheet() {
           A summary of your generated report based on current selections.
         </SheetDescription>
       </SheetHeader>
+
       <div className="grid gap-6 py-4">
         <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4 text-center">
-          <div>
-            <div className="text-3xl font-bold text-blue-600">9,118</div>
-            <div className="text-sm text-gray-500">Total Views</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-green-600">3,788</div>
-            <div className="text-sm text-gray-500">Downloads</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-orange-500">3.5</div>
-            <div className="text-sm text-gray-500">Avg Rating</div>
-          </div>
-          <div>
-            <div className="text-3xl font-bold text-purple-600">167</div>
-            <div className="text-sm text-gray-500">Comments</div>
-          </div>
+          {Object.entries(reportsData).map(([key, value]) => (
+            <div key={key}>
+              <div className="text-3xl font-bold text-blue-600">{value}</div>
+              <div className="text-sm text-gray-500">
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="grid gap-2 border-b border-gray-200 pb-4">
-          <h3 className="text-lg font-semibold">Datasets Included (1)</h3>
-          <div className="flex items-center gap-2">
-            <span className="font-medium">
-              East African Agricultural Yields (2015-2023)
-            </span>
-            <Badge variant="secondary">Agriculture</Badge>
-          </div>
-        </div>
-
-        <div className="grid gap-2 border-b border-gray-200 pb-4">
-          <h3 className="text-lg font-semibold">Report Sections</h3>
-          <ul className="grid list-inside list-disc grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700">
-            <li>Executive Summary</li>
-            <li>Dataset Overview</li>
-            <li>Usage Analytics</li>
-            <li>Recommendations</li>
-            <li>Detailed Tables</li>
-          </ul>
+          <h3 className="text-lg font-semibold">
+            Datasets Included ({selectedDatasets.length})
+          </h3>
+          {selectedDatasets.map((dataset) => (
+            <div key={dataset.id} className="flex items-center gap-2">
+              <span className="font-medium">{dataset.title}</span>
+              <Badge variant="secondary">{dataset.category.title}</Badge>
+            </div>
+          ))}
         </div>
 
         <div className="grid gap-2">
           <h3 className="text-lg font-semibold">Filters Applied</h3>
           <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-gray-700">
             <div className="font-medium">Date Range:</div>
-            <div>Past Month</div>
-            <div className="font-medium">Report Type:</div>
-            <div>Summary</div>
-            <div className="font-medium">Regions:</div>
-            <div>All regions</div>
-            <div className="font-medium">User Types:</div>
-            <div>All user types</div>
+            <div>{filters.date_range}</div>
+            <div className="font-medium">Metrics:</div>
+            <div>{filters.metrics.join(', ')}</div>
           </div>
         </div>
       </div>
+
       <div className="mt-auto border-t pt-4">
-        <Button
-          variant="outline"
-          className="w-full border-green-600 text-green-600 hover:bg-green-50"
-        >
-          <Eye className="mr-2 h-4 w-4" />
-          Close Preview
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1 border-green-600 bg-transparent text-green-600 hover:bg-green-50"
+          >
+            <Eye className="mr-2 h-4 w-4" />
+            Close Preview
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex-1 border-blue-600 bg-transparent text-blue-600 hover:bg-blue-50"
+            onClick={() =>
+              generateReportAndDownloadPDF({
+                reportsData: reportsData,
+                selectedDatasets: selectedDatasets,
+                filters: filters,
+              })
+            }
+            disabled={isDownloading }
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            {isDownloading ? 'Generating PDF...' : 'Download PDF'}
+          </Button>
+        </div>
       </div>
     </SheetContent>
   );

@@ -3,12 +3,13 @@ import SingleDataModal from '../components/data-catalog/SingleDataModal';
 import useDataModal from '@/store/use-data-modal';
 import useDownloadDataModal from '@/store/use-download-data-modal';
 import DownloadDataModal from '../components/data-catalog/DownloadDataModal';
-import { useAuth } from '@/context/AuthProvider';
 import type { IDataset } from '@/lib/types/data-set';
 import useDatasets from '@/hooks/use-datasets';
 import DatasetFilterToolbar from '@/components/data-catalog/DatasetFilterToolbar';
 import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
 import { useDatasetStore } from '@/store/dataset-store';
+import { useAuthContext } from '@/context/AuthProvider';
+import { useAuth } from '@/store/auth-store';
 
 const Homepage = () => {
   const {
@@ -19,7 +20,8 @@ const Homepage = () => {
   } = useDatasetStore();
   // const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   // const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
-  const auth = useAuth();
+  const { queue, setIsAuthModalOpen } = useAuthContext();
+  const { is_authenticated } = useAuth();
   const datasets = useDatasets();
   const dataModal = useDataModal();
   const downloadDataModal = useDownloadDataModal();
@@ -29,8 +31,8 @@ const Homepage = () => {
   };
 
   const handleDownloadDataClick = (dataset: IDataset) => {
-    if (!auth.isAuthenticated) {
-      auth.queue.addToQueue([
+    if (!is_authenticated) {
+      queue.addToQueue([
         {
           function: setDownloadDataset,
           args: [dataset],
@@ -40,7 +42,7 @@ const Homepage = () => {
           args: [],
         },
       ]);
-      auth.setIsAuthModalOpen(true);
+      setIsAuthModalOpen(true);
       return;
     } else {
       setDownloadDataset(dataset);
@@ -53,7 +55,9 @@ const Homepage = () => {
       <main className="flex-1 py-8">
         <DatasetFilterToolbar />
 
-        {datasets.isLoading ? (
+        {datasets.isLoading ||
+        datasets.isDatasetsLoading ||
+        datasets.isFilteredDataLoading ? (
           <DatasetCardSkeleton />
         ) : (
           <DatasetGrid

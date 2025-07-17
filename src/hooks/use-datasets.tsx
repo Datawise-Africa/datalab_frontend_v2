@@ -5,7 +5,6 @@ import {
   useQueryClient,
   keepPreviousData,
 } from '@tanstack/react-query';
-import useApi from './use-api';
 import { datasetFiltersToSearchParams } from '@/lib/utils/dataset-filter-options-to-params';
 import {
   DEFAULT_PAGINATION_META,
@@ -16,7 +15,6 @@ import {
   datasetBookmarksKeys,
   datasetsKeys,
 } from '@/lib/features/dataset-keys';
-import { useAuth } from '@/context/AuthProvider';
 import { extractCorrectErrorMessage } from '@/lib/error';
 import { useDatasetMapper } from './use-bookmarked-datasets';
 import {
@@ -27,6 +25,8 @@ import {
   useDatasetSort,
   useDatasetUI,
 } from '@/store/use-dataset-controls';
+import { useAuth } from '@/store/auth-store';
+import { useAxios } from './use-axios';
 
 interface BookmarkResponse {
   id: string;
@@ -39,7 +39,7 @@ export default function useDatasets(
   datasetId?: string, // Optional datasetId for single dataset queries
 ) {
   const auth = useAuth();
-  const { api } = useApi();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   // Use Zustand store selectors
@@ -58,7 +58,7 @@ export default function useDatasets(
   const { sort } = useDatasetSort();
 
   const { showModal } = useDatasetModal();
-
+  const { session_id } = useAuth();
   const { isLoading: storeIsLoading, isLoadingNewPage: storeIsLoadingNewPage } =
     useDatasetUI();
 
@@ -84,10 +84,10 @@ export default function useDatasets(
     isLoading: isDatasetsLoading,
     error: datasetsError,
   } = useQuery({
-    queryKey: datasetsKeys.list(pagination, sort),
+    queryKey: datasetsKeys.list(pagination, sort, session_id!),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const queryParams = buildQueryParams(pagination, sort);
-      const response = await api.get<PaginatedResponse<IDataset>>(
+      const response = await axiosClient.get<PaginatedResponse<IDataset>>(
         `/data/datasets/?${queryParams.toString()}`,
       );
       return response.data;
@@ -118,7 +118,7 @@ export default function useDatasets(
     isLoading: isFilteredDataLoading,
     error: filteredError,
   } = useQuery({
-    queryKey: datasetsKeys.filtered(filters, pagination, sort),
+    queryKey: datasetsKeys.filtered(filters, pagination, sort, session_id!),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const filtersParams = datasetFiltersToSearchParams(filters);
       const queryParams = buildQueryParams(pagination, sort);
@@ -128,7 +128,7 @@ export default function useDatasets(
         ...Array.from(queryParams.entries()),
       ]);
 
-      const response = await api.get<PaginatedResponse<IDataset>>(
+      const response = await axiosClient.get<PaginatedResponse<IDataset>>(
         `/data/filter/?${combinedParams.toString()}`,
       );
       return response.data;
@@ -143,15 +143,15 @@ export default function useDatasets(
       }
       return failureCount < 2;
     },
-    initialData: () => {
-      if (activeFiltersCount > 0) {
-        return {
-          data: [],
-          meta: DEFAULT_PAGINATION_META,
-        };
-      }
-      return undefined;
-    },
+    // initialData: () => {
+    //   if (activeFiltersCount > 0) {
+    //     return {
+    //       data: [],
+    //       meta: DEFAULT_PAGINATION_META,
+    //     };
+    //   }
+    //   return undefined;
+    // },
   });
   // Single dataset
   const {
@@ -159,9 +159,11 @@ export default function useDatasets(
     isLoading: isSingleDatasetLoading,
     error: singleDatasetError,
   } = useQuery({
-    queryKey: datasetsKeys.detail(datasetId || ''),
+    queryKey: datasetsKeys.detail(datasetId || '', session_id!),
     queryFn: async () => {
-      const response = await api.get<IDataset>(`/data/datasets/${datasetId}/`);
+      const response = await axiosClient.get<IDataset>(
+        `/data/datasets/${datasetId}/`,
+      );
       return response.data;
     },
     enabled: Boolean(datasetId),
@@ -231,7 +233,12 @@ export default function useDatasets(
 
       if (activeFiltersCount > 0) {
         await queryClient.prefetchQuery({
-          queryKey: datasetsKeys.filtered(filters, nextPagePagination, sort),
+          queryKey: datasetsKeys.filtered(
+            filters,
+            nextPagePagination,
+            sort,
+            session_id!,
+          ),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const filtersParams = datasetFiltersToSearchParams(filters);
             const queryParams = buildQueryParams(nextPagePagination, sort);
@@ -239,7 +246,7 @@ export default function useDatasets(
               ...Array.from(filtersParams.entries()),
               ...Array.from(queryParams.entries()),
             ]);
-            const response = await api.get<PaginatedResponse<IDataset>>(
+            const response = await axiosClient.get<PaginatedResponse<IDataset>>(
               `/data/filter/?${combinedParams.toString()}`,
             );
             return response.data;
@@ -248,10 +255,10 @@ export default function useDatasets(
         });
       } else {
         await queryClient.prefetchQuery({
-          queryKey: datasetsKeys.list(nextPagePagination, sort),
+          queryKey: datasetsKeys.list(nextPagePagination, sort, session_id!),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const queryParams = buildQueryParams(nextPagePagination, sort);
-            const response = await api.get<PaginatedResponse<IDataset>>(
+            const response = await axiosClient.get<PaginatedResponse<IDataset>>(
               `/data/datasets/?${queryParams.toString()}`,
             );
             return response.data;
@@ -267,7 +274,7 @@ export default function useDatasets(
     filters,
     sort,
     queryClient,
-    api,
+
     buildQueryParams,
   ]);
 
@@ -286,14 +293,14 @@ export default function useDatasets(
   // Fetch user's bookmarks from backend
   const fetchBookmarks = useCallback(async () => {
     try {
-      const response = await api.get<BookmarkResponse[]>(
+      const response = await axiosClient.get<BookmarkResponse[]>(
         '/data/saved-datasets/',
       );
       return response.data.map((bookmark) => bookmark.dataset_id);
     } catch (error) {
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [auth.isAuthenticated, api]);
+  }, [auth.is_authenticated]);
 
   const {
     data: bookmarkedDatasetIds,
@@ -304,7 +311,7 @@ export default function useDatasets(
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    enabled: auth.isAuthenticated,
+    enabled: auth.is_authenticated,
     retry: (failureCount, error) => {
       if (error && 'status' in error && error.status === 404) {
         return false;

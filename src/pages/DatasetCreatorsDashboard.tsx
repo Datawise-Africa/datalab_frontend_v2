@@ -16,11 +16,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/context/AuthProvider';
 import DatasetCreatorDashboardDatasetCard from '@/components/dashboard/DatasetCreatorDashboardDatasetCard';
 import type { IDataset } from '@/lib/types/data-set';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuth } from '@/store/auth-store';
 type TabTypes = 'drafts' | 'published' | 'archived';
 
 export default function DatasetCreatorsDashboard() {
@@ -102,7 +102,7 @@ export default function DatasetCreatorsDashboard() {
         <div className="gap-2items-center flex flex-col justify-between md:flex-row">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Welcome, {auth.state.fullName}
+              Welcome, {auth.user?.full_name}
             </h1>
             <p className="mt-1 text-gray-600">
               Jump back in, or start something new.

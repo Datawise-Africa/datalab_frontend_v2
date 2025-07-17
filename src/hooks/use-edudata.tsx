@@ -1,13 +1,13 @@
 import type { IEdukenDataStructure } from '@/lib/types/edu-ken';
 import { useCallback, useEffect, useState } from 'react';
-import useApi from './use-api';
+import { useAxios } from './use-axios';
 
 export function useEduData() {
   const [countyData, setCountyData] = useState<IEdukenDataStructure | null>(
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
-  const { api } = useApi();
+  const axiosClient = useAxios();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -15,7 +15,7 @@ export function useEduData() {
       // const response = await fetch(
       //   `${REACT_PUBLIC_API_HOST}/data/edu_dashboard_data/`,
       // );
-      const { data } = await api.get<IEdukenDataStructure>(
+      const { data } = await axiosClient.get<IEdukenDataStructure>(
         '/data/edu_dashboard_data/',
       );
       // const data: IEdukenDataStructure = await response.json();
