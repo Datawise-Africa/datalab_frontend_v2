@@ -511,7 +511,7 @@ export const useDatasetFilterManager = () => {
   } = useDatasetFilters();
 
   const queryClient = useQueryClient();
-const {session_id} =useAuth()
+  const { session_id } = useAuth();
   const handleFilterChange = useCallback(
     (newFilters: DatasetFilterOptions) => {
       const prevActiveFilters = activeFiltersCount;
@@ -527,7 +527,9 @@ const {session_id} =useAuth()
         (prevActiveFilters === 0 && newActiveFilters > 0) ||
         (prevActiveFilters > 0 && newActiveFilters === 0)
       ) {
-        queryClient.invalidateQueries({ queryKey: datasetsKeys.lists(session_id!) });
+        queryClient.invalidateQueries({
+          queryKey: datasetsKeys.lists(session_id!),
+        });
       }
     },
     [activeFiltersCount, setFilters, queryClient],

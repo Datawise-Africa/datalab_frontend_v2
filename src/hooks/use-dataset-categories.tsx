@@ -4,7 +4,6 @@ import { extractCorrectErrorMessage } from '@/lib/error';
 import { datasetCategoriesKeys } from '@/lib/features/dataset-categories-keys';
 import { useAxios } from './use-axios';
 
-
 export interface IDatasetCategory {
   id: number;
   title: string;
@@ -12,7 +11,7 @@ export interface IDatasetCategory {
 }
 
 export function useDatasetCategories() {
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
 
   const fetchDatasetCategories = useCallback(async (): Promise<
     IDatasetCategory[]

@@ -10,7 +10,7 @@ const clientId =
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={clientId}>
-        <App />
+      <App />
     </GoogleOAuthProvider>
   </StrictMode>,
 );

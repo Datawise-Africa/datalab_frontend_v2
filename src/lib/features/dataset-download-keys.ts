@@ -4,8 +4,11 @@ export const datasetDownloadKeys = {
   all: ['dataset-downloads'] as const,
   lists: (pagination: PaginationParamsInterface, sessionId: string) =>
     [...datasetDownloadKeys.all, 'list', pagination, sessionId] as const,
-  list: (pagination: PaginationParamsInterface, params: Record<string, any>, sessionId: string) =>
-    [...datasetDownloadKeys.lists(pagination, sessionId), params] as const,
+  list: (
+    pagination: PaginationParamsInterface,
+    params: Record<string, any>,
+    sessionId: string,
+  ) => [...datasetDownloadKeys.lists(pagination, sessionId), params] as const,
   details: (id: string | number, sessionId: string) =>
     [...datasetDownloadKeys.all, 'details', id, sessionId] as const,
   search: (query: string, sessionId: string) =>

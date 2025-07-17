@@ -13,7 +13,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const authPerm = AuthPerm.getInstance();
   const { setIsAuthModalOpen, queue: authQueue } = useAuthContext();
-  const { is_authenticated, logout ,user} = useAuth();
+  const { is_authenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   // const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);

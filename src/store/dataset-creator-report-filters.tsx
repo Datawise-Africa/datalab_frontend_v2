@@ -53,13 +53,9 @@ export const useDatasetCreatorReportFiltersStore =
     getEncodedURLParams: () => {
       const { dataset, date_range, metrics } = get().filters;
       const urlParams = new URLSearchParams();
-      if (dataset.length > 0) {
-        urlParams.append('dataset', dataset.join('&dataset='));
-      }
+      dataset.forEach((ds) => urlParams.append('dataset', ds));
       urlParams.append('date_range', date_range);
-      if (metrics.length > 0) {
-        urlParams.append('metrics', metrics.join('&metrics='));
-      }
+      metrics.forEach((metric) => urlParams.append('metrics', metric));
       return urlParams.toString();
     },
   }));

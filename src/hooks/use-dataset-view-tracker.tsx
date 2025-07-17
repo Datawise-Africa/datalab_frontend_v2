@@ -9,7 +9,6 @@ export function useDatasetViewTracker(datasetId: string) {
   const auth = useAuth();
   const axiosClient = useAxios();
 
-
   function updateViewCount(datasetId: string) {
     return axiosClient.post(
       `/data/datasets/${datasetId}/track_view/`,

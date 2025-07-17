@@ -34,8 +34,6 @@ export const useAxios = (): AxiosInstance => {
   // 1) Attach JWT to *every* outgoing request
   client.interceptors.request.use(
     (config) => {
-
-
       if (accessTokenToUse && !isAuthPageUrl(config.url)) {
         config.headers!['Authorization'] = `JWT ${accessTokenToUse}`;
         config.headers!['X-Requested-With'] = 'XMLHttpRequest';
@@ -68,7 +66,6 @@ export const useAxios = (): AxiosInstance => {
         }
 
         try {
-
           // Logout the user
           store.logout();
           // const originalToken = store.access_token;

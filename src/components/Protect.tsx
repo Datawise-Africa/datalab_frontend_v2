@@ -13,7 +13,7 @@ type ProtectProps = {
   props?: BasePropType;
 };
 export default function Protect({ role, Component, props = {} }: ProtectProps) {
-  const { is_authenticated ,user} = useAuth();
+  const { is_authenticated, user } = useAuth();
   const perm = AuthPerm.getInstance();
   const userHasAccess = useMemo(() => {
     return (

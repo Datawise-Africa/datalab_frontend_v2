@@ -15,9 +15,7 @@ function customRender(ui: ReactElement, options?: CustomRenderOptions) {
   return render(ui, {
     wrapper: ({ children }) => (
       <BrowserRouter>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </BrowserRouter>
     ),
     ...options,

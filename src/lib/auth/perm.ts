@@ -51,7 +51,7 @@ export class AuthPerm {
     authRole: AuthUserRoleType,
     userRole: AuthUserRoleType,
   ): boolean {
-    if( !userRole) {
+    if (!userRole) {
       return false;
     }
     if (!this.isValidRole(authRole)) {

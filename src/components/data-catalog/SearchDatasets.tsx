@@ -3,7 +3,6 @@ import type { IDataset } from '@/lib/types/data-set';
 import { cn } from '@/lib/utils';
 import { useAxios } from '@/hooks/use-axios';
 
-
 type SearchDatasetsProps = {
   className?: string;
   onSearchResults: (results: IDataset[]) => void;
@@ -18,7 +17,7 @@ const SearchDatasets = ({
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const fetchResults = async () => {
     if (!searchText.trim()) {
       setError(null);

@@ -14,16 +14,19 @@ export interface IFormAuthor {
 }
 
 export function useAuthors() {
-
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const fetchAuthors = useCallback(async (): Promise<IFormAuthor[]> => {
     try {
-      const { data } = await axiosClient.get<IFormAuthor[]>('/data/dataset-authors/');
+      const { data } = await axiosClient.get<IFormAuthor[]>(
+        '/data/dataset-authors/',
+      );
       return data;
     } catch (error) {
       // Fixed typo: "licences" -> "authors"
       console.error('Error fetching authors:', error);
-      throw new Error(extractCorrectErrorMessage(error, 'Failed to fetch authors'));
+      throw new Error(
+        extractCorrectErrorMessage(error, 'Failed to fetch authors'),
+      );
     }
   }, []);
 

@@ -20,7 +20,7 @@ const AuthModal = () => {
   const axiosClient = useAxios();
   const [isSignUp, setIsSignUp] = useState(false);
   const [serverErrors, setServerErrors] = useState<string[]>([]);
-const authStore = useAuthStore();
+  const authStore = useAuthStore();
   // const authModal = useAuthModal();
   const {
     setIsAuthModalOpen,
