@@ -15,7 +15,7 @@ import {
 } from '@/constants/pagination';
 import type { UploadDatasetSchemaType } from '@/lib/schema/upload-dataset-schema';
 import { useAxios } from './use-axios';
-
+import { useAuth } from '@/store/auth-store';
 
 export interface DatasetMutationCallbacks {
   onSuccess?: (data: IDataset) => void;
@@ -29,6 +29,7 @@ export function useDatasetCreatorDatasets(
   initialFilters: DatasetFilters = {},
   initialPagination: PaginationParamsInterface = DEFAULT_PAGINATION,
 ) {
+  const { session_id } = useAuth();
   const axiosClient = useAxios();
   const [filters, setFilters] = useState<DatasetFilters>(initialFilters);
   const [pagination, setPagination] =
@@ -36,8 +37,6 @@ export function useDatasetCreatorDatasets(
   const [paginationMeta, setPaginationMeta] = useState<PaginationMetaInterface>(
     DEFAULT_PAGINATION_META,
   );
-
-
 
   const endpoints: Record<DatasetStatus, string> = {
     DF: '/data/datasets-drafts',
@@ -80,11 +79,17 @@ export function useDatasetCreatorDatasets(
       console.error(`Error fetching ${status} datasets:`, error);
       throw new Error(extractCorrectErrorMessage(error));
     }
-  }, [ status, queryParams]);
+  }, [status, queryParams]);
 
   // Query key that includes all parameters for proper caching
   const queryKey = useMemo(
-    () => datasetCreatorDatasetkeys.byStatus(status, filters, pagination),
+    () =>
+      datasetCreatorDatasetkeys.byStatus(
+        status,
+        filters,
+        pagination,
+        session_id!,
+      ),
     [status, filters, pagination],
   );
 
@@ -195,7 +200,8 @@ export function useMultipleDatasetStatuses(
 
 // Dataset mutations hook
 export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
+  const { session_id } = useAuth();
   const queryClient = useQueryClient();
   type UpdateMutationType = [IDataset['id'], UploadDatasetSchemaType];
 
@@ -264,7 +270,12 @@ const axiosClient = useAxios();
     onSuccess: (data) => {
       // Update the specific dataset in cache
       queryClient.setQueryData(
-        datasetCreatorDatasetkeys.byStatus('DF', {}, { page: 1, limit: 10 }),
+        datasetCreatorDatasetkeys.byStatus(
+          'DF',
+          {},
+          { page: 1, limit: 10 },
+          session_id!,
+        ),
         (oldData: IDataset[] | undefined) => {
           if (!oldData) return [data];
           const index = oldData.findIndex((dataset) => dataset.id === data.id);
@@ -308,7 +319,12 @@ const axiosClient = useAxios();
     onSuccess: (data) => {
       // Remove from draft cache and add to published cache
       queryClient.setQueryData(
-        datasetCreatorDatasetkeys.byStatus('DF', {}, { page: 1, limit: 10 }),
+        datasetCreatorDatasetkeys.byStatus(
+          'DF',
+          {},
+          { page: 1, limit: 10 },
+          session_id!,
+        ),
         (oldData: IDataset[] | undefined) => {
           if (!oldData) return [];
           return oldData.filter((dataset) => dataset.id !== data.id);
@@ -316,7 +332,12 @@ const axiosClient = useAxios();
       );
 
       queryClient.setQueryData(
-        datasetCreatorDatasetkeys.byStatus('PB', {}, { page: 1, limit: 10 }),
+        datasetCreatorDatasetkeys.byStatus(
+          'PB',
+          {},
+          { page: 1, limit: 10 },
+          session_id!,
+        ),
         (oldData: IDataset[] | undefined) => {
           if (!oldData) return [data];
           return [data, ...oldData];

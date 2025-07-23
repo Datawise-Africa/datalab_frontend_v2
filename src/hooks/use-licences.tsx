@@ -51,13 +51,13 @@ const transformLicenceData = (licenceResp: LicenceResponse): ILicence[] =>
   }));
 
 export function useLicences() {
-
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   // Memoize the fetch function to prevent unnecessary re-renders
   const fetchLicences = useMemo(
     () => async (): Promise<ILicence[]> => {
       try {
-        const response = await axiosClient.get<LicenceResponse>('/data/license/');
+        const response =
+          await axiosClient.get<LicenceResponse>('/data/license/');
         return transformLicenceData(response.data);
       } catch (error) {
         console.error('Error fetching licences:', error);

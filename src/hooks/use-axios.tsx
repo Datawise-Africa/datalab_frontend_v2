@@ -1,149 +1,112 @@
 import { useAuthStore } from '@/store/auth-store';
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+  type AxiosError,
+} from 'axios';
+import { useMemo } from 'react';
 
-// Global flag to track if a token refresh is in progress
-let isRefreshing = false;
-// Store for callbacks to be executed after token refresh
-let refreshSubscribers: ((token: string) => void)[] = [];
-
+const AUTH_PATHS = ['login', 'register', 'refresh'];
 /**
- * Subscribe callback function to be executed after token refresh
+ * Checks if the URL is part of the authentication paths
+ * @param url The URL to check
+ * @returns True if the URL is an auth path, false otherwise
  */
-const subscribeTokenRefresh = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
-};
+const isAuthPageUrl = (url?: string) =>
+  AUTH_PATHS.some((p) => !!url?.includes(p));
 
-/**
- * Execute all callbacks with the new token after refresh completes
- */
-const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-};
-
-export const useAxios = () => {
-  const VITE_APP_API_URL =
-    import.meta.env.VITE_APP_API_URL || 'https://backend.datawiseafrica.com';
+// Hook to get a configured Axios instance with JWT auto-refresh
+export const useAxios = (): AxiosInstance => {
   const store = useAuthStore();
-  // Create Axios instance
-  const axiosClient = axios.create({
-    baseURL: VITE_APP_API_URL,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    // Add timeout to prevent hanging requests
-    timeout: 30000, // 30 seconds
+  const API_URL =
+    import.meta.env.VITE_APP_API_URL || 'https://backend.datawiseafrica.com';
+
+  const client = axios.create({
+    baseURL: API_URL,
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 30_000,
   });
 
-  // Request interceptor
-  axiosClient.interceptors.request.use(
+  const accessTokenToUse = useMemo(() => {
+    return store.access_token || '';
+  }, [store.access_token]);
+
+  // 1) Attach JWT to *every* outgoing request
+  client.interceptors.request.use(
     (config) => {
-      const token = store.access_token;
-
-      if (token) {
-        config.headers.Authorization = `JWT ${store.access_token}`;
+      if (accessTokenToUse && !isAuthPageUrl(config.url)) {
+        config.headers!['Authorization'] = `JWT ${accessTokenToUse}`;
+        config.headers!['X-Requested-With'] = 'XMLHttpRequest';
       }
-
-      // Add AbortController support
-      if (!config.signal) {
-        const controller = new AbortController();
-        config.signal = controller.signal;
-      }
-
       return config;
     },
-    (error) => Promise.reject(error),
+    (err) => Promise.reject(err),
   );
 
-  // Response interceptor
-  axiosClient.interceptors.response.use(
-    (response) => response,
+  // 2) Global response handler to catch 401s & retry once
+  client.interceptors.response.use(
+    (res) => res,
     async (error: AxiosError) => {
-      const originalRequest = error.config as InternalAxiosRequestConfig & {
+      const origReq = error.config as InternalAxiosRequestConfig & {
         _retry?: boolean;
       };
+      // only handle if we got a 401, we're not already retrying, and
+      // it's not the login/register/refresh endpoint itself
+      if (
+        error.response?.status === 401 &&
+        !origReq._retry &&
+        !isAuthPageUrl(origReq.url)
+      ) {
+        origReq._retry = true;
 
-      // If error is 401 and we haven't already tried to refresh the token
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-
-        // If refresh is already in progress, wait for the new token
-        if (isRefreshing) {
-          try {
-            return new Promise((resolve) => {
-              // Once token is refreshed, retry original request with new token
-              subscribeTokenRefresh((token: string) => {
-                originalRequest.headers.Authorization = `JWT ${token}`;
-                resolve(axiosClient(originalRequest));
-              });
-            });
-          } catch (waitError) {
-            return Promise.reject(waitError);
-          }
+        // if no refresh token, bail out
+        if (!store.refresh_token) {
+          // store.logout();
+          return Promise.reject(error);
         }
 
-        // Set refreshing flag
-        isRefreshing = true;
-
         try {
-          const refreshToken = store.refresh_token;
-
-          if (!refreshToken) {
-            // No refresh token available, logout user
-            store.logout();
-            isRefreshing = false;
-            return Promise.reject(error);
-          }
-
-          // Create specific AbortController for the refresh request
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => {
-            controller.abort('Token refresh timeout after 10s');
-          }, 10000); // 10 seconds timeout
-
-          // Request new access token using refresh token
-          type RefreshResponseDataType = {
-            access_token: string;
-            refresh_token: string;
-          };
-          console.log('Attempting to refresh token');
-          const { data } = await axiosClient.post<RefreshResponseDataType>(
-            '/auth/refresh-token/',
-            { refresh_token: refreshToken },
-            { signal: controller.signal }
-          );
-
-          // Clear the timeout since request completed
-          clearTimeout(timeoutId);
-
-          const { access_token, refresh_token } = data;
-
-          // Update auth store with new tokens
-          store.setTokens(access_token, refresh_token);
-
-          // Update the original request with the new token
-          originalRequest.headers.Authorization = `JWT ${access_token}`;
-
-          // Notify all pending requests that token has been refreshed
-          onRefreshed(access_token);
-
-          // Reset refreshing flag
-          isRefreshing = false;
-
-          // Retry the original request
-          return axiosClient(originalRequest);
-        } catch (refreshError) {
-          // Refresh token failed, logout the user
-          console.error('Token refresh failed:', refreshError);
+          // Logout the user
           store.logout();
-          isRefreshing = false;
-          refreshSubscribers = [];
+          // const originalToken = store.access_token;
+          // // 3) grab a fresh pair
+          // const { data } = await axios.post<{
+          //   access_token: string;
+          //   refresh_token: string;
+          // }>(`${API_URL}/auth/refresh-token/`, {
+          //   refresh_token: store.refresh_token,
+          // });
+          // const tokenDetails = {
+          //   or_store: { access: store.access_token, refresh: store.refresh_token },
+          // };
+          // // 4) stash them in your Zustand store
+          // store.setTokens(data.access_token, data.refresh_token);
+          // tokenDetails['new_store'] = {
+          //   access: store.access_token,
+          //   refresh: store.refresh_token,
+          // };
+          // tokenDetails['req_token'] = data;
+          // console.log({ tokenDetails });
+
+          // // 5) update the original request and retry it
+          // origReq.headers!['Authorization'] = `JWT ${accessTokenToUse}`;
+          // console.log(
+          //   `Retrying request with new token: ${data.access_token}, Store token: ${store.access_token}, Original token: ${originalToken}`,
+          // );
+
+          // return client(origReq);
+        } catch (refreshError) {
+          // refresh also failed → really log out
+          console.error('Refresh failed:', refreshError);
+          store.logout();
           return Promise.reject(refreshError);
         }
       }
 
+      // all other errors get bubbled up
       return Promise.reject(error);
     },
   );
-  return axiosClient;
+
+  return client;
 };

@@ -35,7 +35,7 @@ class BookmarkError extends Error {
 export function useBookmarks(options: UseBookmarksOptions = {}) {
   const { enableAutoRefresh = true } = options;
   const auth = useAuth();
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   // Fetch bookmarked datasets

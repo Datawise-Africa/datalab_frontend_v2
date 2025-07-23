@@ -5,7 +5,7 @@ import { extractCorrectErrorMessage } from '@/lib/error';
 import { useAxios } from './use-axios';
 
 export function useTermsAndConditions() {
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const fetchTermsAndConditions = useCallback(async () => {
     try {
       const res = await axiosClient.get('/data/terms-and-conditions/');

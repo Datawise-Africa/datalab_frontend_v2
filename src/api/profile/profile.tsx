@@ -7,8 +7,6 @@ import type {
 import { useAuth } from '@/store/auth-store';
 import { useAxios } from '@/hooks/use-axios';
 
-
-
 export type UserProfileType = {
   id: string;
   email: string;
@@ -33,7 +31,7 @@ export type UserProfileUpdateType = Omit<UserProfileType, 'id'> & {
 
 export function useUserProfile() {
   const { is_authenticated } = useAuth();
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   async function fetchProfile(): Promise<UserProfileType> {
@@ -44,7 +42,10 @@ const axiosClient = useAxios();
   async function updateProfile(
     profileData: UpdateUserProfileDataType,
   ): Promise<UserProfileType> {
-    const { data } = await axiosClient.put<UserProfileType>('/auth/me/', profileData);
+    const { data } = await axiosClient.put<UserProfileType>(
+      '/auth/me/',
+      profileData,
+    );
     return data;
   }
 

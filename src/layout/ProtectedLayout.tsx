@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom';
 
 export default function ProtectedLayout() {
   const { setIsAuthModalOpen, isAuthModalOpen } = useAuthContext();
-  const { is_authenticated, user } = useAuthStore();
+  const { is_authenticated } = useAuthStore();
   const authCheck = useCallback(() => {}, [is_authenticated]);
   useEffect(() => {
     if (!is_authenticated) {
@@ -14,7 +14,6 @@ export default function ProtectedLayout() {
 
       setIsAuthModalOpen(true);
     }
-    console.log({ is_authenticated, user });
   }, [is_authenticated]);
   useEffect(() => {
     authCheck();

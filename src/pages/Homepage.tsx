@@ -20,7 +20,7 @@ const Homepage = () => {
   } = useDatasetStore();
   // const [selectedDataset, setSelectedDataset] = useState<IDataset | null>(null);
   // const [downloadDataset, setDownloadDataset] = useState<IDataset | null>(null);
-  const { queue ,setIsAuthModalOpen} = useAuthContext();
+  const { queue, setIsAuthModalOpen } = useAuthContext();
   const { is_authenticated } = useAuth();
   const datasets = useDatasets();
   const dataModal = useDataModal();
@@ -55,7 +55,9 @@ const Homepage = () => {
       <main className="flex-1 py-8">
         <DatasetFilterToolbar />
 
-        {datasets.isLoading ? (
+        {datasets.isLoading ||
+        datasets.isDatasetsLoading ||
+        datasets.isFilteredDataLoading ? (
           <DatasetCardSkeleton />
         ) : (
           <DatasetGrid

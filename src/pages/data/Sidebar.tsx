@@ -13,7 +13,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const authPerm = AuthPerm.getInstance();
   const { setIsAuthModalOpen, queue: authQueue } = useAuthContext();
-  const { is_authenticated, logout ,user} = useAuth();
+  const { is_authenticated, logout, user } = useAuth();
   const navigate = useNavigate();
   // const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -174,7 +174,7 @@ export default function Sidebar() {
           )}
 
           {is_authenticated &&
-            authPerm.hasPermission('dataset_creator', user!.user_role) && (
+            authPerm.hasPermission('dataset_creator', user?.user_role!) && (
               <Link
                 to={'/app/dataset-creator-dashboard'}
                 className={`mb-8 flex w-full items-center justify-center rounded bg-gradient-to-b from-[#115443] to-[#26A37E] text-white ${

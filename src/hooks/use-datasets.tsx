@@ -39,7 +39,7 @@ export default function useDatasets(
   datasetId?: string, // Optional datasetId for single dataset queries
 ) {
   const auth = useAuth();
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
   const queryClient = useQueryClient();
 
   // Use Zustand store selectors
@@ -58,7 +58,7 @@ const axiosClient = useAxios();
   const { sort } = useDatasetSort();
 
   const { showModal } = useDatasetModal();
-
+  const { session_id } = useAuth();
   const { isLoading: storeIsLoading, isLoadingNewPage: storeIsLoadingNewPage } =
     useDatasetUI();
 
@@ -84,7 +84,7 @@ const axiosClient = useAxios();
     isLoading: isDatasetsLoading,
     error: datasetsError,
   } = useQuery({
-    queryKey: datasetsKeys.list(pagination, sort),
+    queryKey: datasetsKeys.list(pagination, sort, session_id!),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const queryParams = buildQueryParams(pagination, sort);
       const response = await axiosClient.get<PaginatedResponse<IDataset>>(
@@ -118,7 +118,7 @@ const axiosClient = useAxios();
     isLoading: isFilteredDataLoading,
     error: filteredError,
   } = useQuery({
-    queryKey: datasetsKeys.filtered(filters, pagination, sort),
+    queryKey: datasetsKeys.filtered(filters, pagination, sort, session_id!),
     queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
       const filtersParams = datasetFiltersToSearchParams(filters);
       const queryParams = buildQueryParams(pagination, sort);
@@ -143,15 +143,15 @@ const axiosClient = useAxios();
       }
       return failureCount < 2;
     },
-    initialData: () => {
-      if (activeFiltersCount > 0) {
-        return {
-          data: [],
-          meta: DEFAULT_PAGINATION_META,
-        };
-      }
-      return undefined;
-    },
+    // initialData: () => {
+    //   if (activeFiltersCount > 0) {
+    //     return {
+    //       data: [],
+    //       meta: DEFAULT_PAGINATION_META,
+    //     };
+    //   }
+    //   return undefined;
+    // },
   });
   // Single dataset
   const {
@@ -159,9 +159,11 @@ const axiosClient = useAxios();
     isLoading: isSingleDatasetLoading,
     error: singleDatasetError,
   } = useQuery({
-    queryKey: datasetsKeys.detail(datasetId || ''),
+    queryKey: datasetsKeys.detail(datasetId || '', session_id!),
     queryFn: async () => {
-      const response = await axiosClient.get<IDataset>(`/data/datasets/${datasetId}/`);
+      const response = await axiosClient.get<IDataset>(
+        `/data/datasets/${datasetId}/`,
+      );
       return response.data;
     },
     enabled: Boolean(datasetId),
@@ -231,7 +233,12 @@ const axiosClient = useAxios();
 
       if (activeFiltersCount > 0) {
         await queryClient.prefetchQuery({
-          queryKey: datasetsKeys.filtered(filters, nextPagePagination, sort),
+          queryKey: datasetsKeys.filtered(
+            filters,
+            nextPagePagination,
+            sort,
+            session_id!,
+          ),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const filtersParams = datasetFiltersToSearchParams(filters);
             const queryParams = buildQueryParams(nextPagePagination, sort);
@@ -248,7 +255,7 @@ const axiosClient = useAxios();
         });
       } else {
         await queryClient.prefetchQuery({
-          queryKey: datasetsKeys.list(nextPagePagination, sort),
+          queryKey: datasetsKeys.list(nextPagePagination, sort, session_id!),
           queryFn: async (): Promise<PaginatedResponse<IDataset>> => {
             const queryParams = buildQueryParams(nextPagePagination, sort);
             const response = await axiosClient.get<PaginatedResponse<IDataset>>(

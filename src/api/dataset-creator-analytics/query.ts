@@ -55,13 +55,14 @@ export const useDatasetCreatorAnalyticsQuery = () => {
   const { selectedDatasetId, setSelectedDatasetId } = useSelectedDatasetId();
   const { filters } = useDatasetCreatorAnalyticsFilters();
   const auth = useAuth();
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
 
   async function fetchDatasetCreatorAnalytics() {
     try {
-      const { data } = await axiosClient.get<DatasetCreatorOverviewAnalyticsType>(
-        `/data/datasets-analytics/`,
-      );
+      const { data } =
+        await axiosClient.get<DatasetCreatorOverviewAnalyticsType>(
+          `/data/datasets-analytics/`,
+        );
 
       return data;
     } catch (error) {

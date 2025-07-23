@@ -7,7 +7,7 @@ export function useEduData() {
     null,
   );
   const [isLoading, setIsLoading] = useState(true);
-const axiosClient = useAxios();
+  const axiosClient = useAxios();
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);

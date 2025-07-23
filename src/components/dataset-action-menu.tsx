@@ -29,7 +29,7 @@ export function DatasetActionsMenu({ dataset }: DatasetActionsMenuProps) {
   const downloadDataModal = useDownloadDataModal();
   // const { id: datasetId, title: datasetTitle } = dataset;
   const auth = useAuth();
-  const {setIsAuthModalOpen,queue}=useAuthContext();
+  const { setIsAuthModalOpen, queue } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleDownloadDataClick = (dataset: IDataset) => {

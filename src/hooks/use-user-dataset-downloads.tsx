@@ -38,13 +38,15 @@ export function useUserDownloadedDatasets() {
       ...newPagination,
     }));
   }
-  const auth = useAuth();
-  const userId = auth?.user?.user_id;
 
+  const { session_id, user } = useAuth();
+  const userId = user?.user_id;
 
   async function fetchUserDownloadedDatasets() {
     try {
-      const response = await axiosClient.get<PaginatedResponse<DownloadedDatasetType>>(
+      const response = await axiosClient.get<
+        PaginatedResponse<DownloadedDatasetType>
+      >(
         `/data/dataset_downloads/?page=${pagination.page}&limit=${pagination.limit}`,
       );
       return response.data; // Assuming the API returns an array of downloaded datasets
@@ -55,7 +57,7 @@ export function useUserDownloadedDatasets() {
   }
 
   const userDownloadsQuery = useQuery({
-    queryKey: datasetDownloadKeys.userDownloads(userId!),
+    queryKey: datasetDownloadKeys.userDownloads(userId!, session_id!),
     queryFn: fetchUserDownloadedDatasets,
     enabled: !!userId, // Only run the query if userId is available
     refetchOnWindowFocus: false, // Optional: Prevent refetching on window focus
