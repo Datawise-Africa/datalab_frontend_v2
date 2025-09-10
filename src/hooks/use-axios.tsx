@@ -35,7 +35,7 @@ export const useAxios = (): AxiosInstance => {
   client.interceptors.request.use(
     (config) => {
       if (accessTokenToUse && !isAuthPageUrl(config.url)) {
-        config.headers!['Authorization'] = `JWT ${accessTokenToUse}`;
+        config.headers!['Authorization'] = `Bearer ${accessTokenToUse}`;
         config.headers!['X-Requested-With'] = 'XMLHttpRequest';
       }
       return config;
