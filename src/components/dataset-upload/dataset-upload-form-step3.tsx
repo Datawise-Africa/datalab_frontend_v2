@@ -165,12 +165,12 @@ export default function DatasetUploadFormStep3({
                       <FormControl className="">
                         <Select {...field} onValueChange={field.onChange}>
                           <SelectTrigger className="border-primary/30 w-full">
-                            <SelectValue placeholder="Mr./Mrs." />
+                            <SelectValue placeholder="Mr./Mrs."  className='placeholder:text-gray-400'/>
                           </SelectTrigger>
                           <SelectContent className="border-primary/30 w-full bg-white">
-                            {USER_TITLES.map((title) => (
-                              <SelectItem key={title} value={title}>
-                                {title}
+                            {USER_TITLES.map(({label,value}) => (
+                              <SelectItem key={value} value={value!}>
+                                {label}
                               </SelectItem>
                             ))}
                           </SelectContent>
