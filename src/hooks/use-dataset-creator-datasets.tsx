@@ -363,8 +363,9 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     ]: UpdateMutationType): Promise<IDataset> => {
       try {
         const transformedData = transformData(updateData);
+        (transformedData as any)['status'] = 'PB'; // Keep the status as is
         const response = await axiosClient.put<IDataset>(
-          `${updateEndpoint}${id}/`,
+          `${createDatasetEndpoint}${id}/`,
           transformedData,
         );
         return response.data;
