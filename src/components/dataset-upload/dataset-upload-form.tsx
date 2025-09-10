@@ -111,11 +111,8 @@ export default function DatasetUploadForm({
   const dbAuthors = useAuthors();
   const licences = useLicences();
   const categories = useDatasetCategories();
-  // const api = useApi().privateApi;
-  const mut = useDatasetMutations();
-  const form = useForm({
-    resolver: zodResolver(uploadDatasetSchema),
-    defaultValues: {
+  const formDefaults = useMemo(() => {
+    return {
       step_1: {
         dataset_id: undefined,
         category: undefined,
@@ -152,7 +149,13 @@ export default function DatasetUploadForm({
           rights_ownership: false,
         },
       },
-    },
+    } as unknown as UploadDatasetSchemaType;
+  }, []);
+  // const api = useApi().privateApi;
+  const mut = useDatasetMutations();
+  const form = useForm({
+    resolver: zodResolver(uploadDatasetSchema),
+    defaultValues: formDefaults,
     mode: 'onChange',
   });
 
@@ -237,7 +240,7 @@ export default function DatasetUploadForm({
     mut.isSavingDraft;
 
   const resetFormWithDefaults = useCallback(() => {
-    if (dataset) {
+    if (dataset && isFormModalOpen) {
       form.reset({
         step_1: {
           category: ('' + dataset.category?.id) as unknown as number,
@@ -300,8 +303,12 @@ export default function DatasetUploadForm({
       resetFormWithDefaults();
       setStep(1);
       setError(null);
+    } else {
+      form.reset(formDefaults);
+      setStep(1);
+      setError(null);
     }
-  }, [isFormModalOpen, resetFormWithDefaults]);
+  }, [isFormModalOpen, resetFormWithDefaults, isFormModalOpen]);
   const isLastStep = step === _steps.length;
 
   const formType = useMemo(() => {
@@ -311,7 +318,7 @@ export default function DatasetUploadForm({
     return isUpdate ? 'update' : 'create';
   }, [form.watch('step_1.dataset_id')]);
 
-  const createdDataset = form.handleSubmit(async (data) => {
+  const createNewDataset = form.handleSubmit(async (data) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -415,7 +422,7 @@ export default function DatasetUploadForm({
   return (
     <Dialog open={isFormModalOpen} onOpenChange={handleToggleFormModal}>
       <Form {...form}>
-        <form className="w-full text-sm" onSubmit={createdDataset}>
+        <form className="w-full text-sm" onSubmit={createNewDataset}>
           <DialogTrigger asChild>
             <Button
               type={'button'}
@@ -621,7 +628,7 @@ export default function DatasetUploadForm({
                         </Button>
                       ) : (
                         <Button
-                          onClick={createdDataset}
+                          onClick={createNewDataset}
                           disabled={isFormLoading}
                           variant="default"
                           type="button"
