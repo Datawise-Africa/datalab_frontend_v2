@@ -256,9 +256,9 @@ export function useDatasetMutations(callbacks: DatasetMutationCallbacks = {}) {
     mutationFn: async (payload: UploadDatasetSchemaType): Promise<IDataset> => {
       try {
         const payloadData = transformData(payload);
-
+        (payloadData as any)['status'] = 'DF'; // Ensure draft status
         const response = await axiosClient.post<IDataset>(
-          `${updateEndpoint}`,
+          `${createDatasetEndpoint}`,
           payloadData,
         );
         return response.data;
