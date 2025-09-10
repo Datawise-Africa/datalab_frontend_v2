@@ -413,13 +413,13 @@ export default function ProfileSettings() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="border-primary/30 w-full border bg-white">
-                        {USER_TITLES.map((title) => (
+                        {USER_TITLES.map(({label,value}) => (
                           <SelectItem
-                            key={title}
-                            value={title}
+                            key={value}
+                            value={value!}
                             className={cn('hover:bg-primary/30')}
                           >
-                            {title}
+                            {label}
                           </SelectItem>
                         ))}
                       </SelectContent>
