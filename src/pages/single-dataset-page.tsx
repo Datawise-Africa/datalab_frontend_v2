@@ -14,24 +14,32 @@ import DownloadDataModal from '@/components/data-catalog/DownloadDataModal';
 import { CsvHandler } from '@/lib/utils/csv-handler';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import BeautifulCsvTable from '@/components/data-catalog/beautiful-csv-datatable';
+import { useAxios } from '@/hooks/use-axios';
 
 export default function SingleDatasetPage() {
   const { id } = useParams<{ id: string }>();
-  const { singleDataset, isSingleDatasetLoading } = useDatasets(id);
+  const api = useAxios();
+  const { singleDataset, isSingleDatasetLoading, singleDatasetRefetch } =
+    useDatasets(id);
   const [csvJsonData, setCsvJSONData] = useState<any[]>([]);
   const { isTracking } = useDatasetViewTracker(id!);
   const { downloadDataset } = useDatasetStore();
   const downloadDataModal = useDownloadDataModal();
-  const handleRatingSubmit = async (rating: number, comment?: string) => {
-    // Implement your rating submission logic here
-    console.log('Submitting rating:', { datasetId: id, rating, comment });
 
-    // Example API call:
-    // await submitDatasetRating(id!, rating, comment);
-
-    // For now, just simulate a delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-  };
+  const handleEditReview = useCallback(
+    async (reviewId: number, rating: number, comment: string) => {
+      try {
+        await api.patch(`/data/reviews/${reviewId}/`, {
+          rating,
+          comment,
+        });
+        await singleDatasetRefetch();
+      } catch (error) {
+        console.error('Failed to update review:', error);
+      }
+    },
+    [api],
+  );
 
   const checkCsvData = useCallback(async () => {
     if (!singleDataset || singleDataset.data_files.length === 0) {
@@ -198,17 +206,6 @@ export default function SingleDatasetPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-              {/* <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Data Collection Methodology
-                </h3>
-                <p className="leading-relaxed text-gray-600">
-                  Data collected through a combination of satellite imagery,
-                  ground surveys, and government agricultural census reports.
-                  All data points validated by local agricultural extension
-                  officers.
-                </p>
-              </div> */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold text-gray-900">
                   Usage License
@@ -227,17 +224,11 @@ export default function SingleDatasetPage() {
 
         {/* Rating Section */}
         <SingleDatasetRating
-          datasetId={id}
-          reviewCount={singleDataset.review_count}
-          averageRating={singleDataset.average_review}
-          onRatingSubmit={handleRatingSubmit}
+          dataset={singleDataset}
+          onEditReview={handleEditReview}
         />
         {downloadDataset && downloadDataModal.isOpen && (
-          <DownloadDataModal
-            dataset={downloadDataset}
-            // isOpen={downloadDataModal.isOpen}
-            // close={downloadDataModal.close}
-          />
+          <DownloadDataModal dataset={downloadDataset} />
         )}
       </div>
     </div>

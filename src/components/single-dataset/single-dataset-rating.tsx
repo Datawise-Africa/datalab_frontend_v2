@@ -2,149 +2,210 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Star, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { StarRating } from '@/components/ui/star-rating';
+import { Star, User, Edit2, Save, X } from 'lucide-react';
+import { useAuthStore } from '@/store/auth-store';
+import type { IDataset, DatasetReviewType } from '@/lib/types/data-set';
 
 interface SingleDatasetRatingProps {
-  datasetId: string;
-  currentRating?: number;
-  reviewCount: number;
-  averageRating: number;
-  onRatingSubmit?: (rating: number, comment?: string) => Promise<void>;
+  dataset: IDataset;
+  onEditReview?: (reviewId: number, rating: number, comment: string) => Promise<void>;
 }
 
 export function SingleDatasetRating({
-  currentRating = 0,
-  reviewCount,
-  averageRating,
-  onRatingSubmit,
+  dataset,
+  onEditReview,
 }: SingleDatasetRatingProps) {
-  const [rating, setRating] = useState(currentRating);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState('');
+  const { reviews, review_count, average_review } = dataset;
+  const { user } = useAuthStore();
+  const [editingReview, setEditingReview] = useState<number | null>(null);
+  const [editRating, setEditRating] = useState<number>(0);
+  const [editComment, setEditComment] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCommentBox, setShowCommentBox] = useState(false);
 
-  const handleRatingClick = (newRating: number) => {
-    setRating(newRating);
-    setShowCommentBox(true);
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
   };
 
-  const handleSubmit = async () => {
-    if (rating === 0) return;
+  const handleEditStart = (review: DatasetReviewType) => {
+    setEditingReview(review.id);
+    setEditRating(review.rating);
+    setEditComment(review.comment || '');
+  };
+
+  const handleEditCancel = () => {
+    setEditingReview(null);
+    setEditRating(0);
+    setEditComment('');
+  };
+
+  const handleEditSubmit = async (reviewId: number) => {
+    if (!onEditReview || editRating === 0) return;
 
     setIsSubmitting(true);
     try {
-      await onRatingSubmit?.(rating, comment);
-      setShowCommentBox(false);
-      setComment('');
+      await onEditReview(reviewId, editRating, editComment);
+      setEditingReview(null);
+      setEditRating(0);
+      setEditComment('');
     } catch (error) {
-      console.error('Failed to submit rating:', error);
+      console.error('Failed to update review:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const canEditReview = (review: DatasetReviewType) => {
+    return user && user.user_id === review.user.id;
+  };
+
+
 
   return (
     <Card className="border-gray-200 bg-white">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Star className="h-5 w-5 text-yellow-500" />
-          Rate this dataset
+          Reviews & Ratings
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Current Rating Display */}
+        {/* Overall Rating Summary */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={cn(
-                  'h-6 w-6',
-                  star <= averageRating
-                    ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300',
-                )}
-              />
-            ))}
+            <StarRating rating={average_review} readonly size="md" />
           </div>
           <div className="text-sm text-gray-600">
-            <span className="font-semibold">{averageRating ?? 0}</span> (
-            {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
+            <span className="font-semibold">{average_review?.toFixed(1) ?? 0}</span> (
+            {review_count} {review_count === 1 ? 'review' : 'reviews'})
           </div>
         </div>
 
-        {/* Rating Input */}
-        <div className="space-y-4">
-          <p className="font-medium text-gray-700">Your rating:</p>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                className="rounded-full p-1 transition-colors hover:bg-gray-100"
-                onMouseEnter={() => setHoverRating(star)}
-                onMouseLeave={() => setHoverRating(0)}
-                onClick={() => handleRatingClick(star)}
-              >
-                <Star
-                  className={cn(
-                    'h-8 w-8 cursor-pointer transition-all duration-200',
-                    {
-                      'scale-110 fill-yellow-400 text-yellow-400':
-                        star <= (hoverRating || rating),
-                      'text-gray-300 hover:text-yellow-300':
-                        star > (hoverRating || rating),
-                    },
+        {/* Reviews List */}
+        {reviews && reviews.length > 0 ? (
+          <div className="space-y-4">
+            <h3 className="font-medium text-gray-900">Recent Reviews</h3>
+            <div className="space-y-4">
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+                >
+                  {editingReview === review.id ? (
+                    // Edit Mode
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                          <User className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {review.user.first_name} {review.user.last_name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {formatDate(review.created_at)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 mb-2 block">
+                            Rating
+                          </label>
+                          <StarRating
+                            rating={editRating}
+                            onRatingChange={setEditRating}
+                            size="md"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-700 mb-2 block">
+                            Comment
+                          </label>
+                          <Textarea
+                            value={editComment}
+                            onChange={(e) => setEditComment(e.target.value)}
+                            placeholder="Share your thoughts about this dataset..."
+                            rows={3}
+                            className="resize-none"
+                          />
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => handleEditSubmit(review.id)}
+                            disabled={isSubmitting || editRating === 0}
+                            size="sm"
+                          >
+                            <Save className="h-4 w-4 mr-1" />
+                            {isSubmitting ? 'Saving...' : 'Save'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleEditCancel}
+                            size="sm"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Display Mode
+                    <>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                            <User className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">
+                              {review.user.first_name} {review.user.last_name}
+                            </p>
+                            <p className="text-sm text-gray-500">
+                              {formatDate(review.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <StarRating rating={review.rating} readonly size="sm" />
+                          {canEditReview(review) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditStart(review)}
+                              className="ml-2"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                          {review.comment}
+                        </p>
+                      )}
+                    </>
                   )}
-                />
-              </button>
-            ))}
+                </div>
+              ))}
+            </div>
           </div>
-
-          {rating > 0 && (
-            <p className="text-sm text-gray-600">
-              {rating === 1 && 'Poor - Not useful'}
-              {rating === 2 && 'Fair - Somewhat useful'}
-              {rating === 3 && 'Good - Useful'}
-              {rating === 4 && 'Very Good - Very useful'}
-              {rating === 5 && 'Excellent - Extremely useful'}
-            </p>
-          )}
-        </div>
-
-        {/* Comment Box */}
-        {showCommentBox && (
-          <div className="space-y-4 rounded-lg border bg-gray-50 p-4">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-gray-500" />
-              <label className="text-sm font-medium text-gray-700">
-                Add a comment (optional)
-              </label>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-400 mb-2">
+              <Star className="h-12 w-12 mx-auto" />
             </div>
-            <Textarea
-              placeholder="Share your thoughts about this dataset..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="min-h-[100px] resize-none"
-            />
-            <div className="flex gap-2">
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting || rating === 0}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Rating'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowCommentBox(false);
-                  setComment('');
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
+            <p className="text-gray-500">No reviews yet</p>
+            <p className="text-sm text-gray-400">Be the first to review this dataset</p>
           </div>
         )}
       </CardContent>

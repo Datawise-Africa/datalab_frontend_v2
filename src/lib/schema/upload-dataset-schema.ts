@@ -1,5 +1,6 @@
 // import { createStep, createSteps } from '@/hooks/use-stepper';
 // import { BellIcon, PaperclipIcon, UserIcon } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const datasetUploadBasicInfoSchema = z
@@ -57,9 +58,7 @@ const datasetFilesSchema = z.object({
 });
 
 const datasetUploadAuthorSchema = z.object({
-  title: z
-    .string({ required_error: 'Author title is required' })
-    .optional(),
+  title: z.string({ required_error: 'Author title is required' }).optional(),
   first_name: z
     .string({ required_error: 'Author first name is required' })
     .min(1, 'Author first name is required'),
@@ -171,3 +170,11 @@ export const uploadDatasetSchema = z.object({
 //     .merge(uploadDatasetDiscoveryInfoSchema)
 //     .strict();
 export type UploadDatasetSchemaType = z.infer<typeof uploadDatasetSchema>;
+
+export const submitReviewSchema = z.object({
+  dataset: z.string().min(1),
+  rating: z.number().min(1).max(5),
+  comment: z.string().min(1).max(500).optional(),
+});
+export type SubmitReviewSchemaType = z.infer<typeof submitReviewSchema>;
+export const submitReviewResolver = zodResolver(submitReviewSchema);

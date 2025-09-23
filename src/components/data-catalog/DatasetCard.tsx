@@ -202,10 +202,10 @@ const DatasetCard = <T = IDataset,>({
             <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
             <span className="text-xs font-medium text-gray-700">{1.2}K</span>
             <span className="hidden text-xs text-gray-500 sm:inline">
-              ({dataset.review_count ?? 0} reviews)
+              ({dataset.reviews.length ?? 0} reviews)
             </span>
             <span className="text-xs text-gray-500 sm:hidden">
-              ({dataset.review_count ?? 0})
+              ({dataset.reviews.length ?? 0})
             </span>
           </div>
         </div>

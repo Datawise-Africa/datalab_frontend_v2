@@ -158,6 +158,7 @@ export default function useDatasets(
     data: singleDatasetResponse,
     isLoading: isSingleDatasetLoading,
     error: singleDatasetError,
+    refetch: singleDatasetRefetch,
   } = useQuery({
     queryKey: datasetsKeys.detail(datasetId || '', session_id!),
     queryFn: async () => {
@@ -359,6 +360,7 @@ export default function useDatasets(
     prefetchNextPage,
     // Additional utilities
     refreshData,
+    singleDatasetRefetch,
     hasSearched,
     // Error states
     datasetsError,

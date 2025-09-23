@@ -109,6 +109,7 @@ export interface IDataset {
   average_review: number;
   dataset_size: number;
   views_count: number;
+  reviews: DatasetReviewType[];
 }
 
 export type DatasetFilterOptions = {
@@ -119,4 +120,17 @@ export type DatasetFilterOptions = {
   timeframe: string[];
 } & {
   [key in keyof typeof datasetFilterOptions]: string[];
+};
+export type DatasetReviewType = {
+  id: number;
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+  };
+  dataset: string;
+  rating: number;
+  comment: string;
+  created_at: string;
 };
