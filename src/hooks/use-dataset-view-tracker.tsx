@@ -4,6 +4,8 @@ import { useAuth } from '@/store/auth-store';
 import { useAxios } from './use-axios';
 
 export function useDatasetViewTracker(datasetId: string) {
+  /**Timeout Duration was initially 30s Now 5s */
+  const TIMEOUT_DURATION = 5000; // 5 seconds
   const hasTrackedView = useRef(false);
   const startTime = useRef<number>(Date.now());
   const auth = useAuth();
@@ -26,10 +28,10 @@ export function useDatasetViewTracker(datasetId: string) {
   const viewMutation = useMutation({
     mutationFn: () => updateViewCount(datasetId),
     onSuccess: () => {
-      console.log('View count updated successfully');
+      // console.log('View count updated successfully');
     },
-    onError: (error) => {
-      console.error('Failed to update view count:', error);
+    onError: () => {
+      // console.error('Failed to update view count:', error);
     },
   });
 
@@ -39,7 +41,7 @@ export function useDatasetViewTracker(datasetId: string) {
         hasTrackedView.current = true;
         viewMutation.mutate();
       }
-    }, 30000); // 30 seconds
+    }, TIMEOUT_DURATION);
 
     // Cleanup timer on unmount
     return () => {

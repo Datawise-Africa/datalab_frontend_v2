@@ -2,18 +2,10 @@ import {
   useUserDownloadedDatasets,
   type DownloadedDatasetType,
 } from '@/hooks/use-user-dataset-downloads';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -24,54 +16,31 @@ import {
   FileText,
   MapPin,
   MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import moment from 'moment';
 import { useSidebar } from '@/store/use-sidebar-store';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
+import { useAxios } from '@/hooks/use-axios';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/store/auth-store';
+import { type SubmitReviewSchemaType } from '@/lib/schema/upload-dataset-schema';
+import { DatasetReviewModal } from '@/components/Modals/DataModals/DatasetReviewModal';
 
 type ReviewType = {
   id: number;
-  datasetId: number;
-  user: string;
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+  };
+  dataset: string;
   rating: number;
-  review: string;
-  date: string;
-  helpful: number;
-  notHelpful: number;
-  userVote?: 'helpful' | 'not-helpful' | null;
+  comment: string;
+  created_at: string;
 };
-
-// Mock reviews data - replace with actual API call
-const mockReviews: ReviewType[] = [
-  {
-    id: 1,
-    datasetId: 1,
-    user: 'John Doe',
-    rating: 5,
-    review:
-      'Excellent dataset with comprehensive coverage. The data quality is outstanding and well-documented. Perfect for machine learning projects.',
-    date: '2024-01-15',
-    helpful: 12,
-    notHelpful: 1,
-    userVote: null,
-  },
-  {
-    id: 2,
-    datasetId: 1,
-    user: 'Sarah Smith',
-    rating: 4,
-    review:
-      'Good dataset overall, but could use better documentation for some fields. Still very useful for research purposes.',
-    date: '2024-01-10',
-    helpful: 8,
-    notHelpful: 2,
-    userVote: null,
-  },
-];
 
 // Star Rating Component
 function StarRating({
@@ -125,10 +94,9 @@ function StarRating({
 // Review Component
 function ReviewCard({
   review,
-  onVote,
+  // onVote,
 }: {
   review: ReviewType;
-  onVote: (reviewId: number, vote: 'helpful' | 'not-helpful') => void;
 }) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -138,39 +106,35 @@ function ReviewCard({
     });
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
+  const getInitials = (user: ReviewType['user']) => {
+    return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
   };
 
   return (
     <div className="space-y-3 rounded-lg border bg-white p-4">
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-8 w-8 border">
             <AvatarImage src="/placeholder.svg" />
             <AvatarFallback className="text-xs">
               {getInitials(review.user)}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium">{review.user}</p>
+            <p className="text-sm font-medium">{review.user.email}</p>
             <div className="flex items-center space-x-2">
               <StarRating rating={review.rating} readonly size="sm" />
               <span className="text-xs text-gray-500">
-                {formatDate(review.date)}
+                {formatDate(review.created_at)}
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <p className="text-sm leading-relaxed text-gray-700">{review.review}</p>
+      <p className="text-sm leading-relaxed text-gray-700">{review.comment}</p>
 
-      <div className="flex items-center space-x-4 pt-2">
+      {/* <div className="flex items-center space-x-4 pt-2">
         <span className="text-xs text-gray-500">Was this helpful?</span>
         <div className="flex items-center space-x-2">
           <Button
@@ -180,7 +144,7 @@ function ReviewCard({
               'h-7 px-2',
               review.userVote === 'helpful' && 'bg-green-100 text-green-700',
             )}
-            onClick={() => onVote(review.id, 'helpful')}
+            // onClick={() => onVote(review.id, 'helpful')}
           >
             <ThumbsUp className="mr-1 h-3 w-3" />
             {review.helpful}
@@ -192,111 +156,14 @@ function ReviewCard({
               'h-7 px-2',
               review.userVote === 'not-helpful' && 'bg-red-100 text-red-700',
             )}
-            onClick={() => onVote(review.id, 'not-helpful')}
+            // onClick={() => onVote(review.id, 'not-helpful')}
           >
             <ThumbsDown className="mr-1 h-3 w-3" />
             {review.notHelpful}
           </Button>
         </div>
-      </div>
+      </div> */}
     </div>
-  );
-}
-
-// Review Modal Component
-function ReviewModal({
-  datasetName,
-  onSubmitReview,
-}: {
-  datasetId: number;
-  datasetName: string;
-  onSubmitReview: (review: { rating: number; review: string }) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [reviewText, setReviewText] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async () => {
-    if (rating === 0 || reviewText.trim() === '') return;
-
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    onSubmitReview({ rating, review: reviewText });
-
-    // Reset form
-    setRating(0);
-    setReviewText('');
-    setIsSubmitting(false);
-    setIsOpen(false);
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Write Review
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="bg-white sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Review Dataset</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
-          <div>
-            <h4 className="mb-2 text-sm font-medium">{datasetName}</h4>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Rating</label>
-            <div className="flex items-center space-x-2">
-              <StarRating
-                rating={rating}
-                onRatingChange={setRating}
-                size="md"
-              />
-              <span className="text-sm text-gray-500">
-                {rating > 0
-                  ? `${rating} star${rating > 1 ? 's' : ''}`
-                  : 'Select rating'}
-              </span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Review</label>
-            <Textarea
-              placeholder="Share your experience with this dataset..."
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              rows={4}
-              className="resize-none"
-            />
-            <p className="text-xs text-gray-500">
-              {reviewText.length}/500 characters
-            </p>
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={
-                rating === 0 || reviewText.trim() === '' || isSubmitting
-              }
-            >
-              {isSubmitting ? 'Submitting...' : 'Submit Review'}
-            </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -305,69 +172,83 @@ function ReviewsSection({
   datasetId,
   datasetName,
 }: {
-  datasetId: number;
+  datasetId: string;
   datasetName: string;
 }) {
-  const [reviews, setReviews] = useState<ReviewType[]>(
-    mockReviews.filter((review) => review.datasetId === datasetId),
-  );
+  const { session_id } = useAuth();
+  const queryKeys = {
+    all: ['dataset-reviews'] as const,
+    reviews: (session_id: string, datasetId: string) =>
+      [...queryKeys.all, 'list', session_id, datasetId] as const,
+  };
+
+  const apiClient = useAxios();
+  const reviewsQuery = useQuery({
+    queryKey: queryKeys.reviews(session_id!, datasetId),
+    queryFn: async () => {
+      const { data } = await apiClient.get<ReviewType[]>(`/data/reviews/`);
+      return data;
+    },
+  });
+
+  const reviewMutation = useMutation({
+    mutationKey: ['submit-review'],
+    mutationFn: (data: SubmitReviewSchemaType) => {
+      return apiClient.post(`/data/reviews/`, data);
+    },
+    onSuccess: () => {
+      reviewsQuery.refetch();
+    },
+  });
+
   const [showAllReviews, setShowAllReviews] = useState(false);
 
-  const handleSubmitReview = (newReview: {
-    rating: number;
-    review: string;
-  }) => {
-    const review: ReviewType = {
-      id: Date.now(),
-      datasetId,
-      user: 'Current User', // Replace with actual user
-      rating: newReview.rating,
-      review: newReview.review,
-      date: new Date().toISOString(),
-      helpful: 0,
-      notHelpful: 0,
-      userVote: null,
-    };
+  // const handleVote = (reviewId: number, vote: 'helpful' | 'not-helpful') => {
+  //   setReviews((prev) =>
+  //     prev.map((review) => {
+  //       if (review.id === reviewId) {
+  //         const newReview = { ...review };
 
-    setReviews((prev) => [review, ...prev]);
-  };
+  //         // Remove previous vote if exists
+  //         if (review.userVote === 'helpful') {
+  //           newReview.helpful -= 1;
+  //         } else if (review.userVote === 'not-helpful') {
+  //           newReview.notHelpful -= 1;
+  //         }
 
-  const handleVote = (reviewId: number, vote: 'helpful' | 'not-helpful') => {
-    setReviews((prev) =>
-      prev.map((review) => {
-        if (review.id === reviewId) {
-          const newReview = { ...review };
+  //         // Add new vote if different from current
+  //         if (review.userVote !== vote) {
+  //           if (vote === 'helpful') {
+  //             newReview.helpful += 1;
+  //           } else {
+  //             newReview.notHelpful += 1;
+  //           }
+  //           newReview.userVote = vote;
+  //         } else {
+  //           newReview.userVote = null;
+  //         }
 
-          // Remove previous vote if exists
-          if (review.userVote === 'helpful') {
-            newReview.helpful -= 1;
-          } else if (review.userVote === 'not-helpful') {
-            newReview.notHelpful -= 1;
-          }
+  //         return newReview;
+  //       }
+  //       return review;
+  //     }),
+  //   );
+  // };
 
-          // Add new vote if different from current
-          if (review.userVote !== vote) {
-            if (vote === 'helpful') {
-              newReview.helpful += 1;
-            } else {
-              newReview.notHelpful += 1;
-            }
-            newReview.userVote = vote;
-          } else {
-            newReview.userVote = null;
-          }
+  const averageRating = useMemo(() => {
+    if (reviewsQuery.data && reviewsQuery.data.length > 0) {
+      return (
+        reviewsQuery.data.reduce((sum, review) => sum + review.rating, 0) /
+        reviewsQuery.data.length
+      );
+    }
+    return 0;
+  }, [reviewsQuery.data]);
 
-          return newReview;
-        }
-        return review;
-      }),
-    );
-  };
-
-  const averageRating =
-    reviews.length > 0
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
-      : 0;
+  const reviews = useMemo(
+    () => (reviewsQuery.data || []).filter((rv) => rv.dataset === datasetId),
+    [reviewsQuery.data],
+  );
 
   const displayedReviews = showAllReviews ? reviews : reviews.slice(0, 2);
 
@@ -389,10 +270,10 @@ function ReviewsSection({
             </div>
           )}
         </div>
-        <ReviewModal
+        <DatasetReviewModal
           datasetId={datasetId}
           datasetName={datasetName}
-          onSubmitReview={handleSubmitReview}
+          onSubmitReview={reviewMutation.mutateAsync}
         />
       </div>
 
@@ -406,7 +287,7 @@ function ReviewsSection({
       ) : (
         <div className="space-y-3">
           {displayedReviews.map((review) => (
-            <ReviewCard key={review.id} review={review} onVote={handleVote} />
+            <ReviewCard key={review.id} review={review} />
           ))}
 
           {reviews.length > 2 && (
@@ -610,7 +491,7 @@ function DatasetCard({ dataset }: { dataset: DownloadedDatasetType }) {
           <>
             <Separator />
             <ReviewsSection
-              datasetId={dataset.id}
+              datasetId={dataset.dataset.id}
               datasetName={dataset.dataset.title}
             />
           </>
