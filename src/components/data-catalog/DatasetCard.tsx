@@ -10,7 +10,6 @@ import {
   Link,
   Loader,
   MoreVertical,
-  Star,
   Users,
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
@@ -199,8 +198,10 @@ const DatasetCard = <T = IDataset,>({
             ))}
           </div>
           <div className="flex flex-shrink-0 items-center gap-1 text-xs">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-medium text-gray-700">{1.2}K</span>
+            <span className="text-xs font-medium text-gray-700">
+              <Eye className="inline h-3 w-3 text-gray-500 mr-1" />
+              {dataset.views_count} view(s)</span>
+            {/* <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> */}
             <span className="hidden text-xs text-gray-500 sm:inline">
               ({dataset.reviews.length ?? 0} reviews)
             </span>
