@@ -10,6 +10,8 @@ import {
   Link,
   Loader,
   MoreVertical,
+  Star,
+  User2,
   Users,
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
@@ -189,26 +191,30 @@ const DatasetCard = <T = IDataset,>({
         <div className="mb-2 flex items-center justify-between gap-2 sm:mb-3">
           <div className="min-w-0 flex-1">
             {dataset.authors.map((author) => (
-              <span
-                className="truncate text-xs text-gray-600 sm:text-sm"
+              <div
+                className="flex items-center gap-1 truncate text-xs text-gray-600 sm:text-sm"
                 key={author.id}
               >
+                <User2 className="" size={'16'} />
+
                 {author.first_name}
-              </span>
+              </div>
             ))}
           </div>
-          <div className="flex flex-shrink-0 items-center gap-1 text-xs">
-            <span className="text-xs font-medium text-gray-700">
-              <Eye className="inline h-3 w-3 text-gray-500 mr-1" />
-              {dataset.views_count} view(s)</span>
-            {/* <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> */}
-            <span className="hidden text-xs text-gray-500 sm:inline">
-              ({dataset.reviews.length ?? 0} reviews)
-            </span>
-            <span className="text-xs text-gray-500 sm:hidden">
-              ({dataset.reviews.length ?? 0})
-            </span>
-          </div>
+          {(dataset.average_review ?? 0) > 0 && (
+            <div className="flex flex-shrink-0 items-center gap-1 text-xs">
+              <Star
+                fill="yellow"
+                className="h-3 w-3 text-yellow-500 sm:h-4 sm:w-4"
+              />
+              {
+                <span className="flex items-center gap-1 text-xs text-gray-500 sm:inline">
+                  {(dataset.average_review ?? 0).toFixed(1)}(
+                  {dataset.review_count} reviews)
+                </span>
+              }
+            </div>
+          )}
         </div>
 
         {/* Description - Responsive and expandable */}
