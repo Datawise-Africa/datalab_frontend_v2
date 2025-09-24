@@ -58,7 +58,7 @@ const datasetFilesSchema = z.object({
 });
 
 const datasetUploadAuthorSchema = z.object({
-  title: z.string({ required_error: 'Author title is required' }).optional(),
+  title: z.string({ required_error: 'Author title is required' }).optional()
   first_name: z
     .string({ required_error: 'Author first name is required' })
     .min(1, 'Author first name is required'),
