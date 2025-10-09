@@ -10,6 +10,7 @@ import DatasetCardSkeleton from '@/components/data-catalog/DatasetCardSkeleton';
 import { useDatasetStore } from '@/store/dataset-store';
 import { useAuthContext } from '@/context/AuthProvider';
 import { useAuth } from '@/store/auth-store';
+import Seo from '@/components/seo/Seo';
 
 const Homepage = () => {
   const {
@@ -52,6 +53,17 @@ const Homepage = () => {
 
   return (
     <div className="flex flex-col">
+      <Seo
+        title="Discover verified African datasets"
+        description="Search, filter, and download curated African datasets to accelerate analytics, machine learning, and policy projects while rewarding dataset creators."
+        keywords={[
+          'african datasets',
+          'data catalog',
+          'open data africa',
+          'data marketplace',
+        ]}
+        url="/"
+      />
       <main className="flex-1 py-8">
         <DatasetFilterToolbar />
 

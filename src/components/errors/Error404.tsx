@@ -1,6 +1,7 @@
 import { motion, easeInOut, easeOut } from 'framer-motion';
 import { Home, ArrowLeft, Compass, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Seo from '@/components/seo/Seo';
 
 export default function Error404() {
   const containerVariants = {
@@ -72,30 +73,37 @@ export default function Error404() {
   });
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
-      {/* Animated Background Elements */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute top-20 left-20 h-32 w-32 rounded-full bg-indigo-100 opacity-30"
-          animate={floatingKeyframes}
-          transition={floatingTransition()}
-        />
-        <motion.div
-          className="absolute top-40 right-32 h-24 w-24 rounded-full bg-purple-100 opacity-30"
-          animate={floatingKeyframes}
-          transition={floatingTransition(1)}
-        />
-        <motion.div
-          className="absolute bottom-32 left-32 h-20 w-20 rounded-full bg-blue-100 opacity-30"
-          animate={floatingKeyframes}
-          transition={floatingTransition(2)}
-        />
-        <motion.div
-          className="absolute right-20 bottom-20 h-16 w-16 rounded-full bg-pink-100 opacity-30"
-          animate={floatingKeyframes}
-          transition={floatingTransition(0.5)}
-        />
-      </div>
+    <>
+      <Seo
+        title="Page not found"
+        description="The page you were looking for could not be found on Datalab Africa."
+        url="/404"
+        noindex
+      />
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 p-4">
+        {/* Animated Background Elements */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute top-20 left-20 h-32 w-32 rounded-full bg-indigo-100 opacity-30"
+            animate={floatingKeyframes}
+            transition={floatingTransition()}
+          />
+          <motion.div
+            className="absolute top-40 right-32 h-24 w-24 rounded-full bg-purple-100 opacity-30"
+            animate={floatingKeyframes}
+            transition={floatingTransition(1)}
+          />
+          <motion.div
+            className="absolute bottom-32 left-32 h-20 w-20 rounded-full bg-blue-100 opacity-30"
+            animate={floatingKeyframes}
+            transition={floatingTransition(2)}
+          />
+          <motion.div
+            className="absolute right-20 bottom-20 h-16 w-16 rounded-full bg-pink-100 opacity-30"
+            animate={floatingKeyframes}
+            transition={floatingTransition(0.5)}
+          />
+        </div>
 
       <motion.div
         className="relative z-10 w-full max-w-4xl text-center"
@@ -233,6 +241,7 @@ export default function Error404() {
           </p>
         </motion.div>
       </motion.div>
-    </main>
+      </main>
+    </>
   );
 }

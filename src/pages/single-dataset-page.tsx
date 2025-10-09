@@ -15,6 +15,8 @@ import { CsvHandler } from '@/lib/utils/csv-handler';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import BeautifulCsvTable from '@/components/data-catalog/beautiful-csv-datatable';
 import { useAxios } from '@/hooks/use-axios';
+import Seo from '@/components/seo/Seo';
+import { seoMetadata } from '@/lib/seo-config';
 
 export default function SingleDatasetPage() {
   const { id } = useParams<{ id: string }>();
@@ -80,9 +82,37 @@ export default function SingleDatasetPage() {
     };
   }, [csvJsonData]);
 
+  const datasetKeywordTokens = singleDataset?.keywords
+    ? singleDataset.keywords.split(',').map((keyword) => keyword.trim())
+    : [];
+  const datasetKeywords = singleDataset
+    ? Array.from(
+        new Set([
+          ...singleDataset.tags,
+          ...datasetKeywordTokens.filter((token) => token.length > 0),
+        ]),
+      )
+    : [];
+  const datasetDescription =
+    singleDataset?.description ??
+    'Explore dataset details, licensing, authorship, and download options on Datalab Africa.';
+
+  const datasetImage =
+    singleDataset?.dataset_image ||
+    singleDataset?.data_files?.[0]?.s3_url ||
+    seoMetadata.image;
+
+  const seoUrl = id ? `/datasets/${id}` : '/datasets';
+
   if (!id || isSingleDatasetLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
+        <Seo
+          title="Dataset details loading"
+          description="Loading dataset details and metadata."
+          url={seoUrl}
+          keywords={datasetKeywords}
+        />
         <div className="mx-auto max-w-6xl p-6">
           <div className="animate-pulse space-y-8">
             <div className="h-64 rounded-xl bg-gray-200"></div>
@@ -99,6 +129,12 @@ export default function SingleDatasetPage() {
   if (!singleDataset) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <Seo
+          title="Dataset not found"
+          description="The requested dataset could not be located in the Datalab catalog."
+          url={seoUrl}
+          noindex
+        />
         <div className="text-center">
           <h2 className="mb-2 text-2xl font-bold text-gray-900">
             Dataset not found
@@ -113,6 +149,15 @@ export default function SingleDatasetPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Seo
+        title={singleDataset.title}
+        description={datasetDescription}
+        image={datasetImage}
+        keywords={datasetKeywords}
+        url={seoUrl}
+        type="article"
+        noindex={singleDataset.is_private}
+      />
       <div className="mx-auto max-w-6xl space-y-8 p-6">
         {/* Tracking Indicator */}
         {isTracking && (
