@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Public catalog -->
+  <url>
+    <loc>https://datalabafrica.com/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/data-dashboards</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/reports</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/datasets</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/datasets/{{dataset-id}}</loc>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+
+  <!-- Authenticated workspace -->
+  <url>
+    <loc>https://datalabafrica.com/app</loc>
+    <priority>0.6</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/become-dataset-creator</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/dataset-creator-dashboard</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/dataset-creator-analytics</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/dataset-creator-reports</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/applications</loc>
+    <priority>0.4</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/approved-creators</loc>
+    <priority>0.4</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/saved-datasets</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/my-downloads</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+  <url>
+    <loc>https://datalabafrica.com/app/account-settings</loc>
+    <priority>0.5</priority>
+    <meta:requiresAuth xmlns:meta="https://datalabafrica.com/sitemap/meta">true</meta:requiresAuth>
+  </url>
+
+  <!-- Utility -->
+  <url>
+    <loc>https://datalabafrica.com/404</loc>
+    <priority>0.1</priority>
+  </url>
+</urlset>

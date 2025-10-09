@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AfyakenDashboard from '@/components/Dashboards/AfyakenDashboard';
 import EdukenDashboard from '@/components/Dashboards/EdukenDashboard';
+import Seo from '@/components/seo/Seo';
 type DashboardType = 'EdukenDashboard' | 'AfyakenDashboard';
 const DataDashboards = () => {
   const [componentToRender, setComponentToRender] =
@@ -11,6 +12,11 @@ const DataDashboards = () => {
 
   return (
     <div className="mt-40 text-center">
+      <Seo
+        title="Interactive sector dashboards"
+        description="Explore live dashboards highlighting education and health insights powered by Datalab datasets."
+        url="/data-dashboards"
+      />
       <div id="Buttons" className=" ">
         <button
           onClick={renderEdukenDashboard}
