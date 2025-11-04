@@ -171,7 +171,7 @@ export default function LayoutSidebar({
             <Accordion
               type="multiple"
               className="w-full space-y-2"
-              defaultValue={['Menu']}
+              defaultValue={['Menu','Dashboards' ]}
             >
               {links.map((link) => (
                 <SidebarItem key={link.label} {...link} isCollapsed={false} />
