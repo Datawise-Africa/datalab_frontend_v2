@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
 import {
   BarChart,
+  Book,
   Bookmark,
   Compass,
   Download,
   Edit,
+  LayoutDashboardIcon,
   LockIcon,
   MenuIcon,
   // MenuIcon,
   Paperclip,
+  Stethoscope,
   User2,
   UserCheck,
 } from 'lucide-react';
@@ -105,6 +108,35 @@ export default function useSidebarLinks() {
             label: 'Approved Creators',
             href: '/app/approved-creators',
             icon: UserCheck,
+          },
+          // {
+          //   label: 'Approved Datasets',
+          //   href: '/',
+          //   icon: Database,
+          //   requiresAuth: true,
+          //   requiredRole: 'admin',
+          // },
+        ],
+      },
+       {
+        label: 'Dashboards',
+        href: '#',
+        icon: LayoutDashboardIcon,
+        requiresAuth: false,
+       requiredRole: 'user',
+
+        // icon: <HeroiconsOutlineDocumentReport />,
+        children: [
+          {
+            label: 'Afyaken',
+            badge: '3',
+            href: '/dashboards/afyaken',
+            icon: Stethoscope,
+          },
+          {
+            label: 'Eduken',
+            href: '/dashboards/eduken',
+            icon: Book,
           },
           // {
           //   label: 'Approved Datasets',

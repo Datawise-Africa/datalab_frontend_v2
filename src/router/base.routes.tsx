@@ -1,5 +1,7 @@
+import AfyakenDashboard from '@/components/Dashboards/AfyakenDashboard';
 import { appProtectedRoutes } from './protected-routes';
 import React from 'react';
+import EdukenDashboard from '@/components/Dashboards/EdukenDashboard';
 const DataCatalog = React.lazy(() => import('@/pages/Homepage'));
 const Reports = React.lazy(() => import('@/pages/reports/Reports'));
 const DataDashboards = React.lazy(() => import('@/pages/DataDashboards'));
@@ -23,6 +25,14 @@ const baseRoutes = [
   {
     path: '/reports',
     element: <Reports />,
+  },
+  {
+    path: '/dashboards/eduken',
+    element: <EdukenDashboard/>,
+  },
+  {
+    path: '/dashboards/afyaken',
+    element: <AfyakenDashboard />,
   },
 
   appProtectedRoutes,

@@ -19,15 +19,18 @@ export const navigation: NavigationItem[] = [
     dropdownItems: [],
     icon: '/assets/datalab/Group.svg',
   },
-  {
-    id: '1',
-    title: 'Dashboards',
-    url: '/data-dashboards',
-    isLoggedIn: false,
-    requiresAuth: false,
-    dropdownItems: [],
-    icon: '/assets/datalab/Icon.svg',
-  },
+  /**
+   * TODO: We will uncomment when needed
+   */
+  // {
+  //   id: '1',
+  //   title: 'Dashboards',
+  //   url: '/data-dashboards',
+  //   isLoggedIn: false,
+  //   requiresAuth: false,
+  //   dropdownItems: [],
+  //   icon: '/assets/datalab/Icon.svg',
+  // },
   {
     id: '2',
     title: 'Reports',
