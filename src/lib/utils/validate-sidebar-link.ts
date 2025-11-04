@@ -30,8 +30,6 @@ export function validateSidebarLink(
 ) {
   return (link: SidebarLinkType): SidebarLinkType | null => {
     // First check permissions for the current link
-    // if (!link.requiresAuth)
-    // return link
     if (link.requiresAuth) {
       if (!isAuthenticated) return null;
       if (link.requiredRole) {
