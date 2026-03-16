@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useIsClient } from '~/hooks/use-is-client';
 import { Link } from 'react-router';
 import {
   Database,
@@ -270,9 +271,15 @@ function MegaMenuDropdown({
 }
 
 function DesktopAuthButtons() {
+  const isClient = useIsClient();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const authModal = useAppModal('auth');
   const logout = useLogout();
+
+  // Render nothing on server to avoid hydration mismatch — auth state differs
+  if (!isClient) {
+    return <div className="hidden items-center gap-3 lg:flex" />;
+  }
 
   if (!isAuthenticated || !user) {
     return (
@@ -365,9 +372,12 @@ function MobileCollapsibleSection({
 }
 
 function MobileAuthSection() {
+  const isClient = useIsClient();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const authModal = useAppModal('auth');
   const logout = useLogout();
+
+  if (!isClient) return null;
 
   if (!isAuthenticated) {
     return (

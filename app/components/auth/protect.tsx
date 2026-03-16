@@ -1,8 +1,9 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useAppSelector } from '~/store';
 import { useAppModal } from '~/store/slices/modal-slice';
 import type { AuthUserRoleType } from '~/lib/types/auth-context';
 import { AuthPerm } from '~/lib/utils/perm';
+import { useIsClient } from '~/hooks/use-is-client';
 
 interface ProtectProps {
   children: ReactNode;
@@ -11,8 +12,19 @@ interface ProtectProps {
 }
 
 export function Protect({ children, roles, fallback }: ProtectProps) {
+  const isClient = useIsClient();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const authModal = useAppModal('auth');
+
+  // During SSR and initial client render, show a loading state.
+  // This ensures server and client HTML match. Auth check kicks in after hydration.
+  if (!isClient) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated || !user) {
     if (fallback) return <>{fallback}</>;
