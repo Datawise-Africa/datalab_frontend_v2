@@ -13,6 +13,7 @@ interface DatasetCardActionsProps {
   onDownload?: () => void;
   onBookmark?: () => void;
   isBookmarked?: boolean;
+  onPreview?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
   onArchive?: () => void;
@@ -24,6 +25,7 @@ export function DatasetCardActions({
   onDownload,
   onBookmark,
   isBookmarked = false,
+  onPreview,
   onEdit,
   onDelete,
   onArchive,
@@ -33,11 +35,14 @@ export function DatasetCardActions({
   if (variant === 'creator') {
     return (
       <CardFooter className={cn('gap-2 border-t px-5 py-3', className)}>
-        <Button asChild variant="outline" size="sm" className="flex-1">
-          <Link to={`/datasets/${dataset.slug}`}>
-            <Eye className="mr-1.5 h-3.5 w-3.5" />
-            View
-          </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1"
+          onClick={onPreview}
+        >
+          <Eye className="mr-1.5 h-3.5 w-3.5" />
+          Preview
         </Button>
         <Button variant="outline" size="sm" onClick={onEdit}>
           <Pencil className="mr-1.5 h-3.5 w-3.5" />
