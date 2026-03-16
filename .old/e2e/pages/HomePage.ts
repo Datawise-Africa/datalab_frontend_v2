@@ -48,6 +48,8 @@ export class HomePage {
    * @param linkText The text of the link to click
    */
   async navigateTo(linkText: string) {
-    await this.page.getByRole('link', { name: new RegExp(linkText, 'i') }).click();
+    await this.page
+      .getByRole('link', { name: new RegExp(linkText, 'i') })
+      .click();
   }
 }

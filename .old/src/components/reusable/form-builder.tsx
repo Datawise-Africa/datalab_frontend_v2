@@ -46,7 +46,7 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-//   CommandInput,
+  //   CommandInput,
   CommandItem,
   CommandList,
 } from '../ui/command';
@@ -79,8 +79,10 @@ interface BaseFieldConfig<
 }
 
 // Field type specific configurations
-interface TextFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface TextFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'text' | 'email' | 'password';
   minLength?: number;
   maxLength?: number;
@@ -88,58 +90,74 @@ interface TextFieldConfig<T extends NestedObject, K extends FieldPath<T>>
   showPasswordToggle?: boolean;
 }
 
-interface NumberFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface NumberFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'number';
   min?: number;
   max?: number;
 }
 
-interface TextareaFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface TextareaFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'textarea';
   rows?: number;
   minLength?: number;
   maxLength?: number;
 }
 
-interface SelectFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface SelectFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'select';
   options: Array<{ value: PathValue<T, K>; label: string }>;
   multiple?: boolean;
   searchable?: boolean;
 }
 
-interface CheckboxFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface CheckboxFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'checkbox';
 }
 
-interface RadioFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface RadioFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'radio';
   options: Array<{ value: PathValue<T, K>; label: string }>;
   orientation?: 'horizontal' | 'vertical';
 }
 
-interface DateFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface DateFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'date';
   minDate?: Date;
   maxDate?: Date;
 }
 
-interface ComboboxFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface ComboboxFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'combobox';
   options: Array<{ value: PathValue<T, K>; label: string }>;
   multiple?: boolean;
   searchable?: boolean;
 }
 
-interface ChipFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
+interface ChipFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
   type: 'chip';
   maxChips?: number;
   allowDuplicates?: boolean;
@@ -586,8 +604,8 @@ function SelectFormField<T extends NestedObject, K extends FieldPath<T>>({
   multiple?: boolean;
   searchable?: boolean;
 }) {
-//   const [open, setOpen] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState('');
+  //   const [open, setOpen] = useState(false);
+  //   const [searchTerm, setSearchTerm] = useState('');
 
   if (multiple || searchable) {
     return (

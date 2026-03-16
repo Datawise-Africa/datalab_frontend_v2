@@ -7,27 +7,56 @@ on:
       - dev
 
 jobs:
-  lint_code: 
+  lint_code:
     name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
       - name: Run ESLint
-        run: npm run lint
+        run: pnpm lint
 
   security_scan:
     name: Security Scan
     runs-on: ubuntu-latest
     steps:
+      - name: Export Session Secret
+        run: echo "SESSION_SECRET=$(openssl rand -base64 32)" >> $GITHUB_ENV
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
       - name: Run Build
-        run: npm run build
+        run: pnpm build
+    env:
+      CI: true
+
+  # check_debug_code:
+  #   name: Ensure No Debugging Code
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #     - name: Ensure no console.logs
+  #       run: |
+  #         if grep -r "console.log" src/; then
+  #           echo "::error::Debugging code found! Remove console.log statements."
+  #           exit 1
+  #         fi
 
   pr_notification:
     name: PR Checks Notification
@@ -35,32 +64,40 @@ jobs:
     needs: [lint_code, security_scan]
     if: always()
     steps:
+      - name: Checkout code
+        if: github.event.action == 'synchronize'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+      - name: Get latest commit message
+        if: github.event.action == 'synchronize'
+        id: commit_msg
+        run: echo "message=$(git log -1 --pretty=format:'%s')" >> "$GITHUB_OUTPUT"
       - name: Send Slack Notification
         uses: slackapi/slack-github-action@v1.23.0
         with:
           payload: |
             {
               "channel": "code-reviews",
-              "text": "PR Checks ${{ job.status }} for #${{ github.event.pull_request.number }} - *${{ github.event.pull_request.title }}* by ${{ github.actor }}",
+              "text": ":bell: *${{ github.event.action == 'opened' && 'New PR' || github.event.action == 'reopened' && 'Reopened PR' || 'New commit pushed to PR' }}* from `${{ github.event.pull_request.head.ref }}` to `${{ github.event.pull_request.base.ref }}` by `${{ github.actor }}`\n*PR Title:* `${{ github.event.pull_request.title }}`${{ github.event.action == 'synchronize' && format('\n*Latest Commit:* `{0}`', steps.commit_msg.outputs.message) || '' }}\n<${{ github.event.pull_request.html_url }}|View Pull Request>",
               "attachments": [
                 {
                   "color": "#36a64f",
-                  "title": "Pull Request Checks Completed",
-                  "title_link": "${{ github.event.pull_request.html_url }}",
                   "fields": [
                     {
-                      "title": "Branch",
-                      "value": "${{ github.head_ref }}",
+                      "title": "Source Branch",
+                      "value": "${{ github.event.pull_request.head.ref }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Target Branch",
+                      "value": "${{ github.event.pull_request.base.ref }}",
                       "short": true
                     },
                     {
                       "title": "Author",
-                      "value": "${{ github.actor }}",
-                      "short": true
-                    },
-                    {
-                      "title": "Status",
-                      "value": "${{ needs.*.result }}",
+                      "value": "${{ github.event.pull_request.user.login }}",
                       "short": true
                     }
                   ]

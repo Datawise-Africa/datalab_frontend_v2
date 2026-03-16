@@ -13,6 +13,7 @@ export default tseslint.config(
       'coverage/',
       'node_modules/',
       '*.config.*',
+      '.old/**',
     ],
   },
   js.configs.recommended,

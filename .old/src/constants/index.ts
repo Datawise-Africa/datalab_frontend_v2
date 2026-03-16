@@ -1,4 +1,3 @@
-
 export type NavigationItem = {
   id: string;
   title: string;
@@ -63,7 +62,7 @@ export const socials: SocialLink[] = [
 
 export const cookieOptions = {
   httpOnly: true,
-  /* eslint-disable no-undef */
+
   secure: process.env.NODE_ENV !== 'production',
 
   maxAge: 60 * 60 * 24 * 7, // One week

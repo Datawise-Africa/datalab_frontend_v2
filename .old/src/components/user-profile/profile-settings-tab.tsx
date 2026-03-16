@@ -413,7 +413,7 @@ export default function ProfileSettings() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="border-primary/30 w-full border bg-white">
-                        {USER_TITLES.map(({label,value}) => (
+                        {USER_TITLES.map(({ label, value }) => (
                           <SelectItem
                             key={value}
                             value={value!}

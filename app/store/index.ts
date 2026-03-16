@@ -15,12 +15,14 @@ import themeReducer from './slices/theme-slice';
 import authReducer from './slices/auth-slice';
 import filterReducer from './slices/filter-slice';
 import modalReducer from './slices/modal-slice';
+import datasetControlsReducer from './slices/dataset-controls-slice';
 
 const rootReducer = combineReducers({
   theme: themeReducer,
   auth: authReducer,
   filters: filterReducer,
   modals: modalReducer,
+  datasetControls: datasetControlsReducer,
 });
 
 const persistConfig = {

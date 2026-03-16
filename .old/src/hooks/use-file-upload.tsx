@@ -259,7 +259,7 @@ export function useFileUpload(
     async (files: FileList) => {
       const newFiles: FileUpload[] = [];
 
-      for (let [_, file] of Array.from(files).entries()) {
+      for (const [_, file] of Array.from(files).entries()) {
         const AlreadyExist = uploads.find(
           (f) => f.name === file.name && f.size === file.size,
         );

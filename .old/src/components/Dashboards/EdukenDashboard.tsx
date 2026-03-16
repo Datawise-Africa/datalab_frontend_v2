@@ -20,7 +20,7 @@ import { useEduData } from '@/hooks/use-edudata';
 
 const EdukenDashboard = memo(() => {
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
-  // eslint-disable-next-line no-unused-vars
+
   const [, setMap] = useState(null);
   const [geojsonLayer, setGeojsonLayer] = useState<L.GeoJSON<any, any> | null>(
     null,

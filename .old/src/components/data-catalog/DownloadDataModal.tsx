@@ -160,13 +160,13 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
       // if (response.ok) {
       console.log('Data sent successfully!');
 
-        // Retrieve the URL where the file can be downloaded
-        const fileUrl = dataset.data_files[0].s3_url;
+      // Retrieve the URL where the file can be downloaded
+      const fileUrl = dataset.data_files[0].s3_url;
 
-        // Create a temporary anchor element
-        const link = document.createElement('a');
-        link.href = fileUrl;
-        link.setAttribute('download', ''); // This helps with download behavior
+      // Create a temporary anchor element
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.setAttribute('download', ''); // This helps with download behavior
 
       // Append to the document, trigger the click, and remove the element
       document.body.appendChild(link);
@@ -737,18 +737,12 @@ const DownloadDataModal = ({ dataset }: DownloadDataModalProps) => {
                     ❌ Restricted Uses
                   </h5>
                   <ul className="mt-2 space-y-1 text-sm text-red-700">
-                    <li className="flex items-center">
-                      ✖ Commercial Products
-                    </li>
-                    <li className="flex items-center">
-                      ✖ Data Redistribution
-                    </li>
+                    <li className="flex items-center">✖ Commercial Products</li>
+                    <li className="flex items-center">✖ Data Redistribution</li>
                     <li className="flex items-center">
                       ✖ Derivative Databases
                     </li>
-                    <li className="flex items-center">
-                      ✖ Resale or Licensing
-                    </li>
+                    <li className="flex items-center">✖ Resale or Licensing</li>
                   </ul>
                 </div>
               </div>

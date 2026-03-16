@@ -118,12 +118,12 @@ export default function useSidebarLinks() {
           // },
         ],
       },
-       {
+      {
         label: 'Dashboards',
         href: '#',
         icon: LayoutDashboardIcon,
         requiresAuth: false,
-       requiredRole: 'user',
+        requiredRole: 'user',
 
         // icon: <HeroiconsOutlineDocumentReport />,
         children: [

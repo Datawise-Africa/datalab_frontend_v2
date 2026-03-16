@@ -171,7 +171,7 @@ export default function LayoutSidebar({
             <Accordion
               type="multiple"
               className="w-full space-y-2"
-              defaultValue={['Menu','Dashboards' ]}
+              defaultValue={['Menu', 'Dashboards']}
             >
               {links.map((link) => (
                 <SidebarItem key={link.label} {...link} isCollapsed={false} />
@@ -451,7 +451,7 @@ function SidebarUserDropdown({ isMobile }: { isMobile: boolean }) {
       </DropdownMenuItem>
       {AuthPerm.getInstance().canAnyRole(
         ['dataset_creator', 'admin'],
-        user!?.user_role,
+        user?.user_role,
       ) && (
         <DropdownMenuItem className="hover:bg-primary/20 cursor-pointer">
           <Link

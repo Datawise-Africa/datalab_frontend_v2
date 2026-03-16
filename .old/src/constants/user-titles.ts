@@ -25,5 +25,4 @@ export const USER_TITLES = [
   { label: 'BSc', value: 'BSc' },
   { label: 'MBA', value: 'MBA' },
   { label: 'MA', value: 'MA' },
-
 ];

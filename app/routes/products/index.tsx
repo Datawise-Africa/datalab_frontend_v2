@@ -16,18 +16,12 @@ import { useProductColumns } from '~/lib/table-cols';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
+import { AsyncSelect } from '~/components/ui/async-select';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 
 export function meta() {
   return generateSEOTags({
-    title: 'Products - Datawise Africa',
+    title: 'Products',
     description:
       'Browse and manage your product inventory. Search, filter by category, sort by various criteria, and organize your products efficiently.',
     url: '/products',
@@ -137,55 +131,48 @@ export default function ProductsPage() {
         <div className="flex gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-muted-foreground" />
-            <Select
-              value={categoryFilter || ''}
-              onValueChange={(value) => setCategoryFilter(value || null)}
-            >
-              <SelectTrigger className="w-45">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Categories</SelectItem>
-                {categoriesData?.data.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <AsyncSelect
+              value={categoryFilter}
+              onChange={(val) => setCategoryFilter(val)}
+              options={[
+                { label: 'All Categories', value: '' },
+                ...(categoriesData?.data.map((c) => ({
+                  label: c.name,
+                  value: c.id,
+                })) ?? []),
+              ]}
+              placeholder="All Categories"
+              className="w-45"
+            />
           </div>
 
           <div className="flex items-center gap-2">
             <SortAsc className="w-4 h-4 text-muted-foreground" />
-            <Select
+            <AsyncSelect
               value={sortBy}
-              onValueChange={(value) =>
-                setSortBy(value as 'name' | 'price' | 'date')
+              onChange={(val) =>
+                setSortBy((val as 'name' | 'price' | 'date') ?? 'name')
               }
-            >
-              <SelectTrigger className="w-45">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Sort by Name</SelectItem>
-                <SelectItem value="price">Sort by Price</SelectItem>
-                <SelectItem value="date">Sort by Date</SelectItem>
-              </SelectContent>
-            </Select>
+              options={[
+                { label: 'Sort by Name', value: 'name' },
+                { label: 'Sort by Price', value: 'price' },
+                { label: 'Sort by Date', value: 'date' },
+              ]}
+              placeholder="Sort by"
+              className="w-45"
+            />
           </div>
 
-          <Select
+          <AsyncSelect
             value={sortOrder}
-            onValueChange={(value) => setSortOrder(value as 'asc' | 'desc')}
-          >
-            <SelectTrigger className="w-35">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="asc">Ascending</SelectItem>
-              <SelectItem value="desc">Descending</SelectItem>
-            </SelectContent>
-          </Select>
+            onChange={(val) => setSortOrder((val as 'asc' | 'desc') ?? 'asc')}
+            options={[
+              { label: 'Ascending', value: 'asc' },
+              { label: 'Descending', value: 'desc' },
+            ]}
+            placeholder="Order"
+            className="w-35"
+          />
         </div>
       </motion.div>
 

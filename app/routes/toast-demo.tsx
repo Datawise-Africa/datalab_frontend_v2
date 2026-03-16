@@ -7,12 +7,13 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { toastUtils } from '~/lib/utils/toast';
+import { generateSEOTags } from '~/lib/utils/seo';
 
 export function meta() {
-  return [
-    { title: 'Toast Notifications Demo - Datawise' },
-    { name: 'description', content: 'Demo of custom toast notifications' },
-  ];
+  return generateSEOTags({
+    title: 'Toast Demo',
+    description: 'Toast notification demo',
+  });
 }
 
 export default function ToastDemo() {
@@ -28,7 +29,7 @@ export default function ToastDemo() {
           {/* Success Toast */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-600">Success Toast</CardTitle>
+              <CardTitle className="text-primary">Success Toast</CardTitle>
               <CardDescription>
                 Show a success message to the user
               </CardDescription>
@@ -41,7 +42,7 @@ export default function ToastDemo() {
                     'Your operation has been completed successfully.'
                   )
                 }
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-primary hover:bg-primary/90"
               >
                 Show Success Toast
               </Button>
