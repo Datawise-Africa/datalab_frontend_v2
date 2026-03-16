@@ -13,6 +13,8 @@ import {
   UserCheck,
   UserPlus,
   Menu,
+  Stethoscope,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import {
@@ -59,6 +61,13 @@ export function DashboardMobileNav() {
               },
             ]
           : []),
+      ],
+    },
+    {
+      title: 'Dashboards',
+      links: [
+        { label: 'AfyaKen', to: '/dashboards/afyaken', icon: Stethoscope },
+        { label: 'EduKen', to: '/dashboards/eduken', icon: BookOpen },
       ],
     },
     ...(isCreator

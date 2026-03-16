@@ -10,6 +10,8 @@ import {
   Users,
   UserCheck,
   UserPlus,
+  Stethoscope,
+  BookOpen,
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useAppSelector } from '~/store';
@@ -47,6 +49,15 @@ function useDashboardSections(): SidebarSection[] {
         to: '/app/account-settings',
         icon: Settings,
       },
+    ],
+  });
+
+  // Dashboards section for all users
+  sections.push({
+    title: 'Dashboards',
+    links: [
+      { label: 'AfyaKen', to: '/dashboards/afyaken', icon: Stethoscope },
+      { label: 'EduKen', to: '/dashboards/eduken', icon: BookOpen },
     ],
   });
 

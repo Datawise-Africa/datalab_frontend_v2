@@ -27,12 +27,20 @@ export function meta(_args: Route.MetaArgs) {
   });
 }
 
-const platforms = ['All', 'Power BI', 'Tableau', 'Looker Studio', 'Metabase'];
+const platforms = [
+  'All',
+  'Power BI',
+  'Tableau',
+  'Looker Studio',
+  'Metabase',
+  'Custom',
+];
 
 const categories = [
   'All',
   'Climate',
   'Health',
+  'Education',
   'Finance',
   'AI/ML',
   'Transportation',
@@ -51,6 +59,8 @@ function getPlatformBadgeClasses(platform: Dashboard['platform']): string {
       return 'bg-red-100 text-red-800 border-red-200';
     case 'Metabase':
       return 'bg-purple-100 text-purple-800 border-purple-200';
+    case 'Custom':
+      return 'bg-primary/10 text-primary border-primary/20';
     default:
       return 'bg-gray-100 text-gray-800 border-gray-200';
   }
@@ -272,16 +282,25 @@ export default function Dashboards() {
 
                     {/* Action Button */}
                     {dashboard.isLive ? (
-                      <a
-                        href={dashboard.embedUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button className="w-full bg-primary text-white hover:bg-primary/90">
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          View Dashboard
-                        </Button>
-                      </a>
+                      dashboard.internalRoute ? (
+                        <Link to={dashboard.internalRoute}>
+                          <Button className="w-full bg-primary text-white hover:bg-primary/90">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View Dashboard
+                          </Button>
+                        </Link>
+                      ) : (
+                        <a
+                          href={dashboard.embedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button className="w-full bg-primary text-white hover:bg-primary/90">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            View Dashboard
+                          </Button>
+                        </a>
+                      )
                     ) : (
                       <Button
                         disabled

@@ -15,6 +15,8 @@ export default [
   route('docs', 'routes/docs.tsx'),
   route('creators', 'routes/creators.tsx'),
   route('dashboards', 'routes/dashboards.tsx'),
+  route('dashboards/afyaken', 'routes/dashboards/afyaken.tsx'),
+  route('dashboards/eduken', 'routes/dashboards/eduken.tsx'),
   route('success-stories', 'routes/success-stories.tsx'),
   route('success-stories/:slug', 'routes/success-story-detail.tsx'),
   route('research', 'routes/research.tsx'),
