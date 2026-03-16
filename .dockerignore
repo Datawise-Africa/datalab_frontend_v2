@@ -1,4 +1,36 @@
-.react-router
-build
+# Version control
+.git
+
+# Environment files (may contain secrets)
+.env
+.env.*
+
+# Dependencies
 node_modules
+
+# Build artifacts
+build
+dist
+
+# Test and coverage outputs
+coverage
+*.lcov
+*.coverage
+
+# Logs and temporary files
+logs
+*.log
+*.tmp
+
+# Editor / IDE / OS-specific files
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Framework-specific
+.react-router
+
+# Documentation not needed in image
 README.md
