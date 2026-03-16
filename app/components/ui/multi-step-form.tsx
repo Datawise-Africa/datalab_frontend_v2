@@ -2,7 +2,13 @@ import { useState, type ReactNode } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
+
+export interface StepValidationResult {
+  valid: boolean;
+  /** Field-level errors: { fieldName: "error message" } */
+  errors?: Record<string, string>;
+}
 
 export interface StepConfig {
   /** Unique key for the step. */
@@ -11,15 +17,26 @@ export interface StepConfig {
   label: string;
   /** Icon shown in the stepper (optional). */
   icon?: React.ComponentType<{ className?: string }>;
-  /** Validate before allowing navigation to next step. Return true to allow. */
-  validate?: () => boolean | Promise<boolean>;
+  /**
+   * Validate before allowing navigation to next step.
+   * Return `true`/`false` for simple validation, or a `StepValidationResult`
+   * for field-level error messages.
+   */
+  validate?: () =>
+    | boolean
+    | StepValidationResult
+    | Promise<boolean | StepValidationResult>;
 }
 
 interface MultiStepFormProps {
   /** Step configuration array. */
   steps: StepConfig[];
-  /** Render function for each step. Receives the step key and index. */
-  children: (step: StepConfig, index: number) => ReactNode;
+  /** Render function for each step. Receives the step key, index, and current validation errors. */
+  children: (
+    step: StepConfig,
+    index: number,
+    errors: Record<string, string>
+  ) => ReactNode;
   /** Called when the final step's submit button is clicked. */
   onSubmit: () => void | Promise<void>;
   /** Whether submission is in progress. */
@@ -79,36 +96,51 @@ export function MultiStepForm({
   extraActions,
 }: MultiStepFormProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const currentStep = steps[currentIndex];
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === steps.length - 1;
 
-  const handleNext = async () => {
-    if (currentStep.validate) {
-      const valid = await currentStep.validate();
-      if (!valid) return;
+  const runValidation = async (): Promise<boolean> => {
+    if (!currentStep.validate) return true;
+    const result = await currentStep.validate();
+    if (typeof result === 'boolean') {
+      if (!result) {
+        setFieldErrors({ _form: 'Please fill in all required fields.' });
+      } else {
+        setFieldErrors({});
+      }
+      return result;
     }
+    // StepValidationResult
+    setFieldErrors(result.errors ?? {});
+    return result.valid;
+  };
+
+  const handleNext = async () => {
+    const valid = await runValidation();
+    if (!valid) return;
     if (!isLast) {
+      setFieldErrors({});
       setCurrentIndex((i) => i + 1);
     }
   };
 
   const handlePrev = () => {
     if (!isFirst) {
+      setFieldErrors({});
       setCurrentIndex((i) => i - 1);
     }
   };
 
   const handleSubmit = async () => {
-    if (currentStep.validate) {
-      const valid = await currentStep.validate();
-      if (!valid) return;
-    }
+    const valid = await runValidation();
+    if (!valid) return;
     await onSubmit();
   };
 
-  const content = children(currentStep, currentIndex);
+  const content = children(currentStep, currentIndex, fieldErrors);
 
   return (
     <div className={cn('space-y-6', className)}>
@@ -163,7 +195,22 @@ export function MultiStepForm({
         content
       )}
 
-      {/* Error */}
+      {/* Field errors */}
+      {Object.keys(fieldErrors).length > 0 && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3 space-y-1">
+          <div className="flex items-center gap-2 text-sm font-medium text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            Please fix the following errors:
+          </div>
+          <ul className="list-disc pl-9 text-sm text-destructive space-y-0.5">
+            {Object.entries(fieldErrors).map(([key, msg]) => (
+              <li key={key}>{msg}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Submission error */}
       {error && <p className="text-sm text-destructive text-center">{error}</p>}
 
       {/* Navigation */}

@@ -6,6 +6,7 @@ import { Protect } from '~/components/auth/protect';
 import {
   MultiStepForm,
   type StepConfig,
+  type StepValidationResult,
 } from '~/components/ui/multi-step-form';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
@@ -36,15 +37,38 @@ import {
 } from '~/features/metadata';
 import { useCreateDataset } from '~/features/dataset-creator';
 import { cn } from '~/lib/utils';
-import type {
-  DatasetBasicInfoInput,
-  DatasetFileInput,
-  DatasetAttributionInput,
-  DatasetDiscoveryInput,
-  DatasetTermsInput,
-  NewAuthorInput,
-  UploadDatasetPayload,
+import {
+  datasetBasicInfoSchema,
+  datasetFilesSchema,
+  datasetDiscoverySchema,
+  datasetTermsSchema,
+  type DatasetBasicInfoInput,
+  type DatasetFileInput,
+  type DatasetAttributionInput,
+  type DatasetDiscoveryInput,
+  type DatasetTermsInput,
+  type NewAuthorInput,
+  type UploadDatasetPayload,
 } from '~/lib/schema/upload-dataset-schema';
+
+function zodValidate(
+  schema: {
+    safeParse: (data: unknown) => {
+      success: boolean;
+      error?: { issues: { path: PropertyKey[]; message: string }[] };
+    };
+  },
+  data: unknown
+): StepValidationResult {
+  const result = schema.safeParse(data);
+  if (result.success) return { valid: true };
+  const errors: Record<string, string> = {};
+  for (const issue of result.error!.issues) {
+    const key = issue.path.map(String).join('.') || '_form';
+    if (!errors[key]) errors[key] = issue.message;
+  }
+  return { valid: false, errors };
+}
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -52,10 +76,6 @@ export function meta(_args: Route.MetaArgs) {
     description: 'Upload a new dataset to Datalab Africa',
   });
 }
-
-type Step = 1 | 2 | 3 | 4 | 5;
-
-const stepLabels = ['Basic Info', 'Files', 'Attribution', 'Discovery', 'Terms'];
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -84,7 +104,6 @@ const REGIONS = [
 
 export default function UploadDataset() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>(1);
 
   // Step 1
   const [basicInfo, setBasicInfo] = useState<DatasetBasicInfoInput>({
@@ -186,14 +205,23 @@ export default function UploadDataset() {
       key: 'basic',
       label: 'Basic Info',
       icon: Info,
-      validate: () =>
-        !!basicInfo.title && !!basicInfo.description && basicInfo.category > 0,
+      validate: () => zodValidate(datasetBasicInfoSchema, basicInfo),
     },
     {
       key: 'files',
       label: 'Files',
       icon: Upload,
-      validate: () => dataFiles.length > 0,
+      validate: () =>
+        zodValidate(datasetFilesSchema, {
+          data_files: dataFiles.map(({ file_name, base64 }) => ({
+            file_name,
+            base64,
+          })),
+          metadata_files: metadataFiles.map(({ file_name, base64 }) => ({
+            file_name,
+            base64,
+          })),
+        }),
     },
     {
       key: 'attribution',
@@ -204,16 +232,13 @@ export default function UploadDataset() {
       key: 'discovery',
       label: 'Discovery',
       icon: Globe,
-      validate: () =>
-        discovery.tags.length >= 2 &&
-        discovery.keywords.length >= 2 &&
-        discovery.covered_regions.length > 0,
+      validate: () => zodValidate(datasetDiscoverySchema, discovery),
     },
     {
       key: 'terms',
       label: 'Terms',
       icon: ShieldCheck,
-      validate: () => Object.values(terms).every(Boolean),
+      validate: () => zodValidate(datasetTermsSchema, terms),
     },
   ];
 
@@ -236,7 +261,7 @@ export default function UploadDataset() {
               : undefined
           }
         >
-          {(step) => {
+          {(step, _index, errors) => {
             switch (step.key) {
               case 'basic':
                 return (
@@ -244,6 +269,7 @@ export default function UploadDataset() {
                     data={basicInfo}
                     onChange={setBasicInfo}
                     categories={categories}
+                    errors={errors}
                   />
                 );
               case 'files':
@@ -261,6 +287,7 @@ export default function UploadDataset() {
                     onRemoveMetadataFile={(i) =>
                       setMetadataFiles((p) => p.filter((_, idx) => idx !== i))
                     }
+                    errors={errors}
                   />
                 );
               case 'attribution':
@@ -274,7 +301,11 @@ export default function UploadDataset() {
                 );
               case 'discovery':
                 return (
-                  <Step4Discovery data={discovery} onChange={setDiscovery} />
+                  <Step4Discovery
+                    data={discovery}
+                    onChange={setDiscovery}
+                    errors={errors}
+                  />
                 );
               case 'terms':
                 return (
@@ -284,6 +315,7 @@ export default function UploadDataset() {
                     basicInfo={basicInfo}
                     dataFiles={dataFiles}
                     discovery={discovery}
+                    errors={errors}
                   />
                 );
               default:
@@ -296,16 +328,32 @@ export default function UploadDataset() {
   );
 }
 
+// ── Shared ──
+
+function FieldError({
+  errors,
+  field,
+}: {
+  errors: Record<string, string>;
+  field: string;
+}) {
+  const msg = errors[field];
+  if (!msg) return null;
+  return <p className="text-xs text-destructive mt-1">{msg}</p>;
+}
+
 // ── Step Components ──
 
 function Step1BasicInfo({
   data,
   onChange,
   categories,
+  errors = {},
 }: {
   data: DatasetBasicInfoInput;
   onChange: (d: DatasetBasicInfoInput) => void;
   categories?: { id: number; title: string }[];
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="space-y-4">
@@ -317,7 +365,9 @@ function Step1BasicInfo({
           value={data.title}
           onChange={(e) => onChange({ ...data, title: e.target.value })}
           placeholder="Enter a descriptive title"
+          className={errors.title ? 'border-destructive' : ''}
         />
+        <FieldError errors={errors} field="title" />
       </div>
 
       <div className="space-y-2">
@@ -327,7 +377,9 @@ function Step1BasicInfo({
           onChange={(e) => onChange({ ...data, description: e.target.value })}
           placeholder="Describe your dataset..."
           rows={4}
+          className={errors.description ? 'border-destructive' : ''}
         />
+        <FieldError errors={errors} field="description" />
       </div>
 
       <div className="space-y-2">
@@ -343,6 +395,7 @@ function Step1BasicInfo({
           }
           placeholder="Select category"
         />
+        <FieldError errors={errors} field="category" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -379,8 +432,9 @@ function Step1BasicInfo({
             }
             placeholder="0.00"
             min={0}
-            className="max-w-40"
+            className={cn('max-w-40', errors.price ? 'border-destructive' : '')}
           />
+          <FieldError errors={errors} field="price" />
         </div>
       )}
     </div>
@@ -394,6 +448,7 @@ function Step2Files({
   onMetadataFiles,
   onRemoveDataFile,
   onRemoveMetadataFile,
+  errors = {},
 }: {
   dataFiles: (DatasetFileInput & { size: number })[];
   metadataFiles: (DatasetFileInput & { size: number })[];
@@ -401,6 +456,7 @@ function Step2Files({
   onMetadataFiles: (files: FileList) => void;
   onRemoveDataFile: (i: number) => void;
   onRemoveMetadataFile: (i: number) => void;
+  errors?: Record<string, string>;
 }) {
   return (
     <div className="space-y-6">
@@ -409,6 +465,7 @@ function Step2Files({
         <p className="text-sm text-muted-foreground">
           Upload your dataset files (CSV, JSON, ZIP — max 100 MB)
         </p>
+        <FieldError errors={errors} field="data_files" />
       </div>
       <DropZone
         onFiles={onDataFiles}
@@ -648,9 +705,11 @@ function Step3Attribution({
 function Step4Discovery({
   data,
   onChange,
+  errors = {},
 }: {
   data: DatasetDiscoveryInput;
   onChange: (d: DatasetDiscoveryInput) => void;
+  errors?: Record<string, string>;
 }) {
   const [tagInput, setTagInput] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -709,8 +768,10 @@ function Step4Discovery({
               }
             }}
             placeholder="Type and press Enter"
+            className={errors.tags ? 'border-destructive' : ''}
           />
         </div>
+        <FieldError errors={errors} field="tags" />
         {data.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {data.tags.map((tag) => (
@@ -747,8 +808,10 @@ function Step4Discovery({
               }
             }}
             placeholder="Type and press Enter"
+            className={errors.keywords ? 'border-destructive' : ''}
           />
         </div>
+        <FieldError errors={errors} field="keywords" />
         {data.keywords.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {data.keywords.map((kw) => (
@@ -774,6 +837,7 @@ function Step4Discovery({
       {/* Covered regions */}
       <div className="space-y-2">
         <Label>Covered Regions</Label>
+        <FieldError errors={errors} field="covered_regions" />
         <div className="flex flex-wrap gap-2">
           {REGIONS.map((region) => {
             const isActive = data.covered_regions.includes(region);
@@ -831,12 +895,14 @@ function Step5Terms({
   basicInfo,
   dataFiles,
   discovery,
+  errors = {},
 }: {
   data: DatasetTermsInput;
   onChange: (d: DatasetTermsInput) => void;
   basicInfo: DatasetBasicInfoInput;
   dataFiles: { file_name: string }[];
   discovery: DatasetDiscoveryInput;
+  errors?: Record<string, string>;
 }) {
   const termItems: { key: keyof DatasetTermsInput; label: string }[] = [
     {
@@ -890,17 +956,22 @@ function Step5Terms({
       {/* Terms checkboxes */}
       <div className="space-y-3">
         {termItems.map((item) => (
-          <label
-            key={item.key}
-            className="flex items-start gap-3 cursor-pointer rounded-md border p-4"
-          >
-            <Checkbox
-              className="mt-0.5"
-              checked={data[item.key]}
-              onCheckedChange={(v) => onChange({ ...data, [item.key]: !!v })}
-            />
-            <span className="text-sm leading-relaxed">{item.label}</span>
-          </label>
+          <div key={item.key}>
+            <label
+              className={cn(
+                'flex items-start gap-3 cursor-pointer rounded-md border p-4',
+                errors[item.key] ? 'border-destructive' : ''
+              )}
+            >
+              <Checkbox
+                className="mt-0.5"
+                checked={data[item.key]}
+                onCheckedChange={(v) => onChange({ ...data, [item.key]: !!v })}
+              />
+              <span className="text-sm leading-relaxed">{item.label}</span>
+            </label>
+            <FieldError errors={errors} field={item.key} />
+          </div>
         ))}
       </div>
     </div>

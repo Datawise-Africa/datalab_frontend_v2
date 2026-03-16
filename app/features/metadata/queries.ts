@@ -14,7 +14,8 @@ export const useDatasetCategories = () => {
     queryKey: metadataKeys.categories(),
     queryFn: async (): Promise<IDatasetCategory[]> => {
       const { data } = await apiClient.get('/data/dataset-categories/');
-      return data;
+      // API may return paginated { data: [...] } or a plain array
+      return Array.isArray(data) ? data : (data?.data ?? []);
     },
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
@@ -27,7 +28,8 @@ export const useLicenses = () => {
     queryKey: metadataKeys.licenses(),
     queryFn: async (): Promise<IDatasetLicense[]> => {
       const { data } = await apiClient.get('/data/license/');
-      return data;
+      // API may return paginated { data: [...] } or a plain array
+      return Array.isArray(data) ? data : (data?.data ?? []);
     },
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
@@ -40,7 +42,8 @@ export const useAuthors = () => {
     queryKey: metadataKeys.authors(),
     queryFn: async (): Promise<IDatasetAuthor[]> => {
       const { data } = await apiClient.get('/data/dataset-authors/');
-      return data;
+      // API may return paginated { data: [...] } or a plain array
+      return Array.isArray(data) ? data : (data?.data ?? []);
     },
     staleTime: 10 * 60 * 1000,
   });
@@ -52,7 +55,8 @@ export const useTermsAndConditions = () => {
     queryKey: metadataKeys.termsAndConditions(),
     queryFn: async (): Promise<IDatasetTermsAndConditions[]> => {
       const { data } = await apiClient.get('/data/terms-and-conditions/');
-      return data;
+      // API may return paginated { data: [...] } or a plain array
+      return Array.isArray(data) ? data : (data?.data ?? []);
     },
     staleTime: 30 * 60 * 1000,
   });
