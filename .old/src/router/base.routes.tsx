@@ -28,7 +28,7 @@ const baseRoutes = [
   },
   {
     path: '/dashboards/eduken',
-    element: <EdukenDashboard/>,
+    element: <EdukenDashboard />,
   },
   {
     path: '/dashboards/afyaken',

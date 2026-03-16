@@ -53,7 +53,6 @@ export default function DatasetCreatorReportsPage() {
     });
   };
 
-
   return (
     <div className="mx-auto grid max-w-6xl gap-8">
       <div className="grid gap-2">

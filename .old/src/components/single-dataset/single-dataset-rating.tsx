@@ -9,7 +9,11 @@ import type { IDataset, DatasetReviewType } from '@/lib/types/data-set';
 
 interface SingleDatasetRatingProps {
   dataset: IDataset;
-  onEditReview?: (reviewId: number, rating: number, comment: string) => Promise<void>;
+  onEditReview?: (
+    reviewId: number,
+    rating: number,
+    comment: string,
+  ) => Promise<void>;
 }
 
 export function SingleDatasetRating({
@@ -63,8 +67,6 @@ export function SingleDatasetRating({
     return user && user.user_id === review.user.id;
   };
 
-
-
   return (
     <Card className="border-gray-200 bg-white">
       <CardHeader>
@@ -80,8 +82,10 @@ export function SingleDatasetRating({
             <StarRating rating={average_review} readonly size="md" />
           </div>
           <div className="text-sm text-gray-600">
-            <span className="font-semibold">{average_review?.toFixed(1) ?? 0}</span> (
-            {review_count} {review_count === 1 ? 'review' : 'reviews'})
+            <span className="font-semibold">
+              {average_review?.toFixed(1) ?? 0}
+            </span>{' '}
+            ({review_count} {review_count === 1 ? 'review' : 'reviews'})
           </div>
         </div>
 
@@ -114,7 +118,7 @@ export function SingleDatasetRating({
 
                       <div className="space-y-3">
                         <div>
-                          <label className="text-sm font-medium text-gray-700 mb-2 block">
+                          <label className="mb-2 block text-sm font-medium text-gray-700">
                             Rating
                           </label>
                           <StarRating
@@ -125,7 +129,7 @@ export function SingleDatasetRating({
                         </div>
 
                         <div>
-                          <label className="text-sm font-medium text-gray-700 mb-2 block">
+                          <label className="mb-2 block text-sm font-medium text-gray-700">
                             Comment
                           </label>
                           <Textarea
@@ -143,7 +147,7 @@ export function SingleDatasetRating({
                             disabled={isSubmitting || editRating === 0}
                             size="sm"
                           >
-                            <Save className="h-4 w-4 mr-1" />
+                            <Save className="mr-1 h-4 w-4" />
                             {isSubmitting ? 'Saving...' : 'Save'}
                           </Button>
                           <Button
@@ -151,7 +155,7 @@ export function SingleDatasetRating({
                             onClick={handleEditCancel}
                             size="sm"
                           >
-                            <X className="h-4 w-4 mr-1" />
+                            <X className="mr-1 h-4 w-4" />
                             Cancel
                           </Button>
                         </div>
@@ -160,7 +164,7 @@ export function SingleDatasetRating({
                   ) : (
                     // Display Mode
                     <>
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="mb-3 flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
                             <User className="h-4 w-4 text-blue-600" />
@@ -175,7 +179,11 @@ export function SingleDatasetRating({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <StarRating rating={review.rating} readonly size="sm" />
+                          <StarRating
+                            rating={review.rating}
+                            readonly
+                            size="sm"
+                          />
                           {canEditReview(review) && (
                             <Button
                               variant="ghost"
@@ -189,7 +197,7 @@ export function SingleDatasetRating({
                         </div>
                       </div>
                       {review.comment && (
-                        <p className="text-gray-700 text-sm leading-relaxed">
+                        <p className="text-sm leading-relaxed text-gray-700">
                           {review.comment}
                         </p>
                       )}
@@ -200,12 +208,14 @@ export function SingleDatasetRating({
             </div>
           </div>
         ) : (
-          <div className="text-center py-8">
-            <div className="text-gray-400 mb-2">
-              <Star className="h-12 w-12 mx-auto" />
+          <div className="py-8 text-center">
+            <div className="mb-2 text-gray-400">
+              <Star className="mx-auto h-12 w-12" />
             </div>
             <p className="text-gray-500">No reviews yet</p>
-            <p className="text-sm text-gray-400">Be the first to review this dataset</p>
+            <p className="text-sm text-gray-400">
+              Be the first to review this dataset
+            </p>
           </div>
         )}
       </CardContent>

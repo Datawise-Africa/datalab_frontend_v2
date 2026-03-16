@@ -1,523 +1,505 @@
 import { Link } from 'react-router';
+import type { Route } from './+types/index';
 import {
+  Database,
   ArrowRight,
-  BarChart3,
-  Brain,
-  Globe,
-  Layers,
-  Lightbulb,
+  Code,
   Shield,
-  Sparkles,
-  TrendingUp,
-  Users,
   Zap,
+  BarChart3,
+  Globe,
+  Users,
+  BookOpen,
   CheckCircle,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { generateSEOTags } from '~/lib/utils/seo';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '~/components/ui/card';
+import { Badge } from '~/components/ui/badge';
+import {
+  CardContent as CardContentSlot,
+  CardHeader as CardHeaderSlot,
+} from '~/components/ui/card';
+import { DatasetCard } from '~/components/dataset-card';
+import { normalizeApiDataset } from '~/lib/utils/dataset-adapter';
+import { useDatasets } from '~/features/datasets';
+import { Loader2 } from 'lucide-react';
+import { successStories } from '~/data/success-stories';
+import { researchReports } from '~/data/research';
+import { generateSEOTags } from '~/lib/utils/seo';
 
-export function meta() {
+export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Datawise Africa - Transforming Data Into Clear Results',
+    title: 'Access, Integrate & Build with World-Class Datasets',
     description:
-      "Build bold digital products, de-risk transformation, and scale your data program with Datawise Africa. Intelligent solutions for the continent's digital future.",
-    url: '/',
-    keywords:
-      'data analytics, digital transformation, AI, Africa, product management, inventory',
+      'Data Lab provides curated, high-quality datasets with developer-friendly APIs. Browse thousands of datasets, integrate in minutes, and build data-driven applications at scale.',
   });
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.1, duration: 0.5, ease: 'easeOut' as const },
-  }),
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  visible: (i: number) => ({
-    opacity: 1,
-    transition: { delay: i * 0.1, duration: 0.5 },
-  }),
-};
-
-const staggerContainer = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const staggerItem = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4, ease: 'easeOut' as const },
-  },
-};
+const featuredStories = successStories.slice(0, 3);
+const latestReport = researchReports.slice(0, 1)[0];
 
 const stats = [
-  { value: '99%', label: 'Client Satisfaction' },
-  { value: '500+', label: 'Projects Delivered' },
-  { value: '12', label: 'African Countries' },
-  { value: '50+', label: 'Enterprise Partners' },
+  { label: 'Datasets', value: '10,000+' },
+  { label: 'API Calls', value: '50M+' },
+  { label: 'Teams', value: '2,000+' },
+  { label: 'Uptime', value: '99.9%' },
 ];
 
-const services = [
+const trustedCompanies = [
+  'TechCorp',
+  'Meridian Health',
+  'QuantEdge',
+  'TerraVerde',
+  'NovaRetail',
+  'AgriSync',
+];
+
+const howItWorks = [
   {
-    icon: Brain,
-    title: 'Data & AI',
+    icon: Database,
+    title: 'Browse Datasets',
     description:
-      'Turn raw data into actionable insights with machine learning pipelines, predictive analytics, and intelligent automation.',
+      'Explore our curated catalog of over 10,000 datasets spanning health, finance, climate, NLP, computer vision, and more. Filter by category, format, size, or license to find the perfect fit for your project.',
   },
   {
-    icon: Lightbulb,
-    title: 'Product Innovation',
+    icon: Code,
+    title: 'Integrate via API',
     description:
-      'From ideation to launch — we help you build digital products that solve real problems and scale across markets.',
+      'Access any dataset through our RESTful API or Python SDK with just a few lines of code. Get paginated results, streaming downloads, and real-time query capabilities out of the box.',
   },
   {
-    icon: Layers,
-    title: 'Digital Transformation',
+    icon: Zap,
+    title: 'Build & Scale',
     description:
-      'Modernize legacy systems, adopt cloud-native architectures, and streamline operations for the digital age.',
+      'Ship data-driven features faster with built-in caching, versioning, and webhooks. Scale from prototype to production with enterprise-grade infrastructure that handles billions of requests.',
+  },
+];
+
+const whyDataLab = [
+  {
+    icon: Code,
+    title: 'API-First Design',
+    description:
+      'Every dataset is accessible through a consistent, well-documented RESTful API. Our Python and TypeScript SDKs let you integrate data into your applications in minutes, not days.',
   },
   {
     icon: Shield,
-    title: 'Technology Consulting',
+    title: 'Enterprise Security',
     description:
-      'Strategic guidance on technology decisions, architecture reviews, and digital roadmaps tailored to your business.',
+      'SOC 2 Type II certified infrastructure with end-to-end encryption, role-based access controls, and comprehensive audit logging. Your data access meets the strictest compliance requirements.',
   },
   {
-    icon: TrendingUp,
-    title: 'App Modernization',
+    icon: Database,
+    title: 'Versioned Datasets',
     description:
-      'Re-platform, re-architect, or rebuild your applications for better performance, scalability, and maintainability.',
+      'Every dataset is semantically versioned with full changelog history. Pin your applications to a specific version for reproducibility or subscribe to updates for the latest data.',
   },
   {
-    icon: Sparkles,
-    title: 'AI-Enabled Engineering',
+    icon: Globe,
+    title: 'Open Formats',
     description:
-      'Embed intelligence into your software with AI-powered features, copilots, and automated decision systems.',
-  },
-];
-
-const industries = [
-  { name: 'Fintech & Banking', icon: BarChart3 },
-  { name: 'Healthcare', icon: Shield },
-  { name: 'Agriculture', icon: Globe },
-  { name: 'E-Commerce', icon: Layers },
-  { name: 'Logistics', icon: TrendingUp },
-  { name: 'Education', icon: Users },
-];
-
-const testimonials = [
-  {
-    quote:
-      'Datawise transformed our supply chain visibility. We now make decisions in hours, not weeks.',
-    author: 'Sarah Okonkwo',
-    role: 'COO, AgriConnect',
+      'All datasets are available in industry-standard formats including CSV, Parquet, JSON, and Arrow. No proprietary lock-in — export your data and use it anywhere.',
   },
   {
-    quote:
-      'Their team integrated seamlessly with ours. The product they delivered exceeded every benchmark.',
-    author: 'James Mwangi',
-    role: 'CTO, PayFlow Africa',
+    icon: BarChart3,
+    title: 'Research-Backed',
+    description:
+      'Our in-house research team continuously validates dataset quality, publishes methodology papers, and develops new tools for data analysis and machine learning workflows.',
   },
   {
-    quote:
-      'The AI models they built for us reduced fraud detection time by 87%. Truly exceptional work.',
-    author: 'Amina Diallo',
-    role: 'VP Engineering, SecureBank',
+    icon: Users,
+    title: 'Community Driven',
+    description:
+      'Join a thriving community of 2,000+ teams contributing datasets, sharing analyses, and collaborating on open-source tools. Together, we are building the future of open data infrastructure.',
   },
 ];
 
 export default function Home() {
   return (
-    <div className="overflow-hidden">
-      {/* ===================== HERO ===================== */}
-      <section className="relative min-h-[90vh] flex items-center bg-gray-950 text-gray-50 overflow-hidden">
-        {/* Background gradient orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-primary opacity-10 blur-[120px]" />
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-chart-2 opacity-10 blur-[120px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-chart-1 opacity-5 blur-[100px]" />
-        </div>
-
-        <div className="container mx-auto px-6 py-24 relative z-10">
-          <div className="max-w-4xl">
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={0}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-700 bg-gray-900/50 text-gray-300 text-sm mb-8"
-            >
-              <Zap className="w-4 h-4 text-primary" />
-              Powering Africa&apos;s Digital Transformation
-            </motion.div>
-
-            <motion.h1
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={1}
-              className="text-5xl md:text-7xl font-black leading-[1.05] tracking-tight mb-6"
-            >
-              Transforming
-              <br />
-              <span className="text-primary">big ideas</span> into
-              <br />
-              clear results
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={2}
-              className="text-lg md:text-xl text-gray-400 max-w-2xl mb-10 leading-relaxed"
-            >
-              Build bold new products, de-risk digital transformation, and scale
-              your data & AI program with Africa&apos;s leading technology
-              partner.
-            </motion.p>
-
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={3}
-              className="flex flex-wrap gap-4"
-            >
-              <Button size="lg" className="text-base px-8 py-6" asChild>
-                <Link to="/products">
-                  Explore Platform
-                  <ArrowRight className="w-5 h-5 ml-2" />
+    <div className="flex flex-col min-h-screen">
+      {/* ------------------------------------------------------------------ */}
+      {/* 1. Hero Section                                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="relative bg-primary/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+          <div className="max-w-3xl mx-auto text-center">
+            <Badge variant="secondary" className="mb-6">
+              <Zap className="mr-1 h-3 w-3" />
+              Trusted by 2,000+ teams worldwide
+            </Badge>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-gray-900 leading-tight">
+              Access, Integrate &amp; Build with
+              <span className="block text-primary">World-Class Datasets</span>
+            </h1>
+            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Data Lab provides curated, high-quality datasets with
+              developer-friendly APIs. Browse thousands of datasets, integrate
+              in minutes, and build data-driven applications at scale.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="w-full sm:w-auto">
+                <Link to="/datasets">
+                  Explore Datasets
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button
+                asChild
                 variant="outline"
                 size="lg"
-                className="text-base px-8 py-6 bg-transparent border-gray-500 text-white hover:bg-gray-800"
-                asChild
+                className="w-full sm:w-auto"
               >
-                <Link to="/categories">Browse Solutions</Link>
+                <Link to="/docs">
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Read the Docs
+                </Link>
               </Button>
-            </motion.div>
+            </div>
+          </div>
+
+          {/* Stats bar */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-3xl sm:text-4xl font-bold text-primary">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ===================== TRUST BAR ===================== */}
-      <section className="border-b border-border bg-background">
-        <div className="container mx-auto px-6 py-12">
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-          >
-            {stats.map((stat) => (
-              <motion.div
-                key={stat.label}
-                variants={staggerItem}
-                className="text-center"
+      {/* ------------------------------------------------------------------ */}
+      {/* 2. Trusted By Section                                               */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="border-y bg-muted/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <p className="text-center text-sm font-medium text-muted-foreground mb-8">
+            Trusted by innovative teams worldwide
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {trustedCompanies.map((company) => (
+              <span
+                key={company}
+                className="text-lg font-semibold text-muted-foreground/60 select-none"
               >
-                <div className="text-4xl md:text-5xl font-black text-primary mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground font-medium uppercase tracking-wider">
-                  {stat.label}
-                </div>
-              </motion.div>
+                {company}
+              </span>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ===================== SERVICES ===================== */}
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-6">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            custom={0}
-            className="max-w-2xl mb-16"
-          >
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
-              What we do
-            </p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
-              Services built for scale
+      {/* ------------------------------------------------------------------ */}
+      {/* 3. How It Works                                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+              How It Works
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              End-to-end capabilities that help you innovate faster, operate
-              smarter, and grow sustainably.
+            <p className="mt-4 text-lg text-muted-foreground">
+              Go from discovery to production in three simple steps. No complex
+              setup, no data wrangling — just clean data, fast.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {services.map((service) => (
-              <motion.div key={service.title} variants={staggerItem}>
-                <Card className="group hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 h-full">
-                  <CardContent className="p-8">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                      <service.icon className="w-6 h-6 text-primary" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {howItWorks.map((step, index) => (
+              <Card
+                key={step.title}
+                className="relative border-0 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <CardHeader>
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <step.icon className="h-6 w-6" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3">{service.title}</h3>
-                    <p className="text-muted-foreground leading-relaxed text-sm">
-                      {service.description}
+                    <span className="text-sm font-bold text-primary">
+                      Step {index + 1}
+                    </span>
+                  </div>
+                  <CardTitle className="text-xl">{step.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base leading-relaxed">
+                    {step.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* 4. Featured Datasets                                                */}
+      {/* ------------------------------------------------------------------ */}
+      <FeaturedDatasets />
+
+      {/* ------------------------------------------------------------------ */}
+      {/* 5. Why Data Lab                                                     */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="py-16 md:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+              Why Data Lab
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Built for developers and researchers who demand reliable data
+              infrastructure with zero compromises.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {whyDataLab.map((feature) => (
+              <Card
+                key={feature.title}
+                className="border-0 shadow-md hover:shadow-lg transition-shadow"
+              >
+                <CardHeader>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary mb-3">
+                    <feature.icon className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-lg">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* 6. Success Stories Preview                                           */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="py-16 md:py-24 bg-gray-50/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+              Success Stories
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              See how industry-leading teams are building transformative
+              products and research with Data Lab.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {featuredStories.map((story) => (
+              <Link
+                key={story.slug}
+                to={`/success-stories/${story.slug}`}
+                className="group"
+              >
+                <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary">{story.industry}</Badge>
+                    </div>
+                    <p className="text-sm font-medium text-primary">
+                      {story.company}
                     </p>
-                    <div className="mt-6 flex items-center gap-2 text-sm font-semibold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                      Learn more <ArrowRight className="w-4 h-4" />
-                    </div>
+                    <CardTitle className="text-lg leading-snug group-hover:text-primary transition-colors">
+                      {story.title}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col justify-between gap-4">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {story.summary}
+                    </p>
+                    <span className="inline-flex items-center text-sm font-medium text-primary group-hover:underline">
+                      Read Story
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </span>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </Link>
             ))}
-          </motion.div>
-        </div>
-      </section>
+          </div>
 
-      {/* ===================== INDUSTRIES ===================== */}
-      <section className="py-24 bg-muted/50">
-        <div className="container mx-auto px-6">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            custom={0}
-            className="text-center max-w-2xl mx-auto mb-16"
-          >
-            <p className="text-sm font-semibold text-chart-2 uppercase tracking-wider mb-3">
-              Industries
-            </p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
-              Deep domain expertise
-            </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              We bring sector-specific knowledge to every engagement, ensuring
-              solutions that fit your industry&apos;s unique challenges.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
-          >
-            {industries.map((industry) => (
-              <motion.div
-                key={industry.name}
-                variants={staggerItem}
-                whileHover={{ y: -4 }}
-                className="group flex flex-col items-center gap-4 p-6 rounded-xl border border-border bg-background hover:border-chart-2/40 hover:shadow-lg transition-all duration-300 cursor-pointer"
-              >
-                <div className="w-14 h-14 rounded-full bg-chart-2/10 flex items-center justify-center group-hover:bg-chart-2/20 transition-colors">
-                  <industry.icon className="w-6 h-6 text-chart-2" />
-                </div>
-                <span className="text-sm font-semibold text-center">
-                  {industry.name}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ===================== WHY US ===================== */}
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              custom={0}
-            >
-              <p className="text-sm font-semibold text-chart-1 uppercase tracking-wider mb-3">
-                Why Datawise
-              </p>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">
-                Your competitive
-                <br />
-                advantage
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-                We combine deep technical expertise with an intimate
-                understanding of African markets to deliver solutions that
-                actually work in the real world.
-              </p>
-              <Button size="lg" className="px-8" asChild>
-                <Link to="/products">
-                  Start Building
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Link>
-              </Button>
-            </motion.div>
-
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-50px' }}
-              className="space-y-4"
-            >
-              {[
-                {
-                  title: 'Africa-first approach',
-                  desc: 'Solutions designed for the unique infrastructure, connectivity, and market dynamics of the continent.',
-                },
-                {
-                  title: 'Full-stack delivery',
-                  desc: 'From strategy through design, engineering, and operations — one partner for the entire journey.',
-                },
-                {
-                  title: 'AI at the core',
-                  desc: 'Every solution we build is enhanced with intelligent automation, analytics, and machine learning.',
-                },
-                {
-                  title: 'Proven at scale',
-                  desc: '500+ projects delivered across 12 countries with a 99% client satisfaction rate.',
-                },
-              ].map((item) => (
-                <motion.div
-                  key={item.title}
-                  variants={staggerItem}
-                  whileHover={{ x: 4 }}
-                  className="flex gap-4 p-5 rounded-xl border border-border hover:border-chart-1/30 hover:bg-chart-1/5 transition-all duration-300"
-                >
-                  <CheckCircle className="w-6 h-6 text-chart-1 shrink-0 mt-0.5" />
-                  <div>
-                    <h4 className="font-bold mb-1">{item.title}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {item.desc}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+          <div className="mt-10 text-center">
+            <Button asChild variant="outline" size="lg">
+              <Link to="/success-stories">
+                View All Stories
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* ===================== TESTIMONIALS ===================== */}
-      <section className="py-24 bg-gray-950 text-gray-50">
-        <div className="container mx-auto px-6">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            custom={0}
-            className="text-center max-w-2xl mx-auto mb-16"
-          >
-            <p className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
-              Testimonials
-            </p>
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
-              Trusted by leaders
-            </h2>
-          </motion.div>
+      {/* ------------------------------------------------------------------ */}
+      {/* 7. Research Spotlight                                                */}
+      {/* ------------------------------------------------------------------ */}
+      {latestReport && (
+        <section className="py-16 md:py-24 bg-primary/5">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+                Research Spotlight
+              </h2>
+              <p className="mt-4 text-lg text-muted-foreground">
+                Our latest research pushing the boundaries of data science and
+                machine learning.
+              </p>
+            </div>
 
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {testimonials.map((item) => (
-              <motion.div
-                key={item.author}
-                variants={staggerItem}
-                whileHover={{ y: -4 }}
-                className="p-8 rounded-2xl border border-gray-800 bg-gray-900/50 hover:border-gray-700 transition-colors"
-              >
-                <p className="text-gray-300 leading-relaxed mb-8 text-lg">
-                  &ldquo;{item.quote}&rdquo;
-                </p>
-                <div>
-                  <p className="font-bold text-gray-100">{item.author}</p>
-                  <p className="text-sm text-gray-500">{item.role}</p>
+            <Card className="max-w-3xl mx-auto border-0 shadow-lg">
+              <CardHeader>
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">
+                    Latest Report
+                  </span>
                 </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+                <CardTitle className="text-2xl leading-snug">
+                  {latestReport.title}
+                </CardTitle>
+                <CardDescription className="mt-2">
+                  By {latestReport.authors.join(', ')} &middot;{' '}
+                  {latestReport.readTime} read
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground leading-relaxed line-clamp-4">
+                  {latestReport.abstract}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {latestReport.tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+                <Button asChild variant="link" className="px-0">
+                  <Link to={`/research/${latestReport.slug}`}>
+                    Read Report
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      )}
 
-      {/* ===================== CTA ===================== */}
-      <section className="py-24 bg-background relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-primary opacity-5 blur-[120px]" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-chart-2 opacity-5 blur-[100px]" />
-        </div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-50px' }}
-            custom={0}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-              Ready to build
-              <br />
-              something <span className="text-primary">bold</span>?
+      {/* ------------------------------------------------------------------ */}
+      {/* 8. CTA Banner                                                       */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="bg-primary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
+              Start Building with Data Lab Today
             </h2>
-            <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
-              Let&apos;s talk about how Datawise can help you turn your vision
-              into a high-performing digital product.
+            <p className="mt-4 text-lg text-primary-foreground leading-relaxed">
+              Get instant access to thousands of curated datasets. Browse,
+              download, and share high-quality data for research and development
+              — completely free to get started.
             </p>
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              custom={1}
-              className="flex flex-wrap justify-center gap-4"
-            >
-              <Button size="lg" className="text-base px-10 py-6" asChild>
-                <Link to="/products">
-                  Get Started
-                  <ArrowRight className="w-5 h-5 ml-2" />
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                asChild
+                size="lg"
+                className="w-full sm:w-auto bg-white text-primary hover:bg-primary/5"
+              >
+                <Link to="/creators">
+                  Become a Creator
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button
-                variant="outline"
-                size="lg"
-                className="text-base px-10 py-6"
                 asChild
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto border-white text-white hover:bg-white/10"
               >
-                <Link to="/categories">Explore Solutions</Link>
+                <Link to="/datasets">Explore Datasets</Link>
               </Button>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
     </div>
+  );
+}
+
+function FeaturedDatasets() {
+  const { data: response, isLoading } = useDatasets({
+    page: 1,
+    limit: 4,
+    sort: 'download_count',
+    order: 'desc',
+  });
+
+  const datasets = response?.data?.map(normalizeApiDataset) ?? [];
+
+  return (
+    <section className="py-16 md:py-24 bg-gray-50/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-gray-900">
+            Featured Datasets
+          </h2>
+          <p className="mt-4 text-lg text-muted-foreground">
+            Hand-picked datasets trusted by thousands of researchers, engineers,
+            and data scientists around the world.
+          </p>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : datasets.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">
+            No featured datasets available at the moment.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {datasets.map((dataset) => (
+              <DatasetCard key={dataset.id} dataset={dataset}>
+                <CardHeaderSlot className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
+                  <DatasetCard.Badges />
+                </CardHeaderSlot>
+                <CardContentSlot className="flex flex-1 flex-col gap-3 px-5 pb-4">
+                  <DatasetCard.Title lineClamp={1} />
+                  <DatasetCard.Description lineClamp={2} />
+                  <DatasetCard.Tags limit={2} />
+                  <DatasetCard.Meta />
+                </CardContentSlot>
+                <DatasetCard.Actions variant="compact" />
+              </DatasetCard>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-10 text-center">
+          <Button asChild variant="outline" size="lg">
+            <Link to="/datasets">
+              View All Datasets
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

@@ -94,7 +94,7 @@ export function ReportPreviewSheet() {
                 filters: filters,
               })
             }
-            disabled={isDownloading }
+            disabled={isDownloading}
           >
             <Printer className="mr-2 h-4 w-4" />
             {isDownloading ? 'Generating PDF...' : 'Download PDF'}

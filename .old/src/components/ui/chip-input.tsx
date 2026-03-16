@@ -39,11 +39,10 @@ const Badge = ({
 };
 
 // ChipInput component types
-export interface ChipInputProps
-  extends Omit<
-    React.HTMLAttributes<HTMLDivElement>,
-    'onChange' | 'defaultValue'
-  > {
+export interface ChipInputProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  'onChange' | 'defaultValue'
+> {
   value?: string[] | string | null;
   defaultValue?: string[];
   onChange?: (value: string[]) => void;

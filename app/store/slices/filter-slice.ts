@@ -7,6 +7,8 @@ export interface FilterSet {
   categoryFilter: string | null;
   sortBy: string;
   sortOrder: 'asc' | 'desc';
+  /** Multi-value faceted filters. Key = facet name, value = selected values. */
+  tags: Record<string, string[]>;
 }
 
 const defaultFilterSet: FilterSet = {
@@ -14,6 +16,7 @@ const defaultFilterSet: FilterSet = {
   categoryFilter: null,
   sortBy: 'name',
   sortOrder: 'asc',
+  tags: {},
 };
 
 interface FilterState {
@@ -24,6 +27,13 @@ const initialState: FilterState = {
   filters: {},
 };
 
+function ensure(state: FilterState, key: string): FilterSet {
+  if (!state.filters[key]) {
+    state.filters[key] = { ...defaultFilterSet, tags: {} };
+  }
+  return state.filters[key];
+}
+
 const filterSlice = createSlice({
   name: 'filters',
   initialState,
@@ -32,30 +42,44 @@ const filterSlice = createSlice({
       state,
       action: PayloadAction<{ key: string; query: string }>
     ) {
-      const { key, query } = action.payload;
-      state.filters[key] = state.filters[key] ?? { ...defaultFilterSet };
-      state.filters[key].searchQuery = query;
+      ensure(state, action.payload.key).searchQuery = action.payload.query;
     },
     setCategoryFilter(
       state,
       action: PayloadAction<{ key: string; category: string | null }>
     ) {
-      const { key, category } = action.payload;
-      state.filters[key] = state.filters[key] ?? { ...defaultFilterSet };
-      state.filters[key].categoryFilter = category;
+      ensure(state, action.payload.key).categoryFilter =
+        action.payload.category;
     },
     setSortBy(state, action: PayloadAction<{ key: string; sortBy: string }>) {
-      const { key, sortBy } = action.payload;
-      state.filters[key] = state.filters[key] ?? { ...defaultFilterSet };
-      state.filters[key].sortBy = sortBy;
+      ensure(state, action.payload.key).sortBy = action.payload.sortBy;
     },
     setSortOrder(
       state,
       action: PayloadAction<{ key: string; sortOrder: 'asc' | 'desc' }>
     ) {
-      const { key, sortOrder } = action.payload;
-      state.filters[key] = state.filters[key] ?? { ...defaultFilterSet };
-      state.filters[key].sortOrder = sortOrder;
+      ensure(state, action.payload.key).sortOrder = action.payload.sortOrder;
+    },
+    setTag(
+      state,
+      action: PayloadAction<{ key: string; tag: string; values: string[] }>
+    ) {
+      ensure(state, action.payload.key).tags[action.payload.tag] =
+        action.payload.values;
+    },
+    toggleTagValue(
+      state,
+      action: PayloadAction<{ key: string; tag: string; value: string }>
+    ) {
+      const f = ensure(state, action.payload.key);
+      const values = f.tags[action.payload.tag] ?? [];
+      const idx = values.indexOf(action.payload.value);
+      if (idx >= 0) {
+        values.splice(idx, 1);
+      } else {
+        values.push(action.payload.value);
+      }
+      f.tags[action.payload.tag] = values;
     },
     updateFilter(
       state,
@@ -63,12 +87,12 @@ const filterSlice = createSlice({
     ) {
       const { key, patch } = action.payload;
       state.filters[key] = {
-        ...(state.filters[key] ?? defaultFilterSet),
+        ...(state.filters[key] ?? { ...defaultFilterSet, tags: {} }),
         ...patch,
       };
     },
     resetFilter(state, action: PayloadAction<string>) {
-      state.filters[action.payload] = { ...defaultFilterSet };
+      state.filters[action.payload] = { ...defaultFilterSet, tags: {} };
     },
     removeFilter(state, action: PayloadAction<string>) {
       delete state.filters[action.payload];
@@ -81,6 +105,8 @@ export const {
   setCategoryFilter,
   setSortBy,
   setSortOrder,
+  setTag,
+  toggleTagValue,
   updateFilter,
   resetFilter,
   removeFilter,
@@ -92,9 +118,16 @@ export function useAppFilter(key: string) {
     (state) => state.filters.filters[key] ?? defaultFilterSet
   );
 
+  const activeTagCount = useMemo(
+    () =>
+      Object.values(filterSet.tags).reduce((sum, arr) => sum + arr.length, 0),
+    [filterSet.tags]
+  );
+
   return useMemo(
     () => ({
       ...filterSet,
+      activeTagCount,
       setSearchQuery: (query: string) =>
         dispatch(setSearchQuery({ key, query })),
       setCategoryFilter: (category: string | null) =>
@@ -102,11 +135,15 @@ export function useAppFilter(key: string) {
       setSortBy: (sortBy: string) => dispatch(setSortBy({ key, sortBy })),
       setSortOrder: (sortOrder: 'asc' | 'desc') =>
         dispatch(setSortOrder({ key, sortOrder })),
+      setTag: (tag: string, values: string[]) =>
+        dispatch(setTag({ key, tag, values })),
+      toggleTagValue: (tag: string, value: string) =>
+        dispatch(toggleTagValue({ key, tag, value })),
       updateFilter: (patch: Partial<FilterSet>) =>
         dispatch(updateFilter({ key, patch })),
       resetFilters: () => dispatch(resetFilter(key)),
     }),
-    [dispatch, key, filterSet]
+    [dispatch, key, filterSet, activeTagCount]
   );
 }
 

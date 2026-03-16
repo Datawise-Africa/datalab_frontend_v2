@@ -29,14 +29,14 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 
   if (!product) {
     return generateSEOTags({
-      title: 'Edit Product - Datawise Africa',
+      title: 'Edit Product',
       description: 'Edit product details and information.',
       url: '/products',
     });
   }
 
   return generateSEOTags({
-    title: `Edit ${product.name} - Product Management`,
+    title: `Edit ${product.name}`,
     description: `Update information for ${product.name}.`,
     url: `/products/${product.id}/edit`,
     image: product.imageUrl,

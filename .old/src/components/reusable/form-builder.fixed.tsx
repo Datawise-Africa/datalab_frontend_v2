@@ -1,12 +1,12 @@
-import type React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import type React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   useForm,
   type Control,
   type FieldPath,
   FormProvider,
   type PathValue,
-} from "react-hook-form";
+} from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -15,19 +15,19 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "../ui/checkbox";
+} from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '../ui/checkbox';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { z } from "zod";
+} from '../ui/select';
+import { Input } from '../ui/input';
+import { Textarea } from '../ui/textarea';
+import { z } from 'zod';
 import {
   ArrowLeft,
   ArrowRight,
@@ -39,22 +39,22 @@ import {
   Check,
   ChevronDown,
   type LucideIcon,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState, type ReactNode } from "react";
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useState, type ReactNode } from 'react';
 import {
   Command,
   CommandEmpty,
   CommandGroup,
-//   CommandInput,
+  //   CommandInput,
   CommandItem,
   CommandList,
-} from "../ui/command";
-import { ScrollArea } from "../ui/scroll-area";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Badge } from "../ui/badge";
-import { format } from "date-fns";
-import { Calendar } from "../ui/calendar";
+} from '../ui/command';
+import { ScrollArea } from '../ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Badge } from '../ui/badge';
+import { format } from 'date-fns';
+import { Calendar } from '../ui/calendar';
 
 // Utility types for schema inference
 type Primitive = string | number | boolean | Date;
@@ -65,7 +65,7 @@ type NestedObject = {
 // Base field configuration
 interface BaseFieldConfig<
   T extends NestedObject,
-  K extends FieldPath<T> = FieldPath<T>
+  K extends FieldPath<T> = FieldPath<T>,
 > {
   name: K;
   label?: string;
@@ -79,68 +79,86 @@ interface BaseFieldConfig<
 }
 
 // Field type specific configurations
-interface TextFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "text" | "email" | "password";
+interface TextFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'text' | 'email' | 'password';
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
   showPasswordToggle?: boolean;
 }
 
-interface NumberFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "number";
+interface NumberFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'number';
   min?: number;
   max?: number;
 }
 
-interface TextareaFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "textarea";
+interface TextareaFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'textarea';
   rows?: number;
   minLength?: number;
   maxLength?: number;
 }
 
-interface SelectFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "select";
+interface SelectFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'select';
   options: Array<{ value: PathValue<T, K>; label: string }>;
   multiple?: boolean;
   searchable?: boolean;
 }
 
-interface CheckboxFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "checkbox";
+interface CheckboxFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'checkbox';
 }
 
-interface RadioFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "radio";
+interface RadioFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'radio';
   options: Array<{ value: PathValue<T, K>; label: string }>;
-  orientation?: "horizontal" | "vertical";
+  orientation?: 'horizontal' | 'vertical';
 }
 
-interface DateFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "date";
+interface DateFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'date';
   minDate?: Date;
   maxDate?: Date;
 }
 
-interface ComboboxFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "combobox";
+interface ComboboxFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'combobox';
   options: Array<{ value: PathValue<T, K>; label: string }>;
   multiple?: boolean;
   searchable?: boolean;
 }
 
-interface ChipFieldConfig<T extends NestedObject, K extends FieldPath<T>>
-  extends BaseFieldConfig<T, K> {
-  type: "chip";
+interface ChipFieldConfig<
+  T extends NestedObject,
+  K extends FieldPath<T>,
+> extends BaseFieldConfig<T, K> {
+  type: 'chip';
   maxChips?: number;
   allowDuplicates?: boolean;
 }
@@ -189,31 +207,31 @@ type FieldIcon = { Icon?: LucideIcon };
 // Field creation functions with icon support
 export function createTextField<T extends NestedObject, K extends FieldPath<T>>(
   name: K,
-  config?: Omit<TextFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<TextFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): TextFieldConfig<T, K> {
-  return { name, type: "text", ...config } as TextFieldConfig<T, K>;
+  return { name, type: 'text', ...config } as TextFieldConfig<T, K>;
 }
 
 export function createEmailField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
-  config?: Omit<TextFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<TextFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): TextFieldConfig<T, K> {
-  return { name, type: "email", ...config } as TextFieldConfig<T, K>;
+  return { name, type: 'email', ...config } as TextFieldConfig<T, K>;
 }
 
 export function createPasswordField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
-  config?: Omit<TextFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<TextFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): TextFieldConfig<T, K> {
   return {
     name,
-    type: "password",
+    type: 'password',
     showPasswordToggle: true,
     ...config,
   } as TextFieldConfig<T, K>;
@@ -221,34 +239,34 @@ export function createPasswordField<
 
 export function createNumberField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
-  config?: Omit<NumberFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<NumberFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): NumberFieldConfig<T, K> {
-  return { name, type: "number", ...config } as NumberFieldConfig<T, K>;
+  return { name, type: 'number', ...config } as NumberFieldConfig<T, K>;
 }
 
 export function createTextareaField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
-  config?: Omit<TextareaFieldConfig<T, K>, "name" | "type">
+  config?: Omit<TextareaFieldConfig<T, K>, 'name' | 'type'>,
 ): TextareaFieldConfig<T, K> {
-  return { name, type: "textarea", ...config } as TextareaFieldConfig<T, K>;
+  return { name, type: 'textarea', ...config } as TextareaFieldConfig<T, K>;
 }
 
 export function createSelectField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
   options: Array<{ value: PathValue<T, K>; label: string }>,
-  config?: Omit<SelectFieldConfig<T, K>, "name" | "type" | "options"> &
-    FieldIcon
+  config?: Omit<SelectFieldConfig<T, K>, 'name' | 'type' | 'options'> &
+    FieldIcon,
 ): SelectFieldConfig<T, K> {
-  return { name, type: "select", options, ...config } as SelectFieldConfig<
+  return { name, type: 'select', options, ...config } as SelectFieldConfig<
     T,
     K
   >;
@@ -256,50 +274,50 @@ export function createSelectField<
 
 export function createCheckboxField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
-  config?: Omit<CheckboxFieldConfig<T, K>, "name" | "type">
+  config?: Omit<CheckboxFieldConfig<T, K>, 'name' | 'type'>,
 ): CheckboxFieldConfig<T, K> {
-  return { name, type: "checkbox", ...config } as CheckboxFieldConfig<T, K>;
+  return { name, type: 'checkbox', ...config } as CheckboxFieldConfig<T, K>;
 }
 
 export function createRadioField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
   options: Array<{ value: PathValue<T, K>; label: string }>,
-  config?: Omit<RadioFieldConfig<T, K>, "name" | "type" | "options">
+  config?: Omit<RadioFieldConfig<T, K>, 'name' | 'type' | 'options'>,
 ): RadioFieldConfig<T, K> {
   return {
     name,
-    type: "radio",
+    type: 'radio',
     options,
-    orientation: "vertical",
+    orientation: 'vertical',
     ...config,
   } as RadioFieldConfig<T, K>;
 }
 
 export function createDateField<T extends NestedObject, K extends FieldPath<T>>(
   name: K,
-  config?: Omit<DateFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<DateFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): DateFieldConfig<T, K> {
-  return { name, type: "date", ...config } as DateFieldConfig<T, K>;
+  return { name, type: 'date', ...config } as DateFieldConfig<T, K>;
 }
 
 export function createComboboxField<
   T extends NestedObject,
-  K extends FieldPath<T>
+  K extends FieldPath<T>,
 >(
   name: K,
   options: Array<{ value: PathValue<T, K>; label: string }>,
-  config?: Omit<ComboboxFieldConfig<T, K>, "name" | "type" | "options"> &
-    FieldIcon
+  config?: Omit<ComboboxFieldConfig<T, K>, 'name' | 'type' | 'options'> &
+    FieldIcon,
 ): ComboboxFieldConfig<T, K> {
   return {
     name,
-    type: "combobox",
+    type: 'combobox',
     options,
     multiple: false,
     searchable: true,
@@ -309,11 +327,11 @@ export function createComboboxField<
 
 export function createChipField<T extends NestedObject, K extends FieldPath<T>>(
   name: K,
-  config?: Omit<ChipFieldConfig<T, K>, "name" | "type"> & FieldIcon
+  config?: Omit<ChipFieldConfig<T, K>, 'name' | 'type'> & FieldIcon,
 ): ChipFieldConfig<T, K> {
   return {
     name,
-    type: "chip",
+    type: 'chip',
     allowDuplicates: false,
     ...config,
   } as ChipFieldConfig<T, K>;
@@ -324,7 +342,7 @@ export function createStep<T extends NestedObject>(
   options?: {
     title?: string;
     description?: string;
-  }
+  },
 ): FormStep<T> {
   return {
     fields,
@@ -336,7 +354,7 @@ export function createStep<T extends NestedObject>(
 // Schema inference
 function inferSchemaFromConfig<T extends NestedObject>(
   defaultValues: T,
-  fields: FieldConfig<T>[]
+  fields: FieldConfig<T>[],
 ): z.ZodObject<any> {
   const schema: Record<string, z.ZodTypeAny> = {};
 
@@ -348,32 +366,37 @@ function inferSchemaFromConfig<T extends NestedObject>(
     const cfg = findConfig(key);
 
     let zod: z.ZodTypeAny;
-    if (typeof val === "string") zod = z.string();
-    else if (typeof val === "number") zod = z.number();
-    else if (typeof val === "boolean") zod = z.boolean();
+    if (typeof val === 'string') zod = z.string();
+    else if (typeof val === 'number') zod = z.number();
+    else if (typeof val === 'boolean') zod = z.boolean();
     else if (val instanceof Date) zod = z.date();
     else if (Array.isArray(val)) {
       // Try to infer array type from config
-      if (cfg?.type === "chip") {
+      if (cfg?.type === 'chip') {
         zod = z.array(z.string());
-      } else if (cfg?.type === "select" && (cfg as SelectFieldConfig<T, any>).multiple) {
+      } else if (
+        cfg?.type === 'select' &&
+        (cfg as SelectFieldConfig<T, any>).multiple
+      ) {
         zod = z.array(z.string());
-      } else if (cfg?.type === "combobox" && (cfg as ComboboxFieldConfig<T, any>).multiple) {
+      } else if (
+        cfg?.type === 'combobox' &&
+        (cfg as ComboboxFieldConfig<T, any>).multiple
+      ) {
         zod = z.array(z.string());
       } else {
         zod = z.array(z.any());
       }
-    }
-    else zod = z.any();
+    } else zod = z.any();
 
     if (cfg) {
       switch (cfg.type) {
-        case "email":
-          zod = (zod as z.ZodString).email("Please enter a valid email");
+        case 'email':
+          zod = (zod as z.ZodString).email('Please enter a valid email');
           break;
-        case "text":
-        case "textarea":
-        case "password": {
+        case 'text':
+        case 'textarea':
+        case 'password': {
           const { minLength, maxLength } = cfg as
             | TextFieldConfig<T, any>
             | TextareaFieldConfig<T, any>;
@@ -383,13 +406,13 @@ function inferSchemaFromConfig<T extends NestedObject>(
           if (pattern) zod = (zod as z.ZodString).regex(pattern);
           break;
         }
-        case "number": {
+        case 'number': {
           const { min, max } = cfg as NumberFieldConfig<T, any>;
           if (min !== undefined) zod = (zod as z.ZodNumber).min(min);
           if (max !== undefined) zod = (zod as z.ZodNumber).max(max);
           break;
         }
-        case "date": {
+        case 'date': {
           const { minDate, maxDate } = cfg as DateFieldConfig<T, any>;
           if (minDate)
             zod = (zod as z.ZodDate).refine((d) => d >= minDate, {
@@ -406,8 +429,8 @@ function inferSchemaFromConfig<T extends NestedObject>(
       }
 
       if (cfg.required) {
-        if (typeof val === "string")
-          zod = (zod as z.ZodString).min(1, "Required");
+        if (typeof val === 'string')
+          zod = (zod as z.ZodString).min(1, 'Required');
       } else {
         zod = zod.optional();
       }
@@ -437,7 +460,7 @@ function TextFormField<T extends NestedObject, K extends FieldPath<T>>({
   name,
   label,
   placeholder,
-  type = "text",
+  type = 'text',
   className,
   required,
   disabled,
@@ -445,20 +468,20 @@ function TextFormField<T extends NestedObject, K extends FieldPath<T>>({
   Icon,
   description,
 }: BaseFormFieldProps<T, K> & {
-  type?: "text" | "email" | "password" | "number";
+  type?: 'text' | 'email' | 'password' | 'number';
   showPasswordToggle?: boolean;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-  const inputType = type === "password" && showPassword ? "text" : type;
+  const inputType = type === 'password' && showPassword ? 'text' : type;
 
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -467,24 +490,24 @@ function TextFormField<T extends NestedObject, K extends FieldPath<T>>({
             <div className="relative">
               {Icon && (
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
+                  <Icon className="text-muted-foreground h-4 w-4" />
                 </div>
               )}
-                <Input
+              <Input
                 type={inputType}
                 placeholder={placeholder}
                 disabled={disabled}
                 {...(field as any)}
                 className={cn(
-                  "h-11 border-2 border-border bg-white px-3 py-2 text-sm ring-offset-background",
-                  "placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
-                  "transition-colors duration-200",
-                  Icon ? "pl-10" : "pl-3",
-                  type === "password" && showPasswordToggle ? "pr-10" : "pr-3"
+                  'border-border ring-offset-background h-11 border-2 bg-white px-3 py-2 text-sm',
+                  'placeholder:text-muted-foreground focus:border-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                  'disabled:cursor-not-allowed disabled:opacity-50',
+                  'transition-colors duration-200',
+                  Icon ? 'pl-10' : 'pl-3',
+                  type === 'password' && showPasswordToggle ? 'pr-10' : 'pr-3',
                 )}
               />
-              {type === "password" && showPasswordToggle && (
+              {type === 'password' && showPasswordToggle && (
                 <Button
                   type="button"
                   variant="ghost"
@@ -494,16 +517,16 @@ function TextFormField<T extends NestedObject, K extends FieldPath<T>>({
                   disabled={disabled}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    <EyeOff className="text-muted-foreground h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4 text-muted-foreground" />
+                    <Eye className="text-muted-foreground h-4 w-4" />
                   )}
                 </Button>
               )}
             </div>
           </FormControl>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -530,9 +553,9 @@ function TextareaFormField<T extends NestedObject, K extends FieldPath<T>>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -544,15 +567,15 @@ function TextareaFormField<T extends NestedObject, K extends FieldPath<T>>({
               disabled={disabled}
               {...(field as any)}
               className={cn(
-                "min-h-[80px] border-2 border-border bg-background px-3 py-2 text-sm ring-offset-background",
-                "placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                "disabled:cursor-not-allowed disabled:opacity-50",
-                "transition-colors duration-200 resize-none"
+                'border-border bg-background ring-offset-background min-h-[80px] border-2 px-3 py-2 text-sm',
+                'placeholder:text-muted-foreground focus:border-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                'disabled:cursor-not-allowed disabled:opacity-50',
+                'resize-none transition-colors duration-200',
               )}
             />
           </FormControl>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -581,8 +604,8 @@ function SelectFormField<T extends NestedObject, K extends FieldPath<T>>({
   multiple?: boolean;
   searchable?: boolean;
 }) {
-//   const [open, setOpen] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState("");
+  //   const [open, setOpen] = useState(false);
+  //   const [searchTerm, setSearchTerm] = useState("");
 
   if (multiple || searchable) {
     return (
@@ -608,9 +631,9 @@ function SelectFormField<T extends NestedObject, K extends FieldPath<T>>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -623,24 +646,24 @@ function SelectFormField<T extends NestedObject, K extends FieldPath<T>>({
             <FormControl>
               <div className="relative">
                 {Icon && (
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10">
-                    <Icon className="h-4 w-4 text-muted-foreground" />
+                  <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3">
+                    <Icon className="text-muted-foreground h-4 w-4" />
                   </div>
                 )}
                 <SelectTrigger
                   className={cn(
-                    "h-11 w-full border-2 border-border bg-white",
-                    "focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                    "disabled:cursor-not-allowed disabled:opacity-50",
-                    "transition-colors duration-200",
-                    Icon ? "pl-10" : "pl-3"
+                    'border-border h-11 w-full border-2 bg-white',
+                    'focus:border-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                    'disabled:cursor-not-allowed disabled:opacity-50',
+                    'transition-colors duration-200',
+                    Icon ? 'pl-10' : 'pl-3',
                   )}
                 >
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
               </div>
             </FormControl>
-            <SelectContent className="max-h-60 bg-white border border-border shadow-md z-50">
+            <SelectContent className="border-border z-50 max-h-60 border bg-white shadow-md">
               {options.map((option) => (
                 <SelectItem
                   key={String(option.value)}
@@ -653,7 +676,7 @@ function SelectFormField<T extends NestedObject, K extends FieldPath<T>>({
             </SelectContent>
           </Select>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -683,11 +706,11 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
   searchable?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filteredOptions = searchable
     ? options.filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+        option.label.toLowerCase().includes(searchTerm.toLowerCase()),
       )
     : options;
 
@@ -696,9 +719,9 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -708,8 +731,8 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
               <PopoverTrigger asChild>
                 <div className="relative">
                   {Icon && (
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 z-10">
-                      <Icon className="h-4 w-4 text-muted-foreground" />
+                    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-3">
+                      <Icon className="text-muted-foreground h-4 w-4" />
                     </div>
                   )}
                   <Button
@@ -719,12 +742,12 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
                     aria-expanded={open}
                     disabled={disabled}
                     className={cn(
-                      "h-11 w-full justify-between border-2 border-border bg-white",
-                      "focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                      "disabled:cursor-not-allowed disabled:opacity-50",
-                      "transition-colors duration-200",
-                      Icon ? "pl-10" : "pl-3",
-                      "pr-3"
+                      'border-border h-11 w-full justify-between border-2 bg-white',
+                      'focus:border-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                      'disabled:cursor-not-allowed disabled:opacity-50',
+                      'transition-colors duration-200',
+                      Icon ? 'pl-10' : 'pl-3',
+                      'pr-3',
                     )}
                   >
                     <div className="flex flex-1 flex-wrap gap-1 overflow-hidden">
@@ -733,7 +756,7 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
                           <>
                             {field.value.slice(0, 2).map((value) => {
                               const selectedOption = options.find(
-                                (option) => option.value === value
+                                (option) => option.value === value,
                               );
                               return (
                                 <Badge
@@ -753,18 +776,22 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
                           </>
                         ) : (
                           <span className="text-muted-foreground">
-                            {placeholder || "Select options..."}
+                            {placeholder || 'Select options...'}
                           </span>
                         )
                       ) : (
-                        <span className={cn(
-                          field.value ? "text-foreground" : "text-muted-foreground"
-                        )}>
+                        <span
+                          className={cn(
+                            field.value
+                              ? 'text-foreground'
+                              : 'text-muted-foreground',
+                          )}
+                        >
                           {field.value
                             ? options.find(
-                                (option) => option.value === field.value
+                                (option) => option.value === field.value,
                               )?.label
-                            : placeholder || "Select an option..."}
+                            : placeholder || 'Select an option...'}
                         </span>
                       )}
                     </div>
@@ -772,16 +799,22 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
                   </Button>
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-white border border-border shadow-lg z-50" align="start">
+              <PopoverContent
+                className="border-border z-50 w-[--radix-popover-trigger-width] border bg-white p-0 shadow-lg"
+                align="start"
+              >
                 <Command>
                   {searchable && (
-                    <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
+                    <div
+                      className="flex items-center border-b px-3"
+                      cmdk-input-wrapper=""
+                    >
                       <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                       <input
                         placeholder="Search options..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                        className="placeholder:text-muted-foreground flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
                   )}
@@ -798,26 +831,32 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
                                 const currentValue = Array.isArray(field.value)
                                   ? field.value
                                   : [];
-                                const newValue = currentValue.some(v => String(v) === String(option.value))
-                                  ? currentValue.filter((v) => String(v) !== String(option.value))
+                                const newValue = currentValue.some(
+                                  (v) => String(v) === String(option.value),
+                                )
+                                  ? currentValue.filter(
+                                      (v) => String(v) !== String(option.value),
+                                    )
                                   : [...currentValue, option.value];
                                 field.onChange(newValue);
                               } else {
                                 field.onChange(
-                                  field.value === option.value ? null : option.value
+                                  field.value === option.value
+                                    ? null
+                                    : option.value,
                                 );
                                 setOpen(false);
                               }
                             }}
                             className="cursor-pointer"
                           >
-                            <div className="flex items-center w-full">
+                            <div className="flex w-full items-center">
                               {multiple && (
-                                <div className="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary">
+                                <div className="border-primary mr-2 flex h-4 w-4 items-center justify-center rounded-sm border">
                                   {Array.isArray(field.value) &&
-                                    field.value.some(v => String(v) === String(option.value)) && (
-                                      <Check className="h-3 w-3" />
-                                    )}
+                                    field.value.some(
+                                      (v) => String(v) === String(option.value),
+                                    ) && <Check className="h-3 w-3" />}
                                 </div>
                               )}
                               <span className="flex-1">{option.label}</span>
@@ -835,7 +874,7 @@ function MultiSelectFormField<T extends NestedObject, K extends FieldPath<T>>({
             </Popover>
           </FormControl>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -860,7 +899,7 @@ function CheckboxFormField<T extends NestedObject, K extends FieldPath<T>>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           <div className="flex items-start space-x-3">
             <FormControl>
               <Checkbox
@@ -872,13 +911,13 @@ function CheckboxFormField<T extends NestedObject, K extends FieldPath<T>>({
             </FormControl>
             <div className="space-y-1 leading-none">
               {label && (
-                <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   {label}
                   {required && <span className="text-destructive ml-1">*</span>}
                 </FormLabel>
               )}
               {description && (
-                <FormDescription className="text-xs text-muted-foreground">
+                <FormDescription className="text-muted-foreground text-xs">
                   {description}
                 </FormDescription>
               )}
@@ -899,20 +938,20 @@ function RadioFormField<T extends NestedObject, K extends FieldPath<T>>({
   className,
   required,
   disabled,
-  orientation = "vertical",
+  orientation = 'vertical',
   description,
 }: BaseFormFieldProps<T, K> & {
   options: Array<{ value: PathValue<T, K>; label: string }>;
-  orientation?: "horizontal" | "vertical";
+  orientation?: 'horizontal' | 'vertical';
 }) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -920,14 +959,14 @@ function RadioFormField<T extends NestedObject, K extends FieldPath<T>>({
           <FormControl>
             <div
               className={cn(
-                "flex gap-4",
-                orientation === "vertical" ? "flex-col" : "flex-row flex-wrap"
+                'flex gap-4',
+                orientation === 'vertical' ? 'flex-col' : 'flex-row flex-wrap',
               )}
             >
               {options.map((option) => (
                 <label
                   key={String(option.value)}
-                  className="flex items-center space-x-2 cursor-pointer group"
+                  className="group flex cursor-pointer items-center space-x-2"
                 >
                   <input
                     type="radio"
@@ -935,9 +974,9 @@ function RadioFormField<T extends NestedObject, K extends FieldPath<T>>({
                     checked={field.value === option.value}
                     onChange={() => field.onChange(option.value)}
                     disabled={disabled}
-                    className="h-4 w-4 text-primary focus:ring-primary focus:ring-2 focus:ring-offset-2 border-border cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    className="text-primary focus:ring-primary border-border h-4 w-4 cursor-pointer focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 group-hover:text-primary transition-colors">
+                  <span className="group-hover:text-primary text-sm leading-none font-medium transition-colors peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     {option.label}
                   </span>
                 </label>
@@ -945,7 +984,7 @@ function RadioFormField<T extends NestedObject, K extends FieldPath<T>>({
             </div>
           </FormControl>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -973,15 +1012,15 @@ function DateFormField<T extends NestedObject, K extends FieldPath<T>>({
   maxDate?: Date;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-2", className)}>
+        <FormItem className={cn('space-y-2', className)}>
           {label && (
-            <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {label}
               {required && <span className="text-destructive ml-1">*</span>}
             </FormLabel>
@@ -996,41 +1035,41 @@ function DateFormField<T extends NestedObject, K extends FieldPath<T>>({
                       variant="outline"
                       disabled={disabled}
                       className={cn(
-                        "h-11 w-full justify-start text-left font-normal",
-                        "border-2 border-border bg-white",
-                        "focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                        "disabled:cursor-not-allowed disabled:opacity-50",
-                        "transition-colors duration-200",
-                        Icon ? "pl-10" : "pl-3",
-                        "pr-10",
-                        !field.value && "text-muted-foreground"
+                        'h-11 w-full justify-start text-left font-normal',
+                        'border-border border-2 bg-white',
+                        'focus:border-primary focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none',
+                        'disabled:cursor-not-allowed disabled:opacity-50',
+                        'transition-colors duration-200',
+                        Icon ? 'pl-10' : 'pl-3',
+                        'pr-10',
+                        !field.value && 'text-muted-foreground',
                       )}
                     >
                       {field.value ? (
                         <span className="flex items-center">
-                          {format(field.value as Date, "PPP")}
+                          {format(field.value as Date, 'PPP')}
                         </span>
                       ) : (
                         <span className="flex items-center">
-                          {placeholder || "Pick a date"}
+                          {placeholder || 'Pick a date'}
                         </span>
                       )}
                     </Button>
-                    
+
                     {Icon && (
                       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
+                        <Icon className="text-muted-foreground h-4 w-4" />
                       </div>
                     )}
-                    
+
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                      <CalendarIcon className="text-muted-foreground h-4 w-4" />
                     </div>
                   </div>
                 </PopoverTrigger>
-                
-                <PopoverContent 
-                  className="w-auto p-0 shadow-lg border-border bg-white z-50" 
+
+                <PopoverContent
+                  className="border-border z-50 w-auto bg-white p-0 shadow-lg"
                   align="start"
                   sideOffset={4}
                 >
@@ -1042,9 +1081,9 @@ function DateFormField<T extends NestedObject, K extends FieldPath<T>>({
                       setIsOpen(false);
                     }}
                     disabled={(date) =>
-                      disabled || 
-                      (maxDate ? date > maxDate : date > new Date()) || 
-                      (minDate ? date < minDate : date < new Date("1900-01-01"))
+                      disabled ||
+                      (maxDate ? date > maxDate : date > new Date()) ||
+                      (minDate ? date < minDate : date < new Date('1900-01-01'))
                     }
                     className="rounded-md border-0"
                   />
@@ -1053,7 +1092,7 @@ function DateFormField<T extends NestedObject, K extends FieldPath<T>>({
             </div>
           </FormControl>
           {description && (
-            <FormDescription className="text-xs text-muted-foreground">
+            <FormDescription className="text-muted-foreground text-xs">
               {description}
             </FormDescription>
           )}
@@ -1080,14 +1119,16 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
   maxChips?: number;
   allowDuplicates?: boolean;
 }) {
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
 
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => {
-        const chips = Array.isArray(field.value) ? (field.value as string[]) : [];
+        const chips = Array.isArray(field.value)
+          ? (field.value as string[])
+          : [];
 
         const addChip = (chip: string) => {
           const trimmedChip = chip.trim();
@@ -1097,7 +1138,7 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
           if (maxChips && chips.length >= maxChips) return;
 
           field.onChange([...chips, trimmedChip]);
-          setInputValue("");
+          setInputValue('');
         };
 
         const removeChip = (index: number) => {
@@ -1106,28 +1147,30 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
         };
 
         const handleKeyDown = (e: React.KeyboardEvent) => {
-          if (e.key === "Enter" || e.key === ",") {
+          if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
             addChip(inputValue);
-          } else if (e.key === "Backspace" && !inputValue && chips.length > 0) {
+          } else if (e.key === 'Backspace' && !inputValue && chips.length > 0) {
             removeChip(chips.length - 1);
           }
         };
 
         return (
-          <FormItem className={cn("space-y-2", className)}>
+          <FormItem className={cn('space-y-2', className)}>
             {label && (
-              <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <FormLabel className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 {label}
                 {required && <span className="text-destructive ml-1">*</span>}
               </FormLabel>
             )}
             <FormControl>
-              <div className={cn(
-                "min-h-[44px] w-full rounded-md border-2 border-border bg-white px-3 py-2 text-sm",
-                "focus-within:border-primary focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-                "transition-colors duration-200"
-              )}>
+              <div
+                className={cn(
+                  'border-border min-h-[44px] w-full rounded-md border-2 bg-white px-3 py-2 text-sm',
+                  'focus-within:border-primary focus-within:ring-ring focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none',
+                  'transition-colors duration-200',
+                )}
+              >
                 <div className="mb-1 flex flex-wrap gap-1">
                   {chips.map((chip, index) => (
                     <Badge
@@ -1139,7 +1182,7 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
                       <button
                         type="button"
                         onClick={() => removeChip(index)}
-                        className="ml-1 rounded-full p-0.5 hover:bg-secondary-foreground/20 transition-colors"
+                        className="hover:bg-secondary-foreground/20 ml-1 rounded-full p-0.5 transition-colors"
                         disabled={disabled}
                       >
                         <X className="h-3 w-3" />
@@ -1155,7 +1198,9 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
                   )}
                   <input
                     type="text"
-                    placeholder={chips.length === 0 ? placeholder : "Add more..."}
+                    placeholder={
+                      chips.length === 0 ? placeholder : 'Add more...'
+                    }
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -1164,14 +1209,16 @@ function ChipInputFormField<T extends NestedObject, K extends FieldPath<T>>({
                         addChip(inputValue);
                       }
                     }}
-                    disabled={disabled || (maxChips ? chips.length >= maxChips : false)}
-                    className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={
+                      disabled || (maxChips ? chips.length >= maxChips : false)
+                    }
+                    className="placeholder:text-muted-foreground flex-1 bg-transparent outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
               </div>
             </FormControl>
             {description && (
-              <FormDescription className="text-xs text-muted-foreground">
+              <FormDescription className="text-muted-foreground text-xs">
                 {description}
               </FormDescription>
             )}
@@ -1226,7 +1273,7 @@ interface SingleStepFormBuilderProps<T extends NestedObject> {
   submitText?: string;
   className?: string;
   defaultValues: T;
-  mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
+  mode?: 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all';
   customValidationSchema?: z.ZodSchema<T>;
   renderHeader?: (props: FormHeaderProps<T>) => ReactNode;
   renderFooter?: (props: FormFooterProps<T>) => ReactNode;
@@ -1235,15 +1282,16 @@ interface SingleStepFormBuilderProps<T extends NestedObject> {
 export function SingleStepFormBuilder<T extends NestedObject>({
   fields,
   onSubmit,
-  submitText = "Submit",
-  className = "space-y-6",
+  submitText = 'Submit',
+  className = 'space-y-6',
   defaultValues,
-  mode = "onSubmit",
+  mode = 'onSubmit',
   customValidationSchema,
   renderHeader,
   renderFooter,
 }: SingleStepFormBuilderProps<T>) {
-  const schema = customValidationSchema || inferSchemaFromConfig(defaultValues, fields);
+  const schema =
+    customValidationSchema || inferSchemaFromConfig(defaultValues, fields);
   const form = useForm<T>({
     resolver: zodResolver(schema as z.ZodType<T, any, any>),
     defaultValues: defaultValues as any,
@@ -1275,9 +1323,9 @@ export function SingleStepFormBuilder<T extends NestedObject>({
     };
 
     switch (fieldConfig.type) {
-      case "text":
-      case "email":
-      case "number":
+      case 'text':
+      case 'email':
+      case 'number':
         return (
           <TextFormField
             key={String(fieldConfig.name)}
@@ -1286,17 +1334,19 @@ export function SingleStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "password":
+      case 'password':
         return (
           <TextFormField
             key={String(fieldConfig.name)}
             {...commonProps}
             type={fieldConfig.type}
-            showPasswordToggle={(fieldConfig as TextFieldConfig<T, any>).showPasswordToggle}
+            showPasswordToggle={
+              (fieldConfig as TextFieldConfig<T, any>).showPasswordToggle
+            }
           />
         );
 
-      case "textarea":
+      case 'textarea':
         return (
           <TextareaFormField
             key={String(fieldConfig.name)}
@@ -1305,7 +1355,7 @@ export function SingleStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "select":
+      case 'select':
         return (
           <SelectFormField
             key={String(fieldConfig.name)}
@@ -1316,10 +1366,12 @@ export function SingleStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "checkbox":
-        return <CheckboxFormField key={String(fieldConfig.name)} {...commonProps} />;
+      case 'checkbox':
+        return (
+          <CheckboxFormField key={String(fieldConfig.name)} {...commonProps} />
+        );
 
-      case "radio":
+      case 'radio':
         return (
           <RadioFormField
             key={String(fieldConfig.name)}
@@ -1329,22 +1381,31 @@ export function SingleStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "date": {
+      case 'date': {
         const { minDate, maxDate } = fieldConfig as DateFieldConfig<T, any>;
-        return <DateFormField key={String(fieldConfig.name)} {...commonProps} minDate={minDate} maxDate={maxDate} />;
+        return (
+          <DateFormField
+            key={String(fieldConfig.name)}
+            {...commonProps}
+            minDate={minDate}
+            maxDate={maxDate}
+          />
+        );
       }
 
-      case "chip":
+      case 'chip':
         return (
           <ChipInputFormField
             key={String(fieldConfig.name)}
             {...commonProps}
             maxChips={(fieldConfig as ChipFieldConfig<T, any>).maxChips}
-            allowDuplicates={(fieldConfig as ChipFieldConfig<T, any>).allowDuplicates}
+            allowDuplicates={
+              (fieldConfig as ChipFieldConfig<T, any>).allowDuplicates
+            }
           />
         );
 
-      case "combobox":
+      case 'combobox':
         return (
           <ComboboxFormField
             key={String(fieldConfig.name)}
@@ -1385,12 +1446,12 @@ export function SingleStepFormBuilder<T extends NestedObject>({
               isSubmitting,
             })
           ) : (
-            <Button 
-              type="submit" 
-              className="mt-8 h-11 px-8 font-medium" 
+            <Button
+              type="submit"
+              className="mt-8 h-11 px-8 font-medium"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : submitText}
+              {isSubmitting ? 'Submitting...' : submitText}
             </Button>
           )}
         </form>
@@ -1406,7 +1467,7 @@ interface MultiStepFormBuilderProps<T extends NestedObject> {
   submitText?: string;
   className?: string;
   defaultValues: T;
-  mode?: "onChange" | "onBlur" | "onSubmit" | "onTouched" | "all";
+  mode?: 'onChange' | 'onBlur' | 'onSubmit' | 'onTouched' | 'all';
   onStepChange?: (stepIndex: number) => void;
   customValidationSchema?: z.ZodSchema<T>;
   renderHeader?: (props: FormHeaderProps<T>) => ReactNode;
@@ -1416,10 +1477,10 @@ interface MultiStepFormBuilderProps<T extends NestedObject> {
 export function MultiStepFormBuilder<T extends NestedObject>({
   steps,
   onSubmit,
-  submitText = "Submit",
-  className = "space-y-6",
+  submitText = 'Submit',
+  className = 'space-y-6',
   defaultValues,
-  mode = "onSubmit",
+  mode = 'onSubmit',
   onStepChange,
   customValidationSchema,
   renderHeader,
@@ -1430,7 +1491,8 @@ export function MultiStepFormBuilder<T extends NestedObject>({
   const totalSteps = steps.length;
 
   const allFields = steps.flatMap((step) => step.fields);
-  const schema = customValidationSchema || inferSchemaFromConfig(defaultValues, allFields);
+  const schema =
+    customValidationSchema || inferSchemaFromConfig(defaultValues, allFields);
 
   const form = useForm<T>({
     resolver: zodResolver(schema as z.ZodType<T, any, any>),
@@ -1441,7 +1503,9 @@ export function MultiStepFormBuilder<T extends NestedObject>({
   const currentFields = steps[currentStep].fields;
 
   const handleNext = async () => {
-    const fieldsToValidate = steps[currentStep].fields.map((f) => f.name) as FieldPath<T>[];
+    const fieldsToValidate = steps[currentStep].fields.map(
+      (f) => f.name,
+    ) as FieldPath<T>[];
     const isValid = await form.trigger(fieldsToValidate);
 
     if (isValid) {
@@ -1480,9 +1544,9 @@ export function MultiStepFormBuilder<T extends NestedObject>({
     };
 
     switch (fieldConfig.type) {
-      case "text":
-      case "email":
-      case "number":
+      case 'text':
+      case 'email':
+      case 'number':
         return (
           <TextFormField
             key={String(fieldConfig.name)}
@@ -1491,17 +1555,19 @@ export function MultiStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "password":
+      case 'password':
         return (
           <TextFormField
             key={String(fieldConfig.name)}
             {...commonProps}
             type={fieldConfig.type}
-            showPasswordToggle={(fieldConfig as TextFieldConfig<T, any>).showPasswordToggle}
+            showPasswordToggle={
+              (fieldConfig as TextFieldConfig<T, any>).showPasswordToggle
+            }
           />
         );
 
-      case "textarea":
+      case 'textarea':
         return (
           <TextareaFormField
             key={String(fieldConfig.name)}
@@ -1510,7 +1576,7 @@ export function MultiStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "select":
+      case 'select':
         return (
           <SelectFormField
             key={String(fieldConfig.name)}
@@ -1521,10 +1587,12 @@ export function MultiStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "checkbox":
-        return <CheckboxFormField key={String(fieldConfig.name)} {...commonProps} />;
+      case 'checkbox':
+        return (
+          <CheckboxFormField key={String(fieldConfig.name)} {...commonProps} />
+        );
 
-      case "radio":
+      case 'radio':
         return (
           <RadioFormField
             key={String(fieldConfig.name)}
@@ -1534,22 +1602,31 @@ export function MultiStepFormBuilder<T extends NestedObject>({
           />
         );
 
-      case "date": {
+      case 'date': {
         const { minDate, maxDate } = fieldConfig as DateFieldConfig<T, any>;
-        return <DateFormField key={String(fieldConfig.name)} {...commonProps} minDate={minDate} maxDate={maxDate} />;
+        return (
+          <DateFormField
+            key={String(fieldConfig.name)}
+            {...commonProps}
+            minDate={minDate}
+            maxDate={maxDate}
+          />
+        );
       }
 
-      case "chip":
+      case 'chip':
         return (
           <ChipInputFormField
             key={String(fieldConfig.name)}
             {...commonProps}
             maxChips={(fieldConfig as ChipFieldConfig<T, any>).maxChips}
-            allowDuplicates={(fieldConfig as ChipFieldConfig<T, any>).allowDuplicates}
+            allowDuplicates={
+              (fieldConfig as ChipFieldConfig<T, any>).allowDuplicates
+            }
           />
         );
 
-      case "combobox":
+      case 'combobox':
         return (
           <ComboboxFormField
             key={String(fieldConfig.name)}
@@ -1584,11 +1661,11 @@ export function MultiStepFormBuilder<T extends NestedObject>({
 
           {!renderHeader && steps[currentStep].title && (
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-foreground text-lg font-semibold">
                 {steps[currentStep].title}
               </h3>
               {steps[currentStep].description && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm">
                   {steps[currentStep].description}
                 </p>
               )}
@@ -1618,7 +1695,7 @@ export function MultiStepFormBuilder<T extends NestedObject>({
                   className="h-11 px-6 font-medium"
                   disabled={isSubmitting}
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <ArrowLeft className="mr-2 h-4 w-4" />
                   Previous
                 </Button>
               ) : (
@@ -1633,15 +1710,15 @@ export function MultiStepFormBuilder<T extends NestedObject>({
                   disabled={isSubmitting}
                 >
                   Next
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               ) : (
-                <Button 
-                  type="submit" 
-                  className="h-11 px-8 font-medium" 
+                <Button
+                  type="submit"
+                  className="h-11 px-8 font-medium"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Submitting..." : submitText}
+                  {isSubmitting ? 'Submitting...' : submitText}
                 </Button>
               )}
             </div>
@@ -1649,7 +1726,7 @@ export function MultiStepFormBuilder<T extends NestedObject>({
 
           {!renderFooter && (
             <div className="mt-4 text-center">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 Step {currentStep + 1} of {totalSteps}
               </span>
             </div>

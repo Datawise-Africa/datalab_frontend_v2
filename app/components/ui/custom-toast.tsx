@@ -19,10 +19,10 @@ export function CustomToast({
   const config = {
     success: {
       icon: CheckCircle,
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-400',
-      iconBgColor: 'bg-green-500',
-      textColor: 'text-green-900',
+      bgColor: 'bg-primary/5',
+      borderColor: 'border-primary/80',
+      iconBgColor: 'bg-primary/50',
+      textColor: 'text-primary',
     },
     info: {
       icon: Info,

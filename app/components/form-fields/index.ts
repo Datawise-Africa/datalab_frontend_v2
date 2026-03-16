@@ -6,3 +6,4 @@ export {
   FormSelectField,
   FormSelectField as FormAsyncSelectField,
 } from './form-select-field';
+export { FormOtpField } from './form-otp-field';
