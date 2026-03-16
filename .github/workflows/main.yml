@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Export Session Secret
-        run: echo "SESSION_SECRET=$(openssl rand -base64 32)" >> $GITHUB_ENV
+        run: echo "SESSION_SECRET=dummy_ci_session_secret" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Node
