@@ -8,6 +8,7 @@ interface DatasetListProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onArchive?: (id: string) => void;
+  onPreview?: (id: string) => void;
 }
 
 export function DatasetList({
@@ -15,6 +16,7 @@ export function DatasetList({
   onEdit,
   onDelete,
   onArchive,
+  onPreview,
 }: DatasetListProps) {
   if (datasets.length === 0) {
     return (
@@ -46,6 +48,7 @@ export function DatasetList({
             </CardContent>
             <DatasetCard.Actions
               variant="creator"
+              onPreview={() => onPreview?.(dataset.id)}
               onEdit={() => onEdit?.(dataset.id)}
               onDelete={() => onDelete?.(dataset.id)}
               onArchive={() => onArchive?.(dataset.id)}

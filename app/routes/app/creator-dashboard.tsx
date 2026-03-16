@@ -5,6 +5,7 @@ import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { DatasetStatusTabs } from '~/components/creator-dashboard/dataset-status-tabs';
 import { DatasetList } from '~/components/creator-dashboard/dataset-list';
+import { DatasetPreviewModal } from '~/components/creator-dashboard/dataset-preview-modal';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import { DatasetSearch } from '~/components/dataset-catalog/dataset-search';
 import { AsyncSelect } from '~/components/ui/async-select';
@@ -45,6 +46,7 @@ export default function CreatorDashboard() {
   const user = useAppSelector((s) => s.auth.user);
   const filter = useAppFilter('creator-dashboard');
   const [activeTab, setActiveTab] = useState<DatasetStatus | 'all'>('all');
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -252,6 +254,7 @@ export default function CreatorDashboard() {
         ) : (
           <DatasetList
             datasets={datasets}
+            onPreview={(id) => setPreviewId(id)}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onArchive={handleArchive}
@@ -270,6 +273,15 @@ export default function CreatorDashboard() {
           }}
         />
       </div>
+
+      {/* Preview modal */}
+      <DatasetPreviewModal
+        datasetId={previewId}
+        open={!!previewId}
+        onOpenChange={(open) => {
+          if (!open) setPreviewId(null);
+        }}
+      />
     </Protect>
   );
 }
