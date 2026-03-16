@@ -1,21 +1,20 @@
 import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { store, persistor } from '~/store';
+import { store } from '~/store';
 import { ThemeSynchronizer } from '~/store/theme-sync';
+import { useIsClient } from '~/hooks/use-is-client';
 
-const isServer = typeof window === 'undefined';
-
+/**
+ * SSR-safe store provider.
+ * Avoids PersistGate which renders null until rehydration, causing hydration mismatch.
+ * Children always render; redux-persist rehydrates in the background.
+ */
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  if (isServer) {
-    return <Provider store={store}>{children}</Provider>;
-  }
+  const isClient = useIsClient();
 
   return (
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ThemeSynchronizer />
-        {children}
-      </PersistGate>
+      {isClient && <ThemeSynchronizer />}
+      {children}
     </Provider>
   );
 }

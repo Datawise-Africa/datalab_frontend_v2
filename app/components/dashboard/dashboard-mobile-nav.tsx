@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
+import { useIsClient } from '~/hooks/use-is-client';
 import {
   Bookmark,
   Download,
@@ -28,10 +29,11 @@ import { AuthPerm } from '~/lib/utils/perm';
 
 export function DashboardMobileNav() {
   const [open, setOpen] = useState(false);
+  const isClient = useIsClient();
   const user = useAppSelector((s) => s.auth.user);
   const location = useLocation();
 
-  if (!user) return null;
+  if (!isClient || !user) return null;
 
   const perm = AuthPerm.getInstance();
   const isCreator = perm.hasPermission('dataset_creator', user.user_role);

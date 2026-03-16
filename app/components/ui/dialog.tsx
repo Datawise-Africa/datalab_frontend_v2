@@ -69,6 +69,7 @@ function DialogContent({
         })}
       />
       <DialogPrimitive.Content
+        aria-describedby={undefined}
         data-slot="dialog-content"
         onEscapeKeyDown={dismissible ? undefined : (e) => e.preventDefault()}
         onPointerDownOutside={
