@@ -38,6 +38,7 @@ export default [
     ),
     route('app/creator-dashboard', 'routes/app/creator-dashboard.tsx'),
     route('app/upload-dataset', 'routes/app/upload-dataset.tsx'),
+    route('app/edit-dataset/:id', 'routes/app/edit-dataset.tsx'),
     route('app/creator-analytics', 'routes/app/creator-analytics.tsx'),
     route('app/creator-reports', 'routes/app/creator-reports.tsx'),
     route('app/applications', 'routes/app/applications.tsx'),

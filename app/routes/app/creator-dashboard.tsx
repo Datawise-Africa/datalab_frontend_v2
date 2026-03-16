@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import type { Route } from './+types/creator-dashboard';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
@@ -41,6 +41,7 @@ const sortOptions = [
 ];
 
 export default function CreatorDashboard() {
+  const navigate = useNavigate();
   const user = useAppSelector((s) => s.auth.user);
   const filter = useAppFilter('creator-dashboard');
   const [activeTab, setActiveTab] = useState<DatasetStatus | 'all'>('all');
@@ -80,6 +81,13 @@ export default function CreatorDashboard() {
       }
     },
     [deleteDataset]
+  );
+
+  const handleEdit = useCallback(
+    (id: string) => {
+      navigate(`/app/edit-dataset/${id}`);
+    },
+    [navigate]
   );
 
   const handleArchive = useCallback(
@@ -244,6 +252,7 @@ export default function CreatorDashboard() {
         ) : (
           <DatasetList
             datasets={datasets}
+            onEdit={handleEdit}
             onDelete={handleDelete}
             onArchive={handleArchive}
           />
