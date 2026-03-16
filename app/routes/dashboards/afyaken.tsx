@@ -65,6 +65,8 @@ export default function AfyakenDashboard() {
             className="h-[calc(100vh-200px)] w-full border-0"
             title="AfyaKen Health Dashboard"
             src={POWERBI_URL}
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+            referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
           />
         </div>
