@@ -2,7 +2,7 @@ export interface Dashboard {
   slug: string;
   title: string;
   description: string;
-  platform: 'Power BI' | 'Tableau' | 'Looker Studio' | 'Metabase';
+  platform: 'Power BI' | 'Tableau' | 'Looker Studio' | 'Metabase' | 'Custom';
   category: string;
   embedUrl: string;
   thumbnailColor: string;
@@ -12,9 +12,46 @@ export interface Dashboard {
   views: number;
   tags: string[];
   isLive: boolean;
+  /** Internal route path — if set, "View Dashboard" links here instead of embedUrl */
+  internalRoute?: string;
 }
 
 export const dashboards: Dashboard[] = [
+  {
+    slug: 'afyaken',
+    title: 'AfyaKen Health Dashboard',
+    description:
+      'Interactive health dashboard powered by Power BI, showcasing healthcare insights and epidemiological data across Kenyan counties. Includes vaccination coverage, disease surveillance, and facility metrics.',
+    platform: 'Power BI',
+    category: 'Health',
+    embedUrl:
+      'https://app.powerbi.com/view?r=eyJrIjoiZjBmZDFiMWEtZjEyOS00ODcwLThkNzMtNmJjMTQ1YjUzZmY5IiwidCI6IjRlYjE1NDIwLTNmOWItNDY1NS05MGM0LTZiNmMyYTdkMjFkOCJ9',
+    thumbnailColor: 'bg-teal-500',
+    author: 'Datalab Africa',
+    publishedDate: 'March 01, 2024',
+    lastUpdated: 'January 15, 2025',
+    views: 15420,
+    tags: ['health', 'Kenya', 'Power BI', 'epidemiology'],
+    isLive: true,
+    internalRoute: '/dashboards/afyaken',
+  },
+  {
+    slug: 'eduken',
+    title: 'EduKen Education Dashboard',
+    description:
+      'Custom interactive education dashboard with a Leaflet map of Kenya, county-level drill-downs for qualifications (CRAFT, DEGREE, DIPLOMA), institution types (Private/Public), and category breakdowns (College/University).',
+    platform: 'Custom',
+    category: 'Education',
+    embedUrl: '',
+    thumbnailColor: 'bg-primary',
+    author: 'Datalab Africa',
+    publishedDate: 'March 01, 2024',
+    lastUpdated: 'January 15, 2025',
+    views: 12300,
+    tags: ['education', 'Kenya', 'map', 'counties', 'qualifications'],
+    isLive: true,
+    internalRoute: '/dashboards/eduken',
+  },
   {
     slug: 'global-climate-trends-2025',
     title: 'Global Climate Trends 2025',
