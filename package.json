@@ -22,7 +22,9 @@
     "format:check": "prettier --check .",
     "clean": "rm -rf build .react-router node_modules",
     "setup": "pnpm install && cp -n .env.example .env || true",
-    "prepare": "husky"
+    "prepare": "husky",
+    "release": "node scripts/release.mjs",
+    "release:dry": "node scripts/release.mjs --dry-run"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -73,6 +75,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^9.39.2",
     "@react-router/dev": "7.12.0",
     "@tailwindcss/vite": "^4.1.13",
