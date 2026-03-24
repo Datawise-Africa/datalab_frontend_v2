@@ -44,4 +44,4 @@ lerna-debug.log*
 *.tmp
 *.temp
 .cache
-
+.playwright-mcp/
