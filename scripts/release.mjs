@@ -23,13 +23,13 @@ import { resolve } from 'node:path';
 // Helpers
 // ─────────────────────────────────────────────
 
-function run(cmd) {
-  return execSync(cmd, { encoding: 'utf-8' }).trim();
+function run(cmd, opts = {}) {
+  return execSync(cmd, { encoding: 'utf-8', ...opts }).trim();
 }
 
-function runSafe(cmd) {
+function runSafe(cmd, opts = {}) {
   try {
-    return run(cmd);
+    return run(cmd, opts);
   } catch {
     return '';
   }
@@ -70,7 +70,7 @@ for (let i = 0; i < args.length; i++) {
     bumpType = arg;
   } else if (arg === '--prerelease') {
     prerelease = args[++i];
-    if (!prerelease) {
+    if (!prerelease || prerelease.startsWith('-')) {
       error('--prerelease requires a tag (e.g., beta, rc)');
     }
   } else if (arg === '--dry-run') {
@@ -97,7 +97,9 @@ Examples:
 }
 
 if (!bumpType) {
-  error('Bump type is required (patch, minor, or major). Run with --help for usage.');
+  error(
+    'Bump type is required (patch, minor, or major). Run with --help for usage.'
+  );
 }
 
 // ─────────────────────────────────────────────
@@ -184,14 +186,14 @@ const SECTIONS = [
   { title: 'Features', pattern: /^feat(\(.+\))?:\s*/i },
   { title: 'Bug Fixes', pattern: /^fix(\(.+\))?:\s*/i },
   { title: 'Documentation', pattern: /^docs(\(.+\))?:\s*/i },
+  { title: 'Style', pattern: /^style(\(.+\))?:\s*/i },
   { title: 'Performance', pattern: /^perf(\(.+\))?:\s*/i },
   { title: 'Refactoring', pattern: /^refactor(\(.+\))?:\s*/i },
   { title: 'Tests', pattern: /^test(\(.+\))?:\s*/i },
   { title: 'Build & CI', pattern: /^(build|ci)(\(.+\))?:\s*/i },
+  { title: 'Reverts', pattern: /^revert(\(.+\))?:\s*/i },
   { title: 'Chores', pattern: /^chore(\(.+\))?:\s*/i },
 ];
-
-const ALL_TYPES_PATTERN = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?:/i;
 
 const categorized = new Set();
 const sections = [];
@@ -208,9 +210,7 @@ for (const { title, pattern } of SECTIONS) {
 }
 
 // Uncategorized commits
-const uncategorized = commits.filter(
-  (c) => !categorized.has(c) && !ALL_TYPES_PATTERN.test(c),
-);
+const uncategorized = commits.filter((c) => !categorized.has(c));
 if (uncategorized.length > 0) {
   sections.push(`\n### Other Changes\n`);
   for (const commit of uncategorized) {
@@ -218,7 +218,9 @@ if (uncategorized.length > 0) {
   }
 }
 
-const releaseNotes = [`## [v${nextVersion}] — ${today}`, ...sections].join('\n');
+const releaseNotes = [`## [v${nextVersion}] — ${today}`, ...sections].join(
+  '\n'
+);
 
 divider('Release Notes');
 log(releaseNotes);
@@ -253,7 +255,7 @@ if (existsSync(changelogPath)) {
 } else {
   writeFileSync(
     changelogPath,
-    `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n${releaseNotes}\n`,
+    `# Changelog\n\nAll notable changes to this project will be documented in this file.\n\n${releaseNotes}\n`
   );
 }
 log('Updated CHANGELOG.md');
@@ -262,11 +264,12 @@ log('Updated CHANGELOG.md');
 // 7. Commit and tag
 // ─────────────────────────────────────────────
 
-run(`git add "${packageJsonPath}" "${changelogPath}"`);
-run(`git commit -m "chore(release): v${nextVersion}"`);
-run(`git tag -a "v${nextVersion}" -m "Release v${nextVersion}"`);
+const gitOpts = { cwd: projectRoot };
+run('git add package.json CHANGELOG.md', gitOpts);
+run(`git commit -m "chore(release): v${nextVersion}"`, gitOpts);
+run(`git tag -a "v${nextVersion}" -m "Release v${nextVersion}"`, gitOpts);
 
-const currentBranch = run('git branch --show-current');
+const currentBranch = run('git branch --show-current', gitOpts);
 
 divider(`Released v${nextVersion}`);
 log('Next steps:');
