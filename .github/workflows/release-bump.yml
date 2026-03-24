@@ -1,0 +1,106 @@
+name: Release Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      prerelease:
+        description: 'Pre-release tag (e.g., beta, rc). Leave empty for stable release.'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run (do not push changes)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Bump Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run release script (dry run)
+        if: inputs.dry_run
+        run: |
+          chmod +x scripts/release.sh
+          ARGS="${{ inputs.bump_type }} --dry-run"
+          if [ -n "${{ inputs.prerelease }}" ]; then
+            ARGS="${{ inputs.bump_type }} --prerelease ${{ inputs.prerelease }} --dry-run"
+          fi
+          ./scripts/release.sh $ARGS
+
+      - name: Run release script
+        if: ${{ !inputs.dry_run }}
+        id: release
+        run: |
+          chmod +x scripts/release.sh
+          ARGS="${{ inputs.bump_type }}"
+          if [ -n "${{ inputs.prerelease }}" ]; then
+            ARGS="${{ inputs.bump_type }} --prerelease ${{ inputs.prerelease }}"
+          fi
+          ./scripts/release.sh $ARGS
+
+          # Read the version that was just tagged
+          NEXT_VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//')
+          echo "version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Push changes
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git push origin ${{ github.ref_name }}
+          git push origin "v${{ steps.release.outputs.version }}"
+
+      - name: Generate release body
+        if: ${{ !inputs.dry_run }}
+        id: body
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "v${{ steps.release.outputs.version }}^" 2>/dev/null || echo "")
+          if [ -n "$PREVIOUS_TAG" ]; then
+            COMMITS=$(git log "$PREVIOUS_TAG"..HEAD --pretty=format:"- %s (%h)" --no-merges)
+          else
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges -20)
+          fi
+          {
+            echo "commits<<EOF"
+            echo "$COMMITS"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        if: ${{ !inputs.dry_run }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.release.outputs.version }}
+          name: v${{ steps.release.outputs.version }}
+          body: |
+            ## Release v${{ steps.release.outputs.version }}
+
+            **Bump type:** ${{ inputs.bump_type }}
+
+            ### Changes
+
+            ${{ steps.body.outputs.commits }}
+          prerelease: ${{ inputs.prerelease != '' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
