@@ -116,7 +116,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
       datasetName: dataset.title,
       price: dataset.is_premium ? dataset.price : null,
       formats,
-      license: dataset.license?.title ?? 'Standard License',
+      license: dataset.license?.name ?? 'Standard License',
     });
   };
 
@@ -168,7 +168,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
             {/* Badge row */}
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {dataset.license && (
-                <Badge variant="default">{dataset.license.title}</Badge>
+                <Badge variant="default">{dataset.license.name}</Badge>
               )}
               <Badge variant="secondary">{dataset.category.title}</Badge>
               <Badge variant={dataset.is_premium ? 'outline' : 'secondary'}>
@@ -433,7 +433,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                   <div>
                     <h4 className="text-sm font-medium mb-1">Usage License</h4>
                     <p className="text-sm text-muted-foreground">
-                      {dataset.license.title}
+                      {dataset.license.name}
                       {dataset.license.description &&
                         `. ${dataset.license.description}`}
                     </p>

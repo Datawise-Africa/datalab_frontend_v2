@@ -298,7 +298,7 @@ function PreviewContent({ dataset }: { dataset: IDataset }) {
           <div>
             <h3 className="text-sm font-semibold mb-1">Usage License</h3>
             <p className="text-xs text-muted-foreground">
-              {dataset.license.title}
+              {dataset.license.name}
               {dataset.license.description && (
                 <span className="block mt-1">
                   {dataset.license.description}

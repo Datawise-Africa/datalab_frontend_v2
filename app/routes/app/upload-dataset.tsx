@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/upload-dataset';
 import { generateSEOTags } from '~/lib/utils/seo';
@@ -8,47 +8,26 @@ import {
   type StepConfig,
   type StepValidationResult,
 } from '~/components/ui/multi-step-form';
-import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Label } from '~/components/ui/label';
 import { Badge } from '~/components/ui/badge';
-import { Checkbox } from '~/components/ui/checkbox';
 import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
 import { AsyncSelect } from '~/components/ui/async-select';
-import { DropZone } from '~/components/ui/drop-zone';
-import {
-  Check as CheckIcon,
-  FileText,
-  X,
-  Plus,
-  Info,
-  Upload,
-  UserPlus,
-  Globe,
-  ShieldCheck,
-} from 'lucide-react';
-import {
-  useDatasetCategories,
-  useLicenses,
-  useAuthors,
-} from '~/features/metadata';
-import { useCreateDataset } from '~/features/dataset-creator';
+import { Info, UserPlus, Globe, ShieldCheck, X } from 'lucide-react';
+import { useDatasetCategories, useLicenses } from '~/features/metadata';
+import { useCreateDataset } from '~/features/datasets';
+import { useAppSelector } from '~/store';
 import { cn } from '~/lib/utils';
 import {
-  datasetBasicInfoSchema,
-  datasetFilesSchema,
-  datasetDiscoverySchema,
-  datasetTermsSchema,
-  type DatasetBasicInfoInput,
-  type DatasetFileInput,
-  type DatasetAttributionInput,
-  type DatasetDiscoveryInput,
-  type DatasetTermsInput,
-  type NewAuthorInput,
-  type UploadDatasetPayload,
+  createDatasetSchema,
+  type CreateDatasetInput,
+  type DatasetAuthorInput,
+  type DatasetAccessInput,
+  type DatasetDatasheetInput,
+  type DatasetType,
+  type AccessType,
 } from '~/lib/schema/upload-dataset-schema';
 
 function zodValidate(
@@ -72,138 +51,93 @@ function zodValidate(
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Upload Dataset',
-    description: 'Upload a new dataset to Datalab Africa',
+    title: 'Create Dataset',
+    description: 'Create a new dataset on Datalab Africa',
   });
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+const DATASET_TYPES: { value: DatasetType; label: string }[] = [
+  { value: 'tabular', label: 'Tabular' },
+  { value: 'image', label: 'Image' },
+  { value: 'text', label: 'Text' },
+  { value: 'audio', label: 'Audio' },
+  { value: 'video', label: 'Video' },
+  { value: 'geospatial', label: 'Geospatial' },
+  { value: 'time_series', label: 'Time Series' },
+  { value: 'other', label: 'Other' },
+];
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-const REGIONS = [
-  'Africa',
-  'Asia',
-  'Europe',
-  'North America',
-  'South America',
-  'Oceania',
-  'Global',
+const ACCESS_TYPES: { value: AccessType; label: string }[] = [
+  { value: 'public', label: 'Public' },
+  { value: 'private', label: 'Private' },
+  { value: 'restricted', label: 'Restricted' },
 ];
 
 export default function UploadDataset() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const workspaceId = searchParams.get('workspace');
+  const user = useAppSelector((s) => s.auth.user);
 
-  // Step 1
-  const [basicInfo, setBasicInfo] = useState<DatasetBasicInfoInput>({
-    title: '',
+  // Step 1: Basic Info
+  const [basicInfo, setBasicInfo] = useState({
+    name: '',
     description: '',
+    dataset_type: 'tabular' as DatasetType,
     category: 0,
+    license: 0,
     is_premium: false,
-    price: null,
     is_private: false,
+    dataset_image: '',
   });
 
-  // Step 2
-  const [dataFiles, setDataFiles] = useState<
-    (DatasetFileInput & { size: number })[]
-  >([]);
-  const [metadataFiles, setMetadataFiles] = useState<
-    (DatasetFileInput & { size: number })[]
-  >([]);
-
-  // Step 3
-  const [attribution, setAttribution] = useState<DatasetAttributionInput>({
-    authors: [],
-    new_authors: [],
-    doi_citation: '',
-    license: null,
+  // Step 2: Authors & Access
+  const [authors, setAuthors] = useState<DatasetAuthorInput[]>(
+    user ? [{ user: user.id, role: 'creator' }] : []
+  );
+  const [access, setAccess] = useState<DatasetAccessInput>({
+    access_type: 'public',
+    access_instructions: '',
   });
 
-  // Step 4
-  const [discovery, setDiscovery] = useState<DatasetDiscoveryInput>({
-    keywords: [],
-    tags: [],
-    origin_region: '',
-    covered_regions: [],
-    audience_data: {
-      students: false,
-      non_profit: false,
-      company: false,
-      public: false,
-    },
+  // Step 3: Tags & Datasheet
+  const [tags, setTags] = useState<string[]>([]);
+  const [datasheet, setDatasheet] = useState<DatasetDatasheetInput>({
+    motivation: '',
+    composition: '',
+    collection_process: '',
+    preprocessing: '',
+    uses: '',
+    distribution: '',
+    maintenance: '',
   });
 
-  // Step 5
-  const [terms, setTerms] = useState<DatasetTermsInput>({
-    data_accuracy: false,
-    responsible_use: false,
-    privacy_compliance: false,
-    rights_ownership: false,
-  });
-
-  // Metadata queries
   const { data: categories } = useDatasetCategories();
   const { data: licenses } = useLicenses();
-  const { data: existingAuthors } = useAuthors();
   const createDataset = useCreateDataset();
 
-  const processFiles = useCallback(
-    async (files: FileList, setter: typeof setDataFiles) => {
-      const results: (DatasetFileInput & { size: number })[] = [];
-      for (const file of Array.from(files)) {
-        const base64 = await fileToBase64(file);
-        results.push({ file_name: file.name, base64, size: file.size });
-      }
-      setter((prev) => [...prev, ...results]);
-    },
-    []
-  );
+  const buildPayload = (): CreateDatasetInput => ({
+    ...basicInfo,
+    workspace: workspaceId ?? undefined,
+    tags,
+    authors,
+    access,
+    datasheet: Object.values(datasheet).some((v) => v.trim())
+      ? datasheet
+      : undefined,
+  });
 
   const handleSubmit = () => {
-    const payload: UploadDatasetPayload = {
-      step_1: basicInfo,
-      step_2: {
-        data_files: dataFiles.map(({ file_name, base64 }) => ({
-          file_name,
-          base64,
-        })),
-        metadata_files: metadataFiles.map(({ file_name, base64 }) => ({
-          file_name,
-          base64,
-        })),
-        datasheet_files: [],
-      },
-      step_3: attribution,
-      step_4: discovery,
-      step_5: { accepted_terms: terms },
-    };
-
+    const payload = buildPayload();
     const formData = new FormData();
     formData.append('data', JSON.stringify(payload));
-    if (workspaceId) {
-      formData.append('workspace_id', workspaceId);
-    }
 
     createDataset.mutate(formData, {
-      onSuccess: () => {
+      onSuccess: (result) => {
         navigate(
           workspaceId
             ? `/app/workspaces/${workspaceId}`
-            : '/app/creator-dashboard'
+            : `/datasets/${result.id}`
         );
       },
     });
@@ -214,49 +148,32 @@ export default function UploadDataset() {
       key: 'basic',
       label: 'Basic Info',
       icon: Info,
-      validate: () => zodValidate(datasetBasicInfoSchema, basicInfo),
+      validate: () => zodValidate(createDatasetSchema, buildPayload()),
     },
     {
-      key: 'files',
-      label: 'Files',
-      icon: Upload,
-      validate: () =>
-        zodValidate(datasetFilesSchema, {
-          data_files: dataFiles.map(({ file_name, base64 }) => ({
-            file_name,
-            base64,
-          })),
-          metadata_files: metadataFiles.map(({ file_name, base64 }) => ({
-            file_name,
-            base64,
-          })),
-        }),
-    },
-    {
-      key: 'attribution',
-      label: 'Attribution',
+      key: 'authors',
+      label: 'Authors & Access',
       icon: UserPlus,
     },
     {
       key: 'discovery',
-      label: 'Discovery',
+      label: 'Tags & Docs',
       icon: Globe,
-      validate: () => zodValidate(datasetDiscoverySchema, discovery),
     },
     {
-      key: 'terms',
-      label: 'Terms',
+      key: 'review',
+      label: 'Review',
       icon: ShieldCheck,
-      validate: () => zodValidate(datasetTermsSchema, terms),
     },
   ];
 
   return (
     <Protect roles={['dataset_creator', 'admin']}>
       <div>
-        <h1 className="text-2xl font-bold mb-1">Upload Dataset</h1>
+        <h1 className="text-2xl font-bold mb-1">Create Dataset</h1>
         <p className="text-sm text-muted-foreground mb-4">
-          Publish a new dataset in {steps.length} steps
+          Set up your dataset in {steps.length} steps. You&apos;ll upload files
+          after creating a version.
         </p>
 
         {workspaceId && (
@@ -273,10 +190,10 @@ export default function UploadDataset() {
           steps={steps}
           onSubmit={handleSubmit}
           isSubmitting={createDataset.isPending}
-          submitLabel="Publish Dataset"
+          submitLabel="Create Dataset"
           error={
             createDataset.isError
-              ? 'Failed to upload dataset. Please try again.'
+              ? 'Failed to create dataset. Please try again.'
               : undefined
           }
         >
@@ -284,57 +201,39 @@ export default function UploadDataset() {
             switch (step.key) {
               case 'basic':
                 return (
-                  <Step1BasicInfo
+                  <StepBasicInfo
                     data={basicInfo}
                     onChange={setBasicInfo}
                     categories={categories}
-                    errors={errors}
-                  />
-                );
-              case 'files':
-                return (
-                  <Step2Files
-                    dataFiles={dataFiles}
-                    metadataFiles={metadataFiles}
-                    onDataFiles={(files) => processFiles(files, setDataFiles)}
-                    onMetadataFiles={(files) =>
-                      processFiles(files, setMetadataFiles)
-                    }
-                    onRemoveDataFile={(i) =>
-                      setDataFiles((p) => p.filter((_, idx) => idx !== i))
-                    }
-                    onRemoveMetadataFile={(i) =>
-                      setMetadataFiles((p) => p.filter((_, idx) => idx !== i))
-                    }
-                    errors={errors}
-                  />
-                );
-              case 'attribution':
-                return (
-                  <Step3Attribution
-                    data={attribution}
-                    onChange={setAttribution}
                     licenses={licenses}
-                    existingAuthors={existingAuthors}
+                    errors={errors}
+                  />
+                );
+              case 'authors':
+                return (
+                  <StepAuthorsAccess
+                    authors={authors}
+                    onAuthorsChange={setAuthors}
+                    access={access}
+                    onAccessChange={setAccess}
                   />
                 );
               case 'discovery':
                 return (
-                  <Step4Discovery
-                    data={discovery}
-                    onChange={setDiscovery}
-                    errors={errors}
+                  <StepDiscovery
+                    tags={tags}
+                    onTagsChange={setTags}
+                    datasheet={datasheet}
+                    onDatasheetChange={setDatasheet}
                   />
                 );
-              case 'terms':
+              case 'review':
                 return (
-                  <Step5Terms
-                    data={terms}
-                    onChange={setTerms}
+                  <StepReview
                     basicInfo={basicInfo}
-                    dataFiles={dataFiles}
-                    discovery={discovery}
-                    errors={errors}
+                    authors={authors}
+                    access={access}
+                    tags={tags}
                   />
                 );
               default:
@@ -361,17 +260,30 @@ function FieldError({
   return <p className="text-xs text-destructive mt-1">{msg}</p>;
 }
 
-// ── Step Components ──
+// ── Step 1: Basic Info ──
 
-function Step1BasicInfo({
+interface BasicInfoData {
+  name: string;
+  description: string;
+  dataset_type: DatasetType;
+  category: number;
+  license: number;
+  is_premium: boolean;
+  is_private: boolean;
+  dataset_image: string;
+}
+
+function StepBasicInfo({
   data,
   onChange,
   categories,
+  licenses,
   errors = {},
 }: {
-  data: DatasetBasicInfoInput;
-  onChange: (d: DatasetBasicInfoInput) => void;
+  data: BasicInfoData;
+  onChange: (d: BasicInfoData) => void;
   categories?: { id: number; title: string }[];
+  licenses?: { id: number; name: string }[];
   errors?: Record<string, string>;
 }) {
   return (
@@ -379,14 +291,14 @@ function Step1BasicInfo({
       <h2 className="text-lg font-semibold">Basic Information</h2>
 
       <div className="space-y-2">
-        <Label>Title</Label>
+        <Label>Name</Label>
         <Input
-          value={data.title}
-          onChange={(e) => onChange({ ...data, title: e.target.value })}
-          placeholder="Enter a descriptive title"
-          className={errors.title ? 'border-destructive' : ''}
+          value={data.name}
+          onChange={(e) => onChange({ ...data, name: e.target.value })}
+          placeholder="Enter a descriptive name"
+          className={errors.name ? 'border-destructive' : ''}
         />
-        <FieldError errors={errors} field="title" />
+        <FieldError errors={errors} field="name" />
       </div>
 
       <div className="space-y-2">
@@ -401,20 +313,58 @@ function Step1BasicInfo({
         <FieldError errors={errors} field="description" />
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Dataset Type</Label>
+          <AsyncSelect
+            value={data.dataset_type}
+            onChange={(val) =>
+              onChange({
+                ...data,
+                dataset_type: (val as DatasetType) ?? 'tabular',
+              })
+            }
+            options={DATASET_TYPES.map((t) => ({
+              label: t.label,
+              value: t.value,
+            }))}
+            placeholder="Select type"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label>Category</Label>
+          <AsyncSelect
+            value={data.category ? String(data.category) : null}
+            onChange={(val) =>
+              onChange({ ...data, category: Number(val) || 0 })
+            }
+            options={
+              categories?.map((c) => ({
+                label: c.title,
+                value: String(c.id),
+              })) ?? []
+            }
+            placeholder="Select category"
+          />
+          <FieldError errors={errors} field="category" />
+        </div>
+      </div>
+
       <div className="space-y-2">
-        <Label>Category</Label>
+        <Label>License</Label>
         <AsyncSelect
-          value={data.category ? String(data.category) : null}
-          onChange={(val) => onChange({ ...data, category: Number(val) || 0 })}
+          value={data.license ? String(data.license) : null}
+          onChange={(val) => onChange({ ...data, license: Number(val) || 0 })}
           options={
-            categories?.map((c) => ({
-              label: c.title,
-              value: String(c.id),
+            licenses?.map((l) => ({
+              label: l.name,
+              value: String(l.id),
             })) ?? []
           }
-          placeholder="Select category"
+          placeholder="Select license"
         />
-        <FieldError errors={errors} field="category" />
+        <FieldError errors={errors} field="license" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -422,13 +372,7 @@ function Step1BasicInfo({
           <Label className="font-normal cursor-pointer">Premium dataset</Label>
           <Switch
             checked={data.is_premium}
-            onCheckedChange={(v) =>
-              onChange({
-                ...data,
-                is_premium: v,
-                price: v ? data.price : null,
-              })
-            }
+            onCheckedChange={(v) => onChange({ ...data, is_premium: v })}
           />
         </div>
         <div className="flex items-center justify-between rounded-lg border p-3">
@@ -439,559 +383,364 @@ function Step1BasicInfo({
           />
         </div>
       </div>
-
-      {data.is_premium && (
-        <div className="space-y-2">
-          <Label>Price (USD)</Label>
-          <Input
-            type="number"
-            value={data.price ?? ''}
-            onChange={(e) =>
-              onChange({ ...data, price: Number(e.target.value) || null })
-            }
-            placeholder="0.00"
-            min={0}
-            className={cn('max-w-40', errors.price ? 'border-destructive' : '')}
-          />
-          <FieldError errors={errors} field="price" />
-        </div>
-      )}
     </div>
   );
 }
 
-function Step2Files({
-  dataFiles,
-  metadataFiles,
-  onDataFiles,
-  onMetadataFiles,
-  onRemoveDataFile,
-  onRemoveMetadataFile,
-  errors = {},
+// ── Step 2: Authors & Access ──
+
+function StepAuthorsAccess({
+  authors,
+  onAuthorsChange,
+  access,
+  onAccessChange,
 }: {
-  dataFiles: (DatasetFileInput & { size: number })[];
-  metadataFiles: (DatasetFileInput & { size: number })[];
-  onDataFiles: (files: FileList) => void;
-  onMetadataFiles: (files: FileList) => void;
-  onRemoveDataFile: (i: number) => void;
-  onRemoveMetadataFile: (i: number) => void;
-  errors?: Record<string, string>;
+  authors: DatasetAuthorInput[];
+  onAuthorsChange: (a: DatasetAuthorInput[]) => void;
+  access: DatasetAccessInput;
+  onAccessChange: (a: DatasetAccessInput) => void;
 }) {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-lg font-semibold">Data Files</h2>
-        <p className="text-sm text-muted-foreground">
-          Upload your dataset files (CSV, JSON, ZIP — max 100 MB)
-        </p>
-        <FieldError errors={errors} field="data_files" />
-      </div>
-      <DropZone
-        onFiles={onDataFiles}
-        accept=".csv,.json,.zip,.txt,.xlsx,.parquet"
-        hint="CSV, JSON, ZIP, XLSX, Parquet — max 100 MB per file"
-      />
-      <FileList files={dataFiles} onRemove={onRemoveDataFile} />
+  const [newUserId, setNewUserId] = useState('');
 
-      <Separator />
-
-      <div>
-        <h2 className="text-lg font-semibold">Metadata Files (optional)</h2>
-        <p className="text-sm text-muted-foreground">
-          Documentation, data dictionaries, YAML configs
-        </p>
-      </div>
-      <DropZone
-        onFiles={onMetadataFiles}
-        accept=".json,.yml,.yaml,.xls,.xlsx,.txt"
-        hint="JSON, YAML, Excel, TXT — max 10 MB per file"
-      />
-      <FileList files={metadataFiles} onRemove={onRemoveMetadataFile} />
-    </div>
-  );
-}
-
-function FileList({
-  files,
-  onRemove,
-}: {
-  files: { file_name: string; size: number }[];
-  onRemove: (i: number) => void;
-}) {
-  if (files.length === 0) return null;
-  return (
-    <div className="space-y-2">
-      {files.map((file, idx) => (
-        <div
-          key={`${file.file_name}-${idx}`}
-          className="flex items-center justify-between rounded-md border px-3 py-2"
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span className="text-sm truncate">{file.file_name}</span>
-            <span className="text-xs text-muted-foreground shrink-0">
-              {formatFileSize(file.size)}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => onRemove(idx)}
-            className="ml-2 text-muted-foreground hover:text-destructive"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Step3Attribution({
-  data,
-  onChange,
-  licenses,
-  existingAuthors,
-}: {
-  data: DatasetAttributionInput;
-  onChange: (d: DatasetAttributionInput) => void;
-  licenses?: { id: number; title: string }[];
-  existingAuthors?: { id: number; first_name: string; last_name: string }[];
-}) {
-  const [showNewAuthor, setShowNewAuthor] = useState(false);
-  const [newAuthor, setNewAuthor] = useState<NewAuthorInput>({
-    first_name: '',
-    last_name: '',
-    email: '',
-    affiliation: '',
-  });
-
-  const addNewAuthor = () => {
-    if (newAuthor.first_name && newAuthor.last_name && newAuthor.email) {
-      onChange({
-        ...data,
-        new_authors: [...data.new_authors, newAuthor],
-      });
-      setNewAuthor({
-        first_name: '',
-        last_name: '',
-        email: '',
-        affiliation: '',
-      });
-      setShowNewAuthor(false);
+  const addAuthor = () => {
+    const id = newUserId.trim();
+    if (id && !authors.some((a) => a.user === id)) {
+      onAuthorsChange([...authors, { user: id, role: 'contributor' }]);
+      setNewUserId('');
     }
   };
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Attribution & Citation</h2>
-
-      {/* Existing authors */}
-      <div className="space-y-2">
-        <Label>Authors</Label>
-        <AsyncSelect
-          multiple
-          value={data.authors.map(String)}
-          onChange={(vals) =>
-            onChange({ ...data, authors: (vals ?? []).map(Number) })
-          }
-          options={
-            existingAuthors?.map((a) => ({
-              label: `${a.first_name} ${a.last_name}`,
-              value: String(a.id),
-            })) ?? []
-          }
-          placeholder="Select existing authors"
-        />
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold">Authors</h2>
+        <p className="text-sm text-muted-foreground">
+          Add authors and their roles. You are automatically added as creator.
+        </p>
       </div>
 
-      {/* New authors */}
-      {data.new_authors.length > 0 && (
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">New Authors</Label>
-          <div className="flex flex-wrap gap-2">
-            {data.new_authors.map((a, i) => (
-              <Badge key={i} variant="secondary" className="gap-1">
-                {a.first_name} {a.last_name}
+      {authors.length > 0 && (
+        <div className="space-y-2">
+          {authors.map((author, i) => (
+            <div
+              key={author.user}
+              className="flex items-center gap-3 rounded-md border px-3 py-2"
+            >
+              <span className="text-sm flex-1 truncate font-mono">
+                {author.user}
+              </span>
+              <AsyncSelect
+                value={author.role}
+                onChange={(val) => {
+                  const updated = [...authors];
+                  updated[i] = {
+                    ...updated[i],
+                    role: (val as DatasetAuthorInput['role']) ?? 'contributor',
+                  };
+                  onAuthorsChange(updated);
+                }}
+                options={[
+                  { label: 'Creator', value: 'creator' },
+                  { label: 'Contributor', value: 'contributor' },
+                  { label: 'Maintainer', value: 'maintainer' },
+                ]}
+                placeholder="Role"
+              />
+              {i > 0 && (
                 <button
                   type="button"
                   onClick={() =>
-                    onChange({
-                      ...data,
-                      new_authors: data.new_authors.filter(
-                        (_, idx) => idx !== i
-                      ),
-                    })
+                    onAuthorsChange(authors.filter((_, idx) => idx !== i))
                   }
+                  className="text-muted-foreground hover:text-destructive"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4" />
                 </button>
-              </Badge>
-            ))}
-          </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
-      {showNewAuthor ? (
-        <Card className="py-0">
-          <CardContent className="space-y-3 p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                placeholder="First name"
-                value={newAuthor.first_name}
-                onChange={(e) =>
-                  setNewAuthor({ ...newAuthor, first_name: e.target.value })
-                }
-              />
-              <Input
-                placeholder="Last name"
-                value={newAuthor.last_name}
-                onChange={(e) =>
-                  setNewAuthor({ ...newAuthor, last_name: e.target.value })
-                }
-              />
-            </div>
-            <Input
-              placeholder="Email"
-              type="email"
-              value={newAuthor.email}
-              onChange={(e) =>
-                setNewAuthor({ ...newAuthor, email: e.target.value })
-              }
-            />
-            <Input
-              placeholder="Affiliation"
-              value={newAuthor.affiliation}
-              onChange={(e) =>
-                setNewAuthor({ ...newAuthor, affiliation: e.target.value })
-              }
-            />
-            <div className="flex gap-2">
-              <Button size="sm" onClick={addNewAuthor}>
-                Add
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setShowNewAuthor(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowNewAuthor(true)}
-        >
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add New Author
-        </Button>
-      )}
+      <div className="flex gap-2">
+        <Input
+          value={newUserId}
+          onChange={(e) => setNewUserId(e.target.value)}
+          placeholder="User ID or email"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addAuthor();
+            }
+          }}
+        />
+      </div>
 
       <Separator />
 
-      <div className="space-y-2">
-        <Label>License</Label>
-        <AsyncSelect
-          value={data.license ? String(data.license) : null}
-          onChange={(val) =>
-            onChange({ ...data, license: val ? Number(val) : null })
-          }
-          options={
-            licenses?.map((l) => ({
-              label: l.title,
-              value: String(l.id),
-            })) ?? []
-          }
-          placeholder="Select license"
-        />
+      <div>
+        <h2 className="text-lg font-semibold">Access</h2>
+        <p className="text-sm text-muted-foreground">
+          Control who can access this dataset.
+        </p>
       </div>
 
       <div className="space-y-2">
-        <Label>DOI Citation (optional)</Label>
-        <Input
-          value={data.doi_citation}
-          onChange={(e) => onChange({ ...data, doi_citation: e.target.value })}
-          placeholder="e.g. 10.1234/example"
+        <Label>Access Type</Label>
+        <AsyncSelect
+          value={access.access_type}
+          onChange={(val) =>
+            onAccessChange({
+              ...access,
+              access_type: (val as AccessType) ?? 'public',
+            })
+          }
+          options={ACCESS_TYPES.map((t) => ({
+            label: t.label,
+            value: t.value,
+          }))}
+          placeholder="Select access type"
         />
       </div>
+
+      {access.access_type === 'restricted' && (
+        <div className="space-y-2">
+          <Label>Access Instructions</Label>
+          <Textarea
+            value={access.access_instructions ?? ''}
+            onChange={(e) =>
+              onAccessChange({ ...access, access_instructions: e.target.value })
+            }
+            placeholder="Describe how users can request access..."
+            rows={3}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
-function Step4Discovery({
-  data,
-  onChange,
-  errors = {},
+// ── Step 3: Tags & Datasheet ──
+
+function StepDiscovery({
+  tags,
+  onTagsChange,
+  datasheet,
+  onDatasheetChange,
 }: {
-  data: DatasetDiscoveryInput;
-  onChange: (d: DatasetDiscoveryInput) => void;
-  errors?: Record<string, string>;
+  tags: string[];
+  onTagsChange: (t: string[]) => void;
+  datasheet: DatasetDatasheetInput;
+  onDatasheetChange: (d: DatasetDatasheetInput) => void;
 }) {
   const [tagInput, setTagInput] = useState('');
-  const [keywordInput, setKeywordInput] = useState('');
 
   const addTag = () => {
     const v = tagInput.trim();
-    if (v && !data.tags.includes(v)) {
-      onChange({ ...data, tags: [...data.tags, v] });
+    if (v && !tags.includes(v)) {
+      onTagsChange([...tags, v]);
     }
     setTagInput('');
   };
 
-  const addKeyword = () => {
-    const v = keywordInput.trim();
-    if (v && !data.keywords.includes(v)) {
-      onChange({ ...data, keywords: [...data.keywords, v] });
-    }
-    setKeywordInput('');
-  };
-
-  const toggleRegion = (region: string) => {
-    const has = data.covered_regions.includes(region);
-    onChange({
-      ...data,
-      covered_regions: has
-        ? data.covered_regions.filter((r) => r !== region)
-        : [...data.covered_regions, region],
-    });
-  };
-
-  const toggleAudience = (key: keyof typeof data.audience_data) => {
-    onChange({
-      ...data,
-      audience_data: {
-        ...data.audience_data,
-        [key]: !data.audience_data[key],
-      },
-    });
-  };
-
-  return (
-    <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Discovery Information</h2>
-
-      {/* Tags */}
-      <div className="space-y-2">
-        <Label>Tags (min 2)</Label>
-        <div className="flex gap-2">
-          <Input
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addTag();
-              }
-            }}
-            placeholder="Type and press Enter"
-            className={errors.tags ? 'border-destructive' : ''}
-          />
-        </div>
-        <FieldError errors={errors} field="tags" />
-        {data.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {data.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="gap-1">
-                {tag}
-                <button
-                  type="button"
-                  onClick={() =>
-                    onChange({
-                      ...data,
-                      tags: data.tags.filter((t) => t !== tag),
-                    })
-                  }
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Keywords */}
-      <div className="space-y-2">
-        <Label>Keywords (min 2)</Label>
-        <div className="flex gap-2">
-          <Input
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addKeyword();
-              }
-            }}
-            placeholder="Type and press Enter"
-            className={errors.keywords ? 'border-destructive' : ''}
-          />
-        </div>
-        <FieldError errors={errors} field="keywords" />
-        {data.keywords.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {data.keywords.map((kw) => (
-              <Badge key={kw} variant="secondary" className="gap-1">
-                {kw}
-                <button
-                  type="button"
-                  onClick={() =>
-                    onChange({
-                      ...data,
-                      keywords: data.keywords.filter((k) => k !== kw),
-                    })
-                  }
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Covered regions */}
-      <div className="space-y-2">
-        <Label>Covered Regions</Label>
-        <FieldError errors={errors} field="covered_regions" />
-        <div className="flex flex-wrap gap-2">
-          {REGIONS.map((region) => {
-            const isActive = data.covered_regions.includes(region);
-            return (
-              <button
-                key={region}
-                type="button"
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-sm transition-colors',
-                  isActive
-                    ? 'border-primary bg-primary text-white'
-                    : 'border-border hover:bg-muted'
-                )}
-                onClick={() => toggleRegion(region)}
-              >
-                {isActive && <CheckIcon className="mr-1 inline h-3 w-3" />}
-                {region}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Intended audience */}
-      <div className="space-y-2">
-        <Label>Intended Audience</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {(
-            Object.keys(
-              data.audience_data
-            ) as (keyof typeof data.audience_data)[]
-          ).map((key) => (
-            <label
-              key={key}
-              className="flex cursor-pointer items-center gap-2 rounded-md border p-3"
-            >
-              <Checkbox
-                checked={data.audience_data[key]}
-                onCheckedChange={() => toggleAudience(key)}
-              />
-              <span className="text-sm capitalize">
-                {key.replace('_', ' ')}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Step5Terms({
-  data,
-  onChange,
-  basicInfo,
-  dataFiles,
-  discovery,
-  errors = {},
-}: {
-  data: DatasetTermsInput;
-  onChange: (d: DatasetTermsInput) => void;
-  basicInfo: DatasetBasicInfoInput;
-  dataFiles: { file_name: string }[];
-  discovery: DatasetDiscoveryInput;
-  errors?: Record<string, string>;
-}) {
-  const termItems: { key: keyof DatasetTermsInput; label: string }[] = [
+  const datasheetFields: {
+    key: keyof DatasetDatasheetInput;
+    label: string;
+    placeholder: string;
+  }[] = [
     {
-      key: 'data_accuracy',
-      label:
-        'I confirm that the data in this dataset is accurate and has been properly verified.',
+      key: 'motivation',
+      label: 'Motivation',
+      placeholder: 'Why was this dataset created?',
     },
     {
-      key: 'responsible_use',
-      label:
-        'I agree that this dataset will be used responsibly and in accordance with ethical guidelines.',
+      key: 'composition',
+      label: 'Composition',
+      placeholder: 'What does the dataset contain?',
     },
     {
-      key: 'privacy_compliance',
-      label:
-        'I confirm that this dataset complies with relevant privacy laws and all personal data has been appropriately anonymized.',
+      key: 'collection_process',
+      label: 'Collection Process',
+      placeholder: 'How was the data collected?',
     },
     {
-      key: 'rights_ownership',
-      label:
-        'I confirm that I own or have the rights to distribute this dataset and its contents.',
+      key: 'preprocessing',
+      label: 'Preprocessing',
+      placeholder: 'What cleaning or transformations were applied?',
+    },
+    {
+      key: 'uses',
+      label: 'Uses',
+      placeholder: 'What are the intended uses?',
+    },
+    {
+      key: 'distribution',
+      label: 'Distribution',
+      placeholder: 'How is the dataset distributed?',
+    },
+    {
+      key: 'maintenance',
+      label: 'Maintenance',
+      placeholder: 'Who maintains this dataset and how?',
     },
   ];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Review & Accept Terms</h2>
-
-      {/* Summary */}
-      <div className="rounded-lg bg-muted/50 p-4 space-y-2 text-sm">
-        <p>
-          <span className="font-medium">Title:</span>{' '}
-          {basicInfo.title || '(untitled)'}
-        </p>
-        <p>
-          <span className="font-medium">Files:</span> {dataFiles.length} data
-          file{dataFiles.length !== 1 ? 's' : ''}
-        </p>
-        <p>
-          <span className="font-medium">Tags:</span>{' '}
-          {discovery.tags.join(', ') || '(none)'}
-        </p>
-        <p>
-          <span className="font-medium">Regions:</span>{' '}
-          {discovery.covered_regions.join(', ') || '(none)'}
+      <div>
+        <h2 className="text-lg font-semibold">Tags</h2>
+        <p className="text-sm text-muted-foreground">
+          Add tags to help users discover your dataset.
         </p>
       </div>
 
+      <div className="flex gap-2">
+        <Input
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              addTag();
+            }
+          }}
+          placeholder="Type and press Enter"
+        />
+      </div>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag) => (
+            <Badge key={tag} variant="secondary" className="gap-1">
+              {tag}
+              <button
+                type="button"
+                onClick={() => onTagsChange(tags.filter((t) => t !== tag))}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+
       <Separator />
 
-      {/* Terms checkboxes */}
-      <div className="space-y-3">
-        {termItems.map((item) => (
-          <div key={item.key}>
-            <label
-              className={cn(
-                'flex items-start gap-3 cursor-pointer rounded-md border p-4',
-                errors[item.key] ? 'border-destructive' : ''
-              )}
-            >
-              <Checkbox
-                className="mt-0.5"
-                checked={data[item.key]}
-                onCheckedChange={(v) => onChange({ ...data, [item.key]: !!v })}
-              />
-              <span className="text-sm leading-relaxed">{item.label}</span>
-            </label>
-            <FieldError errors={errors} field={item.key} />
+      <div>
+        <h2 className="text-lg font-semibold">
+          Datasheet{' '}
+          <span className="text-sm font-normal text-muted-foreground">
+            (optional)
+          </span>
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Document your dataset following the Datasheets for Datasets framework.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {datasheetFields.map((field) => (
+          <div key={field.key} className="space-y-2">
+            <Label>{field.label}</Label>
+            <Textarea
+              value={datasheet[field.key] ?? ''}
+              onChange={(e) =>
+                onDatasheetChange({ ...datasheet, [field.key]: e.target.value })
+              }
+              placeholder={field.placeholder}
+              rows={2}
+            />
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Step 4: Review ──
+
+function StepReview({
+  basicInfo,
+  authors,
+  access,
+  tags,
+}: {
+  basicInfo: {
+    name: string;
+    description: string;
+    dataset_type: string;
+    is_premium: boolean;
+    is_private: boolean;
+  };
+  authors: DatasetAuthorInput[];
+  access: DatasetAccessInput;
+  tags: string[];
+}) {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-lg font-semibold">Review & Create</h2>
+      <p className="text-sm text-muted-foreground">
+        Review your dataset details. After creation, you&apos;ll be able to add
+        a version and upload files.
+      </p>
+
+      <div className="rounded-lg border p-4 space-y-3 text-sm">
+        <div className="flex justify-between">
+          <span className="font-medium">Name</span>
+          <span className="text-muted-foreground">
+            {basicInfo.name || '(untitled)'}
+          </span>
+        </div>
+        <Separator />
+        <div className="flex justify-between">
+          <span className="font-medium">Type</span>
+          <Badge variant="secondary" className="capitalize">
+            {basicInfo.dataset_type}
+          </Badge>
+        </div>
+        <Separator />
+        <div className="flex justify-between">
+          <span className="font-medium">Access</span>
+          <Badge variant="secondary" className="capitalize">
+            {access.access_type}
+          </Badge>
+        </div>
+        <Separator />
+        <div className="flex justify-between">
+          <span className="font-medium">Authors</span>
+          <span className="text-muted-foreground">
+            {authors.length} author{authors.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+        <Separator />
+        <div className="flex justify-between">
+          <span className="font-medium">Tags</span>
+          <span className="text-muted-foreground">
+            {tags.length > 0 ? tags.join(', ') : '(none)'}
+          </span>
+        </div>
+        <Separator />
+        <div className="flex justify-between">
+          <span className="font-medium">Premium</span>
+          <span className="text-muted-foreground">
+            {basicInfo.is_premium ? 'Yes' : 'No'}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-medium">Private</span>
+          <span className="text-muted-foreground">
+            {basicInfo.is_private ? 'Yes' : 'No'}
+          </span>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+        <p className="font-medium text-primary mb-1">
+          Next steps after creation
+        </p>
+        <p className="text-muted-foreground">
+          Once created, go to the dataset page to add a version and upload your
+          files using presigned S3 URLs.
+        </p>
       </div>
     </div>
   );

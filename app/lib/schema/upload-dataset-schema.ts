@@ -1,6 +1,81 @@
 import { z } from 'zod';
 
-// ── Step 1: Basic Information ──
+// ── Enums ──
+
+export const datasetTypeEnum = z.enum([
+  'tabular',
+  'image',
+  'text',
+  'audio',
+  'video',
+  'geospatial',
+  'time_series',
+  'other',
+]);
+
+export type DatasetType = z.infer<typeof datasetTypeEnum>;
+
+export const authorRoleEnum = z.enum(['creator', 'contributor', 'maintainer']);
+
+export type AuthorRole = z.infer<typeof authorRoleEnum>;
+
+export const accessTypeEnum = z.enum(['public', 'private', 'restricted']);
+
+export type AccessType = z.infer<typeof accessTypeEnum>;
+
+// ── Sub-schemas ──
+
+export const datasetAuthorSchema = z.object({
+  user: z.string().min(1, 'User ID is required'),
+  role: authorRoleEnum.default('creator'),
+});
+
+export type DatasetAuthorInput = z.infer<typeof datasetAuthorSchema>;
+
+export const datasetAccessSchema = z.object({
+  access_type: accessTypeEnum.default('public'),
+  access_instructions: z.string().optional(),
+});
+
+export type DatasetAccessInput = z.infer<typeof datasetAccessSchema>;
+
+export const datasetDatasheetSchema = z.object({
+  motivation: z.string().optional(),
+  composition: z.string().optional(),
+  collection_process: z.string().optional(),
+  preprocessing: z.string().optional(),
+  uses: z.string().optional(),
+  distribution: z.string().optional(),
+  maintenance: z.string().optional(),
+});
+
+export type DatasetDatasheetInput = z.infer<typeof datasetDatasheetSchema>;
+
+// ── Create dataset payload (no files — files come via versioned upload) ──
+
+export const createDatasetSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  dataset_type: datasetTypeEnum.default('tabular'),
+  category: z.coerce.number().positive('Category is required'),
+  license: z.coerce.number().positive('License is required'),
+  workspace: z.string().optional(),
+  dataset_image: z.string().optional(),
+  is_premium: z.boolean().default(false),
+  is_private: z.boolean().default(false),
+  tags: z.array(z.string().min(1).max(100)).default([]),
+  authors: z
+    .array(datasetAuthorSchema)
+    .min(1, 'At least one author is required'),
+  access: datasetAccessSchema.default({ access_type: 'public' }),
+  datasheet: datasetDatasheetSchema.optional(),
+});
+
+export type CreateDatasetInput = z.infer<typeof createDatasetSchema>;
+
+// ── Legacy schemas (kept for backward compatibility) ──
+
+/** @deprecated Use createDatasetSchema instead */
 export const datasetBasicInfoSchema = z
   .object({
     title: z.string().min(1, 'Title is required'),
@@ -19,7 +94,7 @@ export const datasetBasicInfoSchema = z
 
 export type DatasetBasicInfoInput = z.infer<typeof datasetBasicInfoSchema>;
 
-// ── Step 2: Files ──
+/** @deprecated Files now upload via presigned URLs after version creation */
 export const datasetFileSchema = z.object({
   file_name: z.string(),
   base64: z.string(),
@@ -27,6 +102,7 @@ export const datasetFileSchema = z.object({
 
 export type DatasetFileInput = z.infer<typeof datasetFileSchema>;
 
+/** @deprecated Files now upload via presigned URLs after version creation */
 export const datasetFilesSchema = z.object({
   data_files: z
     .array(datasetFileSchema)
@@ -37,7 +113,6 @@ export const datasetFilesSchema = z.object({
 
 export type DatasetFilesInput = z.infer<typeof datasetFilesSchema>;
 
-// ── Step 3: Attribution ──
 export const newAuthorSchema = z.object({
   title: z.string().optional(),
   first_name: z.string().min(1, 'First name is required'),
@@ -57,7 +132,6 @@ export const datasetAttributionSchema = z.object({
 
 export type DatasetAttributionInput = z.infer<typeof datasetAttributionSchema>;
 
-// ── Step 4: Discovery ──
 export const datasetDiscoverySchema = z.object({
   keywords: z
     .array(z.string().min(2).max(100))
@@ -77,7 +151,6 @@ export const datasetDiscoverySchema = z.object({
 
 export type DatasetDiscoveryInput = z.infer<typeof datasetDiscoverySchema>;
 
-// ── Step 5: Terms ──
 export const datasetTermsSchema = z.object({
   data_accuracy: z.boolean().refine((v) => v, 'You must confirm data accuracy'),
   responsible_use: z
@@ -93,7 +166,7 @@ export const datasetTermsSchema = z.object({
 
 export type DatasetTermsInput = z.infer<typeof datasetTermsSchema>;
 
-// ── Combined payload ──
+/** @deprecated Use createDatasetSchema + versioned upload flow instead */
 export const uploadDatasetSchema = z.object({
   step_1: datasetBasicInfoSchema,
   step_2: datasetFilesSchema,

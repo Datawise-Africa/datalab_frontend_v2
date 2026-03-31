@@ -73,7 +73,7 @@ export function normalizeApiDataset(dataset: IDataset): NormalizedDataset {
         : dataset.size_bytes,
     downloads: dataset.download_count,
     viewsCount: dataset.views_count,
-    license: dataset.license?.title,
+    license: dataset.license?.name,
     status: dataset.status,
   };
 }
