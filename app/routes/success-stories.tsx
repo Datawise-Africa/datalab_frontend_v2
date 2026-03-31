@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import { successStories, type SuccessStory } from '~/data/success-stories';
 import { generateSEOTags } from '~/lib/utils/seo';
 
@@ -37,17 +38,10 @@ export default function SuccessStories() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ── Hero ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-primary py-20 text-white">
-        <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            Success Stories
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground sm:text-xl">
-            See how teams around the world are building with Data Lab
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Success Stories"
+        description="See how teams around the world are building with Data Lab."
+      />
 
       {/* ── Main Content ──────────────────────────────────────── */}
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

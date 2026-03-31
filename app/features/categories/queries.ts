@@ -13,7 +13,7 @@ export const useCategories = (params?: {
   return useQuery({
     queryKey: categoryKeys.list(params),
     queryFn: async (): Promise<CategoryList> => {
-      const { data } = await apiClient.get('/categories', { params });
+      const { data } = await apiClient.get('/dataset-categories', { params });
       return categoryListSchema.parse(data);
     },
   });
@@ -24,7 +24,7 @@ export const useCategory = (id: string) => {
   return useQuery({
     queryKey: categoryKeys.detail(id),
     queryFn: async (): Promise<Category> => {
-      const { data } = await apiClient.get(`/categories/${id}`);
+      const { data } = await apiClient.get(`/dataset-categories/${id}`);
       return categorySchema.parse(data);
     },
     enabled: !!id,
@@ -36,7 +36,7 @@ export const useCategoryBySlug = (slug: string) => {
   return useQuery({
     queryKey: [...categoryKeys.details(), 'slug', slug],
     queryFn: async (): Promise<Category> => {
-      const { data } = await apiClient.get(`/categories/slug/${slug}`);
+      const { data } = await apiClient.get(`/dataset-categories/slug/${slug}`);
       return categorySchema.parse(data);
     },
     enabled: !!slug,

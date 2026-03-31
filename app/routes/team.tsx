@@ -6,6 +6,7 @@ import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { teamMembers, type TeamMember } from '~/data/team';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import {
   Twitter,
   Github,
@@ -118,25 +119,10 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
 export default function Team() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-primary py-24 md:py-32">
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <Badge
-            variant="secondary"
-            className="mb-6 bg-white/20 text-primary-foreground border-primary/30 hover:bg-white/30"
-          >
-            <Users className="mr-1.5 h-3.5 w-3.5" />
-            Our People
-          </Badge>
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
-            Meet the <span className="text-primary-foreground">Team</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/80 sm:text-xl">
-            The people behind Data Lab — researchers, engineers, and leaders
-            united by a shared passion for making data universally accessible.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Meet the Team"
+        description="Researchers, engineers, and leaders united by a shared passion for making data universally accessible."
+      />
 
       {/* Department Sections */}
       {departments.map((department, index) => {

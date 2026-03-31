@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { bookmarkKeys } from './query-keys';
+import { extractError } from '~/lib/utils/extract-error';
+import { toastUtils } from '~/lib/utils/toast';
 
 export const useAddBookmark = () => {
   const queryClient = useQueryClient();
@@ -14,6 +16,9 @@ export const useAddBookmark = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.list() });
     },
+    onError: (error) => {
+      toastUtils.error('Bookmark failed', extractError(error));
+    },
   });
 };
 
@@ -26,6 +31,9 @@ export const useRemoveBookmark = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.list() });
+    },
+    onError: (error) => {
+      toastUtils.error('Remove failed', extractError(error));
     },
   });
 };

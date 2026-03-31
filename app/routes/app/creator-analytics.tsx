@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { Route } from './+types/creator-analytics';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { Card, CardContent } from '~/components/ui/card';
@@ -10,7 +9,7 @@ import {
   useCreatorDatasets,
 } from '~/features/dataset-creator';
 
-export function meta(_args: Route.MetaArgs) {
+export function meta() {
   return generateSEOTags({
     title: 'Creator Analytics',
     description: 'View your dataset analytics',

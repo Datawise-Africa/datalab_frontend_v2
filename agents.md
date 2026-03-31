@@ -66,9 +66,14 @@ app/
       form-number-field.tsx
       form-otp-field.tsx
     admin/             # Admin components (applications table, modals)
+    analytics/         # Analytics charts and geo map
+    command-palette.tsx # Global Ctrl+K command palette
     creator-dashboard/ # Creator dashboard (dataset list, preview, status)
-    dashboard/         # Dashboard layout (sidebar, mobile nav)
+    dashboard/         # Dashboard layout (sidebar, mobile nav, notification bell)
     dataset-card/      # Dataset card components
+    landing/           # Landing page sections (hero, FAQ, etc.)
+    reviews/           # Review list component
+    workspaces/        # Workspace card, member list, invite dialog, settings
     dataset-catalog/   # Dataset catalog/search
     dataset-preview/   # Dataset preview components
     download-flow/     # Download flow components
@@ -91,6 +96,7 @@ app/
     metadata/          # Metadata queries, mutations, query-keys
     products/          # Product queries, mutations, query-keys
     reviews/           # Review queries, mutations, query-keys
+    workspaces/        # Workspace queries, mutations, query-keys
   store/
     index.ts           # Redux store config with persist
     storage.ts         # SSR-safe storage adapter (noop on server)
@@ -109,8 +115,8 @@ app/
       query-provider.tsx  # TanStack Query + DevTools (lazy, dev-only)
     utils/seo.ts       # SEO meta tag generation
     table-cols.ts      # TanStack Table column definitions
-  root.tsx             # App entry: StoreProvider > QueryProvider > Outlet
-  app.css              # Tailwind + shadcn CSS variables
+  root.tsx             # App entry: StoreProvider > QueryProvider > Outlet + Toaster + CommandPalette
+  app.css              # Tailwind + shadcn CSS variables + M3 design tokens
 ```
 
 ## Key Patterns
@@ -164,6 +170,43 @@ app/
 - shadcn/ui components in `app/components/ui/`
 - CSS variables defined in `:root` and `.dark` in `app/app.css`
 - Path alias: `~/` maps to `./app/`
+- **M3 design tokens** in `app.css`: elevation shadows (`shadow-elevation-0` to `5`), motion easing (`ease-standard`, `ease-deceleration`, `ease-acceleration`, `ease-sharp`), and functional colors (`success`, `warning` with foreground variants)
+
+### Component Variant Rule
+
+When installing or creating a shadcn/ui component that uses `class-variance-authority` (cva) with color variants, you **must** extend its variants to include all design token colors:
+
+- `default` — `bg-primary text-primary-foreground`
+- `secondary` — `bg-secondary text-secondary-foreground`
+- `accent` — `bg-accent text-accent-foreground`
+- `destructive` — `bg-destructive text-white`
+- `success` — `bg-success text-success-foreground`
+- `warning` — `bg-warning text-warning-foreground`
+- `outline` — `border bg-background` (hover: accent)
+- `ghost` — transparent (hover: accent)
+- `link` — `text-primary` with underline on hover
+
+Components that currently follow this: `Button`, `Badge`, `Alert`. Apply the same pattern to any new component with variant support (e.g., `Toggle`, `ToggleGroup`).
+
+### Mutation Error Handling
+
+All mutations must include an `onError` handler that toasts the error using `extractError` + `toastUtils`:
+
+```ts
+import { extractError } from '~/lib/utils/extract-error';
+import { toastUtils } from '~/lib/utils/toast';
+
+return useMutation({
+  mutationFn: async (input) => {
+    /* ... */
+  },
+  onError: (error) => {
+    toastUtils.error('Action failed', extractError(error));
+  },
+});
+```
+
+This eliminates the need for try/catch or onError at call sites.
 
 ### Animations
 

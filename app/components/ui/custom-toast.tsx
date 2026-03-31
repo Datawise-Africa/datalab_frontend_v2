@@ -9,75 +9,62 @@ interface CustomToastProps {
   onDismiss: () => void;
 }
 
+const config = {
+  info: {
+    icon: Info,
+    bg: 'bg-blue-50',
+    border: 'border-l-blue-500',
+    iconColor: 'text-blue-500',
+    titleColor: 'text-blue-700',
+  },
+  success: {
+    icon: CheckCircle,
+    bg: 'bg-green-50',
+    border: 'border-l-green-500',
+    iconColor: 'text-green-500',
+    titleColor: 'text-green-700',
+  },
+  error: {
+    icon: XCircle,
+    bg: 'bg-red-50',
+    border: 'border-l-red-500',
+    iconColor: 'text-red-500',
+    titleColor: 'text-red-700',
+  },
+  warning: {
+    icon: AlertTriangle,
+    bg: 'bg-yellow-50',
+    border: 'border-l-yellow-500',
+    iconColor: 'text-yellow-500',
+    titleColor: 'text-yellow-700',
+  },
+};
+
 export function CustomToast({
-  toast,
+  toast: t,
   title,
   message,
   type,
   onDismiss,
 }: CustomToastProps) {
-  const config = {
-    success: {
-      icon: CheckCircle,
-      bgColor: 'bg-primary/5',
-      borderColor: 'border-primary/80',
-      iconBgColor: 'bg-primary/50',
-      textColor: 'text-primary',
-    },
-    info: {
-      icon: Info,
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-400',
-      iconBgColor: 'bg-blue-500',
-      textColor: 'text-blue-900',
-    },
-    warning: {
-      icon: AlertTriangle,
-      bgColor: 'bg-yellow-50',
-      borderColor: 'border-yellow-400',
-      iconBgColor: 'bg-yellow-500',
-      textColor: 'text-yellow-900',
-    },
-    error: {
-      icon: XCircle,
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-400',
-      iconBgColor: 'bg-red-500',
-      textColor: 'text-red-900',
-    },
-  };
-
-  const {
-    icon: Icon,
-    bgColor,
-    borderColor,
-    iconBgColor,
-    textColor,
-  } = config[type];
+  const { icon: Icon, bg, border, iconColor, titleColor } = config[type];
 
   return (
     <div
-      className={`${bgColor} ${borderColor} border-2 rounded-2xl shadow-lg p-4 flex items-start gap-3 min-w-87.5 max-w-md ${
-        toast.visible ? 'animate-enter' : 'animate-leave'
+      className={`flex items-start gap-3 rounded-lg border-l-4 ${border} ${bg} px-4 py-3 shadow-sm min-w-72 max-w-sm ${
+        t.visible ? 'animate-enter' : 'animate-leave'
       }`}
     >
-      {/* Icon */}
-      <div className={`${iconBgColor} rounded-full p-2 shrink-0`}>
-        <Icon className="w-5 h-5 text-white" />
+      <Icon className={`h-5 w-5 shrink-0 mt-0.5 ${iconColor}`} />
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-semibold ${titleColor}`}>{title}</p>
+        {message && <p className="text-xs text-gray-600 mt-0.5">{message}</p>}
       </div>
-
-      {/* Content */}
-      <div className="flex-1 pt-0.5">
-        <h3 className={`font-bold ${textColor} text-base mb-0.5`}>{title}</h3>
-        <p className="text-gray-600 text-sm">{message}</p>
-      </div>
-
-      {/* Close Button */}
       <button
         onClick={onDismiss}
         className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
       >
-        <X className="w-5 h-5" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );

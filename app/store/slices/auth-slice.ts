@@ -1,6 +1,20 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { AuthUserRoleType } from '~/lib/types/auth-context';
 
+type LoginActionPayload = {
+  refresh: string;
+  access: string;
+  user_role: AuthUserRoleType;
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    is_verified: boolean;
+    is_active: boolean;
+    date_joined: string;
+  };
+};
 export interface AuthUser {
   id: string;
   email: string;
@@ -55,27 +69,16 @@ const authSlice = createSlice({
       state.token = action.payload;
       state.isAuthenticated = true;
     },
-    login(
-      state,
-      action: PayloadAction<{
-        access_token: string;
-        refresh_token: string;
-        user_id: string;
-        email: string;
-        first_name: string;
-        last_name: string;
-        user_role: AuthUserRoleType;
-      }>
-    ) {
+    login(state, action: PayloadAction<LoginActionPayload>) {
       const p = action.payload;
-      state.token = p.access_token;
-      state.refreshToken = p.refresh_token;
+      state.token = p.access;
+      state.refreshToken = p.refresh;
       state.user = {
-        id: p.user_id,
-        email: p.email,
-        first_name: p.first_name,
-        last_name: p.last_name,
-        full_name: `${p.first_name} ${p.last_name}`,
+        id: p.user.id,
+        email: p.user.email,
+        first_name: p.user.first_name,
+        last_name: p.user.last_name,
+        full_name: `${p.user.first_name} ${p.user.last_name}`,
         user_role: p.user_role,
       };
       state.isAuthenticated = true;

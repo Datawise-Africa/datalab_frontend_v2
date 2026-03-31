@@ -11,6 +11,10 @@ const envSchema = z.object({
     .string()
     .transform((v) => v === 'true')
     .optional(),
+  VITE_NOINDEX: z
+    .string()
+    .transform((v) => v === 'true')
+    .optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -24,6 +28,7 @@ function parseEnv(): Env {
     VITE_SENTRY_DSN: import.meta.env.VITE_SENTRY_DSN,
     VITE_SENTRY_ENVIRONMENT: import.meta.env.VITE_SENTRY_ENVIRONMENT,
     VITE_ENABLE_DEVTOOLS: import.meta.env.VITE_ENABLE_DEVTOOLS,
+    VITE_NOINDEX: import.meta.env.VITE_NOINDEX,
   };
 
   const result = envSchema.safeParse(raw);

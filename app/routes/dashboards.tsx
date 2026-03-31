@@ -17,6 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Input } from '~/components/ui/input';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import { generateSEOTags } from '~/lib/utils/seo';
 
 export function meta(_args: Route.MetaArgs) {
@@ -100,27 +101,14 @@ export default function Dashboards() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-primary/5 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-            <LayoutDashboard className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
-            Dashboards &amp; Publications
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Explore interactive analytics dashboards powered by Power BI,
-            Tableau, Looker Studio, and more. Gain insights from Data Lab's
-            curated datasets through visual storytelling.
-          </p>
-          <div className="mt-8">
-            <Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm">
-              {liveDashboardCount} live dashboards
-            </Badge>
-          </div>
-        </div>
-      </section>
+      <PageHeader
+        title="Dashboards & Publications"
+        description="Interactive analytics dashboards powered by Power BI, Tableau, Looker Studio, and more."
+      >
+        <Badge className="bg-primary/10 text-primary border-primary/20 px-3 py-1 text-sm">
+          {liveDashboardCount} live
+        </Badge>
+      </PageHeader>
 
       {/* Filters Section */}
       <section className="border-b py-8">

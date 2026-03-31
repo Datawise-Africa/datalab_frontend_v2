@@ -3,6 +3,8 @@ import { apiClient } from '~/lib/api/client';
 import { reviewKeys } from './query-keys';
 import { datasetKeys } from '~/features/datasets/query-keys';
 import type { DatasetReviewType } from '~/lib/types/dataset';
+import { extractError } from '~/lib/utils/extract-error';
+import { toastUtils } from '~/lib/utils/toast';
 
 interface CreateReviewInput {
   dataset: string;
@@ -27,6 +29,9 @@ export const useCreateReview = () => {
       queryClient.invalidateQueries({
         queryKey: datasetKeys.detail(variables.dataset),
       });
+    },
+    onError: (error) => {
+      toastUtils.error('Review failed', extractError(error));
     },
   });
 };
@@ -58,6 +63,9 @@ export const useUpdateReview = () => {
       queryClient.invalidateQueries({
         queryKey: datasetKeys.detail(variables.datasetId),
       });
+    },
+    onError: (error) => {
+      toastUtils.error('Update failed', extractError(error));
     },
   });
 };

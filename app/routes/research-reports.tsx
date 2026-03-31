@@ -12,6 +12,7 @@ import {
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import { researchReports } from '~/data/research';
 import { generateSEOTags } from '~/lib/utils/seo';
 
@@ -53,23 +54,10 @@ export default function ResearchReports() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-primary text-white">
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
-              <FileText className="h-8 w-8" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Research Reports
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-primary-foreground sm:text-xl">
-            Published findings, methodologies, and insights from our research
-            projects. All reports are openly available.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Research Reports"
+        description="Published findings, methodologies, and insights from our research projects."
+      />
 
       {/* Search & Filter */}
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
