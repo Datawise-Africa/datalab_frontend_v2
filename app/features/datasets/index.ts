@@ -6,3 +6,9 @@ export {
   useDeleteDataset,
   useUpdateDatasetStatus,
 } from './mutations';
+export {
+  useCreateVersion,
+  useRequestPresignedUrls,
+  useUploadToS3,
+  useConfirmUpload,
+} from './version-mutations';

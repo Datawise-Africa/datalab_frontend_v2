@@ -747,7 +747,7 @@ function Step3Attribution({
 }: {
   data: DatasetAttributionInput;
   onChange: (d: DatasetAttributionInput) => void;
-  licenses?: { id: number; title: string }[];
+  licenses?: { id: number; name: string }[];
   existingAuthors?: { id: number; first_name: string; last_name: string }[];
 }) {
   const [showNewAuthor, setShowNewAuthor] = useState(false);
@@ -892,7 +892,7 @@ function Step3Attribution({
           }
           options={
             licenses?.map((l) => ({
-              label: l.title,
+              label: l.name,
               value: String(l.id),
             })) ?? []
           }

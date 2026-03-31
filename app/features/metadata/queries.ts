@@ -13,7 +13,7 @@ export const useDatasetCategories = () => {
   return useQuery({
     queryKey: metadataKeys.categories(),
     queryFn: async (): Promise<IDatasetCategory[]> => {
-      const { data } = await apiClient.get('/data/dataset-categories/');
+      const { data } = await apiClient.get('/dataset-categories/');
       // API may return paginated { data: [...] } or a plain array
       return Array.isArray(data) ? data : (data?.data ?? []);
     },
@@ -27,7 +27,7 @@ export const useLicenses = () => {
   return useQuery({
     queryKey: metadataKeys.licenses(),
     queryFn: async (): Promise<IDatasetLicense[]> => {
-      const { data } = await apiClient.get('/data/license/');
+      const { data } = await apiClient.get('/dataset-licenses/');
       // API may return paginated { data: [...] } or a plain array
       return Array.isArray(data) ? data : (data?.data ?? []);
     },

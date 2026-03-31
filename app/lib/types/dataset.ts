@@ -47,9 +47,25 @@ export interface IDatasetAcceptedTerm {
 
 export interface IDatasetLicense {
   id: number;
-  title: string;
-  license_type: string;
+  identifier: string;
+  name: string;
+  slug: string;
   description: string;
+  url: string;
+  license_type:
+    | 'permissive'
+    | 'copyleft'
+    | 'proprietary'
+    | 'public_domain'
+    | string;
+  allows_commercial_use: boolean;
+  allows_modification: boolean;
+  requires_attribution: boolean;
+  allows_redistribution: boolean;
+  requires_share_alike: boolean;
+  is_active: boolean;
+  /** @deprecated Use `name` instead */
+  title?: string;
 }
 
 export interface IDatasetTermsAndConditions {
