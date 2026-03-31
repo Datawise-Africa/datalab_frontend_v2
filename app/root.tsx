@@ -24,11 +24,11 @@ import { loadGTagScripts } from './lib/utils/add-google-tag';
 import { QueryProvider } from './lib/providers/query-provider';
 import { StoreProvider } from './lib/providers/store-provider';
 import { env } from './lib/env';
-import Navbar from '~/components/layout/navbar';
-import Footer from '~/components/layout/footer';
 import { Button } from '~/components/ui/button';
+import { Toaster } from 'react-hot-toast';
 import { AuthModal } from '~/components/auth/auth-modal';
 import { DownloadModal } from '~/components/download-flow/download-modal';
+import { CommandPalette } from '~/components/command-palette';
 
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -75,15 +75,28 @@ export default function App() {
   return (
     <StoreProvider>
       <QueryProvider>
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
+        <Outlet />
         <AuthModal />
         <DownloadModal />
+        <CommandPalette />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+            success: {
+              duration: 3000,
+              iconTheme: { primary: '#10b981', secondary: '#fff' },
+            },
+            error: {
+              duration: 4000,
+              iconTheme: { primary: '#ef4444', secondary: '#fff' },
+            },
+          }}
+        />
       </QueryProvider>
     </StoreProvider>
   );

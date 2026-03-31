@@ -107,6 +107,8 @@ export interface IDataset {
   dataset_size: number;
   views_count: number;
   reviews: DatasetReviewType[];
+  workspace_id?: string | null;
+  workspace?: { id: string; name: string } | null;
 }
 
 export interface DatasetFilterOptions {

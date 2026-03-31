@@ -20,7 +20,8 @@ export default {
       ],
     ],
     // Subject must be lowercase
-    'subject-case': [2, 'always', 'lower-case'],
+    // Disabled — acronyms like VITE_NOINDEX, SEO, SSR are valid in subjects
+    'subject-case': [0],
     // No period at end of subject
     'subject-full-stop': [2, 'never', '.'],
     // Subject max length

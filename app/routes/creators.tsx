@@ -28,6 +28,7 @@ import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
 import { DropZone } from '~/components/ui/drop-zone';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import {
   Upload,
   DollarSign,
@@ -167,51 +168,25 @@ const benefits = [
 export default function Creators() {
   return (
     <div className="min-h-screen bg-white">
-      {/* ==================== HERO ==================== */}
-      <section className="bg-primary/5 py-20 md:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/10 border-primary/20">
-            Creator Program
-          </Badge>
-
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900">
-            Share Your Data with the World
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Join Data Lab's creator program. Publish high-quality datasets,
-            reach thousands of developers and researchers, and earn revenue from
-            your data.
-          </p>
-
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              <a href="#apply-form">
-                Apply to Become a Creator
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <a href="#how-it-works">Learn More</a>
-            </Button>
+      <PageHeader
+        title="Creator Program"
+        description="Publish high-quality datasets, reach thousands of developers, and earn revenue from your data."
+      >
+        <Button asChild>
+          <a href="#apply-form">
+            Apply to Become a Creator
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </a>
+        </Button>
+      </PageHeader>
+      <div className="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6">
+        {stats.map((stat) => (
+          <div key={stat.label}>
+            <p className="text-2xl font-bold text-primary">{stat.value}</p>
+            <p className="text-sm text-muted-foreground">{stat.label}</p>
           </div>
-
-          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-3xl font-bold text-primary">{stat.value}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        ))}
+      </div>
 
       {/* ==================== HOW IT WORKS ==================== */}
       <section id="how-it-works" className="py-16 md:py-24">

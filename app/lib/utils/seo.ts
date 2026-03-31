@@ -1,3 +1,5 @@
+import { env } from '~/lib/env';
+
 /**
  * Configuration object for SEO metadata generation.
  */
@@ -89,7 +91,10 @@ export function generateSEOTags(config: SEOConfig) {
 
     // Additional SEO
     { name: 'author', content: SITE_NAME },
-    { name: 'robots', content: 'index, follow' },
+    {
+      name: 'robots',
+      content: env.VITE_NOINDEX ? 'noindex, nofollow' : 'index, follow',
+    },
     {
       name: 'theme-color',
       content: '#16a34a',

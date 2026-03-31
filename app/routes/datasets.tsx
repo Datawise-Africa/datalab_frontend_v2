@@ -46,6 +46,7 @@ import {
   datasetSortOptions,
 } from '~/lib/constants/dataset-filter-options';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import type { Route } from './+types/datasets';
 import { generateSEOTags } from '~/lib/utils/seo';
 
@@ -134,23 +135,10 @@ export default function Datasets() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-primary">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-primary/50/20 backdrop-blur-sm border border-primary/20">
-              <Database className="w-6 h-6 text-primary-foreground" />
-            </div>
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight">
-            Dataset Catalog
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg sm:text-xl text-primary-foreground/80">
-            Browse our curated collection of high-quality datasets ready for
-            research, machine learning, and analytics.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Dataset Catalog"
+        description="Browse our curated collection of high-quality datasets for research, machine learning, and analytics."
+      />
 
       {/* Sticky search + sort bar */}
       <section className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b">

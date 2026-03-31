@@ -19,6 +19,7 @@ body {
 }
 
 @theme inline {
+  /* ===== Radius tokens ===== */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -26,6 +27,24 @@ body {
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+
+  /* ===== M3 Elevation shadows ===== */
+  --shadow-elevation-0: none;
+  --shadow-elevation-1:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-elevation-2:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-elevation-3:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-elevation-4:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-elevation-5: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+  /* ===== M3 Motion easing ===== */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-deceleration: cubic-bezier(0, 0, 0.2, 1);
+  --ease-acceleration: cubic-bezier(0.4, 0, 1, 1);
+  --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -41,6 +60,10 @@ body {
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -77,6 +100,10 @@ body {
   --accent: oklch(0.962 0.044 156.743);
   --accent-foreground: oklch(0.393 0.095 152.535);
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.6 0.19 145);
+  --success-foreground: oklch(0.98 0.005 145);
+  --warning: oklch(0.75 0.18 60);
+  --warning-foreground: oklch(0.25 0.05 60);
   --border: oklch(0.929 0.013 255.508);
   --input: oklch(0.929 0.013 255.508);
   --ring: oklch(0.627 0.194 149.214);
@@ -112,6 +139,10 @@ body {
   --accent: oklch(0.279 0.041 260.031);
   --accent-foreground: oklch(0.984 0.003 247.858);
   --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.65 0.17 145);
+  --success-foreground: oklch(0.15 0.02 145);
+  --warning: oklch(0.8 0.16 60);
+  --warning-foreground: oklch(0.2 0.05 60);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.723 0.219 149.579);

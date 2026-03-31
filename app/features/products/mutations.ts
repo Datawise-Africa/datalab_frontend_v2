@@ -7,8 +7,9 @@ import type {
   UpdateProductInput,
 } from '~/lib/schema';
 import { productSchema } from '~/lib/schema';
+import { extractError } from '~/lib/utils/extract-error';
+import { toastUtils } from '~/lib/utils/toast';
 
-// Create a new product
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -20,10 +21,12 @@ export const useCreateProduct = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
     },
+    onError: (error) => {
+      toastUtils.error('Create failed', extractError(error));
+    },
   });
 };
 
-// Update a product
 export const useUpdateProduct = () => {
   const queryClient = useQueryClient();
 
@@ -44,10 +47,12 @@ export const useUpdateProduct = () => {
         queryKey: productKeys.detail(variables.id),
       });
     },
+    onError: (error) => {
+      toastUtils.error('Update failed', extractError(error));
+    },
   });
 };
 
-// Patch a product (partial update)
 export const usePatchProduct = () => {
   const queryClient = useQueryClient();
 
@@ -68,10 +73,12 @@ export const usePatchProduct = () => {
         queryKey: productKeys.detail(variables.id),
       });
     },
+    onError: (error) => {
+      toastUtils.error('Update failed', extractError(error));
+    },
   });
 };
 
-// Delete a product
 export const useDeleteProduct = () => {
   const queryClient = useQueryClient();
 
@@ -81,6 +88,9 @@ export const useDeleteProduct = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+    },
+    onError: (error) => {
+      toastUtils.error('Delete failed', extractError(error));
     },
   });
 };

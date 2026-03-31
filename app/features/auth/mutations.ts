@@ -14,6 +14,8 @@ import type { RegisterOrLoginResponse, AuthUser } from '~/lib/types/auth';
 import { useAppDispatch } from '~/store';
 import { login, clearAuth } from '~/store/slices/auth-slice';
 import { authKeys } from './query-keys';
+import { extractError } from '~/lib/utils/extract-error';
+import { toastUtils } from '~/lib/utils/toast';
 
 export const useLogin = () => {
   const dispatch = useAppDispatch();
@@ -28,15 +30,23 @@ export const useLogin = () => {
       queryClient.clear();
       dispatch(
         login({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          user_id: data.id,
-          email: data.email,
-          first_name: data.first_name,
-          last_name: data.last_name,
+          access: data.access_token,
+          refresh: data.refresh_token,
           user_role: data.user_role,
+          user: {
+            id: data.id,
+            email: data.email,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            is_verified: true,
+            is_active: true,
+            date_joined: new Date().toISOString(),
+          },
         })
       );
+    },
+    onError: (error) => {
+      toastUtils.error('Login failed', extractError(error));
     },
   });
 };
@@ -49,22 +59,33 @@ export const useSignup = () => {
     mutationFn: async (
       input: SignupInput
     ): Promise<RegisterOrLoginResponse> => {
-      const { data } = await apiClient.post('/auth/register/', input);
+      const { data } = await apiClient.post('/auth/register/', {
+        ...input,
+        profile: { bio: '', linkdin_url: '' },
+      });
       return data;
     },
     onSuccess: (data) => {
       queryClient.clear();
       dispatch(
         login({
-          access_token: data.access_token,
-          refresh_token: data.refresh_token,
-          user_id: data.id,
-          email: data.email,
-          first_name: data.first_name,
-          last_name: data.last_name,
+          access: data.access_token,
+          refresh: data.refresh_token,
           user_role: data.user_role,
+          user: {
+            id: data.id,
+            email: data.email,
+            first_name: data.first_name,
+            last_name: data.last_name,
+            is_verified: true,
+            is_active: true,
+            date_joined: new Date().toISOString(),
+          },
         })
       );
+    },
+    onError: (error) => {
+      toastUtils.error('Signup failed', extractError(error));
     },
   });
 };
@@ -95,6 +116,9 @@ export const useUpdateProfile = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
+    onError: (error) => {
+      toastUtils.error('Profile update failed', extractError(error));
+    },
   });
 };
 
@@ -102,6 +126,9 @@ export const useChangePassword = () => {
   return useMutation({
     mutationFn: async (input: ChangePasswordInput): Promise<void> => {
       await apiClient.post('/auth/change-password/', input);
+    },
+    onError: (error) => {
+      toastUtils.error('Password change failed', extractError(error));
     },
   });
 };
@@ -112,6 +139,9 @@ export const useRequestPasswordReset = () => {
     mutationFn: async (input: ForgotPasswordInput): Promise<void> => {
       await apiClient.post('/auth/password-reset/', input);
     },
+    onError: (error) => {
+      toastUtils.error('Reset request failed', extractError(error));
+    },
   });
 };
 
@@ -120,6 +150,9 @@ export const useCompletePasswordReset = () => {
   return useMutation({
     mutationFn: async (input: ResetPasswordInput): Promise<void> => {
       await apiClient.patch('/auth/password-reset-complete/', input);
+    },
+    onError: (error) => {
+      toastUtils.error('Password reset failed', extractError(error));
     },
   });
 };

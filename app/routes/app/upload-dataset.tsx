@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/upload-dataset';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
@@ -104,6 +104,8 @@ const REGIONS = [
 
 export default function UploadDataset() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const workspaceId = searchParams.get('workspace');
 
   // Step 1
   const [basicInfo, setBasicInfo] = useState<DatasetBasicInfoInput>({
@@ -192,10 +194,17 @@ export default function UploadDataset() {
 
     const formData = new FormData();
     formData.append('data', JSON.stringify(payload));
+    if (workspaceId) {
+      formData.append('workspace_id', workspaceId);
+    }
 
     createDataset.mutate(formData, {
       onSuccess: () => {
-        navigate('/app/creator-dashboard');
+        navigate(
+          workspaceId
+            ? `/app/workspaces/${workspaceId}`
+            : '/app/creator-dashboard'
+        );
       },
     });
   };
@@ -246,9 +255,19 @@ export default function UploadDataset() {
     <Protect roles={['dataset_creator', 'admin']}>
       <div>
         <h1 className="text-2xl font-bold mb-1">Upload Dataset</h1>
-        <p className="text-sm text-muted-foreground mb-6">
+        <p className="text-sm text-muted-foreground mb-4">
           Publish a new dataset in {steps.length} steps
         </p>
+
+        {workspaceId && (
+          <div className="mb-6 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+            <span className="font-medium text-primary">Workspace upload</span>
+            <span className="text-muted-foreground">
+              {' '}
+              — This dataset will be added to your workspace.
+            </span>
+          </div>
+        )}
 
         <MultiStepForm
           steps={steps}

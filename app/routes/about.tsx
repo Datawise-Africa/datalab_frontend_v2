@@ -4,6 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
+import { PageHeader } from '~/components/layout/page-header';
 import {
   Globe,
   Shield,
@@ -64,25 +65,10 @@ const stats = [
 export default function About() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-primary py-24 md:py-32">
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <Badge
-            variant="secondary"
-            className="mb-6 bg-white/20 text-primary-foreground border-primary/30 hover:bg-white/30"
-          >
-            Our Story
-          </Badge>
-          <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">
-            About <span className="text-primary-foreground">Data Lab</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/80 sm:text-xl">
-            We're on a mission to democratize access to high-quality data,
-            empowering developers, researchers, and organizations to build the
-            next generation of data-driven solutions.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="About Data Lab"
+        description="Democratizing access to high-quality data for developers, researchers, and organizations."
+      />
 
       {/* Mission & Vision */}
       <section className="py-16 md:py-24 bg-background">

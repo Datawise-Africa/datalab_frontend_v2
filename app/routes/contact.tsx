@@ -7,6 +7,7 @@ import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import {
   Mail,
   MapPin,
@@ -98,19 +99,10 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen">
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-primary py-24 text-white">
-        <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Get in Touch
-          </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/90">
-            We'd love to hear from you. Whether you have a question about
-            features, pricing, or anything else — our team is ready to answer
-            all your questions.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="Get in Touch"
+        description="Have a question about features, pricing, or anything else? Our team is ready to help."
+      />
 
       {/* ── Contact Form + Info ── */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

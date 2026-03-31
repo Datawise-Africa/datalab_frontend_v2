@@ -34,7 +34,7 @@ export const useDatasets = (params?: DatasetFilterParams) => {
     queryKey: datasetKeys.list(params),
     queryFn: async (): Promise<DatasetListResponse> => {
       const endpoint = hasFilters ? '/data/filter/' : '/data/datasets/';
-      const { data } = await apiClient.get(endpoint, { params });
+      const { data } = await apiClient.get('/datasets/', { params });
       return data;
     },
     placeholderData: keepPreviousData,

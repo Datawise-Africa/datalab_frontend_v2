@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Route } from './+types/docs';
 import { cn } from '~/lib/utils';
+import { PageHeader } from '~/components/layout/page-header';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
@@ -270,23 +271,10 @@ export default function DocsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ============================================================ */}
-      {/*  1. Hero                                                     */}
-      {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-primary">
-        <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 md:py-32 lg:px-8">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-            <BookOpen className="h-8 w-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl md:text-6xl">
-            API Documentation
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground md:text-xl">
-            Everything you need to integrate Data Lab datasets into your
-            applications.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        title="API Documentation"
+        description="Everything you need to integrate Data Lab datasets into your applications."
+      />
 
       {/* ============================================================ */}
       {/*  2. Getting Started                                          */}

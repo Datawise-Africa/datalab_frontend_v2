@@ -157,6 +157,45 @@ app/
 - CSS variables defined in `:root` and `.dark` in `app/app.css`
 - Path alias: `~/` maps to `./app/`
 
+### Component Variant Rule
+
+When installing or creating a shadcn/ui component that uses `class-variance-authority` (cva) with color variants, you **must** extend its variants to include all design token colors. The standard variant set is:
+
+| Variant       | Token            | Use case                           |
+| ------------- | ---------------- | ---------------------------------- |
+| `default`     | `primary`        | Primary actions, default state     |
+| `secondary`   | `secondary`      | Secondary/muted actions            |
+| `accent`      | `accent`         | Highlighted/accented elements      |
+| `destructive` | `destructive`    | Dangerous/delete actions           |
+| `success`     | `success`        | Positive feedback, confirmations   |
+| `warning`     | `warning`        | Caution, non-blocking alerts       |
+| `outline`     | `border`         | Bordered, transparent background   |
+| `ghost`       | `accent` (hover) | Minimal, no background until hover |
+| `link`        | `primary`        | Text-only, underline on hover      |
+
+**Example — adding variants to a new component:**
+
+```ts
+const myVariants = cva('base-classes', {
+  variants: {
+    variant: {
+      default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+      secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+      accent: 'bg-accent text-accent-foreground hover:bg-accent/80',
+      destructive: 'bg-destructive text-white hover:bg-destructive/90',
+      success: 'bg-success text-success-foreground hover:bg-success/90',
+      warning: 'bg-warning text-warning-foreground hover:bg-warning/90',
+      outline:
+        'border bg-background hover:bg-accent hover:text-accent-foreground',
+      ghost: 'hover:bg-accent hover:text-accent-foreground',
+      link: 'text-primary underline-offset-4 hover:underline',
+    },
+  },
+});
+```
+
+Components that currently follow this rule: `Button`, `Badge`, `Alert`. When adding new shadcn components with variant support (e.g., `Toggle`, `ToggleGroup`), apply the same pattern.
+
 ### Animations
 
 - Framer Motion for page transitions and scroll-reveal animations
