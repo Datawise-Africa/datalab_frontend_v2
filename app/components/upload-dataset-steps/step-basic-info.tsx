@@ -84,11 +84,11 @@ export function StepBasicInfo({
           label="Category"
           placeholder="Select category"
           required
-          valueAs="number"
+          valueAs="string"
           options={
             categories?.map((c) => ({
               label: c.name,
-              value: String(c.id),
+              value: c.id,
             })) ?? []
           }
         />
@@ -100,11 +100,11 @@ export function StepBasicInfo({
         label="License"
         placeholder="Select license"
         required
-        valueAs="number"
+        valueAs="string"
         options={
           licenses?.map((l) => ({
             label: l.name,
-            value: String(l.id),
+            value: l.id,
           })) ?? []
         }
       />
