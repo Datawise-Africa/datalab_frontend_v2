@@ -47,7 +47,8 @@ type FormSelectFieldProps<TFieldValues extends FieldValues> =
   | SingleSelectProps<TFieldValues>
   | MultiSelectProps<TFieldValues>;
 
-function coerceOne(val: string | null, as: ValueAs): unknown {
+function coerceOne(val: unknown, as: ValueAs): unknown {
+  if (typeof val === 'object' && val !== null) return val; // Shouldn't happen, but guard just in case
   if (val == null) {
     if (as === 'number') return 0;
     if (as === 'boolean') return false;
@@ -125,7 +126,8 @@ export function FormSelectField<TFieldValues extends FieldValues>({
                 <AsyncSelect
                   value={displayValue as string | null}
                   onChange={(val) => {
-                    field.onChange(coerceOne(val, valueAs));
+                    const coercedVal = coerceOne(val, valueAs);
+                    field.onChange(coercedVal);
                     onValueChange?.(val as string);
                   }}
                   placeholder={placeholder}

@@ -23,8 +23,8 @@ type DatasetFormProps = {
   onSubmit: (data: UploadFormValues) => Promise<void>;
   isSubmitting: boolean;
   error?: string;
-  categories?: ReadonlyArray<{ id: number; name: string }>;
-  licenses?: ReadonlyArray<{ id: number; name: string }>;
+  categories?: ReadonlyArray<{ id: string; name: string }>;
+  licenses?: ReadonlyArray<{ id: string; name: string }>;
 };
 
 const STEPS: StepConfig[] = [

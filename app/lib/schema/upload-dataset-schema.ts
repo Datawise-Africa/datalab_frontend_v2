@@ -61,8 +61,10 @@ export const uploadDatasetFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   dataset_type: datasetTypeEnum,
-  category: z.coerce.number().positive('Category is required'),
-  license: z.coerce.number().positive('License is required'),
+  category: z
+    .string('Please select dataset category')
+    .min(1, 'Category is required'), // Allow empty string for optional category
+  license: z.string('Please select a license').min(1, 'License is required'),
   workspace: z.string().optional(),
   dataset_image: z.string().optional(),
   is_premium: z.boolean(),
