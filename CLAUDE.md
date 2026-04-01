@@ -33,7 +33,7 @@ pnpm typecheck    # react-router typegen && tsc
 
 ## Project Structure
 
-```
+```sh
 app/
   routes/              # File-based routing (React Router 7)
     home/index.tsx     # Landing page
@@ -417,7 +417,7 @@ The Playwright MCP server is configured in `.mcp.json` at project root.
 
 Store screenshots in `.playwright-mcp/screenshots/` grouped by page:
 
-```
+```sh
 .playwright-mcp/screenshots/
 ├── landing/
 │   ├── mobile-375.png
@@ -456,7 +456,7 @@ See `CONTRIBUTING.md` for the full guide. Key points below.
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-```
+```sh
 <type>(<scope>): <subject>
 
 <body> (optional)
@@ -491,7 +491,7 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/) specific
 
 Use the format: `<type>/<short-description>`
 
-```
+```sh
 feat/dataset-preview-modal
 fix/auth-redirect-loop
 chore/update-dependencies

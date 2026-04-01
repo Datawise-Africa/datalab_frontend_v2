@@ -38,7 +38,7 @@ pnpm dev               # http://localhost:3000
 
 ## Project Structure
 
-```
+```sh
 app/
   routes/           # File-based routing
     home/           # Landing page
