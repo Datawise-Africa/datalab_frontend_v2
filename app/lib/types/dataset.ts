@@ -2,7 +2,8 @@ export type DatasetStatus = 'PB' | 'AR' | 'DF';
 
 export interface IDatasetCategory {
   id: number;
-  title: string;
+  name: string;
+  slug: string;
 }
 
 export interface IDatasetAuthor {

@@ -1,30 +1,31 @@
 import type { AuthUserRoleType } from './auth-context';
 
 export type RegisterOrLoginResponse = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
+  refresh: string;
+  access: string;
   user_role: AuthUserRoleType;
-  refresh_token: string;
-  access_token: string;
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    is_verified: boolean;
+    is_active: boolean;
+    date_joined: string;
+  };
 };
-
-export type LoginPayload = {
-  user_id: string;
-  user_role: AuthUserRoleType;
-  access_token: string;
-  refresh_token: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-};
-
-export type AuthUser = {
-  user_id: string;
-  user_role: AuthUserRoleType;
-  first_name: string;
-  last_name: string;
-  email: string;
+export interface AuthUser extends Omit<
+  RegisterOrLoginResponse['user'],
+  'is_verified' | 'is_active'
+> {
   full_name: string;
-};
+  user_role: AuthUserRoleType;
+}
+
+export interface AuthState {
+  ac_tk: string | null;
+  rf_tk: string | null;
+  user: AuthUser | null;
+  isAuthenticated: boolean;
+  sessionId: string;
+}

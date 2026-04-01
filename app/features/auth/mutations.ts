@@ -22,22 +22,26 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: LoginInput): Promise<RegisterOrLoginResponse> => {
-      const { data } = await apiClient.post('/auth/login/', input);
+    mutationFn: async (input: LoginInput) => {
+      const { data } = await apiClient.post<RegisterOrLoginResponse>(
+        '/auth/login/',
+        input
+      );
       return data;
     },
     onSuccess: (data) => {
       queryClient.clear();
+
       dispatch(
         login({
-          access: data.access_token,
-          refresh: data.refresh_token,
+          access: data.access,
+          refresh: data.refresh,
           user_role: data.user_role,
           user: {
-            id: data.id,
-            email: data.email,
-            first_name: data.first_name,
-            last_name: data.last_name,
+            id: data.user.id,
+            email: data.user.email,
+            first_name: data.user.first_name,
+            last_name: data.user.last_name,
             is_verified: true,
             is_active: true,
             date_joined: new Date().toISOString(),
@@ -56,27 +60,28 @@ export const useSignup = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (
-      input: SignupInput
-    ): Promise<RegisterOrLoginResponse> => {
-      const { data } = await apiClient.post('/auth/register/', {
-        ...input,
-        profile: { bio: '', linkdin_url: '' },
-      });
+    mutationFn: async (input: SignupInput) => {
+      const { data } = await apiClient.post<RegisterOrLoginResponse>(
+        '/auth/register/',
+        {
+          ...input,
+          profile: { bio: '', linkdin_url: '' },
+        }
+      );
       return data;
     },
     onSuccess: (data) => {
       queryClient.clear();
       dispatch(
         login({
-          access: data.access_token,
-          refresh: data.refresh_token,
+          access: data.access,
+          refresh: data.refresh,
           user_role: data.user_role,
           user: {
-            id: data.id,
-            email: data.email,
-            first_name: data.first_name,
-            last_name: data.last_name,
+            id: data.user.id,
+            email: data.user.email,
+            first_name: data.user.first_name,
+            last_name: data.user.last_name,
             is_verified: true,
             is_active: true,
             date_joined: new Date().toISOString(),

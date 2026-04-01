@@ -1,36 +1,9 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { AuthUserRoleType } from '~/lib/types/auth-context';
-
-type LoginActionPayload = {
-  refresh: string;
-  access: string;
-  user_role: AuthUserRoleType;
-  user: {
-    id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    is_verified: boolean;
-    is_active: boolean;
-    date_joined: string;
-  };
-};
-export interface AuthUser {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  full_name: string;
-  user_role: AuthUserRoleType;
-}
-
-export interface AuthState {
-  token: string | null;
-  refreshToken: string | null;
-  user: AuthUser | null;
-  isAuthenticated: boolean;
-  sessionId: string;
-}
+import type {
+  AuthState,
+  AuthUser,
+  RegisterOrLoginResponse,
+} from '~/lib/types/auth';
 
 function generateSessionId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -40,8 +13,8 @@ function generateSessionId(): string {
 }
 
 const initialState: AuthState = {
-  token: null,
-  refreshToken: null,
+  ac_tk: null,
+  rf_tk: null,
   user: null,
   isAuthenticated: false,
   sessionId: generateSessionId(),
@@ -54,32 +27,33 @@ const authSlice = createSlice({
     setCredentials(
       state,
       action: PayloadAction<{
-        token: string;
-        refreshToken: string;
+        ac_tk: string;
+        rf_tk: string;
         user: AuthUser;
       }>
     ) {
-      state.token = action.payload.token;
-      state.refreshToken = action.payload.refreshToken;
+      state.ac_tk = action.payload.ac_tk;
+      state.rf_tk = action.payload.rf_tk;
       state.user = action.payload.user;
       state.isAuthenticated = true;
       state.sessionId = generateSessionId();
     },
     setToken(state, action: PayloadAction<string>) {
-      state.token = action.payload;
+      state.ac_tk = action.payload;
       state.isAuthenticated = true;
     },
-    login(state, action: PayloadAction<LoginActionPayload>) {
-      const p = action.payload;
-      state.token = p.access;
-      state.refreshToken = p.refresh;
+    login(state, { payload }: PayloadAction<RegisterOrLoginResponse>) {
+      const { user, user_role, access, refresh } = payload;
+      state.ac_tk = access;
+      state.rf_tk = refresh;
       state.user = {
-        id: p.user.id,
-        email: p.user.email,
-        first_name: p.user.first_name,
-        last_name: p.user.last_name,
-        full_name: `${p.user.first_name} ${p.user.last_name}`,
-        user_role: p.user_role,
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        full_name: `${user.first_name} ${user.last_name}`,
+        date_joined: user.date_joined,
+        user_role,
       };
       state.isAuthenticated = true;
       state.sessionId = generateSessionId();

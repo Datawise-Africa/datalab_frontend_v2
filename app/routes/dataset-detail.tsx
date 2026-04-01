@@ -170,7 +170,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               {dataset.license && (
                 <Badge variant="default">{dataset.license.name}</Badge>
               )}
-              <Badge variant="secondary">{dataset.category.title}</Badge>
+              <Badge variant="secondary">{dataset.category.name}</Badge>
               <Badge variant={dataset.is_premium ? 'outline' : 'secondary'}>
                 {dataset.is_premium ? `$${dataset.price}` : 'Free'}
               </Badge>

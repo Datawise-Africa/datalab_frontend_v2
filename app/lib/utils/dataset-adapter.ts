@@ -54,7 +54,7 @@ export function normalizeApiDataset(dataset: IDataset): NormalizedDataset {
     name: dataset.title,
     description: dataset.description,
     image: dataset.dataset_image,
-    category: dataset.category.title,
+    category: dataset.category.name,
     author: authorName,
     authorAffiliation,
     rating: dataset.average_review,
