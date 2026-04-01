@@ -12,10 +12,12 @@ import type {
 export const useDatasetCategories = () => {
   return useQuery({
     queryKey: metadataKeys.categories(),
-    queryFn: async (): Promise<IDatasetCategory[]> => {
-      const { data } = await apiClient.get('/dataset-categories/');
+    queryFn: async () => {
+      const { data } = await apiClient.get<IDatasetCategory[]>(
+        '/dataset-categories/'
+      );
       // API may return paginated { data: [...] } or a plain array
-      return Array.isArray(data) ? data : (data?.data ?? []);
+      return Array.isArray(data) ? data : [];
     },
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
@@ -26,10 +28,11 @@ export const useDatasetCategories = () => {
 export const useLicenses = () => {
   return useQuery({
     queryKey: metadataKeys.licenses(),
-    queryFn: async (): Promise<IDatasetLicense[]> => {
-      const { data } = await apiClient.get('/dataset-licenses/');
+    queryFn: async () => {
+      const { data } =
+        await apiClient.get<IDatasetLicense[]>('/dataset-licenses/');
       // API may return paginated { data: [...] } or a plain array
-      return Array.isArray(data) ? data : (data?.data ?? []);
+      return Array.isArray(data) ? data : [];
     },
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,

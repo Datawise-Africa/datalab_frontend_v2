@@ -24,7 +24,7 @@ apiClient.interceptors.request.use(
     }
 
     // Add auth token from Redux store
-    const token = store.getState().auth.token;
+    const token = store.getState().auth.ac_tk;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

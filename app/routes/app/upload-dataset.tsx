@@ -19,7 +19,6 @@ import { Info, UserPlus, Globe, ShieldCheck, X } from 'lucide-react';
 import { useDatasetCategories, useLicenses } from '~/features/metadata';
 import { useCreateDataset } from '~/features/datasets';
 import { useAppSelector } from '~/store';
-import { cn } from '~/lib/utils';
 import {
   createDatasetSchema,
   type CreateDatasetInput,
@@ -29,6 +28,7 @@ import {
   type DatasetType,
   type AccessType,
 } from '~/lib/schema/upload-dataset-schema';
+import type { IDatasetCategory } from '~/lib/types';
 
 function zodValidate(
   schema: {
@@ -204,7 +204,7 @@ export default function UploadDataset() {
                   <StepBasicInfo
                     data={basicInfo}
                     onChange={setBasicInfo}
-                    categories={categories}
+                    categories={categories!}
                     licenses={licenses}
                     errors={errors}
                   />
@@ -282,10 +282,12 @@ function StepBasicInfo({
 }: {
   data: BasicInfoData;
   onChange: (d: BasicInfoData) => void;
-  categories?: { id: number; title: string }[];
+  categories?: IDatasetCategory[];
   licenses?: { id: number; name: string }[];
   errors?: Record<string, string>;
 }) {
+  console.log({ categories });
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Basic Information</h2>
@@ -341,7 +343,7 @@ function StepBasicInfo({
             }
             options={
               categories?.map((c) => ({
-                label: c.title,
+                label: c.name,
                 value: String(c.id),
               })) ?? []
             }
