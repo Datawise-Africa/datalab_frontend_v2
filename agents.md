@@ -35,7 +35,7 @@ pnpm typecheck    # react-router typegen && tsc
 
 ## Project Structure
 
-```
+```sh
 app/
   routes/              # File-based routing (React Router 7)
     home/index.tsx     # Landing page
@@ -477,7 +477,7 @@ The Playwright MCP server is configured in `.mcp.json` at project root:
 
 Store screenshots in `.playwright-mcp/screenshots/` grouped by page:
 
-```
+```sh
 .playwright-mcp/screenshots/
 ├── landing/
 │   ├── mobile-375.png
@@ -520,7 +520,7 @@ See `CONTRIBUTING.md` for the full guide. Key points below.
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
-```
+```sh
 <type>(<scope>): <subject>
 
 <body> (optional)
@@ -553,7 +553,7 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/) specific
 
 **Breaking changes:** Add `!` after type or `BREAKING CHANGE:` in footer:
 
-```
+```sh
 feat(api)!: change pagination response format
 
 BREAKING CHANGE: PaginatedResponse now uses `items` instead of `data`
@@ -563,7 +563,7 @@ BREAKING CHANGE: PaginatedResponse now uses `items` instead of `data`
 
 Use the format: `<type>/<short-description>`
 
-```
+```sh
 feat/dataset-preview-modal
 fix/auth-redirect-loop
 chore/update-dependencies
@@ -574,7 +574,7 @@ refactor/simplify-filter-slice
 
 Follow the same commit message format:
 
-```
+```sh
 feat(datasets): add dataset preview modal
 fix(auth): resolve token refresh loop
 ```
