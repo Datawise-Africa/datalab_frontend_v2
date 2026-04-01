@@ -33,7 +33,7 @@ export function FormTextField<TFieldValues extends FieldValues>({
   required = false,
   disabled = false,
   type = 'text',
-}: FormTextFieldProps<TFieldValues>) {
+}: Readonly<FormTextFieldProps<TFieldValues>>) {
   return (
     <FormField
       control={control}
