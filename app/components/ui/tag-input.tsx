@@ -32,18 +32,26 @@ export function TagInput({
   disabled = false,
   className,
   variant = 'secondary',
-}: TagInputProps) {
+}: Readonly<TagInputProps>) {
   const [input, setInput] = useState('');
 
-  const addTag = () => {
-    const tag = input.trim().slice(0, maxTagLength);
-    if (!tag) return;
-    if (value.includes(tag)) {
+  const addTags = (raw: string) => {
+    const candidates = raw
+      .split(',')
+      .map((s) => s.trim().slice(0, maxTagLength))
+      .filter(Boolean);
+    if (candidates.length === 0) return;
+
+    const unique = candidates.filter((t) => !value.includes(t));
+    if (unique.length === 0) {
       setInput('');
       return;
     }
-    if (maxTags && value.length >= maxTags) return;
-    onChange?.([...value, tag]);
+
+    const allowed = maxTags ? unique.slice(0, maxTags - value.length) : unique;
+    if (allowed.length === 0) return;
+
+    onChange?.([...value, ...allowed]);
     setInput('');
   };
 
@@ -52,12 +60,20 @@ export function TagInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      addTag();
+      addTags(input);
     }
     if (e.key === 'Backspace' && !input && value.length > 0) {
       removeTag(value[value.length - 1]);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData('text');
+    if (pasted.includes(',')) {
+      e.preventDefault();
+      addTags(pasted);
     }
   };
 
@@ -67,6 +83,7 @@ export function TagInput({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
+        onPaste={handlePaste}
         placeholder={placeholder}
         disabled={disabled || (maxTags != null && value.length >= maxTags)}
       />
