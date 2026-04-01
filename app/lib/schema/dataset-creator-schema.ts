@@ -6,7 +6,10 @@ export const becomeDatasetCreatorSchema = z.object({
   reason_for_joining: z
     .string()
     .min(10, 'Please provide a detailed reason (at least 10 characters)'),
-  past_work_files: z.array(z.string()).optional(),
+  past_work_files: z.array(z.instanceof(File)).optional(),
+  accept_terms: z.literal(true, {
+    message: 'You must accept the terms and conditions',
+  }),
 });
 
 export type BecomeDatasetCreatorInput = z.infer<

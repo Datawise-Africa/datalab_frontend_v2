@@ -1,7 +1,3 @@
-import { useState, useCallback } from 'react';
-import { Link } from 'react-router';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import type { Route } from './+types/creators';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Button } from '~/components/ui/button';
@@ -12,15 +8,9 @@ import {
   CardTitle,
   CardDescription,
 } from '~/components/ui/card';
-import { Form } from '~/components/ui/form';
-import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
-import { FormTextField, FormTextareaField } from '~/components/form-fields';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Label } from '~/components/ui/label';
-import { DropZone } from '~/components/ui/drop-zone';
-import { cn } from '~/lib/utils';
 import { PageHeader } from '~/components/layout/page-header';
+import { CreatorApplicationForm } from '~/components/forms';
 import {
   Upload,
   DollarSign,
@@ -28,27 +18,10 @@ import {
   Shield,
   BarChart3,
   Globe,
-  CheckCircle,
   ArrowRight,
   Code,
   Star,
-  Loader2,
-  FileText,
-  X,
-  Clock,
-  Rocket,
 } from 'lucide-react';
-import {
-  becomeDatasetCreatorSchema,
-  type BecomeDatasetCreatorInput,
-} from '~/lib/schema/dataset-creator-schema';
-import {
-  useCreatorApplication,
-  useSubmitCreatorApplication,
-} from '~/features/dataset-creator';
-import { getDatasetCreatorBadge } from '~/lib/types/dataset-creator';
-import { useAppSelector } from '~/store';
-import { useAppModal } from '~/store/slices/modal-slice';
 
 export function meta(_: Route.MetaArgs) {
   return generateSEOTags({
@@ -56,32 +29,6 @@ export function meta(_: Route.MetaArgs) {
     description:
       "Join Datalab Africa's creator program. Publish datasets, reach thousands of developers, and earn revenue.",
   });
-}
-
-const ACCEPTED_FILE_TYPES = [
-  '.pdf',
-  '.csv',
-  '.xls',
-  '.xlsx',
-  '.doc',
-  '.docx',
-  '.txt',
-  '.json',
-];
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 const stats = [
@@ -278,263 +225,5 @@ export default function Creators() {
         </div>
       </section>
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/*  Integrated Application Form                                        */
-/* ------------------------------------------------------------------ */
-
-function CreatorApplicationForm() {
-  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
-  const authModal = useAppModal('auth');
-  const { data: application, isLoading: appLoading } = useCreatorApplication();
-  const submitApplication = useSubmitCreatorApplication();
-  const [submitted, setSubmitted] = useState(false);
-
-  // Not logged in — prompt sign-in
-  if (!isAuthenticated) {
-    return (
-      <div className="py-8 text-center space-y-4">
-        <p className="text-muted-foreground">
-          Sign in to submit your creator application.
-        </p>
-        <Button
-          className="bg-primary hover:bg-primary/90"
-          onClick={() => authModal.open()}
-        >
-          Sign in to Apply
-        </Button>
-      </div>
-    );
-  }
-
-  if (appLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // Existing application — show status
-  const status = application?.status;
-  if (status && status !== 'Rejected') {
-    const badge = getDatasetCreatorBadge(status);
-    const StatusIcon = status === 'Approved' ? CheckCircle : Clock;
-
-    return (
-      <div className="py-8 text-center space-y-4">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/5">
-          <StatusIcon className="h-7 w-7 text-primary" />
-        </div>
-        <h3 className="text-xl font-bold">Application Submitted</h3>
-        <p className="text-muted-foreground">Your application is currently:</p>
-        <Badge className={`text-sm px-3 py-1 ${badge.className}`}>
-          {badge.label}
-        </Badge>
-        <p className="text-sm text-muted-foreground">
-          We&apos;ll notify you by email once reviewed.
-        </p>
-      </div>
-    );
-  }
-
-  // Just submitted
-  if (submitted) {
-    return (
-      <div className="py-8 text-center space-y-4">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/5">
-          <Rocket className="h-7 w-7 text-primary" />
-        </div>
-        <h3 className="text-xl font-bold">Application Sent!</h3>
-        <p className="text-muted-foreground">
-          Thank you for applying. Our team will review your application and get
-          back to you shortly.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <ApplicationFormFields
-      onSubmit={(data) => {
-        submitApplication.mutate(data, {
-          onSuccess: () => setSubmitted(true),
-        });
-      }}
-      isPending={submitApplication.isPending}
-      error={
-        submitApplication.isError
-          ? 'Submission failed. Please try again.'
-          : undefined
-      }
-    />
-  );
-}
-
-function ApplicationFormFields({
-  onSubmit,
-  isPending,
-  error,
-}: {
-  onSubmit: (data: BecomeDatasetCreatorInput) => void;
-  isPending: boolean;
-  error?: string;
-}) {
-  const form = useForm<BecomeDatasetCreatorInput>({
-    resolver: zodResolver(becomeDatasetCreatorSchema),
-    defaultValues: {
-      affiliation: '',
-      expertise: '',
-      reason_for_joining: '',
-      past_work_files: [],
-    },
-  });
-
-  const [files, setFiles] = useState<{ name: string; size: number }[]>([]);
-
-  const processFiles = useCallback(
-    async (fileList: FileList | File[]) => {
-      const arr = Array.from(fileList);
-      const base64Strings: string[] = [];
-      const fileMeta: { name: string; size: number }[] = [];
-
-      for (const file of arr) {
-        if (file.size > 20 * 1024 * 1024) continue;
-        const b64 = await fileToBase64(file);
-        base64Strings.push(b64);
-        fileMeta.push({ name: file.name, size: file.size });
-      }
-
-      const current = form.getValues('past_work_files') ?? [];
-      form.setValue('past_work_files', [...current, ...base64Strings]);
-      setFiles((prev) => [...prev, ...fileMeta]);
-    },
-    [form]
-  );
-
-  const removeFile = (index: number) => {
-    const current = form.getValues('past_work_files') ?? [];
-    form.setValue(
-      'past_work_files',
-      current.filter((_, i) => i !== index)
-    );
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormTextField
-          control={form.control}
-          name="affiliation"
-          label="Affiliation"
-          placeholder="e.g. Company, University, Research Group"
-          required
-        />
-
-        <FormTextField
-          control={form.control}
-          name="expertise"
-          label="Expertise"
-          placeholder="e.g. Data Science, AI, Research"
-          required
-        />
-
-        <FormTextareaField
-          control={form.control}
-          name="reason_for_joining"
-          label="Reason for Joining"
-          placeholder="Brief explanation of why you want to become a dataset creator..."
-          rows={4}
-          required
-        />
-
-        {/* File upload */}
-        <div className="space-y-2">
-          <p className="text-sm font-medium">
-            Past Work Files{' '}
-            <span className="text-muted-foreground font-normal">
-              (optional)
-            </span>
-          </p>
-
-          <DropZone
-            onFiles={(files) => processFiles(files)}
-            accept={ACCEPTED_FILE_TYPES.join(',')}
-            hint="PDF, CSV, Excel, Word, TXT, JSON — max 20 MB per file"
-          />
-
-          {files.length > 0 && (
-            <div className="space-y-2 mt-3">
-              {files.map((file, idx) => (
-                <div
-                  key={`${file.name}-${idx}`}
-                  className="flex items-center justify-between rounded-md border px-3 py-2"
-                >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                    <span className="text-sm truncate">{file.name}</span>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {formatFileSize(file.size)}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeFile(idx)}
-                    className="ml-2 text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Terms */}
-        <div className="flex items-start gap-3">
-          <Checkbox id="creator-terms" required className="mt-0.5" />
-          <Label
-            htmlFor="creator-terms"
-            className="text-sm font-normal text-muted-foreground leading-relaxed cursor-pointer"
-          >
-            I agree to the{' '}
-            <Link
-              to="/terms-of-service"
-              className="text-primary underline hover:text-primary"
-            >
-              Creator Terms and Conditions
-            </Link>
-          </Label>
-        </div>
-
-        {error && <p className="text-sm text-destructive">{error}</p>}
-
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full bg-primary hover:bg-primary/90 text-white"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            <>
-              Submit Application
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </>
-          )}
-        </Button>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Applications are typically reviewed within 3-5 business days.
-        </p>
-      </form>
-    </Form>
   );
 }

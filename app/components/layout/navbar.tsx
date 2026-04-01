@@ -303,7 +303,7 @@ function DesktopAuthButtons() {
     <div className="hidden items-center gap-3 lg:flex">
       {showBecomeCreator && (
         <Button asChild variant="outline" size="sm">
-          <Link to="/creators">Become a Creator</Link>
+          <Link to="/creators#apply-form">Become a Creator</Link>
         </Button>
       )}
       {isCreator && (
@@ -419,7 +419,7 @@ function MobileAuthSection() {
       {!isCreatorOrAdmin && (
         <SheetClose asChild>
           <Button asChild variant="outline" className="w-full">
-            <Link to="/creators">Become a Creator</Link>
+            <Link to="/creators#apply-form">Become a Creator</Link>
           </Button>
         </SheetClose>
       )}

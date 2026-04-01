@@ -47,7 +47,7 @@ export function CreatorCTA() {
                 thousands of developers, and earn revenue from your data.
               </p>
               <Button asChild size="lg" className="mt-8">
-                <Link to="/creators">
+                <Link to="/creators#apply-form">
                   Apply to Become a Creator
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>

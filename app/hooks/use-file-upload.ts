@@ -41,8 +41,6 @@ interface BaseOptions {
   accept?: string[];
   /** Generate object URL previews for image files. Defaults to `false`. */
   preview?: boolean;
-  /** Called whenever the file list changes (add, remove, clear). */
-  onFileChange?: (files: ManagedFile[]) => void;
 }
 
 interface SingleOptions<
@@ -51,6 +49,8 @@ interface SingleOptions<
   multiple?: false;
   /** Output format. Defaults to `'file'`. */
   output?: TOutput;
+  /** Called whenever the file list changes (add, remove, clear). */
+  onFileChange?: (files: ManagedFile<OutputData<TOutput>>[]) => void;
 }
 
 interface MultipleOptions<
@@ -59,6 +59,8 @@ interface MultipleOptions<
   multiple: true;
   /** Output format. Defaults to `'file'`. */
   output?: TOutput;
+  /** Called whenever the file list changes (add, remove, clear). */
+  onFileChange?: (files: ManagedFile<OutputData<TOutput>>[]) => void;
 }
 
 // ── Return types ─────────────────────────────────────────────────────────────
