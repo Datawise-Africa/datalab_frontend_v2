@@ -33,7 +33,7 @@ export function FormOtpField<TFieldValues extends FieldValues>({
   separatorAfter,
   required = false,
   disabled = false,
-}: FormOtpFieldProps<TFieldValues>) {
+}: Readonly<FormOtpFieldProps<TFieldValues>>) {
   const sep = separatorAfter ?? Math.floor(maxLength / 2);
 
   return (

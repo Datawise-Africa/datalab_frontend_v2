@@ -27,7 +27,7 @@ export function FormPasswordField<TFieldValues extends FieldValues>({
   placeholder,
   required = false,
   disabled = false,
-}: FormPasswordFieldProps<TFieldValues>) {
+}: Readonly<FormPasswordFieldProps<TFieldValues>>) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (

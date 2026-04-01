@@ -30,7 +30,7 @@ export function FormNumberField<TFieldValues extends FieldValues>({
   min,
   max,
   step,
-}: FormNumberFieldProps<TFieldValues>) {
+}: Readonly<FormNumberFieldProps<TFieldValues>>) {
   return (
     <FormField
       control={control}

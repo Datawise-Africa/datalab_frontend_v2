@@ -26,7 +26,7 @@ export function FormTextareaField<TFieldValues extends FieldValues>({
   required = false,
   disabled = false,
   rows = 4,
-}: FormTextareaFieldProps<TFieldValues>) {
+}: Readonly<FormTextareaFieldProps<TFieldValues>>) {
   return (
     <FormField
       control={control}
