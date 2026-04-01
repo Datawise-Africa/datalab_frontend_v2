@@ -8,7 +8,9 @@ import {
 } from '~/components/ui/form';
 import { AsyncSelect, type SelectOption } from '~/components/ui/async-select';
 
-interface FormSelectFieldProps<TFieldValues extends FieldValues> {
+type ValueAs = 'string' | 'number' | 'boolean';
+
+interface FormSelectFieldBaseProps<TFieldValues extends FieldValues> {
   control: Control<TFieldValues>;
   name: FieldPath<TFieldValues>;
   label: string;
@@ -22,7 +24,38 @@ interface FormSelectFieldProps<TFieldValues extends FieldValues> {
   onSearch?: (query: string) => Promise<SelectOption[]>;
   debounceMs?: number;
   minSearchLength?: number;
-  onValueChange?: (value: string) => void;
+  /** Coerce each selected string value before setting on the form field. */
+  valueAs?: ValueAs;
+  /** Maximum selections when `multiple` is true. */
+  maxSelections?: number;
+  onValueChange?: (value: string | string[]) => void;
+}
+
+interface SingleSelectProps<
+  TFieldValues extends FieldValues,
+> extends FormSelectFieldBaseProps<TFieldValues> {
+  multiple?: false;
+}
+
+interface MultiSelectProps<
+  TFieldValues extends FieldValues,
+> extends FormSelectFieldBaseProps<TFieldValues> {
+  multiple: true;
+}
+
+type FormSelectFieldProps<TFieldValues extends FieldValues> =
+  | SingleSelectProps<TFieldValues>
+  | MultiSelectProps<TFieldValues>;
+
+function coerceOne(val: string | null, as: ValueAs): unknown {
+  if (val == null) {
+    if (as === 'number') return 0;
+    if (as === 'boolean') return false;
+    return null;
+  }
+  if (as === 'number') return Number(val);
+  if (as === 'boolean') return val === 'true';
+  return val;
 }
 
 export function FormSelectField<TFieldValues extends FieldValues>({
@@ -39,38 +72,78 @@ export function FormSelectField<TFieldValues extends FieldValues>({
   onSearch,
   debounceMs,
   minSearchLength,
+  valueAs = 'string',
   onValueChange,
+  ...rest
 }: Readonly<FormSelectFieldProps<TFieldValues>>) {
+  const multiple = 'multiple' in rest && rest.multiple === true;
+  const maxSelections =
+    'maxSelections' in rest ? rest.maxSelections : undefined;
+
   return (
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <FormItem className="self-start">
-          <FormLabel>
-            {label} {required && <span className="text-destructive">*</span>}
-          </FormLabel>
-          <FormControl>
-            <AsyncSelect
-              value={field.value as string | null}
-              onChange={(val) => {
-                field.onChange(val);
-                onValueChange?.(val ?? '');
-              }}
-              placeholder={placeholder}
-              searchPlaceholder={searchPlaceholder}
-              emptyText={emptyText}
-              loadingText={loadingText}
-              disabled={disabled}
-              options={options}
-              onSearch={onSearch}
-              debounceMs={debounceMs}
-              minSearchLength={minSearchLength}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+      render={({ field }) => {
+        // Convert stored value(s) back to string(s) for AsyncSelect display
+        let displayValue: string | string[] | null;
+        if (multiple) {
+          displayValue = ((field.value as unknown[]) ?? []).map(String);
+        } else {
+          displayValue = field.value ? String(field.value) : null;
+        }
+
+        return (
+          <FormItem className="self-start">
+            <FormLabel>
+              {label} {required && <span className="text-destructive">*</span>}
+            </FormLabel>
+            <FormControl>
+              {multiple ? (
+                <AsyncSelect
+                  multiple
+                  value={displayValue as string[]}
+                  onChange={(vals) => {
+                    const coerced = (vals as string[]).map((v) =>
+                      coerceOne(v, valueAs)
+                    );
+                    field.onChange(coerced);
+                    onValueChange?.(vals as string[]);
+                  }}
+                  maxSelections={maxSelections}
+                  placeholder={placeholder}
+                  searchPlaceholder={searchPlaceholder}
+                  emptyText={emptyText}
+                  loadingText={loadingText}
+                  disabled={disabled}
+                  options={options}
+                  onSearch={onSearch}
+                  debounceMs={debounceMs}
+                  minSearchLength={minSearchLength}
+                />
+              ) : (
+                <AsyncSelect
+                  value={displayValue as string | null}
+                  onChange={(val) => {
+                    field.onChange(coerceOne(val, valueAs));
+                    onValueChange?.(val as string);
+                  }}
+                  placeholder={placeholder}
+                  searchPlaceholder={searchPlaceholder}
+                  emptyText={emptyText}
+                  loadingText={loadingText}
+                  disabled={disabled}
+                  options={options}
+                  onSearch={onSearch}
+                  debounceMs={debounceMs}
+                  minSearchLength={minSearchLength}
+                />
+              )}
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
     />
   );
 }

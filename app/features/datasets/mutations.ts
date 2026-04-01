@@ -13,7 +13,7 @@ export const useCreateDataset = () => {
   return useMutation({
     mutationFn: async (input: FormData): Promise<IDataset> => {
       const { data } = await apiClient.post('/datasets/', input, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        // headers: { 'Content-Type': 'multipart/form-data' },
       });
       return data;
     },

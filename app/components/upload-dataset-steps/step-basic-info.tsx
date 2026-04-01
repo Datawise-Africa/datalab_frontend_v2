@@ -66,7 +66,7 @@ export function StepBasicInfo({
         required
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <FormSelectField
           control={control}
           name="dataset_type"
@@ -84,6 +84,7 @@ export function StepBasicInfo({
           label="Category"
           placeholder="Select category"
           required
+          valueAs="number"
           options={
             categories?.map((c) => ({
               label: c.name,
@@ -99,6 +100,7 @@ export function StepBasicInfo({
         label="License"
         placeholder="Select license"
         required
+        valueAs="number"
         options={
           licenses?.map((l) => ({
             label: l.name,
