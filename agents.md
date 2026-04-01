@@ -223,6 +223,177 @@ This eliminates the need for try/catch or onError at call sites.
 - **No console.log**: use `console.warn` or `console.error` (eslint rule)
 - **File naming**: kebab-case for files, PascalCase for components
 - **Tests**: colocated with source (e.g., `query-keys.test.ts`), Vitest globals enabled
+- **Readonly props**: all component props must be wrapped with `Readonly<>` (e.g., `({ title, count }: Readonly<MyProps>)`)
+
+## Forms — React Hook Form + Zod + Reusable Field Components
+
+All forms must use **React Hook Form** with **Zod** validation via `zodResolver`. Use the reusable field components from `app/components/form-fields/` instead of inline `FormField` renders.
+
+### Available field components
+
+| Component           | Use for                               |
+| ------------------- | ------------------------------------- |
+| `FormTextField`     | Text, email, url, date inputs         |
+| `FormTextareaField` | Multi-line text inputs                |
+| `FormSelectField`   | Single-select dropdowns (AsyncSelect) |
+| `FormNumberField`   | Numeric inputs                        |
+| `FormPasswordField` | Password inputs                       |
+| `FormOtpField`      | OTP code inputs                       |
+
+### Single-step form pattern
+
+```tsx
+const form = useForm<MyInput>({
+  resolver: zodResolver(mySchema),
+  defaultValues: { name: '', description: '' },
+});
+
+return (
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FormTextField control={form.control} name="name" label="Name" required />
+      <FormTextareaField
+        control={form.control}
+        name="description"
+        label="Description"
+      />
+    </form>
+  </Form>
+);
+```
+
+### Multi-step form pattern
+
+Use `MultiStepForm` from `~/components/ui/multi-step-form` inside a `<Form>` provider. Each step component uses `useFormContext` and `useStepValidator`.
+
+```tsx
+<Form {...form}>
+  <MultiStepForm steps={steps} onSubmit={() => form.handleSubmit(handler)()}>
+    {(step) => {
+      /* render step components */
+    }}
+  </MultiStepForm>
+</Form>
+```
+
+Step components register validators via `useStepValidator`:
+
+```tsx
+function StepBasicInfo() {
+  const { control, trigger, formState } = useFormContext<MyFormValues>();
+  useStepValidator(async () => {
+    const valid = await trigger(['name', 'category']);
+    if (valid) return { valid: true };
+    // collect field errors for the summary panel
+    const errors: Record<string, string> = {};
+    for (const key of ['name', 'category']) {
+      const err = formState.errors[key as keyof typeof formState.errors];
+      if (err?.message) errors[key] = String(err.message);
+    }
+    return { valid: false, errors };
+  });
+  return <FormTextField control={control} name="name" label="Name" required />;
+}
+```
+
+### Key rules
+
+- All Zod schemas live in `app/lib/schema/` — never define schemas inside components
+- Never use raw `useState` for form data — always use `useForm`
+- Never write inline `FormField` + `FormItem` + `FormControl` + `FormMessage` — use the field components
+- For selects with numeric IDs, keep them as strings in the form schema and coerce to numbers on submit
+- `MultiStepForm` supports `renderHeader` / `renderFooter` props with a `StepNavigation` context for custom UI
+
+### References
+
+- Upload dataset form: `app/routes/app/upload-dataset.tsx` + `app/components/upload-dataset-steps/`
+- Creator application form: `app/routes/app/become-dataset-creator.tsx`
+- Form schema: `app/lib/schema/upload-dataset-schema.ts` (includes `uploadFormSchema` for form + `createDatasetSchema` for API)
+
+---
+
+## File Uploads — `useFileUpload` hook + `DropZone`
+
+Use the `useFileUpload` hook (`app/hooks/use-file-upload.ts`) for all file upload state management. It pairs directly with the `DropZone` component (`app/components/ui/drop-zone.tsx`).
+
+### Hook options
+
+| Option         | Type                             | Default             | Description                                           |
+| -------------- | -------------------------------- | ------------------- | ----------------------------------------------------- |
+| `multiple`     | `boolean`                        | `false`             | Single file or multiple files mode                    |
+| `output`       | `'file' \| 'base64' \| 'blob'`   | `'file'`            | Data format stored in `ManagedFile.data`              |
+| `preview`      | `boolean`                        | `false`             | Generate object URL previews for images               |
+| `maxFiles`     | `number`                         | `1` / `10`          | Max files (defaults depend on `multiple`)             |
+| `maxSizeBytes` | `number`                         | `100 * 1024 * 1024` | Max file size in bytes                                |
+| `accept`       | `string[]`                       | —                   | MIME types or extensions (e.g. `[".pdf", "image/*"]`) |
+| `onFileChange` | `(files: ManagedFile[]) => void` | —                   | Fires on every add/remove/clear                       |
+
+### Single-file mode
+
+```tsx
+const { file, addFiles, remove, error } = useFileUpload({
+  output: 'base64',
+  preview: true,
+  accept: ['image/*'],
+});
+
+<DropZone onFiles={addFiles} accept="image/*" multiple={false} />;
+{
+  file?.preview && <img src={file.preview} alt={file.name} />;
+}
+```
+
+### Multiple-file mode
+
+```tsx
+const { files, addFiles, remove, clear, getData, error } = useFileUpload({
+  multiple: true,
+  output: 'base64',
+  preview: true,
+  maxFiles: 5,
+  maxSizeBytes: 20 * 1024 * 1024,
+  accept: ['.pdf', '.csv', 'image/*'],
+  onFileChange: (newFiles) => {
+    form.setValue(
+      'attachments',
+      newFiles.map((f) => f.data as string)
+    );
+  },
+});
+
+<DropZone
+  onFiles={addFiles}
+  accept=".pdf,.csv,image/*"
+  hint="Max 20 MB per file"
+/>;
+
+{
+  files.map((f) => (
+    <div key={f.key}>
+      {f.preview && <img src={f.preview} alt={f.name} />}
+      <span>
+        {f.name} ({f.size} bytes)
+      </span>
+      <button onClick={() => remove(f.key)}>Remove</button>
+    </div>
+  ));
+}
+```
+
+### Return shape
+
+**Single mode** (`multiple: false`): `file`, `files`, `addFiles`, `remove`, `clear`, `getData`, `error`, `isProcessing`, `clearError`
+
+**Multiple mode** (`multiple: true`): `files`, `addFiles`, `remove(key)`, `removeAt(index)`, `clear`, `getData`, `error`, `isProcessing`, `clearError`
+
+### Key rules
+
+- `DropZone.onFiles` accepts `FileList | File[] | File` — pass `addFiles` directly, no wrapper needed
+- Previews are auto-revoked on remove/clear/unmount — no manual cleanup
+- Use `onFileChange` to sync files into React Hook Form via `form.setValue`
+- `getData()` returns typed data matching the `output` format (`File`, `string`, or `Blob`)
+
+---
 
 ## CI/CD Agents
 

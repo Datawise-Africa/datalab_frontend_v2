@@ -73,6 +73,39 @@ export const createDatasetSchema = z.object({
 
 export type CreateDatasetInput = z.infer<typeof createDatasetSchema>;
 
+// ── Form-specific schema ──
+// Category and license are strings in the form (select values),
+// coerced to numbers by createDatasetSchema on final submit.
+// No .default() — all defaults are provided by useForm's defaultValues.
+
+export const uploadFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  dataset_type: datasetTypeEnum,
+  category: z.string().min(1, 'Category is required'),
+  license: z.string().min(1, 'License is required'),
+  workspace: z.string().optional(),
+  dataset_image: z.string().optional(),
+  is_premium: z.boolean(),
+  is_private: z.boolean(),
+  tags: z.array(z.string().min(1).max(100)),
+  authors: z
+    .array(
+      z.object({
+        user: z.string().min(1, 'User ID is required'),
+        role: authorRoleEnum,
+      })
+    )
+    .min(1, 'At least one author is required'),
+  access: z.object({
+    access_type: accessTypeEnum,
+    access_instructions: z.string().optional(),
+  }),
+  datasheet: datasetDatasheetSchema.optional(),
+});
+
+export type UploadFormValues = z.infer<typeof uploadFormSchema>;
+
 // ── Legacy schemas (kept for backward compatibility) ──
 
 /** @deprecated Use createDatasetSchema instead */

@@ -3,8 +3,17 @@ import { Upload } from 'lucide-react';
 import { cn } from '~/lib/utils';
 
 interface DropZoneProps {
-  /** Called with the selected/dropped files. */
-  onFiles: (files: FileList) => void;
+  /**
+   * Called with the selected/dropped files.
+   * Accepts `FileList`, `File[]`, or a single `File` — compatible with
+   * `useFileUpload`'s `addFiles` so you can pass it directly:
+   *
+   * ```tsx
+   * const { addFiles } = useFileUpload({ multiple: true });
+   * <DropZone onFiles={addFiles} />
+   * ```
+   */
+  onFiles: (files: FileList | File[] | File) => void;
   /** Comma-separated accept string, e.g. ".pdf,.csv,.json" */
   accept?: string;
   /** Allow multiple files. Defaults to true. */
@@ -22,14 +31,14 @@ interface DropZoneProps {
 /**
  * Reusable accessible drag-and-drop file picker.
  *
- * - Supports drag & drop with visual feedback
- * - Click or keyboard (Enter / Space) opens native file picker
- * - `role="button"`, `tabIndex`, focus ring for full a11y
+ * Works standalone or with `useFileUpload` — pass `addFiles` directly:
  *
  * @example
  * ```tsx
+ * const { addFiles, files } = useFileUpload({ multiple: true, output: 'base64' });
+ *
  * <DropZone
- *   onFiles={(files) => handleUpload(files)}
+ *   onFiles={addFiles}
  *   accept=".pdf,.csv,.xlsx"
  *   hint="PDF, CSV, Excel — max 20 MB per file"
  * />
@@ -43,7 +52,7 @@ export function DropZone({
   children,
   className,
   hint,
-}: DropZoneProps) {
+}: Readonly<DropZoneProps>) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -52,12 +61,11 @@ export function DropZone({
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-disabled={disabled}
+    <button
+      type="button"
+      disabled={disabled}
       className={cn(
-        'flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors cursor-pointer',
+        'flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors cursor-pointer w-full',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         isDragging
           ? 'border-primary bg-primary/5'
@@ -66,12 +74,6 @@ export function DropZone({
         className
       )}
       onClick={open}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          open();
-        }
-      }}
       onDragOver={(e) => {
         e.preventDefault();
         if (!disabled) setIsDragging(true);
@@ -113,6 +115,6 @@ export function DropZone({
           e.target.value = '';
         }}
       />
-    </div>
+    </button>
   );
 }

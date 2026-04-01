@@ -40,13 +40,13 @@ export function FormSelectField<TFieldValues extends FieldValues>({
   debounceMs,
   minSearchLength,
   onValueChange,
-}: FormSelectFieldProps<TFieldValues>) {
+}: Readonly<FormSelectFieldProps<TFieldValues>>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className="self-start">
           <FormLabel>
             {label} {required && <span className="text-destructive">*</span>}
           </FormLabel>
