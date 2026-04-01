@@ -3,17 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Route } from './+types/become-dataset-creator';
 import { generateSEOTags } from '~/lib/utils/seo';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
-import { Input } from '~/components/ui/input';
-import { Textarea } from '~/components/ui/textarea';
+import { Form } from '~/components/ui/form';
 import { Button } from '~/components/ui/button';
+import { FormTextField, FormTextareaField } from '~/components/form-fields';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent } from '~/components/ui/card';
 import {
@@ -228,56 +220,29 @@ function ApplicationForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
+        <FormTextField
           control={form.control}
           name="affiliation"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Affiliation</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g. Company, University, Research Group"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Affiliation"
+          placeholder="e.g. Company, University, Research Group"
+          required
         />
 
-        <FormField
+        <FormTextField
           control={form.control}
           name="expertise"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Expertise</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g. Data Science, AI, Research"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Expertise"
+          placeholder="e.g. Data Science, AI, Research"
+          required
         />
 
-        <FormField
+        <FormTextareaField
           control={form.control}
           name="reason_for_joining"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Reason for Joining</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Brief explanation of why you want to become a dataset creator..."
-                  rows={4}
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Reason for Joining"
+          placeholder="Brief explanation of why you want to become a dataset creator..."
+          rows={4}
+          required
         />
 
         {/* File upload */}

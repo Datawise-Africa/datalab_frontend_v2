@@ -211,6 +211,149 @@ Components that currently follow this rule: `Button`, `Badge`, `Alert`. When add
 - **No console.log**: use `console.warn` or `console.error` (eslint rule)
 - **File naming**: kebab-case for files, PascalCase for components
 - **Tests**: colocated with source (e.g., `query-keys.test.ts`), Vitest globals enabled
+- **Zod schemas**: all schemas live in `app/lib/schema/` — never define schemas inside components
+- **Readonly props**: all component props must be wrapped with `Readonly<>` (e.g., `({ title, count }: Readonly<MyProps>)`)
+
+---
+
+## Forms — React Hook Form + Zod + Reusable Field Components
+
+All forms must use **React Hook Form** with **Zod** validation via `zodResolver`. Use the reusable field components from `app/components/form-fields/` instead of inline `FormField` renders. This ensures consistent error display, label formatting, and form context integration.
+
+### Available field components
+
+| Component           | Import from                | Use for                               |
+| ------------------- | -------------------------- | ------------------------------------- |
+| `FormTextField`     | `~/components/form-fields` | Text, email, url, date inputs         |
+| `FormTextareaField` | `~/components/form-fields` | Multi-line text inputs                |
+| `FormSelectField`   | `~/components/form-fields` | Single-select dropdowns (AsyncSelect) |
+| `FormNumberField`   | `~/components/form-fields` | Numeric inputs                        |
+| `FormPasswordField` | `~/components/form-fields` | Password inputs                       |
+| `FormOtpField`      | `~/components/form-fields` | OTP code inputs                       |
+
+### Single-step form pattern
+
+```tsx
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '~/components/ui/form';
+import { FormTextField, FormTextareaField } from '~/components/form-fields';
+
+const form = useForm<MyInput>({
+  resolver: zodResolver(mySchema),
+  defaultValues: { name: '', description: '' },
+});
+
+return (
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <FormTextField control={form.control} name="name" label="Name" required />
+      <FormTextareaField
+        control={form.control}
+        name="description"
+        label="Description"
+      />
+    </form>
+  </Form>
+);
+```
+
+### Multi-step form pattern
+
+For multi-step forms, use `MultiStepForm` from `~/components/ui/multi-step-form` inside a `<Form>` provider. Each step component uses `useFormContext` and registers its own validator via `useStepValidator`.
+
+```tsx
+// Route component
+<Form {...form}>
+  <MultiStepForm steps={steps} onSubmit={() => form.handleSubmit(handler)()}>
+    {(step) => {
+      switch (step.key) {
+        case 'basic': return <StepBasicInfo />;
+        case 'review': return <StepReview />;
+      }
+    }}
+  </MultiStepForm>
+</Form>
+
+// Step component
+function StepBasicInfo() {
+  const { control, trigger, formState } = useFormContext<MyFormValues>();
+
+  useStepValidator(async () => {
+    const fields = ['name', 'description'] as const;
+    const valid = await trigger([...fields]);
+    if (valid) return { valid: true };
+    const errors: Record<string, string> = {};
+    for (const key of fields) {
+      const err = formState.errors[key];
+      if (err?.message) errors[key] = String(err.message);
+    }
+    return { valid: false, errors };
+  });
+
+  return (
+    <>
+      <FormTextField control={control} name="name" label="Name" required />
+      <FormSelectField control={control} name="category" label="Category" options={...} />
+    </>
+  );
+}
+```
+
+**Key rules:**
+
+- Never use raw `useState` for form data — always use `useForm`
+- Never write inline `FormField` + `FormItem` + `FormControl` + `FormMessage` — use the field components
+- For selects with numeric IDs, keep them as strings in the form schema and coerce to numbers on submit via `createDatasetSchema.parse(data)`
+- `MultiStepForm` supports `renderHeader` and `renderFooter` props that receive a `StepNavigation` context for custom stepper/navigation UI
+
+---
+
+## File Uploads — `useFileUpload` hook + `DropZone`
+
+Use `useFileUpload` (`app/hooks/use-file-upload.ts`) for all file upload state. It pairs directly with `DropZone` (`app/components/ui/drop-zone.tsx`) — pass `addFiles` to `onFiles` with no wrapper.
+
+### Quick reference
+
+```tsx
+// Multiple files as base64 with image previews
+const { files, addFiles, remove, clear, getData, error } = useFileUpload({
+  multiple: true,
+  output: 'base64', // 'file' | 'base64' | 'blob'
+  preview: true, // generates object URLs for images
+  maxFiles: 5,
+  maxSizeBytes: 20 * 1024 * 1024,
+  accept: ['.pdf', 'image/*'],
+  onFileChange: (newFiles) => {
+    // sync into React Hook Form
+    form.setValue(
+      'attachments',
+      newFiles.map((f) => f.data as string)
+    );
+  },
+});
+
+// DropZone — pass addFiles directly
+<DropZone onFiles={addFiles} accept=".pdf,image/*" hint="Max 20 MB" />;
+
+// Render file list
+{
+  files.map((f) => (
+    <div key={f.key}>
+      {f.preview && <img src={f.preview} alt={f.name} />}
+      <span>{f.name}</span>
+      <button onClick={() => remove(f.key)}>Remove</button>
+    </div>
+  ));
+}
+```
+
+**Key rules:**
+
+- Pass `addFiles` directly to `DropZone.onFiles` — no wrapper function needed
+- Previews auto-revoke on remove/clear/unmount
+- Use `onFileChange` to sync files into form state via `form.setValue`
+- Single mode (`multiple: false`) returns `file` (single item or null) instead of `files` array
 
 ---
 
