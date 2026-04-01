@@ -51,39 +51,18 @@ export const datasetDatasheetSchema = z.object({
 
 export type DatasetDatasheetInput = z.infer<typeof datasetDatasheetSchema>;
 
-// ── Create dataset payload (no files — files come via versioned upload) ──
-
-export const createDatasetSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  dataset_type: datasetTypeEnum.default('tabular'),
-  category: z.coerce.number().positive('Category is required'),
-  license: z.coerce.number().positive('License is required'),
-  workspace: z.string().optional(),
-  dataset_image: z.string().optional(),
-  is_premium: z.boolean().default(false),
-  is_private: z.boolean().default(false),
-  tags: z.array(z.string().min(1).max(100)).default([]),
-  authors: z
-    .array(datasetAuthorSchema)
-    .min(1, 'At least one author is required'),
-  access: datasetAccessSchema.default({ access_type: 'public' }),
-  datasheet: datasetDatasheetSchema.optional(),
-});
-
-export type CreateDatasetInput = z.infer<typeof createDatasetSchema>;
-
-// ── Form-specific schema ──
-// Category and license are strings in the form (select values),
-// coerced to numbers by createDatasetSchema on final submit.
+// ── Upload dataset form schema ──
+// Single schema for form validation and API submission.
+// category/license use z.coerce.number() — the form converts select string
+// values to numbers on change, so the payload is always clean numbers.
 // No .default() — all defaults are provided by useForm's defaultValues.
 
-export const uploadFormSchema = z.object({
+export const uploadDatasetFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
   dataset_type: datasetTypeEnum,
-  category: z.string().min(1, 'Category is required'),
-  license: z.string().min(1, 'License is required'),
+  category: z.coerce.number().positive('Category is required'),
+  license: z.coerce.number().positive('License is required'),
   workspace: z.string().optional(),
   dataset_image: z.string().optional(),
   is_premium: z.boolean(),
@@ -104,7 +83,7 @@ export const uploadFormSchema = z.object({
   datasheet: datasetDatasheetSchema.optional(),
 });
 
-export type UploadFormValues = z.infer<typeof uploadFormSchema>;
+export type UploadFormValues = z.infer<typeof uploadDatasetFormSchema>;
 
 // ── Legacy schemas (kept for backward compatibility) ──
 
@@ -150,7 +129,7 @@ export const newAuthorSchema = z.object({
   title: z.string().optional(),
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Valid email required'),
+  email: z.email('Valid email required'),
   affiliation: z.string().min(1, 'Affiliation is required'),
 });
 

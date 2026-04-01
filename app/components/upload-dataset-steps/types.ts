@@ -5,7 +5,7 @@ import type {
 
 // Re-export form schema and type from the canonical schema location
 export {
-  uploadFormSchema,
+  uploadDatasetFormSchema,
   type UploadFormValues,
 } from '~/lib/schema/upload-dataset-schema';
 

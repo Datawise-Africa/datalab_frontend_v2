@@ -2,17 +2,26 @@ import { useFormContext } from 'react-hook-form';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import type { UploadFormValues } from './types';
+import type { DatasetFormMode } from '~/components/dataset-form';
 
-export function StepReview() {
+type StepReviewProps = {
+  mode?: DatasetFormMode;
+};
+
+export function StepReview({ mode = 'create' }: Readonly<StepReviewProps>) {
   const { watch } = useFormContext<UploadFormValues>();
   const values = watch();
+  const isEdit = mode === 'edit';
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Review & Create</h2>
+      <h2 className="text-lg font-semibold">
+        {isEdit ? 'Review & Update' : 'Review & Create'}
+      </h2>
       <p className="text-sm text-muted-foreground">
-        Review your dataset details. After creation, you&apos;ll be able to add
-        a version and upload files.
+        {isEdit
+          ? 'Review your changes before updating the dataset.'
+          : "Review your dataset details. After creation, you'll be able to add a version and upload files."}
       </p>
 
       <div className="rounded-lg border p-4 space-y-3 text-sm">
@@ -66,15 +75,17 @@ export function StepReview() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
-        <p className="font-medium text-primary mb-1">
-          Next steps after creation
-        </p>
-        <p className="text-muted-foreground">
-          Once created, go to the dataset page to add a version and upload your
-          files using presigned S3 URLs.
-        </p>
-      </div>
+      {!isEdit && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+          <p className="font-medium text-primary mb-1">
+            Next steps after creation
+          </p>
+          <p className="text-muted-foreground">
+            Once created, go to the dataset page to add a version and upload
+            your files using presigned S3 URLs.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
