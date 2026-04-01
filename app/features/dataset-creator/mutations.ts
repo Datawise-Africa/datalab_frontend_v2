@@ -14,7 +14,11 @@ export const useSubmitCreatorApplication = () => {
     mutationFn: async (
       input: BecomeDatasetCreatorInput
     ): Promise<BecomeDatasetCreatorType> => {
-      const { data } = await apiClient.post('/auth/creator-request/', input);
+      const { data } = await apiClient.post('/auth/creator-requests/', input, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return data;
     },
     onSuccess: () => {
