@@ -1,7 +1,7 @@
 export type DatasetStatus = 'PB' | 'AR' | 'DF';
 
 export interface IDatasetCategory {
-  id: number;
+  id: string;
   name: string;
   slug: string;
 }
@@ -47,7 +47,7 @@ export interface IDatasetAcceptedTerm {
 }
 
 export interface IDatasetLicense {
-  id: number;
+  id: string;
   identifier: string;
   name: string;
   slug: string;

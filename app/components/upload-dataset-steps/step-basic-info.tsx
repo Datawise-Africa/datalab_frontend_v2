@@ -16,8 +16,8 @@ import type { UploadFormValues } from './types';
 import { DATASET_TYPES } from './types';
 
 type StepBasicInfoProps = {
-  categories?: ReadonlyArray<{ id: number; name: string }>;
-  licenses?: ReadonlyArray<{ id: number; name: string }>;
+  categories?: ReadonlyArray<{ id: string; name: string }>;
+  licenses?: ReadonlyArray<{ id: string; name: string }>;
 };
 
 export function StepBasicInfo({
