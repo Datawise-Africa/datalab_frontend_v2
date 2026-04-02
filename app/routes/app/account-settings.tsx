@@ -43,7 +43,7 @@ export default function AccountSettings() {
   const roleBadge =
     user?.user_role === 'admin'
       ? 'Admin'
-      : user?.user_role === 'dataset_creator'
+      : user?.user_role === 'creator'
         ? 'Creator'
         : 'Member';
 

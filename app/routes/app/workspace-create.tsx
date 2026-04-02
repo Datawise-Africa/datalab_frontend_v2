@@ -35,7 +35,7 @@ export default function WorkspaceCreatePage() {
   };
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div className="max-w-2xl mx-auto space-y-6">
         <Link
           to="/app/workspaces"

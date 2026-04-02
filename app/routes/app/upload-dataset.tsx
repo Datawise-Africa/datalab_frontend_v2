@@ -6,7 +6,7 @@ import { useDatasetCategories, useLicenses } from '~/features/metadata';
 import { useCreateDataset } from '~/features/datasets';
 import { useAppSelector } from '~/store';
 import { DatasetForm } from '~/components/dataset-form';
-import type { UploadFormValues } from '~/components/upload-dataset-steps';
+import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -25,7 +25,7 @@ export default function UploadDataset() {
   const { data: licenses } = useLicenses();
   const createDataset = useCreateDataset();
 
-  const defaultValues: UploadFormValues = {
+  const defaultValues: UploadDatasetFormValues = {
     name: '',
     description: '',
     dataset_type: 'tabular',
@@ -36,16 +36,16 @@ export default function UploadDataset() {
     dataset_image: '',
     workspace: workspaceId ?? undefined,
     tags: [],
-    authors: user ? [{ user: user.first_name, role: 'creator' }] : [],
+    authors: user ? [{ user: user.id, role: 'creator' }] : [],
     access: { access_type: 'public', access_instructions: '' },
     datasheet: undefined,
   };
 
-  const handleSubmit = async (data: UploadFormValues) => {
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(data));
+  const handleSubmit = async (data: UploadDatasetFormValues) => {
+    // const formData = new FormData();
+    // formData.append('data', JSON.stringify(data));
 
-    await createDataset.mutateAsync(formData, {
+    await createDataset.mutateAsync(data, {
       onSuccess: (result) => {
         navigate(
           workspaceId
@@ -57,7 +57,7 @@ export default function UploadDataset() {
   };
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div>
         <h1 className="text-2xl font-bold mb-1">Create Dataset</h1>
         <p className="text-sm text-muted-foreground mb-4">

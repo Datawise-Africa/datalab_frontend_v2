@@ -24,8 +24,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
   }
 }
 
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  const category = data?.category;
+export const meta: MetaFunction<typeof loader> = ({ loaderData }) => {
+  const category = loaderData?.category;
 
   if (!category) {
     return generateSEOTags({

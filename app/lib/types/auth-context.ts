@@ -1,1 +1,1 @@
-export type AuthUserRoleType = 'user' | 'dataset_creator' | 'admin';
+export type AuthUserRoleType = 'user' | 'creator' | 'admin';

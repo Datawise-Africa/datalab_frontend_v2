@@ -44,6 +44,19 @@ const pageSizeOptions = [
   { label: '50 rows', value: '50' },
 ];
 
+interface ServerPagination {
+  /** Current page index (0-based). */
+  pageIndex: number;
+  /** Current page size. */
+  pageSize: number;
+  /** Total number of rows on the server. */
+  totalRows: number;
+  /** Callback when page index changes. */
+  onPageChange: (pageIndex: number) => void;
+  /** Callback when page size changes. */
+  onPageSizeChange: (pageSize: number) => void;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
@@ -63,6 +76,8 @@ interface DataTableProps<TData, TValue> {
   errorDescription?: string;
   /** Show a page-aware row number column. Defaults to true. */
   showRowNumber?: boolean;
+  /** Server-side pagination config. When provided, client-side pagination is disabled. */
+  serverPagination?: ServerPagination;
 }
 
 export function DataTable<TData, TValue>({
@@ -77,16 +92,22 @@ export function DataTable<TData, TValue>({
   errorTitle = 'Failed to load data',
   errorDescription = 'Something went wrong. Please try again.',
   showRowNumber = true,
+  serverPagination,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const isServerPaginated = !!serverPagination;
 
   const rowNumberCol: ColumnDef<TData, unknown> = {
     id: '_rowNumber',
     header: '#',
     enableSorting: false,
-    cell: ({ row, table: t }) => {
-      const pageIdx = t.getState().pagination.pageIndex;
-      const pageSz = t.getState().pagination.pageSize;
+    cell: ({ row }) => {
+      const pageIdx = isServerPaginated
+        ? serverPagination.pageIndex
+        : table.getState().pagination.pageIndex;
+      const pageSz = isServerPaginated
+        ? serverPagination.pageSize
+        : table.getState().pagination.pageSize;
       return (
         <span className="text-muted-foreground tabular-nums">
           {pageIdx * pageSz + row.index + 1}
@@ -102,18 +123,68 @@ export function DataTable<TData, TValue>({
     columns: allColumns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(isServerPaginated
+      ? {
+          manualPagination: true,
+          pageCount: Math.ceil(
+            serverPagination.totalRows / serverPagination.pageSize
+          ),
+        }
+      : { getPaginationRowModel: getPaginationRowModel() }),
     onSortingChange: setSorting,
-    state: { sorting },
-    initialState: { pagination: { pageSize: 10 } },
+    state: {
+      sorting,
+      ...(isServerPaginated
+        ? {
+            pagination: {
+              pageIndex: serverPagination.pageIndex,
+              pageSize: serverPagination.pageSize,
+            },
+          }
+        : {}),
+    },
+    initialState: isServerPaginated
+      ? undefined
+      : { pagination: { pageSize: 10 } },
   });
 
-  const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize;
-  const totalRows = table.getFilteredRowModel().rows.length;
-  const totalPages = table.getPageCount();
-  const start = pageIndex * pageSize + 1;
+  const pageIndex = isServerPaginated
+    ? serverPagination.pageIndex
+    : table.getState().pagination.pageIndex;
+  const pageSize = isServerPaginated
+    ? serverPagination.pageSize
+    : table.getState().pagination.pageSize;
+  const totalRows = isServerPaginated
+    ? serverPagination.totalRows
+    : table.getFilteredRowModel().rows.length;
+  const totalPages = isServerPaginated
+    ? Math.ceil(serverPagination.totalRows / serverPagination.pageSize)
+    : table.getPageCount();
+  const start = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
   const end = Math.min((pageIndex + 1) * pageSize, totalRows);
+
+  const canPreviousPage = isServerPaginated
+    ? pageIndex > 0
+    : table.getCanPreviousPage();
+  const canNextPage = isServerPaginated
+    ? pageIndex < totalPages - 1
+    : table.getCanNextPage();
+
+  const goToPage = (idx: number) => {
+    if (isServerPaginated) {
+      serverPagination.onPageChange(idx);
+    } else {
+      table.setPageIndex(idx);
+    }
+  };
+
+  const setPageSizeHandler = (size: number) => {
+    if (isServerPaginated) {
+      serverPagination.onPageSizeChange(size);
+    } else {
+      table.setPageSize(size);
+    }
+  };
 
   return (
     <div className="space-y-0">
@@ -140,7 +211,7 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2">
           <Select
             value={String(pageSize)}
-            onValueChange={(val) => table.setPageSize(Number(val))}
+            onValueChange={(val) => setPageSizeHandler(Number(val))}
           >
             <SelectTrigger className="h-8 w-17.5">
               <SelectValue />
@@ -273,8 +344,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.setPageIndex(0)}
+            disabled={!canPreviousPage}
+            onClick={() => goToPage(0)}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -282,8 +353,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
+            disabled={!canPreviousPage}
+            onClick={() => goToPage(pageIndex - 1)}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -291,8 +362,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
+            disabled={!canNextPage}
+            onClick={() => goToPage(pageIndex + 1)}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -300,8 +371,8 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="icon"
             className="h-8 w-8"
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.setPageIndex(totalPages - 1)}
+            disabled={!canNextPage}
+            onClick={() => goToPage(totalPages - 1)}
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

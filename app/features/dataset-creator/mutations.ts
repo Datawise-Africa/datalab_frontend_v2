@@ -14,11 +14,7 @@ export const useSubmitCreatorApplication = () => {
     mutationFn: async (
       input: BecomeDatasetCreatorInput
     ): Promise<BecomeDatasetCreatorType> => {
-      const { data } = await apiClient.post('/auth/creator-requests/', input, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const { data } = await apiClient.post('/auth/creator-requests/', input);
       return data;
     },
     onSuccess: () => {
@@ -41,8 +37,8 @@ export const useUpdateApplicationStatus = () => {
       id,
       status,
     }: {
-      id: number;
-      status: string;
+      id: string;
+      status: BecomeDatasetCreatorType['status'];
     }): Promise<void> => {
       await apiClient.put(`/auth/review-requests/${id}/`, {
         status,
@@ -50,7 +46,7 @@ export const useUpdateApplicationStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: datasetCreatorKeys.applications(),
+        queryKey: datasetCreatorKeys.applicationLists(),
       });
     },
     onError: (error) => {

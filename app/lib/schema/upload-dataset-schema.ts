@@ -85,7 +85,7 @@ export const uploadDatasetFormSchema = z.object({
   datasheet: datasetDatasheetSchema.optional(),
 });
 
-export type UploadFormValues = z.infer<typeof uploadDatasetFormSchema>;
+export type UploadDatasetFormValues = z.infer<typeof uploadDatasetFormSchema>;
 
 // ── Legacy schemas (kept for backward compatibility) ──
 

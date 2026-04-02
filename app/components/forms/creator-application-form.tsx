@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,17 +14,7 @@ import { Badge } from '~/components/ui/badge';
 import { FormTextField, FormTextareaField } from '~/components/form-fields';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
-import { DropZone } from '~/components/ui/drop-zone';
-import { useFileUpload } from '~/hooks/use-file-upload';
-import {
-  CheckCircle,
-  ArrowRight,
-  Loader2,
-  FileText,
-  X,
-  Clock,
-  Rocket,
-} from 'lucide-react';
+import { CheckCircle, ArrowRight, Loader2, Clock, Rocket } from 'lucide-react';
 import {
   becomeDatasetCreatorSchema,
   type BecomeDatasetCreatorInput,
@@ -37,27 +27,31 @@ import { getDatasetCreatorBadge } from '~/lib/types/dataset-creator';
 import { useAppSelector } from '~/store';
 import { useAppModal } from '~/store/slices/modal-slice';
 
-const ACCEPTED_FILE_TYPES = [
-  '.pdf',
-  '.csv',
-  '.xls',
-  '.xlsx',
-  '.doc',
-  '.docx',
-  '.txt',
-  '.json',
-];
+// const ACCEPTED_FILE_TYPES = [
+//   '.pdf',
+//   '.csv',
+//   '.xls',
+//   '.xlsx',
+//   '.doc',
+//   '.docx',
+//   '.txt',
+//   '.json',
+// ];
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
+// function formatBytes(bytes: number): string {
+//   if (bytes < 1024) return `${bytes} B`;
+//   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+//   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+// }
 
 export function CreatorApplicationForm() {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const authModal = useAppModal('auth');
-  const { data: application, isLoading: appLoading } = useCreatorApplication();
+  const { data: applications, isLoading: appLoading } = useCreatorApplication();
+  const firstApplications = useMemo(
+    () => applications?.data?.[0] ?? null,
+    [applications]
+  );
   const submitApplication = useSubmitCreatorApplication();
   const [submitted, setSubmitted] = useState(false);
 
@@ -87,10 +81,10 @@ export function CreatorApplicationForm() {
   }
 
   // Existing application — show status
-  const status = application?.status;
-  if (status && status !== 'Rejected') {
+  const status = firstApplications?.status;
+  if (status && status !== 'rejected') {
     const badge = getDatasetCreatorBadge(status);
-    const StatusIcon = status === 'Approved' ? CheckCircle : Clock;
+    const StatusIcon = status === 'approved' ? CheckCircle : Clock;
 
     return (
       <div className="py-8 text-center space-y-4">
@@ -156,30 +150,30 @@ function ApplicationFormFields({
     defaultValues: {
       affiliation: '',
       expertise: '',
-      reason_for_joining: '',
-      past_work_files: [],
+      reason: '',
+      // past_work_files: [],
       accept_terms: false as unknown as true,
     },
   });
 
-  const {
-    files,
-    addFiles,
-    removeAt,
-    error: fileError,
-  } = useFileUpload({
-    multiple: true,
-    output: 'file',
-    maxFiles: 10,
-    maxSizeBytes: 20 * 1024 * 1024,
-    accept: ACCEPTED_FILE_TYPES,
-    onFileChange: (managed) => {
-      form.setValue(
-        'past_work_files',
-        managed.map((f) => f.data)
-      );
-    },
-  });
+  // const {
+  //   files,
+  //   addFiles,
+  //   removeAt,
+  //   error: fileError,
+  // } = useFileUpload({
+  //   multiple: true,
+  //   output: 'file',
+  //   maxFiles: 10,
+  //   maxSizeBytes: 20 * 1024 * 1024,
+  //   accept: ACCEPTED_FILE_TYPES,
+  //   onFileChange: (managed) => {
+  //     form.setValue(
+  //       'past_work_files',
+  //       managed.map((f) => f.data)
+  //     );
+  //   },
+  // });
 
   return (
     <Form {...form}>
@@ -202,7 +196,7 @@ function ApplicationFormFields({
 
         <FormTextareaField
           control={form.control}
-          name="reason_for_joining"
+          name="reason"
           label="Reason for Joining"
           placeholder="Brief explanation of why you want to become a dataset creator..."
           rows={4}
@@ -210,7 +204,7 @@ function ApplicationFormFields({
         />
 
         {/* File upload */}
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <p className="text-sm font-medium">
             Past Work Files{' '}
             <span className="text-muted-foreground font-normal">
@@ -251,7 +245,7 @@ function ApplicationFormFields({
               ))}
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Terms */}
         <FormField

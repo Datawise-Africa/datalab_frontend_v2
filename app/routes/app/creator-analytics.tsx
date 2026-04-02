@@ -34,7 +34,7 @@ export default function CreatorAnalytics() {
   }));
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Analytics</h1>

@@ -9,7 +9,7 @@ export default function WorkspacesPage() {
   const { data: workspaces, isLoading } = useWorkspaces();
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

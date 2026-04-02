@@ -2,39 +2,58 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { datasetCreatorKeys } from './query-keys';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
-import type { IDataset, DatasetStatus } from '~/lib/types/dataset';
+import type { IDataset, DatasetStatus, Paginated } from '~/lib/types/dataset';
 
 /** Fetch current user's creator application status. */
 export const useCreatorApplication = () => {
   return useQuery({
     queryKey: datasetCreatorKeys.application(),
-    queryFn: async (): Promise<BecomeDatasetCreatorType | null> => {
-      const { data } = await apiClient.get('/users/become-dataset-creator/');
-      // API may return paginated { data: [] }, array, or single object
-      if (Array.isArray(data)) return data[0] ?? null;
-      if (data.data && Array.isArray(data.data)) return data.data[0] ?? null;
+    queryFn: async () => {
+      const { data } = await apiClient.get<Paginated<BecomeDatasetCreatorType>>(
+        '/auth/creator-requests/'
+      );
+      // // API may return paginated { data: [] }, array, or single object
+      // if (Array.isArray(data.data)) return data.data[0] ?? null;
+      // if (data.data && Array.isArray(data.data)) return data.data[0] ?? null;
       return data;
     },
   });
 };
 
-/** Admin: fetch all creator applications. */
-export const useCreatorApplications = () => {
+interface CreatorApplicationsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}
+
+/** Admin: fetch all creator applications with pagination. */
+export const useCreatorApplications = (params?: CreatorApplicationsParams) => {
+  const { status, ...apiParams } = params ?? {};
+  // Only send status to API if it's not 'all'
+  const queryParams = {
+    ...apiParams,
+    ...(status && status !== 'all' ? { status } : {}),
+  };
+
   return useQuery({
-    queryKey: datasetCreatorKeys.applications(),
-    queryFn: async (): Promise<BecomeDatasetCreatorType[]> => {
-      const { data } = await apiClient.get('/users/become-dataset-creator/');
-      // API may return paginated { data: [] } or plain array
-      return Array.isArray(data) ? data : (data.data ?? []);
+    queryKey: datasetCreatorKeys.applications(queryParams),
+    queryFn: async () => {
+      const { data } = await apiClient.get<Paginated<BecomeDatasetCreatorType>>(
+        '/auth/creator-requests/',
+        { params: queryParams }
+      );
+      return data;
     },
+    placeholderData: (prev) => prev,
   });
 };
 
 const statusEndpoints: Record<DatasetStatus | 'all', string> = {
-  all: '/data/datasets/',
-  PB: '/data/datasets-published',
-  DF: '/data/datasets-drafts',
-  AR: '/data/datasets-archived',
+  all: '/datasets/',
+  PB: '/datasets-published',
+  DF: '/datasets-drafts',
+  AR: '/datasets-archived',
 };
 
 interface CreatorDatasetsParams {

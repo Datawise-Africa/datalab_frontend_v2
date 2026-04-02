@@ -36,21 +36,21 @@ export default function ApprovedCreators() {
     useState<BecomeDatasetCreatorType | null>(null);
 
   const approved = useMemo(() => {
-    if (!applications) return [];
-    return applications
-      .filter((app) => app.status === 'Approved')
+    if (!applications?.data) return [];
+    return applications.data
+      .filter((app) => app.status === 'approved')
       .filter(
         (app) =>
           !search ||
-          `${app.user.first_name} ${app.user.last_name} ${app.user.email}`
+          `${app.user_name} ${app.user_email}`
             .toLowerCase()
             .includes(search.toLowerCase()) ||
           app.affiliation.toLowerCase().includes(search.toLowerCase())
       );
   }, [applications, search]);
 
-  const handleRevoke = (id: number) => {
-    updateStatus.mutate({ id, status: 'Rejected' });
+  const handleRevoke = (id: string) => {
+    updateStatus.mutate({ id, status: 'rejected' });
   };
 
   const columns = useMemo<ColumnDef<BecomeDatasetCreatorType, unknown>[]>(
@@ -59,19 +59,17 @@ export default function ApprovedCreators() {
         accessorKey: 'user',
         header: 'Creator',
         cell: ({ row }) => {
-          const user = row.original.user;
+          const user = row.original;
           return (
             <div>
-              <p className="font-medium text-sm">
-                {user.first_name} {user.last_name}
-              </p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="font-medium text-sm">{user.user_name}</p>
+              <p className="text-xs text-muted-foreground">{user.user_email}</p>
             </div>
           );
         },
         sortingFn: (rowA, rowB) => {
-          const a = `${rowA.original.user.first_name} ${rowA.original.user.last_name}`;
-          const b = `${rowB.original.user.first_name} ${rowB.original.user.last_name}`;
+          const a = `${rowA.original.user_name}`;
+          const b = `${rowB.original.user_name}`;
           return a.localeCompare(b);
         },
       },

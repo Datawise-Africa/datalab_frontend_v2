@@ -12,15 +12,15 @@ import {
   StepDiscovery,
   StepReview,
   uploadDatasetFormSchema,
-  type UploadFormValues,
+  type UploadDatasetFormValues,
 } from '~/components/upload-dataset-steps';
 
 export type DatasetFormMode = 'create' | 'edit';
 
 type DatasetFormProps = {
   mode: DatasetFormMode;
-  defaultValues: UploadFormValues;
-  onSubmit: (data: UploadFormValues) => Promise<void>;
+  defaultValues: UploadDatasetFormValues;
+  onSubmit: (data: UploadDatasetFormValues) => Promise<void>;
   isSubmitting: boolean;
   error?: string;
   categories?: ReadonlyArray<{ id: string; name: string }>;

@@ -5,13 +5,14 @@ import { datasetCreatorKeys } from '~/features/dataset-creator/query-keys';
 import type { IDataset } from '~/lib/types/dataset';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
+import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 
 /** Create a new dataset (POST /datasets/). */
 export const useCreateDataset = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: FormData): Promise<IDataset> => {
+    mutationFn: async (input: UploadDatasetFormValues): Promise<IDataset> => {
       const { data } = await apiClient.post('/datasets/', input, {
         // headers: { 'Content-Type': 'multipart/form-data' },
       });
@@ -39,7 +40,7 @@ export const useUpdateDataset = () => {
       input,
     }: {
       id: string;
-      input: FormData;
+      input: UploadDatasetFormValues;
     }): Promise<IDataset> => {
       const { data } = await apiClient.put(`/datasets/${id}/`, input, {
         headers: { 'Content-Type': 'multipart/form-data' },

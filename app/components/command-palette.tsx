@@ -51,8 +51,7 @@ export function CommandPalette() {
   };
 
   const perm = AuthPerm.getInstance();
-  const isCreator =
-    user && perm.hasPermission('dataset_creator', user.user_role);
+  const isCreator = user && perm.hasPermission('creator', user.user_role);
   const isAdmin = user && perm.hasPermission('admin', user.user_role);
 
   return (

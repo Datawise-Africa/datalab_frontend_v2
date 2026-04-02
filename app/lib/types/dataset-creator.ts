@@ -1,8 +1,8 @@
 export type DatasetCreatorStatus =
-  | 'Pending'
-  | 'In review'
-  | 'Approved'
-  | 'Rejected';
+  | 'pending'
+  | 'in_review'
+  | 'approved'
+  | 'rejected';
 
 export interface DatasetCreatorUser {
   id: string;
@@ -17,13 +17,15 @@ export interface DatasetCreatorFile {
 }
 
 export interface BecomeDatasetCreatorType {
-  id: number;
-  user: DatasetCreatorUser;
+  id: string;
+  // user: DatasetCreatorUser;
   affiliation: string;
   expertise: string;
   reason_for_joining: string;
-  past_work_files: DatasetCreatorFile[];
   status: DatasetCreatorStatus;
+  user_name: string;
+  user_email: string;
+  reason: string;
   created_at: string;
   approved_at: string | null;
 }
@@ -35,25 +37,30 @@ export function getCreatorDisplayName(user: DatasetCreatorUser): string {
 
 export function getDatasetCreatorBadge(status: DatasetCreatorStatus) {
   switch (status) {
-    case 'Pending':
+    case 'pending':
       return {
         label: 'Pending',
         className: 'border-amber-200 bg-amber-50 text-amber-700',
       };
-    case 'In review':
+    case 'in_review':
       return {
         label: 'In Review',
         className: 'border-yellow-200 bg-yellow-50 text-yellow-700',
       };
-    case 'Approved':
+    case 'approved':
       return {
         label: 'Approved',
         className: 'border-primary/20 bg-primary/5 text-primary',
       };
-    case 'Rejected':
+    case 'rejected':
       return {
         label: 'Rejected',
         className: 'border-red-200 bg-red-50 text-red-700',
+      };
+    default:
+      return {
+        label: status,
+        className: 'border-gray-200 bg-gray-50 text-gray-700',
       };
   }
 }
