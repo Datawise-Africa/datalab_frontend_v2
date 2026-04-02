@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import type { Route } from './+types/applications';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
@@ -12,6 +12,7 @@ import {
   useUpdateApplicationStatus,
 } from '~/features/dataset-creator';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
+import { useUrlFilter } from '~/hooks/use-url-filter';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -28,45 +29,54 @@ const statusOptions = [
   { label: 'Rejected', value: 'Rejected' },
 ];
 
+const FILTER_KEY = 'applications';
+
 export default function Applications() {
+  const filter = useUrlFilter(FILTER_KEY);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const statusFilter = filter.tags['status']?.[0] ?? 'all';
+
   const {
-    data: applications,
+    data: response,
     isLoading,
     isError,
     isFetching,
     refetch,
-  } = useCreatorApplications();
+  } = useCreatorApplications({
+    page,
+    limit,
+    search: filter.searchQuery || undefined,
+    status: statusFilter,
+  });
+
   const updateStatus = useUpdateApplicationStatus();
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedApp, setSelectedApp] =
     useState<BecomeDatasetCreatorType | null>(null);
 
-  const filtered = useMemo(() => {
-    if (!applications) return [];
-    return applications.filter((app) => {
-      const matchesSearch =
-        !search ||
-        `${app.user.first_name} ${app.user.last_name} ${app.user.email}`
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        app.affiliation.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        statusFilter === 'all' || app.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [applications, search, statusFilter]);
+  const applications = response?.data ?? [];
+  const totalDocs = response?.meta?.total_docs ?? 0;
 
-  const handleApprove = (id: number) => {
-    updateStatus.mutate({ id, status: 'Approved' });
+  const handlePageChange = useCallback((pageIndex: number) => {
+    setPage(pageIndex + 1); // API uses 1-based pages
+  }, []);
+
+  const handlePageSizeChange = useCallback((newSize: number) => {
+    setLimit(newSize);
+    setPage(1);
+  }, []);
+
+  const handleApprove = (id: string) => {
+    updateStatus.mutate({ id, status: 'approved' });
   };
 
-  const handleReject = (id: number) => {
-    updateStatus.mutate({ id, status: 'Rejected' });
+  const handleReject = (id: string) => {
+    updateStatus.mutate({ id, status: 'rejected' });
   };
 
-  const handleMarkInReview = (id: number) => {
-    updateStatus.mutate({ id, status: 'In review' });
+  const handleMarkInReview = (id: string) => {
+    updateStatus.mutate({ id, status: 'in_review' });
   };
 
   return (
@@ -89,15 +99,21 @@ export default function Applications() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={filter.searchQuery}
+              onChange={(e) => {
+                filter.setSearchQuery(e.target.value);
+                setPage(1);
+              }}
               placeholder="Search by name or affiliation..."
               className="pl-10"
             />
           </div>
           <AsyncSelect
             value={statusFilter}
-            onChange={(val) => setStatusFilter(val ?? 'all')}
+            onChange={(val) => {
+              filter.setTag('status', val && val !== 'all' ? [val] : []);
+              setPage(1);
+            }}
             options={statusOptions}
             placeholder="Filter by status"
             className="w-40 shrink-0"
@@ -110,7 +126,7 @@ export default function Applications() {
           </div>
         ) : (
           <ApplicationsTable
-            applications={filtered}
+            applications={applications}
             onViewDetails={setSelectedApp}
             onApprove={handleApprove}
             onReject={handleReject}
@@ -118,6 +134,13 @@ export default function Applications() {
             onRefresh={() => refetch()}
             isRefreshing={isFetching}
             isError={isError}
+            serverPagination={{
+              pageIndex: page - 1,
+              pageSize: limit,
+              totalRows: totalDocs,
+              onPageChange: handlePageChange,
+              onPageSizeChange: handlePageSizeChange,
+            }}
           />
         )}
 

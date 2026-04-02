@@ -6,7 +6,7 @@ import type {
 // Re-export form schema and type from the canonical schema location
 export {
   uploadDatasetFormSchema,
-  type UploadFormValues,
+  type UploadDatasetFormValues,
 } from '~/lib/schema/upload-dataset-schema';
 
 export const DATASET_TYPES: { value: DatasetType; label: string }[] = [

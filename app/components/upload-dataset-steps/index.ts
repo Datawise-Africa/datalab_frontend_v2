@@ -4,7 +4,7 @@ export { StepDiscovery } from './step-discovery';
 export { StepReview } from './step-review';
 export {
   uploadDatasetFormSchema,
-  type UploadFormValues,
+  type UploadDatasetFormValues,
   DATASET_TYPES,
   ACCESS_TYPES,
 } from './types';

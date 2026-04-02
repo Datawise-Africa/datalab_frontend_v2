@@ -33,7 +33,7 @@ function useDashboardSections(): SidebarSection[] {
   if (!user) return [];
 
   const perm = AuthPerm.getInstance();
-  const isCreator = perm.hasPermission('dataset_creator', user.user_role);
+  const isCreator = perm.hasPermission('creator', user.user_role);
   const isAdmin = perm.hasPermission('admin', user.user_role);
 
   const sections: SidebarSection[] = [];

@@ -1,5 +1,5 @@
 export type { AuthUserRoleType } from './auth-context';
-export type { AuthUser, LoginPayload, RegisterOrLoginResponse } from './auth';
+export type { AuthUser, RegisterOrLoginResponse } from './auth';
 export type {
   IDataset,
   IDatasetAuthor,

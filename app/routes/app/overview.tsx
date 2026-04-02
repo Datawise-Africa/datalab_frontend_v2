@@ -79,8 +79,7 @@ export default function DashboardOverview() {
   const { data: downloads } = useDownloadHistory();
 
   const perm = AuthPerm.getInstance();
-  const isCreator =
-    user && perm.hasPermission('dataset_creator', user.user_role);
+  const isCreator = user && perm.hasPermission('creator', user.user_role);
 
   return (
     <div className="space-y-8">

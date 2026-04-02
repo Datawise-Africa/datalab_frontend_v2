@@ -14,12 +14,10 @@ import {
   Building2,
   Briefcase,
   MessageSquare,
-  FileText,
   Calendar,
   CheckCircle,
   XCircle,
   Clock,
-  ExternalLink,
 } from 'lucide-react';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
 import { getDatasetCreatorBadge } from '~/lib/types/dataset-creator';
@@ -28,18 +26,18 @@ interface ApplicantModalProps {
   application: BecomeDatasetCreatorType | null;
   open: boolean;
   onClose: () => void;
-  onApprove: (id: number) => void;
-  onReject: (id: number) => void;
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
 }
 
 const statusIcons: Record<
   string,
   React.ComponentType<{ className?: string }>
 > = {
-  Pending: Clock,
-  'In review': Clock,
-  Approved: CheckCircle,
-  Rejected: XCircle,
+  pending: Clock,
+  in_review: Clock,
+  approved: CheckCircle,
+  rejected: XCircle,
 };
 
 export function ApplicantModal({
@@ -54,9 +52,9 @@ export function ApplicantModal({
   const badge = getDatasetCreatorBadge(application.status);
   const StatusIcon = statusIcons[application.status] ?? Clock;
   const isPending =
-    application.status === 'Pending' || application.status === 'In review';
-  const isApproved = application.status === 'Approved';
-  const isRejected = application.status === 'Rejected';
+    application.status === 'pending' || application.status === 'in_review';
+  const isApproved = application.status === 'approved';
+  const isRejected = application.status === 'rejected';
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -72,12 +70,7 @@ export function ApplicantModal({
             <User className="h-6 w-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base">
-              {application.user.first_name} {application.user.last_name}
-            </p>
-            <p className="text-sm text-muted-foreground truncate">
-              {application.user.email}
-            </p>
+            <p className="font-semibold text-base">{application.user_name}</p>
           </div>
           <Badge className={`shrink-0 gap-1.5 ${badge.className}`}>
             <StatusIcon className="h-3.5 w-3.5" />
@@ -125,7 +118,7 @@ export function ApplicantModal({
         </div>
 
         {/* ── Past work files ── */}
-        {application.past_work_files.length > 0 && (
+        {/* {application.past_work_files.length > 0 && (
           <div>
             <div className="flex items-center gap-2 mb-2">
               <FileText className="h-4 w-4 text-muted-foreground" />
@@ -150,7 +143,7 @@ export function ApplicantModal({
               ))}
             </div>
           </div>
-        )}
+        )} */}
 
         <Separator />
 

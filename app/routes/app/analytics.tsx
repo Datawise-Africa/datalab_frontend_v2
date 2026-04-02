@@ -32,7 +32,7 @@ export default function AnalyticsPage() {
   const { data: analytics, isLoading } = useCreatorAnalytics();
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div className="space-y-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>

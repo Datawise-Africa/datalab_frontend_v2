@@ -7,15 +7,24 @@ import { Users } from 'lucide-react';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
 import { getDatasetCreatorBadge } from '~/lib/types/dataset-creator';
 
+interface ServerPagination {
+  pageIndex: number;
+  pageSize: number;
+  totalRows: number;
+  onPageChange: (pageIndex: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+}
+
 interface ApplicationsTableProps {
   applications: BecomeDatasetCreatorType[];
   onViewDetails: (application: BecomeDatasetCreatorType) => void;
-  onApprove: (id: number) => void;
-  onReject: (id: number) => void;
-  onMarkInReview?: (id: number) => void;
+  onApprove: (id: string) => void;
+  onReject: (id: string) => void;
+  onMarkInReview?: (id: string) => void;
   onRefresh?: () => void;
   isRefreshing?: boolean;
   isError?: boolean;
+  serverPagination?: ServerPagination;
 }
 
 export function ApplicationsTable({
@@ -27,26 +36,26 @@ export function ApplicationsTable({
   onRefresh,
   isRefreshing,
   isError,
-}: ApplicationsTableProps) {
+  serverPagination,
+}: Readonly<ApplicationsTableProps>) {
   const columns = useMemo<ColumnDef<BecomeDatasetCreatorType, unknown>[]>(
     () => [
       {
-        accessorKey: 'user',
+        accessorKey: 'user_name',
         header: 'Applicant',
         cell: ({ row }) => {
-          const user = row.original.user;
           return (
             <div>
-              <p className="font-medium text-sm">
-                {user.first_name} {user.last_name}
+              <p className="font-medium text-sm">{row.original.user_name}</p>
+              <p className="text-xs text-muted-foreground">
+                {row.original.user_email}
               </p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
           );
         },
         sortingFn: (rowA, rowB) => {
-          const a = `${rowA.original.user.first_name} ${rowA.original.user.last_name}`;
-          const b = `${rowB.original.user.first_name} ${rowB.original.user.last_name}`;
+          const a = rowA.original.user_name;
+          const b = rowB.original.user_name;
           return a.localeCompare(b);
         },
       },
@@ -98,7 +107,7 @@ export function ApplicationsTable({
               >
                 View
               </Button>
-              {app.status === 'Pending' && onMarkInReview && (
+              {app.status === 'pending' && onMarkInReview && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -107,7 +116,7 @@ export function ApplicationsTable({
                   Review
                 </Button>
               )}
-              {app.status !== 'Approved' && (
+              {app.status !== 'approved' && (
                 <Button
                   size="sm"
                   className="bg-primary hover:bg-primary/90"
@@ -116,7 +125,7 @@ export function ApplicationsTable({
                   Approve
                 </Button>
               )}
-              {app.status !== 'Rejected' && (
+              {app.status !== 'rejected' && (
                 <Button
                   variant="destructive"
                   size="sm"
@@ -143,6 +152,7 @@ export function ApplicationsTable({
       emptyTitle="No applications"
       emptyDescription="There are no applications matching your current filters."
       emptyIcon={<Users />}
+      serverPagination={serverPagination}
     />
   );
 }

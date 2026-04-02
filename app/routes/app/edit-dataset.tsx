@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useDatasetCategories, useLicenses } from '~/features/metadata';
 import { useDataset, useUpdateDataset } from '~/features/datasets';
 import { DatasetForm } from '~/components/dataset-form';
-import type { UploadFormValues } from '~/components/upload-dataset-steps';
+import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import type { IDataset } from '~/lib/types/dataset';
 
 export function meta(_args: Route.MetaArgs) {
@@ -17,7 +17,7 @@ export function meta(_args: Route.MetaArgs) {
   });
 }
 
-function mapDatasetToFormValues(dataset: IDataset): UploadFormValues {
+function mapDatasetToFormValues(dataset: IDataset): UploadDatasetFormValues {
   return {
     name: dataset.title,
     description: dataset.description,
@@ -47,12 +47,9 @@ export default function EditDataset() {
   const { data: licenses } = useLicenses();
   const updateDataset = useUpdateDataset();
 
-  const handleSubmit = async (data: UploadFormValues) => {
-    const formData = new FormData();
-    formData.append('data', JSON.stringify(data));
-
+  const handleSubmit = async (data: UploadDatasetFormValues) => {
     await updateDataset.mutateAsync(
-      { id: datasetId, input: formData },
+      { id: datasetId, input: data },
       {
         onSuccess: () => {
           navigate(`/datasets/${datasetId}`);
@@ -63,7 +60,7 @@ export default function EditDataset() {
 
   if (isLoading) {
     return (
-      <Protect roles={['dataset_creator', 'admin']}>
+      <Protect roles={['creator', 'admin']}>
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-3 text-muted-foreground">Loading dataset...</span>
@@ -74,7 +71,7 @@ export default function EditDataset() {
 
   if (!dataset) {
     return (
-      <Protect roles={['dataset_creator', 'admin']}>
+      <Protect roles={['creator', 'admin']}>
         <div className="py-20 text-center">
           <p className="text-lg font-semibold">Dataset not found</p>
           <Button asChild variant="outline" className="mt-4">
@@ -89,7 +86,7 @@ export default function EditDataset() {
   }
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div>
         <div className="flex items-center gap-3 mb-1">
           <Button asChild variant="ghost" size="sm">

@@ -23,7 +23,7 @@ export class AuthPerm {
   // Bitwise permission flags (1 << n is safer than 2 << n for bit flags)
   private readonly Permissions: Record<AuthUserRoleType, number> = {
     user: 1 << 0, // 1
-    dataset_creator: 1 << 1, // 2
+    creator: 1 << 1, // 2
     admin: 1 << 2, // 4
   } as const;
 
@@ -32,10 +32,10 @@ export class AuthPerm {
     admin: [
       this.getRolePermissionValue('admin'),
       this.getRolePermissionValue('user'),
-      this.getRolePermissionValue('dataset_creator'),
+      this.getRolePermissionValue('creator'),
     ],
-    dataset_creator: [
-      this.getRolePermissionValue('dataset_creator'),
+    creator: [
+      this.getRolePermissionValue('creator'),
       this.getRolePermissionValue('user'),
     ],
     user: [this.getRolePermissionValue('user')],

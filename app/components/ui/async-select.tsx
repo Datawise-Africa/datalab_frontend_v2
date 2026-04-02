@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Check, ChevronsUpDown, X, Loader2 } from 'lucide-react';
 import { cn } from '~/lib/utils';
+import { useDebounce } from '~/hooks/use-debounce';
 import { Button } from '~/components/ui/button';
 import {
   Command,
@@ -76,22 +77,6 @@ interface MultiSelectProps extends AsyncSelectBaseProps {
 }
 
 export type AsyncSelectProps = SingleSelectProps | MultiSelectProps;
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
-
-  React.useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
 
 export function AsyncSelect(props: AsyncSelectProps) {
   const {

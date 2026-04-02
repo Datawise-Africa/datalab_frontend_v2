@@ -65,7 +65,7 @@ export default function WorkspaceDetailPage() {
   const canManageDatasets = isWsAdmin || isWsCreator;
 
   return (
-    <Protect roles={['dataset_creator', 'admin']}>
+    <Protect roles={['creator', 'admin']}>
       <div className="space-y-6">
         <Link
           to="/app/workspaces"

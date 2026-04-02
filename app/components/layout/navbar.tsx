@@ -295,7 +295,7 @@ function DesktopAuthButtons() {
   }
 
   const perm = AuthPerm.getInstance();
-  const isCreator = perm.hasPermission('dataset_creator', user.user_role);
+  const isCreator = perm.hasPermission('creator', user.user_role);
   const isAdmin = perm.hasPermission('admin', user.user_role);
   const showBecomeCreator = !isCreator && !isAdmin;
 
@@ -397,7 +397,7 @@ function MobileAuthSection() {
   const perm = AuthPerm.getInstance();
   const isCreatorOrAdmin =
     user &&
-    (perm.hasPermission('dataset_creator', user.user_role) ||
+    (perm.hasPermission('creator', user.user_role) ||
       perm.hasPermission('admin', user.user_role));
 
   return (
