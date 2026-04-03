@@ -10,6 +10,7 @@ import { DatasetCard } from '~/components/dataset-card';
 import { CardContent, CardHeader } from '~/components/ui/card';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { Loader2, Bookmark } from 'lucide-react';
+import { useAppSelector } from '~/store';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -19,7 +20,11 @@ export function meta(_args: Route.MetaArgs) {
 }
 
 export default function SavedDatasets() {
-  const { data: bookmarks, isLoading } = useBookmarkedDatasets();
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const { data: bookmarks, isLoading } = useBookmarkedDatasets(
+    {},
+    isAuthenticated
+  );
   const removeBookmark = useRemoveBookmark();
   const downloadModal = useAppModal('download');
 

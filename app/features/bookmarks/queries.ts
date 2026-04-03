@@ -17,7 +17,10 @@ export interface BookmarkedDataset {
   created_at: string;
 }
 
-export const useBookmarkedDatasets = (params?: BookmarkListParams) => {
+export const useBookmarkedDatasets = (
+  params?: BookmarkListParams,
+  isAuthenticated: boolean = false
+) => {
   return useQuery({
     queryKey: bookmarkKeys.list(params),
     queryFn: async () => {
@@ -29,5 +32,6 @@ export const useBookmarkedDatasets = (params?: BookmarkListParams) => {
     },
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
+    enabled: !!isAuthenticated, // Only fetch if the user is authenticated
   });
 };

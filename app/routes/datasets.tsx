@@ -96,7 +96,7 @@ export default function Datasets() {
     isFetching,
     refetch,
   } = useDatasets(params);
-  const { data: bookmarksData } = useBookmarkedDatasets();
+  const { data: bookmarksData } = useBookmarkedDatasets({}, isAuthenticated);
   const addBookmark = useAddBookmark();
 
   const datasets: NormalizedDataset[] = useMemo(() => {

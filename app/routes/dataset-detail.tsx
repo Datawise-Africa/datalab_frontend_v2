@@ -49,7 +49,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
-  const { data: bookmarksData } = useBookmarkedDatasets();
+  const { data: bookmarksData } = useBookmarkedDatasets({}, isAuthenticated);
   const addBookmark = useAddBookmark();
 
   useTrackView(dataset?.id);

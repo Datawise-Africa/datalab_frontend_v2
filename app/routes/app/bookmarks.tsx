@@ -5,9 +5,14 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { useBookmarkedDatasets, useRemoveBookmark } from '~/features/bookmarks';
 import { Link } from 'react-router';
+import { useAppSelector } from '~/store';
 
 export default function BookmarksPage() {
-  const { data: bookmarks, isLoading } = useBookmarkedDatasets();
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const { data: bookmarks, isLoading } = useBookmarkedDatasets(
+    {},
+    isAuthenticated
+  );
   const removeBookmark = useRemoveBookmark();
 
   return (

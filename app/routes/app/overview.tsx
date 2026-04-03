@@ -74,8 +74,8 @@ function QuickAction({
 }
 
 export default function DashboardOverview() {
-  const user = useAppSelector((s) => s.auth.user);
-  const { data: bookmarks } = useBookmarkedDatasets();
+  const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const { data: bookmarks } = useBookmarkedDatasets({}, isAuthenticated);
   const { data: downloads } = useDownloadHistory();
 
   const perm = AuthPerm.getInstance();
