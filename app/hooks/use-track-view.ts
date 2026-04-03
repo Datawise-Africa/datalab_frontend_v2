@@ -6,11 +6,11 @@ import { apiClient } from '~/lib/api/client';
  * Only fires once per mount.
  */
 export function useTrackView(datasetId: string | undefined) {
-  const tracked = useRef(false);
+  const trackedId = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!datasetId || tracked.current) return;
-    tracked.current = true;
+    if (!datasetId || trackedId.current === datasetId) return;
+    trackedId.current = datasetId;
 
     apiClient.post(`/datasets/${datasetId}/track_view/`).catch(() => {
       // Silently ignore tracking failures

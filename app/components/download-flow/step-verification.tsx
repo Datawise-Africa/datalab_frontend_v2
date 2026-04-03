@@ -82,13 +82,13 @@ export function StepVerification({
               id="otp"
               placeholder="Enter 6-digit code"
               value={otp}
-              onChange={(e) => setOtp(e.target.value)}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
               maxLength={6}
               className="flex-1"
             />
             <Button
               onClick={handleVerify}
-              disabled={otp.length < 4 || verifyOtp.isPending}
+              disabled={otp.length < 6 || verifyOtp.isPending}
               className="bg-primary hover:bg-primary/90"
             >
               {verifyOtp.isPending ? 'Verifying...' : 'Verify'}

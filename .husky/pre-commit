@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 
 # Try running lint-staged directly (works if it's on PATH via npx, local bin, etc.)
 if command -v lint-staged > /dev/null 2>&1; then
