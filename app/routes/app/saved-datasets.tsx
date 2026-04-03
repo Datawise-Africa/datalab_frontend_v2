@@ -3,7 +3,7 @@ import type { Route } from './+types/saved-datasets';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { useBookmarkedDatasets, useRemoveBookmark } from '~/features/bookmarks';
 import {
-  normalizeApiDataset,
+  normalizeMyDataset,
   type NormalizedDataset,
 } from '~/lib/utils/dataset-adapter';
 import { DatasetCard } from '~/components/dataset-card';
@@ -24,9 +24,9 @@ export default function SavedDatasets() {
   const downloadModal = useAppModal('download');
 
   const datasets =
-    bookmarks?.map((b) => ({
+    bookmarks?.data.map((b) => ({
       bookmarkId: b.id,
-      ...normalizeApiDataset(b.dataset),
+      ...normalizeMyDataset(b.dataset),
     })) ?? [];
 
   const handleDownload = useCallback(

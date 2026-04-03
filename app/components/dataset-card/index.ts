@@ -46,4 +46,4 @@ export const DatasetCard = Object.assign(DatasetCardRoot, {
 
 export { useDatasetCard } from './use-dataset-card';
 export type { NormalizedDataset } from '~/lib/utils/dataset-adapter';
-export { normalizeApiDataset } from '~/lib/utils/dataset-adapter';
+export { normalizeMyDataset } from '~/lib/utils/dataset-adapter';

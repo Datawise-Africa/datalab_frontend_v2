@@ -2,10 +2,10 @@ import { useState, useCallback } from 'react';
 import {
   useCreateVersion,
   useRequestPresignedUrls,
-  useUploadToS3,
+  useUploadToPresignedUrl,
   useConfirmUpload,
-} from '~/features/datasets/version-mutations';
-import type { PresignedUploadUrl } from '~/lib/types/dataset-version';
+} from '~/features/my-datasets';
+import type { PresignedFileEntry } from '~/lib/types/dataset-version';
 import { toastUtils } from '~/lib/utils/toast';
 
 export type UploadStep =
@@ -38,7 +38,7 @@ export function useVersionedUpload() {
 
   const createVersion = useCreateVersion();
   const requestUrls = useRequestPresignedUrls();
-  const uploadToS3 = useUploadToS3();
+  const uploadToS3 = useUploadToPresignedUrl();
   const confirmUpload = useConfirmUpload();
 
   const isPending = step !== 'idle' && step !== 'done' && step !== 'error';
@@ -53,12 +53,12 @@ export function useVersionedUpload() {
     async ({
       datasetId,
       version,
-      changelog,
+      description,
       files,
     }: {
       datasetId: string;
       version: string;
-      changelog: string;
+      description: string;
       files: File[];
     }) => {
       if (files.length === 0) {
@@ -72,7 +72,7 @@ export function useVersionedUpload() {
         const versionResult = await createVersion.mutateAsync({
           datasetId,
           version,
-          changelog,
+          description,
         });
 
         // Step 2: Request presigned S3 POST URLs
@@ -83,15 +83,15 @@ export function useVersionedUpload() {
           file_type: f.name.split('.').pop() ?? 'bin',
         }));
 
-        const presignedUrls = await requestUrls.mutateAsync({
+        const presignedResponse = await requestUrls.mutateAsync({
           datasetId,
           versionId: versionResult.id,
           files: fileMeta,
         });
 
-        // Map file_name → presigned URL
-        const urlMap = new Map<string, PresignedUploadUrl>();
-        for (const p of presignedUrls) {
+        // Map file_name → presigned file entry
+        const urlMap = new Map<string, PresignedFileEntry>();
+        for (const p of presignedResponse.files) {
           urlMap.set(p.file_name, p);
         }
 
@@ -130,7 +130,7 @@ export function useVersionedUpload() {
             )
           );
 
-          const result = await uploadToS3.mutateAsync({
+          await uploadToS3.mutateAsync({
             presigned,
             file,
             onProgress: (percent) => {
@@ -144,10 +144,10 @@ export function useVersionedUpload() {
           });
 
           confirmFiles.push({
-            file_name: result.file_name,
+            file_name: presigned.file_name,
             file_size: file.size,
             file_type: file.name.split('.').pop() ?? 'bin',
-            s3_key: result.s3_key,
+            s3_key: presigned.s3_key,
           });
 
           setFileProgress((prev) =>

@@ -1,15 +1,15 @@
 import { useFormContext } from 'react-hook-form';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
-import type { UploadFormValues } from './types';
-import type { DatasetFormMode } from '~/components/dataset-form';
+import type { UploadDatasetFormValues } from './types';
+import type { DatasetFormMode } from '../forms';
 
 type StepReviewProps = {
   mode?: DatasetFormMode;
 };
 
 export function StepReview({ mode = 'create' }: Readonly<StepReviewProps>) {
-  const { watch } = useFormContext<UploadFormValues>();
+  const { watch } = useFormContext<UploadDatasetFormValues>();
   const values = watch();
   const isEdit = mode === 'edit';
 

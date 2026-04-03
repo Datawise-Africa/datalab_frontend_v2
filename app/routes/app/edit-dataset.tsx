@@ -4,11 +4,15 @@ import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { Button } from '~/components/ui/button';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { useDatasetCategories, useLicenses } from '~/features/metadata';
-import { useDataset, useUpdateDataset } from '~/features/datasets';
-import { DatasetForm } from '~/components/dataset-form';
+import {
+  useDatasetCategories,
+  useLicenses,
+  useCountries,
+} from '~/features/metadata';
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
-import type { IDataset } from '~/lib/types/dataset';
+import { DatasetForm } from '~/components/forms';
+import { useMyDataset, useUpdateMyDataset } from '~/features/my-datasets';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -17,24 +21,48 @@ export function meta(_args: Route.MetaArgs) {
   });
 }
 
-function mapDatasetToFormValues(dataset: IDataset): UploadDatasetFormValues {
+function mapDatasetToFormValues(
+  dataset: MyDatasetInterface
+): UploadDatasetFormValues {
   return {
-    name: dataset.title,
+    name: dataset.name,
     description: dataset.description,
-    dataset_type: 'tabular',
+    dataset_type: dataset.dataset_type,
     category: dataset.category?.id ?? '',
     license: dataset.license?.id ?? '',
     is_premium: dataset.is_premium,
     is_private: dataset.is_private,
-    dataset_image: dataset.dataset_image ?? '',
-    workspace: dataset.workspace_id ?? undefined,
+    origin_region: dataset.origin_region
+      ? dataset.origin_region
+          .split(',')
+          .map((r) => r.trim())
+          .filter(Boolean)
+      : [],
+    dataset_image: '',
+    workspace: dataset.workspace?.id ?? undefined,
     tags: dataset.tags ?? [],
     authors: dataset.authors.map((a) => ({
-      user: `${a.first_name} ${a.last_name}`.trim(),
-      role: 'contributor' as const,
+      user: a.user.id,
+      role: a.role,
     })),
-    access: { access_type: 'public', access_instructions: '' },
-    datasheet: undefined,
+    access: {
+      access_type: (dataset.access?.access_type ?? 'public') as
+        | 'public'
+        | 'restricted'
+        | 'private',
+      access_instructions: dataset.access?.access_instructions ?? '',
+    },
+    datasheet: dataset.datasheet
+      ? {
+          motivation: dataset.datasheet.motivation ?? '',
+          composition: dataset.datasheet.composition ?? '',
+          collection_process: dataset.datasheet.collection_process ?? '',
+          preprocessing: dataset.datasheet.preprocessing ?? '',
+          uses: dataset.datasheet.uses ?? '',
+          distribution: dataset.datasheet.distribution ?? '',
+          maintenance: dataset.datasheet.maintenance ?? '',
+        }
+      : undefined,
   };
 }
 
@@ -42,17 +70,23 @@ export default function EditDataset() {
   const { id: datasetId } = useParams() as { id: string };
   const navigate = useNavigate();
 
-  const { data: dataset, isLoading } = useDataset(datasetId);
+  const { data: dataset, isLoading } = useMyDataset(datasetId);
   const { data: categories } = useDatasetCategories();
   const { data: licenses } = useLicenses();
-  const updateDataset = useUpdateDataset();
+  const { data: countries } = useCountries();
+  const updateDataset = useUpdateMyDataset();
 
   const handleSubmit = async (data: UploadDatasetFormValues) => {
+    const payload = {
+      ...data,
+      origin_region: data.origin_region.join(','),
+    };
+
     await updateDataset.mutateAsync(
-      { id: datasetId, input: data },
+      { id: datasetId, input: payload as never },
       {
         onSuccess: () => {
-          navigate(`/datasets/${datasetId}`);
+          navigate('/app/creator-dashboard');
         },
       }
     );
@@ -98,7 +132,7 @@ export default function EditDataset() {
           <h1 className="text-2xl font-bold">Edit Dataset</h1>
         </div>
         <p className="text-sm text-muted-foreground mb-6 ml-18">
-          Update &ldquo;{dataset.title}&rdquo;
+          Update &ldquo;{dataset.name}&rdquo;
         </p>
 
         <DatasetForm
@@ -111,8 +145,9 @@ export default function EditDataset() {
               ? 'Failed to update dataset. Please try again.'
               : undefined
           }
-          categories={categories}
-          licenses={licenses}
+          categories={categories?.data ?? []}
+          licenses={licenses?.data ?? []}
+          countries={countries ?? []}
         />
       </div>
     </Protect>

@@ -6,64 +6,41 @@ import { Card, CardContent } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
-import { cn } from '~/lib/utils';
-import { CsvPreview } from '~/components/dataset-preview/csv-preview';
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from '~/components/ui/accordion';
 import { ReviewList } from '~/components/reviews/review-list';
 import {
   ArrowLeft,
   Download,
-  Eye,
   Loader2,
-  Star,
   User,
   Calendar,
   HardDrive,
-  Globe,
-  Building2,
-  GraduationCap,
-  Landmark,
-  FileText,
   MapPin,
-  BookOpen,
   Bookmark,
   Share2,
-  CheckCircle2,
+  FileText,
+  ClipboardList,
+  GitBranch,
 } from 'lucide-react';
-import { useDataset } from '~/features/datasets';
+import { useDataset, useDatasetVersions } from '~/features/datasets';
 import { useAddBookmark, useBookmarkedDatasets } from '~/features/bookmarks';
 import { useTrackView } from '~/hooks/use-track-view';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
 import { generateSEOTags } from '~/lib/utils/seo';
+import { formatBytes } from '~/lib/utils/format';
+import type { MyDatasetInterface } from '~/features/my-datasets';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Dataset',
     description: 'View dataset details on Datalab Africa',
   });
-}
-
-const audienceIcons: Record<
-  string,
-  React.ComponentType<{ className?: string }>
-> = {
-  students: GraduationCap,
-  non_profit: Landmark,
-  company: Building2,
-  public: Globe,
-};
-
-const audienceLabels: Record<string, string> = {
-  students: 'Student',
-  non_profit: 'Non-Profit',
-  company: 'Company',
-  public: 'Public',
-};
-
-function formatNumber(num: number): string {
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
-  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
-  return num.toString();
 }
 
 export default function DatasetDetail({ params }: Route.ComponentProps) {
@@ -87,35 +64,38 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
   if (isError || !dataset) {
     return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center px-4">
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
         <FileText className="h-12 w-12 text-muted-foreground/40" />
-        <h2 className="text-2xl font-semibold">Dataset not found</h2>
-        <p className="text-muted-foreground">
-          The dataset you&apos;re looking for doesn&apos;t exist or has been
-          removed.
-        </p>
+        <div>
+          <p className="text-lg font-semibold">Dataset not found</p>
+          <p className="text-sm text-muted-foreground">
+            The dataset you are looking for may have been removed.
+          </p>
+        </div>
         <Button asChild variant="outline">
-          <Link to="/datasets">Browse Datasets</Link>
+          <Link to="/datasets">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Datasets
+          </Link>
         </Button>
       </div>
     );
   }
 
-  const _isBookmarked = bookmarksData?.some((b) => b.dataset.id === dataset.id);
+  const _isBookmarked = bookmarksData?.data?.some(
+    (b) => b.dataset.id === dataset.id
+  );
 
   const handleDownload = () => {
     if (!isAuthenticated) {
       authModal.open();
       return;
     }
-    const formats = dataset.data_file_types
-      ? dataset.data_file_types.split(',').map((f) => f.trim())
-      : ['CSV'];
     downloadModal.open({
       datasetId: dataset.id,
-      datasetName: dataset.title,
-      price: dataset.is_premium ? dataset.price : null,
-      formats,
+      datasetName: dataset.name,
+      price: dataset.is_premium ? null : null,
+      formats: [],
       license: dataset.license?.name ?? 'Standard License',
     });
   };
@@ -130,22 +110,13 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
   const authorName =
     dataset.authors.length > 0
-      ? `${dataset.authors[0].first_name} ${dataset.authors[0].last_name}`
+      ? `${dataset.authors[0].user.first_name} ${dataset.authors[0].user.last_name}`
       : 'Unknown';
 
-  const authorAffiliation = dataset.authors[0]?.affiliation;
-
-  const regions = dataset.covered_regions
-    ? dataset.covered_regions
+  const regions = dataset.origin_region
+    ? dataset.origin_region
         .split(',')
         .map((r) => r.trim())
-        .filter(Boolean)
-    : [];
-
-  const keywords = dataset.keywords
-    ? dataset.keywords
-        .split(',')
-        .map((k) => k.trim())
         .filter(Boolean)
     : [];
 
@@ -161,24 +132,24 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
           Back to Datasets
         </Link>
 
-        {/* ── Two-column header ── */}
-        <div className="flex flex-col lg:flex-row gap-8 mb-8">
-          {/* Left column - info */}
+        {/* ── Two-column layout (Udemy-style) ── */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left column — header + tabs */}
           <div className="flex-1 min-w-0">
             {/* Badge row */}
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {dataset.license && (
-                <Badge variant="default">{dataset.license.name}</Badge>
+                <Badge variant="default">{dataset.license.identifier}</Badge>
               )}
               <Badge variant="secondary">{dataset.category.name}</Badge>
               <Badge variant={dataset.is_premium ? 'outline' : 'secondary'}>
-                {dataset.is_premium ? `$${dataset.price}` : 'Free'}
+                {dataset.is_premium ? 'Premium' : 'Free'}
               </Badge>
             </div>
 
             {/* Title */}
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-              {dataset.title}
+              {dataset.name}
             </h1>
 
             {/* Description */}
@@ -196,17 +167,18 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 <Calendar className="h-3.5 w-3.5" />
                 Updated {moment(dataset.updated_at).format('MMM D, YYYY')}
               </span>
-              {dataset.data_file_types && (
-                <span className="flex items-center gap-1.5">
-                  <HardDrive className="h-3.5 w-3.5" />
-                  {dataset.data_file_types} ({dataset.size_bytes})
-                </span>
-              )}
+              <span className="flex items-center gap-1.5 capitalize">
+                <HardDrive className="h-3.5 w-3.5" />
+                {dataset.dataset_type}
+              </span>
+              <span className="capitalize">
+                Access: {dataset.access.access_type}
+              </span>
             </div>
 
             {/* Tags */}
             {dataset.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-8">
                 {dataset.tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs">
                     {tag}
@@ -215,223 +187,49 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               </div>
             )}
 
-            {/* Available to */}
-            <div>
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Available to:
-              </p>
-              <div className="flex flex-wrap gap-x-4 gap-y-2">
-                {Object.entries(dataset.intended_audience)
-                  .filter(([, v]) => v)
-                  .map(([key]) => {
-                    const Icon = audienceIcons[key] ?? Globe;
-                    const label = audienceLabels[key] ?? key;
-                    return (
-                      <span
-                        key={key}
-                        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground"
-                      >
-                        <Icon className="h-4 w-4" />
-                        {label}
-                        <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                      </span>
-                    );
-                  })}
-              </div>
+            {/* Mobile sidebar — shown below header, above tabs */}
+            <div className="lg:hidden mb-8">
+              <SidebarContent
+                dataset={dataset}
+                onDownload={handleDownload}
+                onBookmark={_handleBookmark}
+              />
             </div>
-          </div>
 
-          {/* Right column - sidebar stats card */}
-          <div className="lg:w-72 shrink-0">
-            <Card className="lg:sticky lg:top-6">
-              <CardContent className="p-5 space-y-4">
-                {/* Stats grid */}
-                <div className="grid grid-cols-3 gap-3 text-center">
-                  <div>
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <p className="text-lg font-bold">
-                      {formatNumber(dataset.views_count)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">Views</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Download className="h-3.5 w-3.5 text-muted-foreground" />
-                    </div>
-                    <p className="text-lg font-bold">
-                      {formatNumber(dataset.download_count)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Downloads
-                    </p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <Star className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
-                    </div>
-                    <p className="text-lg font-bold">
-                      {dataset.average_review > 0
-                        ? dataset.average_review.toFixed(1)
-                        : '--'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {dataset.review_count} reviews
-                    </p>
-                  </div>
-                </div>
+            {/* Tabs */}
+            <Tabs defaultValue="details" className="mb-8">
+              <TabsList>
+                <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
+                <TabsTrigger value="versions">Versions</TabsTrigger>
+                <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              </TabsList>
 
-                <Separator />
-
-                {/* Download button */}
-                <Button className="w-full" onClick={handleDownload}>
-                  <Download className="mr-2 h-4 w-4" />
-                  {dataset.is_premium && dataset.price
-                    ? `Download — $${dataset.price}`
-                    : 'Download'}
-                </Button>
-
-                {/* Bookmark & Share */}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={_handleBookmark}
-                  >
-                    <Bookmark className="mr-1.5 h-4 w-4" />
-                    Bookmark
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => {
-                      if (typeof navigator !== 'undefined') {
-                        navigator.clipboard.writeText(window.location.href);
-                      }
-                    }}
-                  >
-                    <Share2 className="mr-1.5 h-4 w-4" />
-                    Share
-                  </Button>
-                </div>
-
-                {/* Files */}
-                {dataset.data_files.length > 0 && (
-                  <>
-                    <Separator />
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-2">
-                        Files
-                      </p>
-                      <div className="space-y-2">
-                        {dataset.data_files.map((file) => (
-                          <div
-                            key={file.id}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            <span className="truncate flex-1">
-                              {file.file_name}
-                            </span>
-                            <span className="text-xs text-muted-foreground shrink-0">
-                              {file.file_size_display}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* ── Tabbed content ── */}
-        <Tabs defaultValue="preview" className="mb-8">
-          <TabsList>
-            <TabsTrigger value="preview">CSV Preview</TabsTrigger>
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="reviews">
-              Reviews
-              {dataset.review_count > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="ml-1.5 text-[10px] px-1.5 py-0"
-                >
-                  {dataset.review_count}
-                </Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
-
-          {/* CSV Preview tab */}
-          <TabsContent value="preview" className="mt-4">
-            {dataset.data_files.length > 0 ? (
-              <CsvPreview dataFiles={dataset.data_files} />
-            ) : (
-              <p className="text-sm text-muted-foreground py-8 text-center">
-                No preview available for this dataset.
-              </p>
-            )}
-          </TabsContent>
-
-          {/* Details tab */}
-          <TabsContent value="details" className="mt-4 space-y-8">
-            {/* Regions & Keywords */}
-            {(regions.length > 0 || keywords.length > 0) && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {/* Details tab */}
+              <TabsContent value="details" className="mt-4 space-y-8">
+                {/* Origin Regions */}
                 {regions.length > 0 && (
                   <div>
                     <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
                       <MapPin className="h-4 w-4 text-primary" />
-                      Covered Regions
+                      Origin Regions
                     </h3>
-                    <ul className="space-y-1">
+                    <div className="flex flex-wrap gap-1.5">
                       {regions.map((r) => (
-                        <li
-                          key={r}
-                          className="text-sm text-muted-foreground flex items-center gap-2"
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                        <Badge key={r} variant="secondary" className="text-xs">
                           {r}
-                        </li>
+                        </Badge>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
-                {keywords.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium mb-2 flex items-center gap-1.5">
-                      <BookOpen className="h-4 w-4 text-primary" />
-                      Key Topics
-                    </h3>
-                    <ul className="space-y-1">
-                      {keywords.map((k) => (
-                        <li
-                          key={k}
-                          className="text-sm text-muted-foreground flex items-center gap-2"
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                          {k}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
 
-            {/* Additional Information */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">
-                Additional Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* License */}
                 {dataset.license && (
                   <div>
-                    <h4 className="text-sm font-medium mb-1">Usage License</h4>
+                    <h3 className="text-sm font-semibold mb-1">
+                      Usage License
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {dataset.license.name}
                       {dataset.license.description &&
@@ -439,93 +237,283 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                     </p>
                   </div>
                 )}
-                {dataset.doi && (
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">DOI</h4>
-                    <p className="text-sm text-muted-foreground font-mono">
-                      {dataset.doi}
+
+                {/* Authors */}
+                {dataset.authors.length > 0 && (
+                  <Card>
+                    <CardContent className="p-5">
+                      <h3 className="text-sm font-semibold mb-3">Authors</h3>
+                      <div className="space-y-2">
+                        {dataset.authors.map((author) => (
+                          <div
+                            key={author.user.id}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
+                              <User className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium">
+                                {author.user.first_name} {author.user.last_name}
+                              </p>
+                              {author.user.email && (
+                                <p className="text-xs text-muted-foreground">
+                                  {author.user.email}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {dataset.access.access_instructions && (
+                  <div className="rounded-md border p-3">
+                    <p className="text-sm font-medium mb-1">
+                      Access Instructions
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {dataset.access.access_instructions}
                     </p>
                   </div>
                 )}
-              </div>
+              </TabsContent>
+
+              {/* Datasheet tab */}
+              <TabsContent value="datasheet" className="mt-4">
+                <DatasheetTab datasheet={dataset.datasheet} />
+              </TabsContent>
+
+              {/* Versions tab */}
+              <TabsContent value="versions" className="mt-4">
+                <PublicVersionsTab datasetId={dataset.id} />
+              </TabsContent>
+
+              {/* Reviews tab */}
+              <TabsContent value="reviews" className="mt-4">
+                <ReviewList reviews={[]} showForm={isAuthenticated} />
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Right column — desktop only, sticky */}
+          <div className="hidden lg:block lg:w-72 shrink-0">
+            <div className="sticky top-6">
+              <SidebarContent
+                dataset={dataset}
+                onDownload={handleDownload}
+                onBookmark={_handleBookmark}
+              />
             </div>
-
-            {/* Author Information */}
-            {dataset.authors.length > 0 && (
-              <Card>
-                <CardContent className="p-5">
-                  <h3 className="text-sm font-semibold mb-3">
-                    Author Information
-                  </h3>
-                  <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-                    <span className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-muted-foreground" />
-                      {authorName}
-                    </span>
-                    {authorAffiliation && (
-                      <span className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        {authorAffiliation}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Insights */}
-            <div>
-              <h3 className="text-sm font-semibold mb-3">Dataset Insights</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <InsightCard
-                  label="Views"
-                  value={formatNumber(dataset.views_count)}
-                />
-                <InsightCard
-                  label="Downloads"
-                  value={formatNumber(dataset.download_count)}
-                />
-                <InsightCard
-                  label="Avg Rating"
-                  value={
-                    dataset.average_review > 0
-                      ? dataset.average_review.toFixed(1)
-                      : '--'
-                  }
-                  sub={dataset.review_count > 0 ? 'out of 5.0' : undefined}
-                />
-                <InsightCard
-                  label="Total Comments"
-                  value={String(dataset.review_count)}
-                />
-              </div>
-            </div>
-          </TabsContent>
-
-          {/* Reviews tab */}
-          <TabsContent value="reviews" className="mt-4">
-            <ReviewList reviews={dataset.reviews} showForm={isAuthenticated} />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-function InsightCard({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
+/* ── Sidebar Content ── */
+
+function SidebarContent({
+  dataset,
+  onDownload,
+  onBookmark,
+}: Readonly<{
+  dataset: MyDatasetInterface;
+  onDownload: () => void;
+  onBookmark: () => void;
+}>) {
   return (
-    <div className="text-center rounded-lg border p-4">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
-      {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+    <Card>
+      <CardContent className="p-5 space-y-4">
+        {/* Download button */}
+        <Button className="w-full" onClick={onDownload}>
+          <Download className="mr-2 h-4 w-4" />
+          Download
+        </Button>
+
+        {/* Bookmark & Share */}
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1" onClick={onBookmark}>
+            <Bookmark className="mr-1.5 h-4 w-4" />
+            Bookmark
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => {
+              if (typeof navigator !== 'undefined') {
+                navigator.clipboard.writeText(window.location.href);
+              }
+            }}
+          >
+            <Share2 className="mr-1.5 h-4 w-4" />
+            Share
+          </Button>
+        </div>
+
+        {/* Summary */}
+        <Separator />
+        <div className="space-y-2 text-sm">
+          <p className="text-muted-foreground capitalize">
+            Type: {dataset.dataset_type}
+          </p>
+          <p className="text-muted-foreground">
+            Category: {dataset.category.name}
+          </p>
+          <p className="text-muted-foreground capitalize">
+            Access: {dataset.access.access_type}
+          </p>
+          {dataset.license && (
+            <p className="text-muted-foreground">
+              License: {dataset.license.identifier}
+            </p>
+          )}
+        </div>
+
+        {/* Dates */}
+        <Separator />
+        <div className="space-y-1 text-xs text-muted-foreground">
+          <p>Created: {moment(dataset.created_at).format('MMM D, YYYY')}</p>
+          <p>Updated: {moment(dataset.updated_at).format('MMM D, YYYY')}</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── Datasheet Tab ── */
+
+const datasheetFields = [
+  { key: 'motivation', label: 'Motivation' },
+  { key: 'composition', label: 'Composition' },
+  { key: 'collection_process', label: 'Collection Process' },
+  { key: 'preprocessing', label: 'Preprocessing' },
+  { key: 'uses', label: 'Uses' },
+  { key: 'distribution', label: 'Distribution' },
+  { key: 'maintenance', label: 'Maintenance' },
+] as const;
+
+function DatasheetTab({
+  datasheet,
+}: Readonly<{ datasheet: MyDatasetInterface['datasheet'] }>) {
+  if (!datasheet) {
+    return (
+      <div className="py-12 text-center text-muted-foreground">
+        <ClipboardList className="mx-auto mb-3 h-8 w-8" />
+        <p className="text-sm font-medium">No datasheet available</p>
+        <p className="text-xs mt-1">
+          The creator has not added a datasheet for this dataset.
+        </p>
+      </div>
+    );
+  }
+
+  const populated = datasheetFields.filter((f) => datasheet[f.key]);
+
+  if (populated.length === 0) {
+    return (
+      <div className="py-12 text-center text-muted-foreground">
+        <ClipboardList className="mx-auto mb-3 h-8 w-8" />
+        <p className="text-sm font-medium">Datasheet is empty</p>
+      </div>
+    );
+  }
+
+  return (
+    <Accordion type="multiple" className="rounded-md border">
+      {populated.map(({ key, label }) => (
+        <AccordionItem key={key} value={key}>
+          <AccordionTrigger className="px-3 py-3 text-xs font-medium">
+            {label}
+          </AccordionTrigger>
+          <AccordionContent className="px-3">
+            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+              {datasheet[key]}
+            </p>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  );
+}
+
+/* ── Public Versions Tab ── */
+
+function PublicVersionsTab({ datasetId }: Readonly<{ datasetId: string }>) {
+  const { data: versions, isLoading, isError } = useDatasetVersions(datasetId);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="py-12 text-center text-muted-foreground">
+        <p className="text-sm">Failed to load versions.</p>
+      </div>
+    );
+  }
+
+  if (!versions || versions.length === 0) {
+    return (
+      <div className="py-12 text-center text-muted-foreground">
+        <GitBranch className="mx-auto mb-3 h-8 w-8" />
+        <p className="text-sm font-medium">No versions available</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {versions.map((version) => (
+        <Card key={version.id} className="py-0">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-semibold flex items-center gap-1.5">
+                  <GitBranch className="h-3.5 w-3.5 text-primary" />
+                  {version.version}
+                  {version.is_latest && (
+                    <Badge variant="secondary" className="text-[10px] ml-1">
+                      Latest
+                    </Badge>
+                  )}
+                </p>
+                {version.description && (
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    {version.description}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {version.files.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {version.files.map((file) => (
+                  <Badge
+                    key={file.id}
+                    variant="secondary"
+                    className="text-xs gap-1"
+                  >
+                    <FileText className="h-3 w-3" />
+                    {file.file_name}
+                    <span className="text-muted-foreground">
+                      ({formatBytes(file.file_size)})
+                    </span>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

@@ -7,12 +7,10 @@ import { ApplicantModal } from '~/components/admin/applicant-modal';
 import { Input } from '~/components/ui/input';
 import { AsyncSelect } from '~/components/ui/async-select';
 import { Loader2, Search, Users } from 'lucide-react';
-import {
-  useCreatorApplications,
-  useUpdateApplicationStatus,
-} from '~/features/dataset-creator';
+import { useCreatorApplications } from '~/features/dataset-creator';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
 import { useUrlFilter } from '~/hooks/use-url-filter';
+import { useUpdateApplicationStatus } from '~/features/dataset-creator/mutations';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({

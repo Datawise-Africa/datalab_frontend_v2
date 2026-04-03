@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { formatPrice } from '~/lib/utils/format';
 import {
   Lock,
   Globe,
@@ -44,11 +45,6 @@ const audienceIcons: Record<
   Government: Landmark,
   Academic: BookOpen,
 };
-
-function formatPrice(price: number | null): string {
-  if (price === null || price === 0) return 'Free';
-  return `$${price}`;
-}
 
 export function DatasetCard({ dataset }: { dataset: Dataset }) {
   const isFree = dataset.price === null || dataset.price === 0;

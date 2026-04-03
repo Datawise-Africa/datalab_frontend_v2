@@ -7,4 +7,7 @@ export const metadataKeys = {
   authors: () => [...metadataKeys.all(), 'authors'] as const,
   termsAndConditions: () =>
     [...metadataKeys.all(), 'terms-and-conditions'] as const,
+  countryLists: () => [...metadataKeys.all(), 'countries'] as const,
+  countries: (search?: string) =>
+    [...metadataKeys.countryLists(), search] as const,
 };

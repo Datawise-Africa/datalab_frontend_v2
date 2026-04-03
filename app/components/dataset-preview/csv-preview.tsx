@@ -3,10 +3,10 @@ import Papa from 'papaparse';
 import { Loader2, Table, AlertTriangle } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { cn } from '~/lib/utils';
-import type { IDatasetDataFile } from '~/lib/types/dataset';
+import type { DatasetVersionFile } from '~/lib/types/dataset-version';
 
 interface CsvPreviewProps {
-  dataFiles: IDatasetDataFile[];
+  dataFiles: DatasetVersionFile[];
   /** Max rows to show in preview. Defaults to 20. */
   maxRows?: number;
   className?: string;
@@ -29,20 +29,17 @@ export function CsvPreview({
 
   // Find first CSV file
   const csvFile = dataFiles.find(
-    (f) =>
-      f.file_name.endsWith('.csv') ||
-      f.content_type.includes('csv') ||
-      f.content_type.includes('text/plain')
+    (f) => f.file_name.endsWith('.csv') || f.file_type === 'csv'
   );
 
   useEffect(() => {
-    if (!csvFile?.s3_url) return;
+    if (!csvFile?.s3_key) return;
 
     setIsLoading(true);
     setError(null);
     setFileName(csvFile.file_name);
 
-    fetch(csvFile.s3_url)
+    fetch(csvFile.s3_key)
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();
@@ -67,7 +64,7 @@ export function CsvPreview({
       .finally(() => {
         setIsLoading(false);
       });
-  }, [csvFile?.s3_url, csvFile?.file_name, maxRows]);
+  }, [csvFile?.s3_key, csvFile?.file_name, maxRows]);
 
   if (!csvFile) {
     return null;

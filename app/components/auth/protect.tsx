@@ -11,7 +11,7 @@ interface ProtectProps {
   fallback?: ReactNode;
 }
 
-export function Protect({ children, roles, fallback }: ProtectProps) {
+export function Protect({ children, roles, fallback }: Readonly<ProtectProps>) {
   const isClient = useIsClient();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
   const authModal = useAppModal('auth');

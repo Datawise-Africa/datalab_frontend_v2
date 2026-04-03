@@ -45,3 +45,4 @@ lerna-debug.log*
 *.temp
 .cache
 .playwright-mcp/
+.pnpm-store/

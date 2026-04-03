@@ -9,7 +9,7 @@ import {
 import { Textarea } from '~/components/ui/textarea';
 import { Separator } from '~/components/ui/separator';
 import { FormTagInputField } from '~/components/form-fields';
-import type { UploadFormValues } from './types';
+import type { UploadDatasetFormValues } from './types';
 
 const DATA_SHEET_FIELDS: {
   key:
@@ -57,7 +57,7 @@ const DATA_SHEET_FIELDS: {
 ];
 
 export function StepDiscovery() {
-  const { control } = useFormContext<UploadFormValues>();
+  const { control } = useFormContext<UploadDatasetFormValues>();
 
   return (
     <div className="space-y-6">

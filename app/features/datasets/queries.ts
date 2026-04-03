@@ -1,40 +1,32 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { datasetKeys } from './query-keys';
-import type { IDataset, DatasetListResponse } from '~/lib/types/dataset';
+import type { Paginated } from '~/lib/types';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import type { DatasetVersion } from '~/lib/types/dataset-version';
 
 interface DatasetListParams {
   page?: number;
   limit?: number;
   sort?: string;
   order?: string;
-  [key: string]: unknown;
-}
-
-interface DatasetFilterParams extends DatasetListParams {
+  search?: string;
   category?: string;
   accessLevel?: string;
   region?: string;
   timeframe?: string;
+  [key: string]: unknown;
 }
 
-/**
- * Fetch paginated datasets. Uses /data/datasets/ for unfiltered
- * and /data/filter/ when filter params are present.
- */
-export const useDatasets = (params?: DatasetFilterParams) => {
-  const hasFilters =
-    params &&
-    (params.category ||
-      params.accessLevel ||
-      params.region ||
-      params.timeframe);
-
+/** Fetch paginated datasets with optional filters. */
+export const useDatasets = (params?: DatasetListParams) => {
   return useQuery({
     queryKey: datasetKeys.list(params),
-    queryFn: async (): Promise<DatasetListResponse> => {
-      const endpoint = hasFilters ? '/data/filter/' : '/data/datasets/';
-      const { data } = await apiClient.get('/datasets/', { params });
+    queryFn: async (): Promise<Paginated<MyDatasetInterface>> => {
+      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+        '/datasets/',
+        { params }
+      );
       return data;
     },
     placeholderData: keepPreviousData,
@@ -43,12 +35,14 @@ export const useDatasets = (params?: DatasetFilterParams) => {
   });
 };
 
-/** Fetch a single dataset by ID. */
+/** Fetch a single dataset by ID or slug. */
 export const useDataset = (id: string) => {
   return useQuery({
     queryKey: datasetKeys.detail(id),
-    queryFn: async (): Promise<IDataset> => {
-      const { data } = await apiClient.get(`/data/datasets/${id}/`);
+    queryFn: async (): Promise<MyDatasetInterface> => {
+      const { data } = await apiClient.get<MyDatasetInterface>(
+        `/datasets/${id}/`
+      );
       return data;
     },
     enabled: !!id,
@@ -60,14 +54,32 @@ export const useDataset = (id: string) => {
 export const useSearchDatasets = (query: string) => {
   return useQuery({
     queryKey: datasetKeys.search(query),
-    queryFn: async (): Promise<DatasetListResponse> => {
-      const { data } = await apiClient.get('/data/search/', {
-        params: { query },
-      });
+    queryFn: async (): Promise<Paginated<MyDatasetInterface>> => {
+      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+        '/datasets/',
+        { params: { search: query } }
+      );
       return data;
     },
     enabled: query.length > 0,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+  });
+};
+
+/** Fetch versions for a public dataset. */
+export const useDatasetVersions = (datasetId: string) => {
+  return useQuery({
+    queryKey: datasetKeys.versions(datasetId),
+    queryFn: async () => {
+      const { data } = await apiClient.get<DatasetVersion[]>(
+        `/datasets/${datasetId}/versions/`
+      );
+      return Array.isArray(data)
+        ? data
+        : ((data as { data?: DatasetVersion[] }).data ?? []);
+    },
+    enabled: !!datasetId,
+    staleTime: 5 * 60 * 1000,
   });
 };

@@ -1,13 +1,12 @@
 import { useState } from 'react';
+import { formatNumber } from '~/lib/utils/format';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { Card, CardContent } from '~/components/ui/card';
 import { AsyncSelect } from '~/components/ui/async-select';
 import { Loader2, Eye, Download, Star, Database } from 'lucide-react';
-import {
-  useCreatorAnalytics,
-  useCreatorDatasets,
-} from '~/features/dataset-creator';
+import { useCreatorAnalytics } from '~/features/dataset-creator';
+import { useMyDatasets } from '~/features/my-datasets';
 
 export function meta() {
   return generateSEOTags({
@@ -16,20 +15,14 @@ export function meta() {
   });
 }
 
-function formatNumber(num: number): string {
-  if (num >= 1_000_000) return `${(num / 1_000_000).toFixed(1)}M`;
-  if (num >= 1_000) return `${(num / 1_000).toFixed(1)}K`;
-  return num.toString();
-}
-
 export default function CreatorAnalytics() {
   const [selectedDataset, setSelectedDataset] = useState<string | undefined>();
 
   const { data: analytics, isLoading } = useCreatorAnalytics(selectedDataset);
-  const { data: publishedResult } = useCreatorDatasets({ status: 'PB' });
+  const { data: publishedResult } = useMyDatasets({ status: 'PB' });
 
   const datasetOptions = (publishedResult?.data ?? []).map((d) => ({
-    label: d.title,
+    label: d.name,
     value: d.id,
   }));
 
