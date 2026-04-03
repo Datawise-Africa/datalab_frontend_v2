@@ -1,20 +1,18 @@
 export interface DatasetVersion {
   id: string;
-  dataset: string;
   version: string;
-  changelog: string;
+  description: string;
+  is_latest: boolean;
   files: DatasetVersionFile[];
-  created_at: string;
 }
 
 export interface DatasetVersionFile {
   id: string;
   file_name: string;
-  file_size: number;
-  file_size_display: string;
   file_type: string;
+  file_size: number;
   s3_key: string;
-  upload_status: 'pending' | 'uploading' | 'completed' | 'failed';
+  checksum: string;
 }
 
 // ── Request Upload ──
@@ -26,14 +24,21 @@ export interface RequestUploadFileInput {
   file_type: string;
 }
 
-/** Single presigned URL entry returned by request-upload. */
-export interface PresignedUploadUrl {
-  file_id: string;
+/** Single file entry in the presigned URL response. */
+export interface PresignedFileEntry {
   file_name: string;
-  /** The S3 presigned POST URL. */
+  file_size: number;
+  file_type: string;
+  s3_key: string;
   upload_url: string;
-  /** S3 POST form fields to include with the upload. */
-  fields: Record<string, string>;
+  method: string;
+  content_type: string;
+  expires_in: string;
+}
+
+/** Response from request-upload endpoint. */
+export interface PresignedUploadResponse {
+  files: PresignedFileEntry[];
 }
 
 // ── Confirm Upload ──

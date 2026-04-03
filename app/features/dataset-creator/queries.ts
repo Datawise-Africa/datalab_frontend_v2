@@ -2,7 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { datasetCreatorKeys } from './query-keys';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
-import type { IDataset, DatasetStatus, Paginated } from '~/lib/types/dataset';
+import type { DatasetStatus } from '~/lib/types/dataset';
+import type { Paginated } from '~/lib/types';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
 
 /** Fetch current user's creator application status. */
 export const useCreatorApplication = () => {
@@ -49,13 +51,6 @@ export const useCreatorApplications = (params?: CreatorApplicationsParams) => {
   });
 };
 
-const statusEndpoints: Record<DatasetStatus | 'all', string> = {
-  all: '/datasets/',
-  PB: '/datasets-published',
-  DF: '/datasets-drafts',
-  AR: '/datasets-archived',
-};
-
 interface CreatorDatasetsParams {
   status?: DatasetStatus;
   page?: number;
@@ -70,30 +65,24 @@ interface CreatorDatasetsParams {
 export const useCreatorDatasets = (
   statusOrParams?: DatasetStatus | CreatorDatasetsParams
 ) => {
-  // Normalize to params object
   const params: CreatorDatasetsParams =
     typeof statusOrParams === 'string'
       ? { status: statusOrParams }
       : (statusOrParams ?? {});
 
-  const status = params.status ?? 'all';
-  const endpoint =
-    statusEndpoints[status as DatasetStatus | 'all'] ?? statusEndpoints.all;
-
-  // Strip status from query params sent to API
-  const { status: _status, ...apiParams } = params;
+  const apiParams: Record<string, unknown> = { ...params };
+  if (!apiParams.status || apiParams.status === 'all') {
+    delete apiParams.status;
+  }
 
   return useQuery({
     queryKey: datasetCreatorKeys.myDatasets(JSON.stringify(params)),
-    queryFn: async (): Promise<{ data: IDataset[]; total: number }> => {
-      const { data } = await apiClient.get(endpoint, { params: apiParams });
-      if (Array.isArray(data)) {
-        return { data, total: data.length };
-      }
-      return {
-        data: data.data ?? [],
-        total: data.meta?.total_docs ?? data.data?.length ?? 0,
-      };
+    queryFn: async () => {
+      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+        '/my-datasets/',
+        { params: apiParams }
+      );
+      return data;
     },
     placeholderData: (prev) => prev,
   });

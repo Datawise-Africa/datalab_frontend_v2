@@ -54,11 +54,3 @@ export const useUpdateApplicationStatus = () => {
     },
   });
 };
-
-// Re-export dataset mutations for backward compatibility
-export {
-  useCreateDataset,
-  useUpdateDataset,
-  useDeleteDataset,
-  useUpdateDatasetStatus,
-} from '~/features/datasets/mutations';

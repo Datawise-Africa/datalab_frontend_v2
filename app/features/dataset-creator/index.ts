@@ -6,11 +6,3 @@ export {
   useCreatorAnalytics,
   useCreatorReports,
 } from './queries';
-export {
-  useSubmitCreatorApplication,
-  useUpdateApplicationStatus,
-  useCreateDataset,
-  useUpdateDataset,
-  useUpdateDatasetStatus,
-  useDeleteDataset,
-} from './mutations';

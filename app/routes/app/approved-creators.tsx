@@ -9,11 +9,9 @@ import { Input } from '~/components/ui/input';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Loader2, Search, UserCheck, MoreHorizontal } from 'lucide-react';
-import {
-  useCreatorApplications,
-  useUpdateApplicationStatus,
-} from '~/features/dataset-creator';
+import { useCreatorApplications } from '~/features/dataset-creator';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
+import { useUpdateApplicationStatus } from '~/features/dataset-creator/mutations';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({

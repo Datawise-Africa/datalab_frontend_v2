@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Database,
   Loader2,
@@ -30,7 +30,7 @@ import {
 import { AsyncSelect } from '~/components/ui/async-select';
 import { DatasetCard } from '~/components/dataset-card';
 import {
-  normalizeApiDataset,
+  normalizeMyDataset,
   type NormalizedDataset,
 } from '~/lib/utils/dataset-adapter';
 import { DatasetSearch } from '~/components/dataset-catalog/dataset-search';
@@ -99,11 +99,16 @@ export default function Datasets() {
   const { data: bookmarksData } = useBookmarkedDatasets();
   const addBookmark = useAddBookmark();
 
-  const datasets: NormalizedDataset[] =
-    response?.data?.map(normalizeApiDataset) ?? [];
+  const datasets: NormalizedDataset[] = useMemo(() => {
+    if (!response?.data) return [];
+    return response?.data?.map(normalizeMyDataset) ?? [];
+  }, [response]);
   const total = response?.meta?.total_docs ?? 0;
 
-  const bookmarkedIds = new Set(bookmarksData?.map((b) => b.dataset.id) ?? []);
+  const bookmarkedIds = useMemo(() => {
+    if (!bookmarksData?.data) return new Set<string>();
+    return new Set(bookmarksData?.data.map((b) => b.dataset.id) ?? []);
+  }, [bookmarksData]);
 
   const handleDownload = useCallback(
     (dataset: NormalizedDataset) => {

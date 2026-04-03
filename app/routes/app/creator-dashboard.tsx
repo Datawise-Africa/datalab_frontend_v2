@@ -5,7 +5,6 @@ import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { DatasetStatusTabs } from '~/components/creator-dashboard/dataset-status-tabs';
 import { DatasetList } from '~/components/creator-dashboard/dataset-list';
-import { DatasetPreviewModal } from '~/components/creator-dashboard/dataset-preview-modal';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import { DatasetSearch } from '~/components/dataset-catalog/dataset-search';
 import { AsyncSelect } from '~/components/ui/async-select';
@@ -20,10 +19,10 @@ import {
 } from '~/components/ui/empty';
 import { Loader2, Plus, Database, RefreshCw } from 'lucide-react';
 import {
-  useCreatorDatasets,
-  useUpdateDatasetStatus,
-  useDeleteDataset,
-} from '~/features/dataset-creator';
+  useMyDatasets,
+  useUpdateMyDatasetStatus,
+  useDeleteMyDataset,
+} from '~/features/my-datasets';
 import { useAppSelector } from '~/store';
 import { useAppFilter } from '~/store/slices/filter-slice';
 import type { DatasetStatus } from '~/lib/types/dataset';
@@ -46,7 +45,6 @@ export default function CreatorDashboard() {
   const user = useAppSelector((s) => s.auth.user);
   const filter = useAppFilter('creator-dashboard');
   const [activeTab, setActiveTab] = useState<DatasetStatus | 'all'>('all');
-  const [previewId, setPreviewId] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -58,7 +56,7 @@ export default function CreatorDashboard() {
     isError,
     isFetching,
     refetch,
-  } = useCreatorDatasets({
+  } = useMyDatasets({
     status,
     page,
     limit,
@@ -68,10 +66,10 @@ export default function CreatorDashboard() {
   });
 
   const datasets = result?.data ?? [];
-  const total = result?.total ?? 0;
+  const total = result?.meta?.total_docs ?? 0;
 
-  const updateStatus = useUpdateDatasetStatus();
-  const deleteDataset = useDeleteDataset();
+  const updateStatus = useUpdateMyDatasetStatus();
+  const deleteDataset = useDeleteMyDataset();
 
   const handleDelete = useCallback(
     (id: string) => {
@@ -254,7 +252,7 @@ export default function CreatorDashboard() {
         ) : (
           <DatasetList
             datasets={datasets}
-            onPreview={(id) => setPreviewId(id)}
+            onPreview={(id) => navigate(`/app/view-dataset/${id}`)}
             onEdit={handleEdit}
             onDelete={handleDelete}
             onArchive={handleArchive}
@@ -273,15 +271,6 @@ export default function CreatorDashboard() {
           }}
         />
       </div>
-
-      {/* Preview modal */}
-      <DatasetPreviewModal
-        datasetId={previewId}
-        open={!!previewId}
-        onOpenChange={(open) => {
-          if (!open) setPreviewId(null);
-        }}
-      />
     </Protect>
   );
 }

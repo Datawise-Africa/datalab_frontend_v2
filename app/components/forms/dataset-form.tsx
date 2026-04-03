@@ -25,6 +25,7 @@ type DatasetFormProps = {
   error?: string;
   categories?: ReadonlyArray<{ id: string; name: string }>;
   licenses?: ReadonlyArray<{ id: string; name: string }>;
+  countries?: ReadonlyArray<{ name: string }>;
 };
 
 const STEPS: StepConfig[] = [
@@ -42,6 +43,7 @@ export function DatasetForm({
   error,
   categories,
   licenses,
+  countries,
 }: Readonly<DatasetFormProps>) {
   const form = useForm({
     resolver: zodResolver(uploadDatasetFormSchema),
@@ -68,7 +70,11 @@ export function DatasetForm({
           switch (step.key) {
             case 'basic':
               return (
-                <StepBasicInfo categories={categories} licenses={licenses} />
+                <StepBasicInfo
+                  categories={categories}
+                  licenses={licenses}
+                  countries={countries}
+                />
               );
             case 'authors':
               return <StepAuthorsAccess />;

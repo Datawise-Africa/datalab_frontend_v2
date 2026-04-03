@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
+import type { Paginated } from '~/lib/types';
 import { scopedKey } from '~/lib/utils/query-key-scope';
-import type { Paginated } from '~/lib/types/dataset';
 
 export const downloadKeys = {
   all: () => scopedKey('downloads'),

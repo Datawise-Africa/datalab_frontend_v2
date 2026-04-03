@@ -5,7 +5,8 @@ import { datasetKeys } from './query-keys';
 import type {
   DatasetVersion,
   RequestUploadFileInput,
-  PresignedUploadUrl,
+  PresignedUploadResponse,
+  PresignedFileEntry,
   ConfirmUploadInput,
 } from '~/lib/types/dataset-version';
 import { extractError } from '~/lib/utils/extract-error';
@@ -62,8 +63,8 @@ export const useRequestPresignedUrls = () => {
       datasetId: string;
       versionId: string;
       files: RequestUploadFileInput[];
-    }): Promise<PresignedUploadUrl[]> => {
-      const { data } = await apiClient.post(
+    }): Promise<PresignedUploadResponse> => {
+      const { data } = await apiClient.post<PresignedUploadResponse>(
         `/datasets/${datasetId}/versions/${versionId}/request-upload/`,
         { files }
       );
@@ -86,19 +87,12 @@ export const useUploadToS3 = () => {
       file,
       onProgress,
     }: {
-      presigned: PresignedUploadUrl;
+      presigned: PresignedFileEntry;
       file: File;
       onProgress?: (percent: number) => void;
-    }): Promise<{ file_id: string; file_name: string; s3_key: string }> => {
-      // Build multipart form with S3 presigned fields + file
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(presigned.fields)) {
-        formData.append(key, value);
-      }
-      formData.append('file', file);
-
-      await axios.post(presigned.upload_url, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+    }): Promise<{ file_name: string }> => {
+      await axios.put(presigned.upload_url, file, {
+        headers: { 'Content-Type': file.type || 'application/octet-stream' },
         onUploadProgress: (e) => {
           if (e.total && onProgress) {
             onProgress(Math.round((e.loaded / e.total) * 100));
@@ -106,14 +100,7 @@ export const useUploadToS3 = () => {
         },
       });
 
-      // The s3_key is typically the "key" field from the presigned fields
-      const s3Key = presigned.fields['key'] ?? presigned.file_name;
-
-      return {
-        file_id: presigned.file_id,
-        file_name: presigned.file_name,
-        s3_key: s3Key,
-      };
+      return { file_name: presigned.file_name };
     },
     onError: (error) => {
       toastUtils.error('File upload failed', extractError(error));

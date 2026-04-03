@@ -2,11 +2,15 @@ import { useNavigate, useSearchParams } from 'react-router';
 import type { Route } from './+types/upload-dataset';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
-import { useDatasetCategories, useLicenses } from '~/features/metadata';
-import { useCreateDataset } from '~/features/datasets';
+import {
+  useDatasetCategories,
+  useLicenses,
+  useCountries,
+} from '~/features/metadata';
 import { useAppSelector } from '~/store';
-import { DatasetForm } from '~/components/dataset-form';
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
+import { DatasetForm } from '~/components/forms';
+import { useCreateMyDataset } from '~/features/my-datasets';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -23,7 +27,8 @@ export default function UploadDataset() {
 
   const { data: categories } = useDatasetCategories();
   const { data: licenses } = useLicenses();
-  const createDataset = useCreateDataset();
+  const { data: countries } = useCountries();
+  const createDataset = useCreateMyDataset();
 
   const defaultValues: UploadDatasetFormValues = {
     name: '',
@@ -35,6 +40,7 @@ export default function UploadDataset() {
     is_private: false,
     dataset_image: '',
     workspace: workspaceId ?? undefined,
+    origin_region: [],
     tags: [],
     authors: user ? [{ user: user.id, role: 'creator' }] : [],
     access: { access_type: 'public', access_instructions: '' },
@@ -42,16 +48,14 @@ export default function UploadDataset() {
   };
 
   const handleSubmit = async (data: UploadDatasetFormValues) => {
-    // const formData = new FormData();
-    // formData.append('data', JSON.stringify(data));
+    const payload = {
+      ...data,
+      origin_region: data.origin_region.join(','),
+    };
 
-    await createDataset.mutateAsync(data, {
-      onSuccess: (result) => {
-        navigate(
-          workspaceId
-            ? `/app/workspaces/${workspaceId}`
-            : `/datasets/${result.id}`
-        );
+    await createDataset.mutateAsync(payload as never, {
+      onSuccess: () => {
+        navigate('/app/creator-dashboard');
       },
     });
   };
@@ -85,8 +89,9 @@ export default function UploadDataset() {
               ? 'Failed to create dataset. Please try again.'
               : undefined
           }
-          categories={categories}
-          licenses={licenses}
+          categories={categories?.data ?? []}
+          licenses={licenses?.data ?? []}
+          countries={countries ?? []}
         />
       </div>
     </Protect>

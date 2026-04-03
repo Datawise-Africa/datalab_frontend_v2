@@ -19,13 +19,11 @@ import {
   becomeDatasetCreatorSchema,
   type BecomeDatasetCreatorInput,
 } from '~/lib/schema/dataset-creator-schema';
-import {
-  useCreatorApplication,
-  useSubmitCreatorApplication,
-} from '~/features/dataset-creator';
+import { useCreatorApplication } from '~/features/dataset-creator';
 import { getDatasetCreatorBadge } from '~/lib/types/dataset-creator';
 import { useAppSelector } from '~/store';
 import { useAppModal } from '~/store/slices/modal-slice';
+import { useSubmitCreatorApplication } from '~/features/dataset-creator/mutations';
 
 // const ACCEPTED_FILE_TYPES = [
 //   '.pdf',

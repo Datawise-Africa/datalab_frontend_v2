@@ -9,12 +9,12 @@ export const useAddBookmark = () => {
 
   return useMutation({
     mutationFn: async (datasetId: string): Promise<void> => {
-      await apiClient.post('/data/saved-datasets/', {
+      await apiClient.post('/datasets/my-bookmarks/', {
         dataset: datasetId,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookmarkKeys.list() });
+      queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });
     },
     onError: (error) => {
       toastUtils.error('Bookmark failed', extractError(error));
@@ -26,11 +26,11 @@ export const useRemoveBookmark = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (bookmarkId: number): Promise<void> => {
-      await apiClient.delete(`/data/saved-datasets/${bookmarkId}/`);
+    mutationFn: async (bookmarkId: string): Promise<void> => {
+      await apiClient.delete(`/datasets/my-bookmarks/${bookmarkId}/`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bookmarkKeys.list() });
+      queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });
     },
     onError: (error) => {
       toastUtils.error('Remove failed', extractError(error));

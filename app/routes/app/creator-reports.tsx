@@ -27,10 +27,8 @@ import {
   MessageSquare,
   RefreshCw,
 } from 'lucide-react';
-import {
-  useCreatorDatasets,
-  useCreatorReports,
-} from '~/features/dataset-creator';
+import { useCreatorReports } from '~/features/dataset-creator';
+import { useMyDatasets } from '~/features/my-datasets';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -63,7 +61,7 @@ export default function CreatorReports() {
   const startDate = getStartDate(dateRange);
   const endDate = new Date().toISOString().split('T')[0];
 
-  const { data: publishedResult } = useCreatorDatasets({ status: 'PB' });
+  const { data: publishedResult } = useMyDatasets({ status: 'PB' });
   const {
     data: reports,
     isLoading,

@@ -23,12 +23,12 @@ export default function BookmarksPage() {
         <TabsList>
           <TabsTrigger value="datasets">
             Datasets{' '}
-            {bookmarks?.length ? (
+            {bookmarks?.data?.length ? (
               <Badge
                 variant="secondary"
                 className="ml-1.5 text-[10px] px-1.5 py-0"
               >
-                {bookmarks.length}
+                {bookmarks.data.length}
               </Badge>
             ) : null}
           </TabsTrigger>
@@ -40,7 +40,7 @@ export default function BookmarksPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-          ) : !bookmarks?.length ? (
+          ) : !bookmarks?.data?.length ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Bookmark className="h-10 w-10 text-muted-foreground/40 mb-3" />
               <p className="text-muted-foreground">
@@ -52,7 +52,7 @@ export default function BookmarksPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {bookmarks.map((bookmark) => (
+              {bookmarks?.data?.map((bookmark) => (
                 <Card key={bookmark.id}>
                   <CardContent className="p-5">
                     <h3 className="font-medium text-sm mb-1 line-clamp-1">
@@ -60,7 +60,7 @@ export default function BookmarksPage() {
                         to={`/datasets/${bookmark.dataset.id}`}
                         className="hover:text-primary transition-colors"
                       >
-                        {bookmark.dataset.title}
+                        {bookmark.dataset.name}
                       </Link>
                     </h3>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-3">

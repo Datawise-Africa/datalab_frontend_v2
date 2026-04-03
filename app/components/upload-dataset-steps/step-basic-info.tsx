@@ -12,19 +12,22 @@ import {
   FormTextareaField,
   FormSelectField,
 } from '~/components/form-fields';
-import type { UploadFormValues } from './types';
+import type { UploadDatasetFormValues } from './types';
 import { DATASET_TYPES } from './types';
 
 type StepBasicInfoProps = {
   categories?: ReadonlyArray<{ id: string; name: string }>;
   licenses?: ReadonlyArray<{ id: string; name: string }>;
+  countries?: ReadonlyArray<{ name: string }>;
 };
 
 export function StepBasicInfo({
   categories,
   licenses,
+  countries,
 }: Readonly<StepBasicInfoProps>) {
-  const { control, trigger, formState } = useFormContext<UploadFormValues>();
+  const { control, trigger, formState } =
+    useFormContext<UploadDatasetFormValues>();
 
   useStepValidator(async () => {
     const fields = [
@@ -105,6 +108,22 @@ export function StepBasicInfo({
           licenses?.map((l) => ({
             label: l.name,
             value: l.id,
+          })) ?? []
+        }
+      />
+
+      <FormSelectField
+        control={control}
+        name="origin_region"
+        label="Origin Region (Countries)"
+        placeholder="Select countries..."
+        searchPlaceholder="Search countries..."
+        emptyText="No countries found."
+        multiple
+        options={
+          countries?.map((c) => ({
+            label: c.name,
+            value: c.name,
           })) ?? []
         }
       />

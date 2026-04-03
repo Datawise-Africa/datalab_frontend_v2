@@ -1,3 +1,5 @@
+import type { Paginated } from './pagination';
+
 export type DatasetStatus = 'PB' | 'AR' | 'DF';
 
 export interface IDatasetCategory {
@@ -6,44 +8,19 @@ export interface IDatasetCategory {
   slug: string;
 }
 
-export interface IDatasetAuthor {
-  id: number;
-  title: string | null;
-  first_name: string;
-  last_name: string;
-  email: string | null;
-  affiliation?: string | null;
+interface IDatasetAuthor {
+  user: {
+    id: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+  };
+  role: 'creator' | 'contributor';
 }
 
-export interface IDatasetProfiteers {
-  [key: string]: boolean;
-  students: boolean;
-  non_profit: boolean;
-  company: boolean;
-  public: boolean;
-}
-
-export interface IDatasetDataFile {
-  id: number;
-  file_name: string;
-  s3_url: string;
-  file_size: number;
-  file_size_display: string;
-  content_type: string;
-}
-
-export interface IDatasetOriginRegion {
-  id: number;
-  code: string;
-  name: string;
-}
-
-export interface IDatasetAcceptedTerm {
-  id: number;
-  data_accuracy: boolean;
-  responsible_use: boolean;
-  privacy_compliance: boolean;
-  rights_ownership: boolean;
+interface IDatasetAccess {
+  access_type: 'public' | 'restricted';
+  access_instructions: string;
 }
 
 export interface IDatasetLicense {
@@ -53,20 +30,13 @@ export interface IDatasetLicense {
   slug: string;
   description: string;
   url: string;
-  license_type:
-    | 'permissive'
-    | 'copyleft'
-    | 'proprietary'
-    | 'public_domain'
-    | string;
+  license_type: string;
   allows_commercial_use: boolean;
   allows_modification: boolean;
   requires_attribution: boolean;
   allows_redistribution: boolean;
   requires_share_alike: boolean;
   is_active: boolean;
-  /** @deprecated Use `name` instead */
-  title?: string;
 }
 
 export interface IDatasetTermsAndConditions {
@@ -92,26 +62,20 @@ export interface DatasetReviewType {
 export interface IDataset {
   id: string;
   category: IDatasetCategory;
+  origin_region: string | null;
   title: string;
   description: string;
   dataset_image?: string | null;
   doi?: string | null;
   status?: DatasetStatus;
-  dataset_region: string;
   license: IDatasetLicense | null;
-  data_files: IDatasetDataFile[];
-  metadata_files: IDatasetDataFile[];
-  datasheet_files: IDatasetDataFile[];
   doi_citation: string | null;
   download_count: number;
   is_premium: boolean;
   is_private: boolean;
-  data_file_types: string;
   price: number | null;
-  origin_region?: IDatasetOriginRegion;
   authors: IDatasetAuthor[];
-  intended_audience: IDatasetProfiteers;
-  accepted_terms: IDatasetAcceptedTerm;
+  access: IDatasetAccess;
   terms_and_conditions?: IDatasetTermsAndConditions;
   created_at: string;
   updated_at: string;
@@ -134,26 +98,6 @@ export interface DatasetFilterOptions {
   region: string[];
   timeframe: string[];
   [key: string]: string[];
-}
-
-/**
- * Standard paginated API response shape.
- * Reusable across all paginated endpoints.
- */
-export interface PaginationMeta {
-  total_docs: number;
-  total_pages: number;
-  page: number;
-  limit: number;
-  has_next_page: boolean;
-  has_prev_page: boolean;
-  next_page: number | null;
-  prev_page: number | null;
-}
-
-export interface Paginated<T> {
-  meta: PaginationMeta;
-  data: T[];
 }
 
 export type DatasetListResponse = Paginated<IDataset>;

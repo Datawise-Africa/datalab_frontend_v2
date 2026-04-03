@@ -69,6 +69,7 @@ export const uploadDatasetFormSchema = z.object({
   dataset_image: z.string().optional(),
   is_premium: z.boolean(),
   is_private: z.boolean(),
+  origin_region: z.array(z.string()).default([]),
   tags: z.array(z.string().min(1).max(100)),
   authors: z
     .array(

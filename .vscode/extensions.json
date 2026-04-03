@@ -7,6 +7,8 @@
     "streetsidesoftware.code-spell-checker",
     "ms-azuretools.vscode-docker",
     "github.copilot",
-    "lokalise.i18n-ally"
+    "lokalise.i18n-ally",
+    "yoavbls.pretty-ts-errors",
+    "usernamehw.errorlens"
   ]
 }

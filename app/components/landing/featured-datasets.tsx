@@ -3,7 +3,7 @@ import { ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { CardContent, CardHeader } from '~/components/ui/card';
 import { DatasetCard } from '~/components/dataset-card';
-import { normalizeApiDataset } from '~/lib/utils/dataset-adapter';
+import { normalizeMyDataset } from '~/lib/utils/dataset-adapter';
 import { useDatasets } from '~/features/datasets';
 
 export function FeaturedDatasets() {
@@ -14,7 +14,7 @@ export function FeaturedDatasets() {
     order: 'desc',
   });
 
-  const datasets = response?.data?.map(normalizeApiDataset) ?? [];
+  const datasets = response?.data?.map(normalizeMyDataset) ?? [];
 
   return (
     <section className="py-16 lg:py-24">
