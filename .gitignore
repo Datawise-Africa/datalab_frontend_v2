@@ -46,3 +46,4 @@ lerna-debug.log*
 .cache
 .playwright-mcp/
 .pnpm-store/
+.VSCodeCounter/
