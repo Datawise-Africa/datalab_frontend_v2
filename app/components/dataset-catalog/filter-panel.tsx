@@ -91,14 +91,21 @@ export function FilterPanel({
                 return (
                   <Badge
                     key={opt.value}
+                    asChild
                     variant={isActive ? 'default' : 'outline'}
                     className={cn(
-                      'cursor-pointer text-xs',
+                      'text-xs',
                       isActive && 'bg-primary hover:bg-primary/90'
                     )}
-                    onClick={() => onToggle(key, opt.value)}
                   >
-                    {opt.label}
+                    <button
+                      type="button"
+                      aria-pressed={isActive}
+                      className="cursor-pointer"
+                      onClick={() => onToggle(key, opt.value)}
+                    >
+                      {opt.label}
+                    </button>
                   </Badge>
                 );
               })}

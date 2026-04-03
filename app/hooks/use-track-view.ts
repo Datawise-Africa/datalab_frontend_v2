@@ -3,7 +3,7 @@ import { apiClient } from '~/lib/api/client';
 
 /**
  * Tracks a dataset view by calling POST /datasets/{id}/track_view/.
- * Only fires once per mount.
+ * Only fires once per unique datasetId.
  */
 export function useTrackView(datasetId: string | undefined) {
   const trackedId = useRef<string | null>(null);

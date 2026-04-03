@@ -34,8 +34,8 @@ export function PaginationControls({
   className,
 }: PaginationControlsProps) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
-  const start = (page - 1) * limit + 1;
-  const end = Math.min(page * limit, total);
+  const start = total === 0 ? 0 : (page - 1) * limit + 1;
+  const end = total === 0 ? 0 : Math.min(page * limit, total);
 
   return (
     <div

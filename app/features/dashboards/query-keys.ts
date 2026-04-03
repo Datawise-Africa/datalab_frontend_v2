@@ -1,4 +1,6 @@
+import { scopedKey } from '~/lib/utils/query-key-scope';
+
 export const dashboardQueryKeys = {
-  all: ['dashboards'] as const,
-  eduken: () => [...dashboardQueryKeys.all, 'eduken'] as const,
+  all: () => scopedKey('dashboards'),
+  eduken: () => [...dashboardQueryKeys.all(), 'eduken'] as const,
 };
