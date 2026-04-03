@@ -10,4 +10,6 @@ export const metadataKeys = {
   countryLists: () => [...metadataKeys.all(), 'countries'] as const,
   countries: (search?: string) =>
     [...metadataKeys.countryLists(), search] as const,
+  states: (countryName?: string, search?: string) =>
+    [...metadataKeys.countryLists(), 'states', countryName, search] as const,
 };

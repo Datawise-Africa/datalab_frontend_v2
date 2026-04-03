@@ -74,7 +74,7 @@ export const useCountries = (search?: string) => {
 /** Get states for a given country name, optionally filtered by search string. */
 export const useCountryStates = (countryName?: string, search?: string) => {
   return useQuery({
-    queryKey: [...metadataKeys.countries(), 'states', countryName, search],
+    queryKey: metadataKeys.states(countryName, search),
     queryFn: async (): Promise<string[]> => {
       if (!countryName) return [];
       const { countries } = await import('~/lib/constants/countries');
