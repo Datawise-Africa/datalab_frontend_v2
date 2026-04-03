@@ -2,7 +2,6 @@ import { Link } from 'react-router';
 import { Users, Database } from 'lucide-react';
 import { Card, CardContent } from '~/components/ui/card';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
-import { Badge } from '~/components/ui/badge';
 import type { Workspace } from '~/lib/types/workspace';
 
 interface WorkspaceCardProps {

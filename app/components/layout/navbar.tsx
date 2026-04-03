@@ -13,7 +13,6 @@ import {
   Building2,
   Trophy,
   Phone,
-  BarChart3,
   Upload,
   Layers,
   Microscope,
@@ -184,7 +183,7 @@ const megaMenuSections: MegaMenuSection[] = [
   },
 ];
 
-const allMobileLinks = megaMenuSections.flatMap((section) =>
+const _allMobileLinks = megaMenuSections.flatMap((section) =>
   section.items.map((item) => ({
     label: item.label,
     to: item.to,
@@ -211,7 +210,7 @@ function MegaMenuDropdown({
           : 'pointer-events-none -translate-y-2 opacity-0'
       )}
     >
-      <div className="w-[680px] overflow-hidden rounded-xl border bg-white shadow-xl">
+      <div className="w-170 overflow-hidden rounded-xl border bg-white shadow-xl">
         <div className="flex">
           {/* Links column */}
           <div className="flex-1 p-4">

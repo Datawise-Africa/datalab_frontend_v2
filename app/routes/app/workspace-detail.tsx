@@ -1,12 +1,5 @@
 import { Link, useParams } from 'react-router';
-import {
-  ArrowLeft,
-  Loader2,
-  Upload,
-  Settings,
-  Users,
-  Database,
-} from 'lucide-react';
+import { ArrowLeft, Loader2, Upload, Users, Database } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
