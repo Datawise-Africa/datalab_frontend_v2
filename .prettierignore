@@ -1,21 +1,32 @@
-# Build outputs
-dist/
-dist-ssr/
-
 # Dependencies
 node_modules/
 
-# Test outputs
-test-results/
-playwright-report/
+# Build outputs
+build/
+.react-router/
+
+# Cache
+.vite/
+.turbo/
+
+# Lock files
+pnpm-lock.yaml
+
+# Coverage
 coverage/
-node_modules/.vitest/
-.nyc_output/
-html/
 
-# Generated files
-*.d.ts
+# Env files
+.env
+.env.*
+
+# Generated
+*.d.ts.map
 *.js.map
+*.css.map
+*.tsbuildinfo
 
-# Public directory
+# Assets
 public/
+
+# Husky
+.husky/

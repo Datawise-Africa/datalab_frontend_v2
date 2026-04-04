@@ -1,0 +1,67 @@
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '~/lib/api/client';
+import type { Workspace, WorkspaceMember } from '~/lib/types/workspace';
+import { workspaceKeys } from './query-keys';
+
+export function useWorkspaces() {
+  return useQuery({
+    queryKey: workspaceKeys.lists(),
+    queryFn: async () => {
+      const { data } = await apiClient.get<Workspace[]>('/workspaces/');
+      return data;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useWorkspace(id: string) {
+  return useQuery({
+    queryKey: workspaceKeys.detail(id),
+    queryFn: async () => {
+      const { data } = await apiClient.get<Workspace>(`/workspaces/${id}/`);
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useWorkspaceMembers(id: string) {
+  return useQuery({
+    queryKey: workspaceKeys.members(id),
+    queryFn: async () => {
+      const { data } = await apiClient.get<WorkspaceMember[]>(
+        `/workspaces/${id}/members/`
+      );
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useWorkspaceDatasets(id: string) {
+  return useQuery({
+    queryKey: workspaceKeys.datasets(id),
+    queryFn: async () => {
+      const { data } = await apiClient.get<
+        { id: string; title: string; description: string; status: string }[]
+      >(`/workspaces/${id}/datasets/`);
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useWorkspaceAnalytics(id: string) {
+  return useQuery({
+    queryKey: workspaceKeys.analytics(id),
+    queryFn: async () => {
+      const { data } = await apiClient.get(`/workspaces/${id}/analytics/`);
+      return data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}

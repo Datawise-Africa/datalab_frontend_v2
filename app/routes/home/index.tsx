@@ -1,0 +1,33 @@
+import type { Route } from './+types/index';
+import { generateSEOTags } from '~/lib/utils/seo';
+import { Hero } from '~/components/landing/hero';
+import { ValueProposition } from '~/components/landing/value-proposition';
+import { FeaturedDatasets } from '~/components/landing/featured-datasets';
+import { HowItWorks } from '~/components/landing/how-it-works';
+import { SuccessStories } from '~/components/landing/success-stories';
+import { CreatorCTA } from '~/components/landing/creator-cta';
+import { FAQ } from '~/components/landing/faq';
+import { Newsletter } from '~/components/landing/newsletter';
+
+export function meta(_args: Route.MetaArgs) {
+  return generateSEOTags({
+    title: 'Access, Integrate & Build with World-Class Datasets',
+    description:
+      'Data Lab provides curated, high-quality datasets with developer-friendly APIs. Browse thousands of datasets, integrate in minutes, and build data-driven applications at scale.',
+  });
+}
+
+export default function Home() {
+  return (
+    <div className="flex flex-col">
+      <Hero />
+      <ValueProposition />
+      <FeaturedDatasets />
+      <HowItWorks />
+      <SuccessStories />
+      <CreatorCTA />
+      <FAQ />
+      <Newsletter />
+    </div>
+  );
+}
