@@ -47,3 +47,4 @@ lerna-debug.log*
 .playwright-mcp/
 .pnpm-store/
 .VSCodeCounter/
+superpowers/

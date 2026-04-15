@@ -1,27 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useIsClient } from '~/hooks/use-is-client';
 import { Link } from 'react-router';
 import {
   Database,
   Menu,
   ChevronDown,
-  Search,
-  Code,
-  BookOpen,
-  FileText,
-  Users,
-  Building2,
-  Trophy,
-  Phone,
-  Upload,
-  Layers,
-  Microscope,
   LayoutDashboard,
   User,
   LogOut,
 } from 'lucide-react';
 
-import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import {
   Sheet,
@@ -43,231 +31,11 @@ import { useAppModal } from '~/store/slices/modal-slice';
 import { useLogout } from '~/features/auth';
 import { AuthPerm } from '~/lib/utils/perm';
 
-interface MegaMenuItem {
-  label: string;
-  to: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-}
-
-interface MegaMenuSection {
-  label: string;
-  items: MegaMenuItem[];
-  featured?: {
-    label: string;
-    description: string;
-    to: string;
-    bgClass: string;
-  };
-}
-
-const megaMenuSections: MegaMenuSection[] = [
-  {
-    label: 'Datasets',
-    items: [
-      {
-        label: 'Browse Datasets',
-        to: '/datasets',
-        description: 'Explore our curated catalog of high-quality datasets',
-        icon: Search,
-      },
-      {
-        label: 'Become a Creator',
-        to: '/creators',
-        description: 'Publish your datasets and reach thousands of developers',
-        icon: Upload,
-      },
-      {
-        label: 'Categories',
-        to: '/datasets',
-        description: 'Health, Finance, Climate, NLP, Computer Vision and more',
-        icon: Layers,
-      },
-    ],
-    featured: {
-      label: 'New: Dataset Creator Program',
-      description:
-        'Monetize your data. Join our creator program and publish datasets to the Data Lab marketplace.',
-      to: '/creators',
-      bgClass: 'bg-primary/5',
-    },
-  },
-  {
-    label: 'Developers',
-    items: [
-      {
-        label: 'Workspace',
-        to: '/workspace',
-        description: 'Write and run Python scripts against live datasets',
-        icon: Code,
-      },
-      {
-        label: 'API Documentation',
-        to: '/docs',
-        description: 'REST API reference, authentication, and endpoints',
-        icon: FileText,
-      },
-      {
-        label: 'SDKs & Libraries',
-        to: '/docs',
-        description: 'Python, JavaScript, and R client libraries',
-        icon: Layers,
-      },
-    ],
-    featured: {
-      label: 'New: Developer Workspace',
-      description:
-        'Run Python scripts directly in your browser against Data Lab datasets. No setup required.',
-      to: '/workspace',
-      bgClass: 'bg-blue-50',
-    },
-  },
-  {
-    label: 'Research',
-    items: [
-      {
-        label: 'Research Lab',
-        to: '/research',
-        description: 'Active projects and collaborations',
-        icon: Microscope,
-      },
-      {
-        label: 'Reports & Papers',
-        to: '/research/reports',
-        description: 'Published findings and technical papers',
-        icon: BookOpen,
-      },
-      {
-        label: 'Dashboards',
-        to: '/dashboards',
-        description: 'Interactive analytics and Power BI publications',
-        icon: LayoutDashboard,
-      },
-    ],
-    featured: {
-      label: 'Live Dashboards',
-      description:
-        'Explore interactive analytics dashboards powered by Power BI and other platforms.',
-      to: '/dashboards',
-      bgClass: 'bg-purple-50',
-    },
-  },
-  {
-    label: 'Company',
-    items: [
-      {
-        label: 'About Us',
-        to: '/about',
-        description: 'Our mission, vision, and story',
-        icon: Building2,
-      },
-      {
-        label: 'Team',
-        to: '/team',
-        description: 'Meet the people behind Data Lab',
-        icon: Users,
-      },
-      {
-        label: 'Success Stories',
-        to: '/success-stories',
-        description: 'How teams build with Data Lab',
-        icon: Trophy,
-      },
-      {
-        label: 'Contact',
-        to: '/contact',
-        description: 'Get in touch with our team',
-        icon: Phone,
-      },
-    ],
-  },
-];
-
-const _allMobileLinks = megaMenuSections.flatMap((section) =>
-  section.items.map((item) => ({
-    label: item.label,
-    to: item.to,
-    section: section.label,
-    icon: item.icon,
-  }))
-);
-
-function MegaMenuDropdown({
-  section,
-  isOpen,
-  onClose,
-}: {
-  section: MegaMenuSection;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  return (
-    <div
-      className={cn(
-        'absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200',
-        isOpen
-          ? 'pointer-events-auto translate-y-0 opacity-100'
-          : 'pointer-events-none -translate-y-2 opacity-0'
-      )}
-    >
-      <div className="w-170 overflow-hidden rounded-xl border bg-white shadow-xl">
-        <div className="flex">
-          {/* Links column */}
-          <div className="flex-1 p-4">
-            <div className="grid gap-1">
-              {section.items.map((item) => (
-                <Link
-                  key={item.to + item.label}
-                  to={item.to}
-                  onClick={onClose}
-                  className="group flex items-start gap-3 rounded-lg p-3 transition-colors hover:bg-primary/5"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted transition-colors group-hover:bg-primary/10">
-                    <item.icon className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-foreground group-hover:text-primary">
-                      {item.label}
-                    </div>
-                    <div className="text-xs leading-relaxed text-muted-foreground">
-                      {item.description}
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Featured column */}
-          {section.featured && (
-            <div className="w-56 border-l">
-              <Link
-                to={section.featured.to}
-                onClick={onClose}
-                className={cn(
-                  'flex h-full flex-col justify-between p-5 transition-opacity hover:opacity-90',
-                  section.featured.bgClass
-                )}
-              >
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {section.featured.label}
-                  </p>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {section.featured.description}
-                  </p>
-                </div>
-                <span className="mt-4 text-xs font-medium text-primary">
-                  Learn more &rarr;
-                </span>
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+const navLinks = [
+  { label: 'Datasets', to: '/datasets' },
+  { label: 'Reports', to: '/research/reports' },
+  { label: 'Dashboards', to: '/dashboards' },
+] as const;
 
 function DesktopAuthButtons() {
   const isClient = useIsClient();
@@ -341,35 +109,6 @@ function DesktopAuthButtons() {
   );
 }
 
-function MobileCollapsibleSection({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div>
-      <button
-        type="button"
-        className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-muted"
-        onClick={() => setOpen(!open)}
-      >
-        {label}
-        <ChevronDown
-          className={cn(
-            'h-4 w-4 text-muted-foreground transition-transform',
-            open && 'rotate-180'
-          )}
-        />
-      </button>
-      {open && <div className="ml-2 flex flex-col gap-0.5">{children}</div>}
-    </div>
-  );
-}
-
 function MobileAuthSection() {
   const isClient = useIsClient();
   const { isAuthenticated, user } = useAppSelector((state) => state.auth);
@@ -438,41 +177,9 @@ function MobileAuthSection() {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const navRef = useRef<HTMLElement>(null);
-
-  const handleOpen = useCallback((label: string) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpenMenu(label);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    timeoutRef.current = setTimeout(() => setOpenMenu(null), 150);
-  }, []);
-
-  const handleImmediateClose = useCallback(() => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpenMenu(null);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
-  // Close on Escape
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === 'Escape') setOpenMenu(null);
-    }
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
@@ -483,51 +190,17 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Mega Menu Navigation */}
-        <nav ref={navRef} className="hidden items-center gap-0.5 lg:flex">
-          {megaMenuSections.map((section) => (
-            <div
-              key={section.label}
-              className="relative"
-              onMouseEnter={() => handleOpen(section.label)}
-              onMouseLeave={handleClose}
+        {/* Desktop Flat Navigation */}
+        <nav className="hidden items-center gap-1 lg:flex">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
             >
-              <button
-                className={cn(
-                  'flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
-                  openMenu === section.label
-                    ? 'text-primary'
-                    : 'text-muted-foreground'
-                )}
-                onClick={() =>
-                  setOpenMenu(openMenu === section.label ? null : section.label)
-                }
-              >
-                {section.label}
-                <ChevronDown
-                  className={cn(
-                    'h-3.5 w-3.5 transition-transform duration-200',
-                    openMenu === section.label && 'rotate-180'
-                  )}
-                />
-              </button>
-
-              <MegaMenuDropdown
-                section={section}
-                isOpen={openMenu === section.label}
-                onClose={handleImmediateClose}
-              />
-            </div>
+              {link.label}
+            </Link>
           ))}
-
-          {/* Direct Workspace link — always visible */}
-          <Link
-            to="/workspace"
-            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            <Code className="h-3.5 w-3.5" />
-            Workspace
-          </Link>
         </nav>
 
         {/* Desktop CTA */}
@@ -554,49 +227,22 @@ export default function Navbar() {
             </SheetHeader>
 
             <nav className="mt-4 flex flex-col gap-1 px-1">
-              {megaMenuSections.map((section) => (
-                <MobileCollapsibleSection
-                  key={section.label}
-                  label={section.label}
-                >
-                  {section.items.map((item) => (
-                    <SheetClose key={item.to + item.label} asChild>
-                      <Link
-                        to={item.to}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-primary/5 hover:text-primary"
-                      >
-                        <item.icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{item.label}</span>
-                      </Link>
-                    </SheetClose>
-                  ))}
-                </MobileCollapsibleSection>
+              {navLinks.map((link) => (
+                <SheetClose key={link.to} asChild>
+                  <Link
+                    to={link.to}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                </SheetClose>
               ))}
-
-              {/* Direct links */}
-              <SheetClose asChild>
-                <Link
-                  to="/workspace"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
-                >
-                  <Code className="h-4 w-4 text-muted-foreground" />
-                  Workspace
-                </Link>
-              </SheetClose>
             </nav>
 
             <MobileAuthSection />
           </SheetContent>
         </Sheet>
       </div>
-
-      {/* Backdrop overlay when mega menu is open */}
-      {openMenu && (
-        <div
-          className="fixed inset-0 top-16 z-40 bg-black/5 backdrop-blur-[1px]"
-          onClick={handleImmediateClose}
-        />
-      )}
     </header>
   );
 }

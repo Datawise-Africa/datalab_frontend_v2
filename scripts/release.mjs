@@ -173,37 +173,50 @@ if (previousTag) {
   log('No previous tag found. Generating changelog from all commits...');
 }
 
+const LOG_FORMAT = '%s (%h)';
+
 function getCommits() {
   const logCmd = range
-    ? `git log ${range} --pretty=format:"%s (%h)" --no-merges`
-    : `git log --pretty=format:"%s (%h)" --no-merges`;
+    ? `git log ${range} --pretty=format:"${LOG_FORMAT}" --no-merges`
+    : `git log --pretty=format:"${LOG_FORMAT}" --no-merges`;
   return runSafe(logCmd).split('\n').filter(Boolean);
 }
 
 const commits = getCommits();
 
+const conventional = (type) =>
+  new RegExp(String.raw`^${type}(\(.+\))?:\s*`, 'i');
+
 const SECTIONS = [
-  { title: 'Features', pattern: /^feat(\(.+\))?:\s*/i },
-  { title: 'Bug Fixes', pattern: /^fix(\(.+\))?:\s*/i },
-  { title: 'Documentation', pattern: /^docs(\(.+\))?:\s*/i },
-  { title: 'Style', pattern: /^style(\(.+\))?:\s*/i },
-  { title: 'Performance', pattern: /^perf(\(.+\))?:\s*/i },
-  { title: 'Refactoring', pattern: /^refactor(\(.+\))?:\s*/i },
-  { title: 'Tests', pattern: /^test(\(.+\))?:\s*/i },
-  { title: 'Build & CI', pattern: /^(build|ci)(\(.+\))?:\s*/i },
-  { title: 'Reverts', pattern: /^revert(\(.+\))?:\s*/i },
-  { title: 'Chores', pattern: /^chore(\(.+\))?:\s*/i },
+  { title: 'Features', pattern: conventional('feat') },
+  { title: 'Bug Fixes', pattern: conventional('fix') },
+  { title: 'Documentation', pattern: conventional('docs') },
+  { title: 'Style', pattern: conventional('style') },
+  { title: 'Performance', pattern: conventional('perf') },
+  { title: 'Refactoring', pattern: conventional('refactor') },
+  { title: 'Tests', pattern: conventional('test') },
+  { title: 'Build & CI', pattern: conventional('(?:build|ci)') },
+  { title: 'Reverts', pattern: conventional('revert') },
+  { title: 'Chores', pattern: conventional('chore') },
+  // Jira-ticket commits (e.g. "ENG-123: add gallery"). Keep the ticket id in
+  // the changelog line — it's the most useful part for traceability.
+  {
+    title: 'Jira Tickets',
+    pattern: new RegExp(String.raw`^(?=ENG-\d+[:\s])`),
+    keepPrefix: true,
+  },
 ];
 
 const categorized = new Set();
 const sections = [];
 
-for (const { title, pattern } of SECTIONS) {
+for (const { title, pattern, keepPrefix } of SECTIONS) {
   const matching = commits.filter((c) => pattern.test(c));
   if (matching.length > 0) {
     sections.push(`\n### ${title}\n`);
     for (const commit of matching) {
-      sections.push(`- ${commit.replace(pattern, '')}`);
+      const line = keepPrefix ? commit : commit.replace(pattern, '');
+      sections.push(`- ${line}`);
       categorized.add(commit);
     }
   }

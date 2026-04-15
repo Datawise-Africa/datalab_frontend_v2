@@ -45,23 +45,35 @@ jobs:
     env:
       CI: true
 
-  # check_debug_code:
-  #   name: Ensure No Debugging Code
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #     - name: Ensure no console.logs
-  #       run: |
-  #         if grep -r "console.log" src/; then
-  #           echo "::error::Debugging code found! Remove console.log statements."
-  #           exit 1
-  #         fi
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+    needs: [lint_code]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   pr_notification:
     name: PR Checks Notification
     runs-on: ubuntu-latest
-    needs: [lint_code, security_scan]
+    needs: [lint_code, security_scan, sonarqube]
     if: always()
     steps:
       - name: Checkout code
