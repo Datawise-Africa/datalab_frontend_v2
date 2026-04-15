@@ -5,8 +5,6 @@ import { Separator } from '~/components/ui/separator';
 
 const productLinks = [
   { label: 'Datasets', to: '/datasets' },
-  { label: 'Workspace', to: '/workspace' },
-  { label: 'API Docs', to: '/docs' },
   { label: 'Become a Creator', to: '/creators' },
   { label: 'Dashboards', to: '/dashboards' },
 ] as const;
@@ -14,7 +12,6 @@ const productLinks = [
 const researchLinks = [
   { label: 'Research Lab', to: '/research' },
   { label: 'Reports', to: '/research/reports' },
-  { label: 'Success Stories', to: '/success-stories' },
 ] as const;
 
 const companyLinks = [

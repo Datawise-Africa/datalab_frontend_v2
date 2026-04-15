@@ -9,7 +9,7 @@ import { useDatasets } from '~/features/datasets';
 export function FeaturedDatasets() {
   const { data: response, isLoading } = useDatasets({
     page: 1,
-    limit: 4,
+    limit: 8,
     sort: 'download_count',
     order: 'desc',
   });
@@ -21,11 +21,11 @@ export function FeaturedDatasets() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Featured Datasets
+            Browse Our Datasets
           </h2>
           <p className="mt-3 text-lg text-muted-foreground">
-            Hand-picked datasets trusted by thousands of researchers, engineers,
-            and data scientists.
+            Explore our curated catalog of high-quality datasets trusted by
+            researchers and developers.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function FeaturedDatasets() {
                   <DatasetCard.Tags limit={2} />
                   <DatasetCard.Meta />
                 </CardContent>
-                <DatasetCard.Actions variant="compact" />
+                <DatasetCard.Actions />
               </DatasetCard>
             ))}
           </div>
