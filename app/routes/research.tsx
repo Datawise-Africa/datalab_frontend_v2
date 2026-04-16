@@ -1,30 +1,6 @@
-import { Link } from 'react-router';
-import {
-  Microscope,
-  Users,
-  ArrowRight,
-  FlaskConical,
-  BookOpen,
-} from 'lucide-react';
+import { Microscope } from 'lucide-react';
 import type { Route } from './+types/research';
-import { Button } from '~/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '~/components/ui/card';
-import { Badge } from '~/components/ui/badge';
-import { Separator } from '~/components/ui/separator';
-import { cn } from '~/lib/utils';
 import { PageHeader } from '~/components/layout/page-header';
-import {
-  researchProjects,
-  researchReports,
-  type ResearchProject,
-  type ResearchReport,
-} from '~/data/research';
 import { generateSEOTags } from '~/lib/utils/seo';
 
 export function meta(_args: Route.MetaArgs) {
@@ -34,198 +10,21 @@ export function meta(_args: Route.MetaArgs) {
   });
 }
 
-function ProjectCard({ project }: { project: ResearchProject }) {
-  return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <CardTitle className="text-lg">{project.title}</CardTitle>
-          <Badge
-            className={cn(
-              'shrink-0',
-              project.status === 'active'
-                ? 'bg-primary hover:bg-primary/90 text-white'
-                : 'bg-slate-500 hover:bg-slate-600 text-white'
-            )}
-          >
-            {project.status === 'active' ? 'Active' : 'Completed'}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
-          <Users className="h-4 w-4 shrink-0" />
-          <span>{project.team.join(', ')}</span>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col flex-1 gap-4">
-        <CardDescription className="text-sm leading-relaxed line-clamp-4">
-          {project.description}
-        </CardDescription>
-        <div className="flex flex-wrap gap-2 mt-auto pt-2">
-          {project.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="text-xs">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ReportCard({ report }: { report: ResearchReport }) {
-  return (
-    <Card className="flex flex-col h-full">
-      <CardHeader>
-        <CardTitle className="text-lg">{report.title}</CardTitle>
-        <CardDescription className="text-sm">
-          {report.authors.join(', ')} &middot;{' '}
-          {new Date(report.date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col flex-1 gap-4">
-        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-          {report.abstract}
-        </p>
-        <div className="mt-auto pt-2">
-          <Link
-            to={`/research/reports/${report.slug}`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary transition-colors"
-          >
-            Read Report <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function Research() {
-  const activeProjects = researchProjects.filter((p) => p.status === 'active');
-  const completedProjects = researchProjects.filter(
-    (p) => p.status === 'completed'
-  );
-  const latestReports = researchReports.slice(0, 3);
-
   return (
     <div className="min-h-screen">
       <PageHeader
         title="Data Lab Research"
         description="Advancing data science through open research in machine learning, causal inference, and data systems."
       />
-
-      {/* Active Projects */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <FlaskConical className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Active Projects
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Currently ongoing research initiatives
-            </p>
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-          {activeProjects.map((project) => (
-            <ProjectCard key={project.title} project={project} />
-          ))}
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Separator />
-      </div>
-
-      {/* Completed Projects */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
-            <FlaskConical className="h-5 w-5" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Completed Projects
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Successfully concluded research
-            </p>
-          </div>
-        </div>
-        <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
-          {completedProjects.map((project) => (
-            <ProjectCard key={project.title} project={project} />
-          ))}
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Separator />
-      </div>
-
-      {/* Recent Publications */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <BookOpen className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                Recent Publications
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Latest research reports from our team
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/research/reports"
-            className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary transition-colors"
-          >
-            View all reports <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {latestReports.map((report) => (
-            <ReportCard key={report.slug} report={report} />
-          ))}
-        </div>
-        <div className="mt-6 sm:hidden">
-          <Link
-            to="/research/reports"
-            className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:text-primary transition-colors"
-          >
-            View all reports <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      {/* Collaborate CTA */}
-      <section className="bg-primary/5 border-y border-primary/10">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-primary sm:text-3xl">
-              Interested in Research Collaboration?
-            </h2>
-            <p className="mt-4 text-base text-primary/80 leading-relaxed">
-              We actively seek partnerships with academic institutions, industry
-              labs, and independent researchers. Whether you want to contribute
-              to an existing project or propose a new direction, we would love
-              to hear from you.
-            </p>
-            <div className="mt-8">
-              <Button asChild size="lg">
-                <Link to="/contact">Get in Touch</Link>
-              </Button>
-            </div>
-          </div>
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-24 text-center">
+          <Microscope className="mb-4 h-12 w-12 text-muted-foreground/50" />
+          <h2 className="text-xl font-semibold">Research coming soon</h2>
+          <p className="mt-2 max-w-md text-sm text-muted-foreground">
+            We're preparing research projects and publications. Check back
+            shortly.
+          </p>
         </div>
       </section>
     </div>

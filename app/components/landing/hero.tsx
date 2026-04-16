@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+import { AllTheDataIllustration } from '~/components/illustrations/all-the-data';
 
 export function Hero() {
   return (
@@ -34,14 +35,9 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Right — decorative half-circle graphic */}
+          {/* Right — hero illustration */}
           <div className="relative hidden lg:flex items-center justify-center">
-            <div className="relative h-80 w-80">
-              {/* Large half-circle */}
-              <div className="absolute inset-0 rounded-t-full bg-foreground/90" />
-              {/* Accent stripe */}
-              <div className="absolute bottom-0 left-1/2 h-16 w-48 -translate-x-1/2 translate-y-1/2 rounded-full bg-muted" />
-            </div>
+            <AllTheDataIllustration className="h-auto w-full max-w-lg" />
           </div>
         </div>
       </div>

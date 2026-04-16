@@ -5,7 +5,7 @@ import { FeaturedDatasets } from '~/components/landing/featured-datasets';
 import { FeaturedReports } from '~/components/landing/featured-reports';
 import { FeaturedDashboards } from '~/components/landing/featured-dashboards';
 import { CreatorCTA } from '~/components/landing/creator-cta';
-import { FAQ } from '~/components/landing/faq';
+// import { FAQ } from '~/components/landing/faq';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -23,7 +23,7 @@ export default function Home() {
       <FeaturedReports />
       <FeaturedDashboards />
       <CreatorCTA />
-      <FAQ />
+      {/* <FAQ /> */}
     </div>
   );
 }
