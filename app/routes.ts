@@ -9,8 +9,6 @@ export default [
   // Public routes (with header + footer)
   layout('routes/public-layout.tsx', [
     index('routes/home/index.tsx'),
-    route('about', 'routes/about.tsx'),
-    route('team', 'routes/team.tsx'),
     route('datasets', 'routes/datasets.tsx'),
     route('datasets/:slug', 'routes/dataset-detail.tsx'),
     route('docs', 'routes/docs.tsx'),
@@ -18,8 +16,6 @@ export default [
     route('dashboards', 'routes/dashboards.tsx'),
     route('dashboards/afyaken', 'routes/dashboards/afyaken.tsx'),
     route('dashboards/eduken', 'routes/dashboards/eduken.tsx'),
-    route('success-stories', 'routes/success-stories.tsx'),
-    route('success-stories/:slug', 'routes/success-story-detail.tsx'),
     route('research', 'routes/research.tsx'),
     route('research/reports', 'routes/research-reports.tsx'),
     route('research/reports/:slug', 'routes/research-report-detail.tsx'),

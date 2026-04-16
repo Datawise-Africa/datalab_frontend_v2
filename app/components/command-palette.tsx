@@ -10,7 +10,6 @@ import {
   Upload,
   Users,
   UserCheck,
-  Building2,
   Phone,
   FileText,
 } from 'lucide-react';
@@ -78,10 +77,6 @@ export function CommandPalette() {
             <CommandItem onSelect={() => runCommand('/research/reports')}>
               <FileText className="mr-2 h-4 w-4" />
               Research Reports
-            </CommandItem>
-            <CommandItem onSelect={() => runCommand('/about')}>
-              <Building2 className="mr-2 h-4 w-4" />
-              About
             </CommandItem>
             <CommandItem onSelect={() => runCommand('/contact')}>
               <Phone className="mr-2 h-4 w-4" />

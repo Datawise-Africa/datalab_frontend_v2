@@ -14,11 +14,7 @@ const researchLinks = [
   { label: 'Reports', to: '/research/reports' },
 ] as const;
 
-const companyLinks = [
-  { label: 'About', to: '/about' },
-  { label: 'Team', to: '/team' },
-  { label: 'Contact', to: '/contact' },
-] as const;
+const companyLinks = [{ label: 'Contact', to: '/contact' }] as const;
 
 const socialLinks = [
   {
