@@ -96,7 +96,7 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Bookmarked Datasets"
-          value={bookmarks?.meta?.total_docs ?? 0}
+          value={bookmarks?.length ?? 0}
           icon={Bookmark}
         />
         <StatCard

@@ -106,8 +106,8 @@ export default function Datasets() {
   const total = response?.meta?.total_docs ?? 0;
 
   const bookmarkedIds = useMemo(() => {
-    if (!bookmarksData?.data) return new Set<string>();
-    return new Set(bookmarksData?.data.map((b) => b.dataset.id) ?? []);
+    if (!bookmarksData) return new Set<string>();
+    return new Set(bookmarksData?.map((b) => b.dataset.id) ?? []);
   }, [bookmarksData]);
 
   const handleDownload = useCallback(
