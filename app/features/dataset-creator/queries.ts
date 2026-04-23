@@ -42,7 +42,7 @@ export const useCreatorApplications = (params?: CreatorApplicationsParams) => {
     queryKey: datasetCreatorKeys.applications(queryParams),
     queryFn: async () => {
       const { data } = await apiClient.get<Paginated<BecomeDatasetCreatorType>>(
-        '/auth/creator-requests/',
+        '/auth/review-requests/',
         { params: queryParams }
       );
       return data;

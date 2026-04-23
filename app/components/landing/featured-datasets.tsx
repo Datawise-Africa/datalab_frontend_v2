@@ -17,16 +17,21 @@ export function FeaturedDatasets() {
   const datasets = response?.data?.map(normalizeMyDataset) ?? [];
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="relative border-t border-border/60 py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium uppercase tracking-wider text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+            Catalog
+          </span>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
             Browse Our Datasets
           </h2>
           <p className="mt-3 text-lg text-muted-foreground">
             Explore our curated catalog of high-quality datasets trusted by
             researchers and developers.
           </p>
+          <div className="mx-auto mt-5 h-px w-16 bg-primary/40" />
         </div>
 
         {isLoading ? (

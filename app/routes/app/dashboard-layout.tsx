@@ -7,12 +7,12 @@ import {
   Download,
   Settings,
   LayoutDashboard,
+  LayoutGrid,
   BarChart3,
   FileText,
   Upload,
   Users,
   UserCheck,
-  UserPlus,
   LogOut,
   Menu,
   ArrowLeft,
@@ -20,6 +20,7 @@ import {
   Sun,
   Moon,
   FolderKanban,
+  Mail,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -48,6 +49,8 @@ import { AuthPerm } from '~/lib/utils/perm';
 import { useLogout } from '~/features/auth';
 import { useIsClient } from '~/hooks/use-is-client';
 import { NotificationBell } from '~/components/dashboard/notification-bell';
+import { BecomeCreatorBanner } from '~/components/dashboard/become-creator-banner';
+import { UserProfileMenu } from '~/components/dashboard/user-profile-menu';
 
 interface SidebarLink {
   label: string;
@@ -60,23 +63,60 @@ interface SidebarSection {
   links: SidebarLink[];
 }
 
-function useDashboardSections(): SidebarSection[] {
-  const user = useAppSelector((s) => s.auth.user);
-  if (!user) return [];
+const WORKSPACE_PATH_PATTERN = /^\/app\/workspaces\/([^/]+)(?:\/|$)/;
 
-  const perm = AuthPerm.getInstance();
-  const isCreator = perm.hasPermission('creator', user.user_role);
-  const isAdmin = perm.hasPermission('admin', user.user_role);
+function matchWorkspaceId(pathname: string): string | null {
+  const match = pathname.match(WORKSPACE_PATH_PATTERN);
+  if (!match) return null;
+  const id = match[1];
+  if (id === 'new' || !id) return null;
+  return id;
+}
 
+function buildWorkspaceSections(workspaceId: string): SidebarSection[] {
+  const base = `/app/workspaces/${workspaceId}`;
+  return [
+    {
+      title: 'Workspace',
+      links: [
+        { label: 'Overview', to: base, icon: Home },
+        { label: 'Members', to: `${base}/members`, icon: Users },
+        { label: 'Datasets', to: `${base}/datasets`, icon: Database },
+        { label: 'Dashboards', to: `${base}/dashboards`, icon: LayoutGrid },
+        { label: 'Analytics', to: `${base}/analytics`, icon: BarChart3 },
+        { label: 'Invitations', to: `${base}/invitations`, icon: Mail },
+        { label: 'Settings', to: `${base}/settings`, icon: Settings },
+      ],
+    },
+    {
+      title: 'Back',
+      links: [
+        {
+          label: 'All Workspaces',
+          to: '/app/workspaces',
+          icon: ArrowLeft,
+        },
+      ],
+    },
+  ];
+}
+
+function buildAppSections({
+  isCreator,
+  isAdmin,
+}: {
+  isCreator: boolean;
+  isAdmin: boolean;
+}): SidebarSection[] {
   const sections: SidebarSection[] = [];
 
-  // General - all users
   sections.push({
     title: 'General',
     links: [
       { label: 'Overview', to: '/app', icon: Home },
       { label: 'Bookmarks', to: '/app/bookmarks', icon: Bookmark },
       { label: 'My Downloads', to: '/app/my-downloads', icon: Download },
+      { label: 'Invitations', to: '/app/invitations', icon: Mail },
       {
         label: 'Account Settings',
         to: '/app/account-settings',
@@ -85,16 +125,6 @@ function useDashboardSections(): SidebarSection[] {
     ],
   });
 
-  // Only show "Become a Creator" for regular users
-  if (!isCreator && !isAdmin) {
-    sections[0].links.push({
-      label: 'Become a Creator',
-      to: '/app/become-dataset-creator',
-      icon: UserPlus,
-    });
-  }
-
-  // Creator section
   if (isCreator) {
     sections.push({
       title: 'Creator',
@@ -111,7 +141,6 @@ function useDashboardSections(): SidebarSection[] {
     });
   }
 
-  // Workspaces - creators and admins
   if (isCreator || isAdmin) {
     sections.push({
       title: 'Workspaces',
@@ -125,7 +154,6 @@ function useDashboardSections(): SidebarSection[] {
     });
   }
 
-  // Admin section
   if (isAdmin) {
     sections.push({
       title: 'Admin',
@@ -144,6 +172,21 @@ function useDashboardSections(): SidebarSection[] {
   return sections;
 }
 
+function useDashboardSections(): SidebarSection[] {
+  const user = useAppSelector((s) => s.auth.user);
+  const location = useLocation();
+  if (!user) return [];
+
+  const workspaceId = matchWorkspaceId(location.pathname);
+  if (workspaceId) return buildWorkspaceSections(workspaceId);
+
+  const perm = AuthPerm.getInstance();
+  return buildAppSections({
+    isCreator: perm.hasPermission('creator', user.user_role),
+    isAdmin: perm.hasPermission('admin', user.user_role),
+  });
+}
+
 function SidebarContent({
   onNavigate,
   collapsed = false,
@@ -158,8 +201,28 @@ function SidebarContent({
   const logout = useLogout();
   const sections = useDashboardSections();
 
+  const perm = AuthPerm.getInstance();
+  const canBecomeCreator =
+    user &&
+    !perm.hasPermission('creator', user.user_role) &&
+    !perm.hasPermission('admin', user.user_role);
+  const inWorkspaceContext = matchWorkspaceId(location.pathname) !== null;
+  const showBecomeCreatorBanner =
+    !collapsed && canBecomeCreator && !inWorkspaceContext;
+
   const isActive = (to: string) => {
     if (to === '/app') return location.pathname === '/app';
+    // Workspace overview: /app/workspaces/:id must match exactly
+    if (/^\/app\/workspaces\/[^/]+$/.test(to)) {
+      return location.pathname === to;
+    }
+    // My Workspaces list: don't stay active when deep-linked into a workspace
+    if (to === '/app/workspaces') {
+      return (
+        location.pathname === '/app/workspaces' ||
+        location.pathname === '/app/workspaces/new'
+      );
+    }
     return location.pathname === to || location.pathname.startsWith(to + '/');
   };
 
@@ -285,6 +348,10 @@ function SidebarContent({
           </div>
         ))}
       </nav>
+
+      {showBecomeCreatorBanner && (
+        <BecomeCreatorBanner onNavigate={onNavigate} />
+      )}
 
       {/* Bottom actions */}
       <div
@@ -471,18 +538,8 @@ export default function DashboardLayout() {
               {/* Notifications */}
               <NotificationBell />
 
-              {/* Back to site link */}
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="hidden sm:flex"
-              >
-                <Link to="/">
-                  <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
-                  Back to site
-                </Link>
-              </Button>
+              {/* Profile menu */}
+              <UserProfileMenu />
             </header>
 
             {/* Page content */}

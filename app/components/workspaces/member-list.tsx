@@ -40,8 +40,9 @@ export function MemberList({ members, workspaceId, isAdmin }: MemberListProps) {
   return (
     <div className="space-y-2">
       {members.map((member) => {
+        const { user } = member;
         const initials =
-          `${member.first_name?.[0] ?? ''}${member.last_name?.[0] ?? ''}`.toUpperCase();
+          `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase();
 
         return (
           <div
@@ -56,10 +57,10 @@ export function MemberList({ members, workspaceId, isAdmin }: MemberListProps) {
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">
-                {member.first_name} {member.last_name}
+                {user.first_name} {user.last_name}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                {member.email}
+                {user.email}
               </p>
             </div>
 

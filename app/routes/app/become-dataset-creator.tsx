@@ -1,6 +1,8 @@
 import type { Route } from './+types/become-dataset-creator';
+import { Link } from 'react-router';
 import { generateSEOTags } from '~/lib/utils/seo';
-import { LockKeyhole } from 'lucide-react';
+import { LockKeyhole, ArrowLeft } from 'lucide-react';
+import { Button } from '~/components/ui/button';
 import { CreatorApplicationForm } from '~/components/forms/creator-application-form';
 import { useAppSelector } from '~/store';
 import { AuthPerm } from '~/lib/utils/perm';
@@ -28,9 +30,20 @@ export default function BecomeDatasetCreator() {
             <LockKeyhole className="h-8 w-8 text-muted-foreground" />
           </div>
           <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-6">
             You already have dataset creator privileges.
           </p>
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+            <Button asChild>
+              <Link to="/app/creator-dashboard">Go to Dashboard</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Link>
+            </Button>
+          </div>
         </div>
       );
     }

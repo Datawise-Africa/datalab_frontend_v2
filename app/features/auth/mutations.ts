@@ -5,6 +5,7 @@ import type {
   SignupInput,
   ForgotPasswordInput,
   ResetPasswordInput,
+  ResetPasswordRequestBody,
 } from '~/lib/schema/auth-schema';
 import type {
   UpdateProfileInput,
@@ -12,7 +13,7 @@ import type {
 } from '~/lib/schema/user-profile-schema';
 import type { RegisterOrLoginResponse, AuthUser } from '~/lib/types/auth';
 import { useAppDispatch } from '~/store';
-import { login, clearAuth } from '~/store/slices/auth-slice';
+import { login, clearAuth, setToken } from '~/store/slices/auth-slice';
 import { authKeys } from './query-keys';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
@@ -65,7 +66,7 @@ export const useSignup = () => {
         '/auth/register/',
         {
           ...input,
-          profile: { bio: '', linkdin_url: '' },
+          profile: { bio: '', linkedin_url: '' },
         }
       );
       return data;
@@ -101,7 +102,7 @@ export const useLogout = () => {
 
   return useMutation({
     mutationFn: async (): Promise<void> => {
-      await apiClient.post('/auth/logout/');
+      // No backend logout endpoint in spec — client-only clear.
     },
     onSettled: () => {
       dispatch(clearAuth());
@@ -110,6 +111,7 @@ export const useLogout = () => {
   });
 };
 
+// TODO: No profile update endpoint in OpenAPI spec. Backend confirmation pending.
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
 
@@ -142,7 +144,7 @@ export const useChangePassword = () => {
 export const useRequestPasswordReset = () => {
   return useMutation({
     mutationFn: async (input: ForgotPasswordInput): Promise<void> => {
-      await apiClient.post('/auth/password-reset/', input);
+      await apiClient.post('/auth/forgot-password/', input);
     },
     onError: (error) => {
       toastUtils.error('Reset request failed', extractError(error));
@@ -154,10 +156,35 @@ export const useRequestPasswordReset = () => {
 export const useCompletePasswordReset = () => {
   return useMutation({
     mutationFn: async (input: ResetPasswordInput): Promise<void> => {
-      await apiClient.patch('/auth/password-reset-complete/', input);
+      const body: ResetPasswordRequestBody = {
+        otp_code: input.otp_code,
+        new_password: input.new_password,
+      };
+      await apiClient.patch('/auth/reset-password/', body);
     },
     onError: (error) => {
       toastUtils.error('Password reset failed', extractError(error));
+    },
+  });
+};
+
+/** Refresh the access token using the stored refresh token. */
+export const useRefreshToken = () => {
+  const dispatch = useAppDispatch();
+
+  return useMutation({
+    mutationFn: async (refresh: string): Promise<string> => {
+      const { data } = await apiClient.post<{ access: string }>(
+        '/auth/token/refresh/',
+        { refresh }
+      );
+      return data.access;
+    },
+    onSuccess: (access) => {
+      dispatch(setToken(access));
+    },
+    onError: () => {
+      dispatch(clearAuth());
     },
   });
 };

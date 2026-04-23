@@ -1,7 +1,11 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  type AxiosError,
+  type AxiosRequestConfig,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 import { env } from '~/lib/env';
 import { store } from '~/store';
-import { clearAuth } from '~/store/slices/auth-slice';
+import { clearAuth, setToken } from '~/store/slices/auth-slice';
 
 const isDev = import.meta.env.DEV;
 
@@ -13,7 +17,6 @@ export const apiClient = axios.create({
   timeout: 30000,
 });
 
-// Request interceptor
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (isDev) {
@@ -23,7 +26,6 @@ apiClient.interceptors.request.use(
       );
     }
 
-    // Add auth token from Redux store
     const token = store.getState().auth.ac_tk;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -31,15 +33,29 @@ apiClient.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor
+type RetriableConfig = AxiosRequestConfig & { _retry?: boolean };
+
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  const refresh = store.getState().auth.rf_tk;
+  if (!refresh) throw new Error('No refresh token');
+
+  const { data } = await axios.post<{ access: string }>(
+    `${env.VITE_API_BASE_URL}/auth/token/refresh/`,
+    { refresh },
+    { headers: { 'Content-Type': 'application/json' }, timeout: 30000 }
+  );
+  store.dispatch(setToken(data.access));
+  return data.access;
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<{ message?: string; error?: string }>) => {
+  async (error: AxiosError<{ message?: string; error?: string }>) => {
     if (isDev) {
       console.error('[API Error]', {
         url: error.config?.url,
@@ -49,8 +65,36 @@ apiClient.interceptors.response.use(
       });
     }
 
-    // Clear auth state on 401
-    if (error.response?.status === 401) {
+    const original = error.config as RetriableConfig | undefined;
+    const status = error.response?.status;
+    const isRefreshCall = original?.url?.includes('/auth/token/refresh/');
+    const hasRefresh = Boolean(store.getState().auth.rf_tk);
+
+    if (
+      status === 401 &&
+      original &&
+      !original._retry &&
+      !isRefreshCall &&
+      hasRefresh
+    ) {
+      original._retry = true;
+      try {
+        refreshPromise ??= refreshAccessToken().finally(() => {
+          refreshPromise = null;
+        });
+        const access = await refreshPromise;
+        original.headers = {
+          ...(original.headers ?? {}),
+          Authorization: `Bearer ${access}`,
+        };
+        return apiClient(original);
+      } catch {
+        store.dispatch(clearAuth());
+        return Promise.reject(error);
+      }
+    }
+
+    if (status === 401) {
       store.dispatch(clearAuth());
     }
 

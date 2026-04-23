@@ -1,3 +1,4 @@
 export { downloadKeys, useDownloadHistory } from './queries';
 export type { DownloadRecord } from './queries';
-export { useTrackDownload, useSendOtp, useVerifyOtp } from './mutations';
+export { useRequestDownload, useTrackDownload } from './mutations';
+export type { RequestDownloadInput } from './mutations';

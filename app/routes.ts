@@ -45,9 +45,20 @@ export default [
     route('app/admin', 'routes/app/admin-overview.tsx'),
     route('app/applications', 'routes/app/applications.tsx'),
     route('app/approved-creators', 'routes/app/approved-creators.tsx'),
+    route('app/invitations', 'routes/app/invitations.tsx'),
     route('app/workspaces', 'routes/app/workspaces.tsx'),
     route('app/workspaces/new', 'routes/app/workspace-create.tsx'),
-    route('app/workspaces/:id', 'routes/app/workspace-detail.tsx'),
+    route('app/workspaces/:id', 'routes/app/workspace/layout.tsx', [
+      index('routes/app/workspace/overview.tsx'),
+      route('members', 'routes/app/workspace/members.tsx'),
+      route('datasets', 'routes/app/workspace/datasets.tsx'),
+      route('datasets/new', 'routes/app/workspace/upload-dataset.tsx'),
+      route('dashboards', 'routes/app/workspace/dashboards.tsx'),
+      route('dashboards/new', 'routes/app/workspace/create-dashboard.tsx'),
+      route('analytics', 'routes/app/workspace/analytics.tsx'),
+      route('invitations', 'routes/app/workspace/invitations.tsx'),
+      route('settings', 'routes/app/workspace/settings.tsx'),
+    ]),
   ]),
 
   // Utility routes

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { apiClient } from '~/lib/api/client';
 
 /**
- * Tracks a dataset view by calling POST /datasets/{id}/track_view/.
+ * Tracks a dataset view by calling POST /datasets/{id}/track-view/.
  * Only fires once per unique datasetId.
  */
 export function useTrackView(datasetId: string | undefined) {
@@ -12,7 +12,7 @@ export function useTrackView(datasetId: string | undefined) {
     if (!datasetId || trackedId.current === datasetId) return;
     trackedId.current = datasetId;
 
-    apiClient.post(`/datasets/${datasetId}/track_view/`).catch(() => {
+    apiClient.post(`/datasets/${datasetId}/track-view/`).catch(() => {
       // Silently ignore tracking failures
     });
   }, [datasetId]);

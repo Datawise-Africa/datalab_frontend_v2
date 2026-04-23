@@ -24,7 +24,7 @@ export const useBookmarkedDatasets = (
   return useQuery({
     queryKey: bookmarkKeys.list(params),
     queryFn: async () => {
-      const { data } = await apiClient.get<Paginated<BookmarkedDataset>>(
+      const { data } = await apiClient.get<BookmarkedDataset[]>(
         '/datasets/my-bookmarks/',
         { params }
       );

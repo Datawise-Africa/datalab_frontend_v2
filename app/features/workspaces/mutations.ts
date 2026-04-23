@@ -72,17 +72,28 @@ export function useInviteMember() {
   return useMutation({
     mutationFn: async ({
       workspaceId,
-      ...input
+      email,
+      role,
     }: InviteMemberInput & { workspaceId: string }) => {
+      const expirationTime = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toISOString();
       const { data } = await apiClient.post(
-        `/workspaces/${workspaceId}/members/invite/`,
-        input
+        `/workspaces/${workspaceId}/invite/`,
+        {
+          invited_email: email,
+          role,
+          expiration_time: expirationTime,
+        }
       );
       return data;
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: workspaceKeys.members(variables.workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.invitations(variables.workspaceId),
       });
       queryClient.invalidateQueries({
         queryKey: workspaceKeys.detail(variables.workspaceId),
@@ -94,6 +105,7 @@ export function useInviteMember() {
   });
 }
 
+// TODO: PATCH /workspaces/{id}/members/{memberId}/ is not in the OpenAPI spec.
 export function useUpdateMemberRole() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -119,6 +131,7 @@ export function useUpdateMemberRole() {
   });
 }
 
+// TODO: DELETE /workspaces/{id}/members/{memberId}/ is not in the OpenAPI spec.
 export function useRemoveMember() {
   const queryClient = useQueryClient();
   return useMutation({

@@ -28,11 +28,7 @@ export default function SavedDatasets() {
   const removeBookmark = useRemoveBookmark();
   const downloadModal = useAppModal('download');
 
-  const datasets =
-    bookmarks?.data.map((b) => ({
-      bookmarkId: b.id,
-      ...normalizeMyDataset(b.dataset),
-    })) ?? [];
+  const datasets = bookmarks?.map((b) => normalizeMyDataset(b.dataset)) ?? [];
 
   const handleDownload = useCallback(
     (dataset: NormalizedDataset) => {
@@ -84,7 +80,7 @@ export default function SavedDatasets() {
                 <DatasetCard.Menu
                   showBookmark
                   isBookmarked
-                  onBookmark={() => removeBookmark.mutate(dataset.bookmarkId)}
+                  onBookmark={() => removeBookmark.mutate(dataset.id)}
                   onDownload={() => handleDownload(dataset)}
                 />
               </CardHeader>

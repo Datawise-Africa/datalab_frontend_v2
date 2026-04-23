@@ -5,6 +5,7 @@ export {
   useWorkspaceMembers,
   useWorkspaceDatasets,
   useWorkspaceAnalytics,
+  useWorkspaceInvitations,
 } from './queries';
 export {
   useCreateWorkspace,

@@ -14,7 +14,7 @@ import { toastUtils } from '~/lib/utils/toast';
 
 /**
  * Step 1: Create a version record.
- * POST /datasets/{dataset_pk}/versions/
+ * POST /my-datasets/{dataset_pk}/versions/
  */
 export const useCreateVersion = () => {
   const queryClient = useQueryClient();
@@ -30,8 +30,8 @@ export const useCreateVersion = () => {
       changelog: string;
     }): Promise<DatasetVersion> => {
       const { data } = await apiClient.post(
-        `/datasets/${datasetId}/versions/`,
-        { version, changelog }
+        `/my-datasets/${datasetId}/versions/`,
+        { version, description: changelog }
       );
       return data;
     },
@@ -46,9 +46,69 @@ export const useCreateVersion = () => {
   });
 };
 
+/** PATCH /my-datasets/{dataset_pk}/versions/{id}/ */
+export const useUpdateVersion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      datasetId,
+      versionId,
+      input,
+    }: {
+      datasetId: string;
+      versionId: string;
+      input: Partial<
+        Pick<DatasetVersion, 'version' | 'description' | 'is_latest'>
+      >;
+    }): Promise<DatasetVersion> => {
+      const { data } = await apiClient.patch(
+        `/my-datasets/${datasetId}/versions/${versionId}/`,
+        input
+      );
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: datasetKeys.detail(variables.datasetId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Version update failed', extractError(error));
+    },
+  });
+};
+
+/** DELETE /my-datasets/{dataset_pk}/versions/{id}/ */
+export const useDeleteVersion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      datasetId,
+      versionId,
+    }: {
+      datasetId: string;
+      versionId: string;
+    }): Promise<void> => {
+      await apiClient.delete(
+        `/my-datasets/${datasetId}/versions/${versionId}/`
+      );
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: datasetKeys.detail(variables.datasetId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Version delete failed', extractError(error));
+    },
+  });
+};
+
 /**
  * Step 2: Request presigned S3 POST URLs.
- * POST /datasets/{dataset_pk}/versions/{id}/request-upload/
+ * POST /my-datasets/{dataset_pk}/versions/{id}/request-upload/
  *
  * Request:  { files: [{ file_name, file_size, file_type }] }
  * Response: [{ file_id, file_name, upload_url, fields }]
@@ -65,7 +125,7 @@ export const useRequestPresignedUrls = () => {
       files: RequestUploadFileInput[];
     }): Promise<PresignedUploadResponse> => {
       const { data } = await apiClient.post<PresignedUploadResponse>(
-        `/datasets/${datasetId}/versions/${versionId}/request-upload/`,
+        `/my-datasets/${datasetId}/versions/${versionId}/request-upload/`,
         { files }
       );
       return data;
@@ -110,7 +170,7 @@ export const useUploadToS3 = () => {
 
 /**
  * Step 3: Confirm uploads — register DatasetFile records.
- * POST /datasets/{dataset_pk}/versions/{id}/confirm-upload/
+ * POST /my-datasets/{dataset_pk}/versions/{id}/confirm-upload/
  *
  * Request: { files: [{ file_name, file_size, file_type, s3_key, checksum? }] }
  */
@@ -128,7 +188,7 @@ export const useConfirmUpload = () => {
       input: ConfirmUploadInput;
     }): Promise<DatasetVersion> => {
       const { data } = await apiClient.post(
-        `/datasets/${datasetId}/versions/${versionId}/confirm-upload/`,
+        `/my-datasets/${datasetId}/versions/${versionId}/confirm-upload/`,
         input
       );
       return data;
