@@ -1,5 +1,4 @@
 export { authKeys } from './query-keys';
-export { useProfile } from './queries';
 export {
   useLogin,
   useSignup,
@@ -8,4 +7,5 @@ export {
   useChangePassword,
   useRequestPasswordReset,
   useCompletePasswordReset,
+  useRefreshToken,
 } from './mutations';

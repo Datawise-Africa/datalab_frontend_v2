@@ -19,6 +19,7 @@ export interface DownloadRecord {
   format: string;
 }
 
+// TODO: GET /data/dataset_downloads/ is not in the OpenAPI spec. Pending backend confirmation.
 export const useDownloadHistory = (params?: {
   page?: number;
   limit?: number;

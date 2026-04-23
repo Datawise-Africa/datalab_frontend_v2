@@ -9,9 +9,7 @@ export const useAddBookmark = () => {
 
   return useMutation({
     mutationFn: async (datasetId: string): Promise<void> => {
-      await apiClient.post('/datasets/my-bookmarks/', {
-        dataset: datasetId,
-      });
+      await apiClient.post(`/datasets/${datasetId}/bookmarks/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });
@@ -26,8 +24,8 @@ export const useRemoveBookmark = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (bookmarkId: string): Promise<void> => {
-      await apiClient.delete(`/datasets/my-bookmarks/${bookmarkId}/`);
+    mutationFn: async (datasetId: string): Promise<void> => {
+      await apiClient.delete(`/datasets/${datasetId}/bookmarks/`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });

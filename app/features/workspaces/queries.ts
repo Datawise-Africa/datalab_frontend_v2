@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
-import type { Workspace, WorkspaceMember } from '~/lib/types/workspace';
+import type {
+  Workspace,
+  WorkspaceMember,
+  WorkspaceInvitation,
+} from '~/lib/types/workspace';
+import type { Paginated } from '~/lib/types';
 import { workspaceKeys } from './query-keys';
 
 export function useWorkspaces() {
@@ -40,6 +45,7 @@ export function useWorkspaceMembers(id: string) {
   });
 }
 
+// TODO: GET /workspaces/{id}/datasets/ is not in the OpenAPI spec.
 export function useWorkspaceDatasets(id: string) {
   return useQuery({
     queryKey: workspaceKeys.datasets(id),
@@ -54,12 +60,27 @@ export function useWorkspaceDatasets(id: string) {
   });
 }
 
+// TODO: GET /workspaces/{id}/analytics/ is not in the OpenAPI spec.
 export function useWorkspaceAnalytics(id: string) {
   return useQuery({
     queryKey: workspaceKeys.analytics(id),
     queryFn: async () => {
       const { data } = await apiClient.get(`/workspaces/${id}/analytics/`);
       return data;
+    },
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useWorkspaceInvitations(id: string) {
+  return useQuery({
+    queryKey: workspaceKeys.invitations(id),
+    queryFn: async (): Promise<WorkspaceInvitation[]> => {
+      const { data } = await apiClient.get<
+        Paginated<WorkspaceInvitation> | WorkspaceInvitation[]
+      >(`/workspaces/${id}/invitations/`);
+      return Array.isArray(data) ? data : (data.data ?? []);
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,

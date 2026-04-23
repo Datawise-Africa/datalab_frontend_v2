@@ -7,10 +7,8 @@ import {
 } from '~/components/ui/dialog';
 import { Button } from '~/components/ui/button';
 import { useAppModal } from '~/store/slices/modal-slice';
-import { useAppSelector } from '~/store';
-import { useTrackDownload } from '~/features/downloads';
+import { useRequestDownload } from '~/features/downloads';
 import { StepOverview, type OverviewData } from './step-overview';
-import { StepVerification } from './step-verification';
 import { StepLicense } from './step-license';
 import { StepPayment } from './step-payment';
 import { StepDownload } from './step-download';
@@ -29,12 +27,11 @@ declare module '~/store/slices/modal-slice' {
   }
 }
 
-type Step = 'overview' | 'verification' | 'license' | 'payment' | 'download';
+type Step = 'overview' | 'license' | 'payment' | 'download';
 
 export function DownloadModal() {
   const { isOpen, data, close } = useAppModal('download');
-  const user = useAppSelector((state) => state.auth.user);
-  const trackDownload = useTrackDownload();
+  const requestDownload = useRequestDownload();
 
   const [step, setStep] = useState<Step>('overview');
   const [overview, setOverview] = useState<OverviewData>({
@@ -42,7 +39,6 @@ export function DownloadModal() {
     projectDescription: '',
     institutionType: '',
   });
-  const [verified, setVerified] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedLicense, setAcceptedLicense] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('');
@@ -52,8 +48,8 @@ export function DownloadModal() {
   const isPremium = data.price !== null && data.price > 0;
 
   const steps: Step[] = isPremium
-    ? ['overview', 'verification', 'license', 'payment', 'download']
-    : ['overview', 'verification', 'license', 'download'];
+    ? ['overview', 'license', 'payment', 'download']
+    : ['overview', 'license', 'download'];
 
   const currentIdx = steps.indexOf(step);
   const isFirst = currentIdx === 0;
@@ -67,8 +63,6 @@ export function DownloadModal() {
           overview.projectDescription &&
           overview.institutionType
         );
-      case 'verification':
-        return verified;
       case 'license':
         return acceptedTerms && acceptedLicense;
       case 'payment':
@@ -93,14 +87,8 @@ export function DownloadModal() {
   };
 
   const handleDownload = () => {
-    trackDownload.mutate(
-      {
-        dataset: data.datasetId,
-        intended_use: overview.intendedUse,
-        project_description: overview.projectDescription,
-        intended_audience: overview.institutionType,
-        email_address: user?.email ?? '',
-      },
+    requestDownload.mutate(
+      { dataset: data.datasetId },
       {
         onSuccess: () => {
           handleClose();
@@ -117,7 +105,6 @@ export function DownloadModal() {
       projectDescription: '',
       institutionType: '',
     });
-    setVerified(false);
     setAcceptedTerms(false);
     setAcceptedLicense(false);
     setSelectedFormat('');
@@ -125,7 +112,6 @@ export function DownloadModal() {
 
   const stepLabels: Record<Step, string> = {
     overview: 'Overview',
-    verification: 'Verification',
     license: 'License',
     payment: 'Payment',
     download: 'Download',
@@ -159,13 +145,6 @@ export function DownloadModal() {
           {step === 'overview' && (
             <StepOverview data={overview} onChange={setOverview} />
           )}
-          {step === 'verification' && (
-            <StepVerification
-              email={user?.email ?? ''}
-              verified={verified}
-              onVerified={() => setVerified(true)}
-            />
-          )}
           {step === 'license' && (
             <StepLicense
               licenseTitle={data.license || 'Standard License'}
@@ -187,7 +166,7 @@ export function DownloadModal() {
               selectedFormat={selectedFormat}
               onFormatChange={setSelectedFormat}
               onDownload={handleDownload}
-              isDownloading={trackDownload.isPending}
+              isDownloading={requestDownload.isPending}
             />
           )}
         </div>

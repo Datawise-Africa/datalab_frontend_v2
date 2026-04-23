@@ -32,8 +32,10 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 
 export const resetPasswordSchema = z
   .object({
-    email: z.string().email('Please enter a valid email address'),
-    otp: z.string().min(4, 'OTP is required'),
+    otp_code: z
+      .string()
+      .min(4, 'OTP is required')
+      .max(6, 'OTP is at most 6 characters'),
     new_password: z.string().min(6, 'Password must be at least 6 characters'),
     confirm_password: z
       .string()
@@ -45,3 +47,8 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+export type ResetPasswordRequestBody = Pick<
+  ResetPasswordInput,
+  'otp_code' | 'new_password'
+>;

@@ -47,8 +47,8 @@ export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
                   className="h-6 w-6 border-2 border-card"
                 >
                   <AvatarFallback className="bg-muted text-[10px]">
-                    {member.first_name?.[0]}
-                    {member.last_name?.[0]}
+                    {member.user.first_name?.[0]}
+                    {member.user.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
               ))}

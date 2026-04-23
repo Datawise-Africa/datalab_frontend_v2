@@ -19,7 +19,11 @@ export const useCreateReview = () => {
     mutationFn: async (
       input: CreateReviewInput
     ): Promise<DatasetReviewType> => {
-      const { data } = await apiClient.post('/data/reviews/', input);
+      const { dataset, ...body } = input;
+      const { data } = await apiClient.post(
+        `/datasets/${dataset}/reviews/`,
+        body
+      );
       return data;
     },
     onSuccess: (_, variables) => {
@@ -36,36 +40,4 @@ export const useCreateReview = () => {
   });
 };
 
-export const useUpdateReview = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      id,
-      rating,
-      comment,
-    }: {
-      id: number;
-      rating: number;
-      comment: string;
-      datasetId: string;
-    }): Promise<DatasetReviewType> => {
-      const { data } = await apiClient.patch(`/data/reviews/${id}/`, {
-        rating,
-        comment,
-      });
-      return data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: reviewKeys.list(variables.datasetId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: datasetKeys.detail(variables.datasetId),
-      });
-    },
-    onError: (error) => {
-      toastUtils.error('Update failed', extractError(error));
-    },
-  });
-};
+// TODO: Review edit/delete not available in OpenAPI spec.

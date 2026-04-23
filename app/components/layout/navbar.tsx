@@ -73,11 +73,11 @@ function DesktopAuthButtons() {
           <Link to="/creators#apply-form">Become a Creator</Link>
         </Button>
       )}
-      {isCreator && (
+      {/* {isCreator && (
         <Button asChild variant="outline" size="sm">
           <Link to="/app/creator-dashboard">Dashboard</Link>
         </Button>
-      )}
+      )} */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="sm" className="gap-2">
@@ -90,9 +90,9 @@ function DesktopAuthButtons() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem asChild>
-            <Link to="/app/saved-datasets">
+            <Link to="/app/">
               <LayoutDashboard className="mr-2 h-4 w-4" />
-              Dashboard
+              My Lab
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -148,7 +148,7 @@ function MobileAuthSection() {
       )}
       <SheetClose asChild>
         <Button asChild variant="outline" className="w-full">
-          <Link to="/app/saved-datasets">
+          <Link to="/app/">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
           </Link>

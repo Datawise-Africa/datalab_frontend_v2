@@ -75,7 +75,7 @@ export default function BookmarksPage() {
                       variant="ghost"
                       size="sm"
                       className="text-destructive h-auto px-0"
-                      onClick={() => removeBookmark.mutate(bookmark.id)}
+                      onClick={() => removeBookmark.mutate(bookmark.dataset.id)}
                       disabled={removeBookmark.isPending}
                     >
                       Remove

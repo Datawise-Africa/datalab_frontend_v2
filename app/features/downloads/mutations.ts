@@ -3,18 +3,14 @@ import { apiClient } from '~/lib/api/client';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
 
-export interface TrackDownloadInput {
+export interface RequestDownloadInput {
   dataset: string;
-  intended_use: string;
-  project_description: string;
-  intended_audience: string;
-  email_address: string;
 }
 
-export const useTrackDownload = () => {
+export const useRequestDownload = () => {
   return useMutation({
-    mutationFn: async (input: TrackDownloadInput): Promise<void> => {
-      await apiClient.post('/data/dataset_downloads/', input);
+    mutationFn: async (input: RequestDownloadInput): Promise<void> => {
+      await apiClient.post(`/datasets/${input.dataset}/request-download/`);
     },
     onError: (error) => {
       toastUtils.error('Download failed', extractError(error));
@@ -22,34 +18,5 @@ export const useTrackDownload = () => {
   });
 };
 
-export const useSendOtp = () => {
-  return useMutation({
-    mutationFn: async (email: string): Promise<void> => {
-      await apiClient.post('/data/generate-otp/', { email });
-    },
-    onError: (error) => {
-      toastUtils.error('Failed to send OTP', extractError(error));
-    },
-  });
-};
-
-export const useVerifyOtp = () => {
-  return useMutation({
-    mutationFn: async ({
-      email,
-      code,
-    }: {
-      email: string;
-      code: string;
-    }): Promise<{ verified: boolean }> => {
-      const { data } = await apiClient.post('/data/verify-otp/', {
-        email,
-        code,
-      });
-      return data;
-    },
-    onError: (error) => {
-      toastUtils.error('Verification failed', extractError(error));
-    },
-  });
-};
+/** @deprecated Use useRequestDownload. Kept for compatibility until callers migrate. */
+export const useTrackDownload = useRequestDownload;

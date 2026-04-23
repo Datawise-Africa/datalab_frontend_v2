@@ -7,4 +7,6 @@ export const workspaceKeys = {
   members: (id: string) => [...workspaceKeys.all(), 'members', id] as const,
   datasets: (id: string) => [...workspaceKeys.all(), 'datasets', id] as const,
   analytics: (id: string) => [...workspaceKeys.all(), 'analytics', id] as const,
+  invitations: (id: string) =>
+    [...workspaceKeys.all(), 'invitations', id] as const,
 };

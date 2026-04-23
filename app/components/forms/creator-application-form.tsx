@@ -14,7 +14,14 @@ import { Badge } from '~/components/ui/badge';
 import { FormTextField, FormTextareaField } from '~/components/form-fields';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
-import { CheckCircle, ArrowRight, Loader2, Clock, Rocket } from 'lucide-react';
+import {
+  CheckCircle,
+  ArrowRight,
+  ArrowLeft,
+  Loader2,
+  Clock,
+  Rocket,
+} from 'lucide-react';
 import {
   becomeDatasetCreatorSchema,
   type BecomeDatasetCreatorInput,
@@ -60,12 +67,20 @@ export function CreatorApplicationForm() {
         <p className="text-muted-foreground">
           Sign in to submit your creator application.
         </p>
-        <Button
-          className="bg-primary hover:bg-primary/90"
-          onClick={() => authModal.open()}
-        >
-          Sign in to Apply
-        </Button>
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+          <Button
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => authModal.open()}
+          >
+            Sign in to Apply
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -97,6 +112,14 @@ export function CreatorApplicationForm() {
         <p className="text-sm text-muted-foreground">
           We&apos;ll notify you by email once reviewed.
         </p>
+        <div className="flex flex-col items-center gap-2 pt-2 sm:flex-row sm:justify-center">
+          <Button asChild className="bg-primary hover:bg-primary/90">
+            <Link to="/app/creator-dashboard">Go to Dashboard</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/datasets">Browse Datasets</Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -113,24 +136,45 @@ export function CreatorApplicationForm() {
           Thank you for applying. Our team will review your application and get
           back to you shortly.
         </p>
+        <div className="flex flex-col items-center gap-2 pt-2 sm:flex-row sm:justify-center">
+          <Button asChild className="bg-primary hover:bg-primary/90">
+            <Link to="/app/creator-dashboard">Go to Dashboard</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link to="/datasets">Browse Datasets</Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <ApplicationFormFields
-      onSubmit={(data) => {
-        submitApplication.mutate(data, {
-          onSuccess: () => setSubmitted(true),
-        });
-      }}
-      isPending={submitApplication.isPending}
-      error={
-        submitApplication.isError
-          ? 'Submission failed. Please try again.'
-          : undefined
-      }
-    />
+    <div className="space-y-4">
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="-ml-2 text-muted-foreground"
+      >
+        <Link to="/">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Home
+        </Link>
+      </Button>
+      <ApplicationFormFields
+        onSubmit={(data) => {
+          submitApplication.mutate(data, {
+            onSuccess: () => setSubmitted(true),
+          });
+        }}
+        isPending={submitApplication.isPending}
+        error={
+          submitApplication.isError
+            ? 'Submission failed. Please try again.'
+            : undefined
+        }
+      />
+    </div>
   );
 }
 

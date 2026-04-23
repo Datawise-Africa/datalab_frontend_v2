@@ -29,8 +29,7 @@ export function ResetPasswordForm({
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email,
-      otp: '',
+      otp_code: '',
       new_password: '',
       confirm_password: '',
     },
@@ -71,12 +70,12 @@ export function ResetPasswordForm({
         </p>
         <FormField
           control={form.control}
-          name="otp"
+          name="otp_code"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Reset code</FormLabel>
               <FormControl>
-                <Input placeholder="Enter code" maxLength={8} {...field} />
+                <Input placeholder="Enter code" maxLength={6} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
