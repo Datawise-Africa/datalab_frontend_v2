@@ -82,9 +82,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
     );
   }
 
-  const _isBookmarked = bookmarksData?.data?.some(
-    (b) => b.dataset.id === dataset.id
-  );
+  const _isBookmarked = bookmarksData?.some((b) => b.dataset.id === dataset.id);
 
   const handleDownload = () => {
     if (!isAuthenticated) {
