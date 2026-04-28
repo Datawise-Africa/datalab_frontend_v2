@@ -66,7 +66,7 @@ export const uploadDatasetFormSchema = z.object({
     .min(1, 'Category is required'), // Allow empty string for optional category
   license: z.string('Please select a license').min(1, 'License is required'),
   workspace: z.string().optional(),
-  dataset_image: z.string().optional(),
+  dataset_image: z.string().nullable().optional(),
   is_premium: z.boolean(),
   is_private: z.boolean(),
   origin_region: z.array(z.string()).default([]),

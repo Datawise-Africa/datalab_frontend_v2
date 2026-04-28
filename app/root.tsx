@@ -8,13 +8,10 @@ import {
   ScrollRestoration,
 } from 'react-router';
 import {
-  Database,
-  FileQuestion,
   AlertTriangle,
   ServerCrash,
   Home,
   ArrowLeft,
-  Search,
   RefreshCw,
 } from 'lucide-react';
 
@@ -104,79 +101,22 @@ export default function App() {
 
 function NotFoundError() {
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10/60 blur-3xl" />
-        <div className="absolute right-1/4 top-1/2 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
-      </div>
-
-      <div className="relative mb-8">
-        <div className="flex h-28 w-28 items-center justify-center rounded-full bg-primary/5 ring-1 ring-primary/20">
-          <FileQuestion className="h-14 w-14 text-primary" strokeWidth={1.5} />
-        </div>
-        <div className="absolute -bottom-1 -right-1 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md ring-1 ring-primary/20">
-          <Search className="h-5 w-5 text-primary" />
-        </div>
-      </div>
-
-      <h1 className="mb-2 text-8xl font-extrabold tracking-tight text-primary sm:text-9xl">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-7xl font-bold tracking-tight text-primary sm:text-8xl">
         404
       </h1>
-
-      <h2 className="mb-3 text-2xl font-semibold text-foreground sm:text-3xl">
+      <h2 className="mt-2 text-xl font-semibold text-foreground">
         Page not found
       </h2>
-      <p className="mb-8 max-w-md text-muted-foreground">
-        Sorry, we couldn&apos;t find the page you&apos;re looking for. It may
-        have been moved, deleted, or perhaps the URL was mistyped.
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+        The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </p>
-
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button asChild size="lg">
-          <Link to="/">
-            <Home className="h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
-        <Button asChild variant="outline" size="lg">
-          <Link to="/datasets">
-            <Database className="h-4 w-4" />
-            Browse Datasets
-          </Link>
-        </Button>
-      </div>
-
-      <div className="mt-12 rounded-xl border bg-card p-6 shadow-sm">
-        <p className="mb-4 text-sm font-medium text-foreground">
-          Here are some helpful links:
-        </p>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
-          <Link
-            to="/datasets"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Datasets
-          </Link>
-          <Link
-            to="/docs"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            API Docs
-          </Link>
-          <Link
-            to="/research"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Research
-          </Link>
-          <Link
-            to="/contact"
-            className="text-primary underline-offset-4 hover:underline"
-          >
-            Contact Us
-          </Link>
-        </div>
-      </div>
+      <Button asChild className="mt-6">
+        <Link to="/">
+          <Home className="h-4 w-4" />
+          Back to home
+        </Link>
+      </Button>
     </div>
   );
 }

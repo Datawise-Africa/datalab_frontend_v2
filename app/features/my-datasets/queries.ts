@@ -13,6 +13,7 @@ interface MyDatasetsParams {
   search?: string;
   sort?: string;
   order?: string;
+  workspace?: string;
 }
 
 /**

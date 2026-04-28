@@ -5,7 +5,9 @@ import {
   type StepConfig,
 } from '~/components/ui/multi-step-form';
 import { Form } from '~/components/ui/form';
-import { Info, UserPlus, Globe, ShieldCheck } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import { Separator } from '~/components/ui/separator';
+import { Info, Loader2, UserPlus, Globe, ShieldCheck } from 'lucide-react';
 import {
   StepBasicInfo,
   StepAuthorsAccess,
@@ -56,6 +58,39 @@ export function DatasetForm({
 
   const isEdit = mode === 'edit';
   const submitLabel = isEdit ? 'Update Dataset' : 'Create Dataset';
+
+  if (isEdit) {
+    return (
+      <Form {...form}>
+        <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl">
+          <StepBasicInfo
+            categories={categories}
+            licenses={licenses}
+            countries={countries}
+          />
+          <Separator />
+          <StepAuthorsAccess />
+          <Separator />
+          <StepDiscovery />
+
+          {error && (
+            <p className="text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {submitLabel}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    );
+  }
 
   return (
     <Form {...form}>

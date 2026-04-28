@@ -48,6 +48,7 @@ import { toggleDarkMode } from '~/store/slices/theme-slice';
 import { AuthPerm } from '~/lib/utils/perm';
 import { useLogout } from '~/features/auth';
 import { useIsClient } from '~/hooks/use-is-client';
+import { useMediaQuery } from '~/hooks/use-media-query';
 import { NotificationBell } from '~/components/dashboard/notification-bell';
 import { BecomeCreatorBanner } from '~/components/dashboard/become-creator-banner';
 import { UserProfileMenu } from '~/components/dashboard/user-profile-menu';
@@ -135,24 +136,27 @@ function buildAppSections({
           icon: LayoutDashboard,
         },
         { label: 'Upload Dataset', to: '/app/upload-dataset', icon: Upload },
+        {
+          label: 'My Dashboards',
+          to: '/app/my-dashboards',
+          icon: LayoutGrid,
+        },
         { label: 'Analytics', to: '/app/analytics', icon: BarChart3 },
         { label: 'Reports', to: '/app/creator-reports', icon: FileText },
       ],
     });
   }
 
-  if (isCreator || isAdmin) {
-    sections.push({
-      title: 'Workspaces',
-      links: [
-        {
-          label: 'My Workspaces',
-          to: '/app/workspaces',
-          icon: FolderKanban,
-        },
-      ],
-    });
-  }
+  sections.push({
+    title: 'Workspaces',
+    links: [
+      {
+        label: 'My Workspaces',
+        to: '/app/workspaces',
+        icon: FolderKanban,
+      },
+    ],
+  });
 
   if (isAdmin) {
     sections.push({
@@ -164,6 +168,11 @@ function buildAppSections({
           label: 'Approved Creators',
           to: '/app/approved-creators',
           icon: UserCheck,
+        },
+        {
+          label: 'Dashboard Categories',
+          to: '/app/dashboard-categories',
+          icon: LayoutGrid,
         },
       ],
     });
@@ -301,7 +310,7 @@ function SidebarContent({
       {/* Navigation */}
       <nav
         className={cn(
-          'flex-1 overflow-y-auto py-4 space-y-5',
+          'flex-1 overflow-y-auto scrollbar-thin py-4 space-y-5',
           collapsed ? 'px-2' : 'px-3'
         )}
       >
@@ -473,28 +482,34 @@ function SearchTrigger() {
   );
 }
 
+export const meta = () => [{ name: 'robots', content: 'noindex, nofollow' }];
+
 export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [userCollapsed, setUserCollapsed] = useState(false);
   const isClient = useIsClient();
+  const isLg = useMediaQuery('(min-width: 1024px)');
+
+  // Force collapsed at md (768-1023); respect user toggle at lg+.
+  const collapsed = !isLg || userCollapsed;
 
   return (
     <Protect>
       <TooltipProvider delayDuration={0}>
         <div className="flex h-screen overflow-hidden bg-background">
-          {/* Desktop sidebar */}
+          {/* Desktop sidebar (md+) */}
           <aside
             className={cn(
-              'hidden shrink-0 border-r border-border bg-card transition-[width] duration-200 lg:block relative',
+              'hidden shrink-0 border-r border-border bg-card transition-[width] duration-200 md:block relative',
               collapsed ? 'w-16' : 'w-64'
             )}
           >
             <SidebarContent collapsed={collapsed} />
-            {/* Collapse toggle */}
+            {/* Collapse toggle — only on lg+ where expand makes sense */}
             <button
               type="button"
-              onClick={() => setCollapsed(!collapsed)}
-              className="absolute -right-3 top-[4.25rem] z-10 flex h-6 w-6 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground"
+              onClick={() => setUserCollapsed(!userCollapsed)}
+              className="absolute -right-3 top-[4.25rem] z-10 hidden h-6 w-6 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-sm transition-colors hover:text-foreground lg:flex"
             >
               {collapsed ? (
                 <PanelLeftOpen className="h-3.5 w-3.5" />
@@ -515,7 +530,7 @@ export default function DashboardLayout() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="lg:hidden h-8 w-8"
+                      className="md:hidden h-8 w-8"
                     >
                       <Menu className="h-5 w-5" />
                       <span className="sr-only">Open menu</span>

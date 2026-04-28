@@ -14,6 +14,7 @@ import type { MyDatasetInterface } from '~/features/my-datasets/types';
 import {
   DATASET_STATUS_LABELS,
   DATASET_STATUS_VARIANTS,
+  getWorkspaceName,
 } from '~/features/my-datasets/types';
 
 interface DatasetPreviewModalProps {
@@ -151,7 +152,9 @@ function PreviewContent({
           Category: {dataset.category.name}
         </span>
         <span className="capitalize">Access: {dataset.access.access_type}</span>
-        {dataset.workspace && <span>Workspace: {dataset.workspace.name}</span>}
+        {getWorkspaceName(dataset.workspace) && (
+          <span>Workspace: {getWorkspaceName(dataset.workspace)}</span>
+        )}
       </div>
 
       {dataset.access.access_instructions && (

@@ -38,7 +38,7 @@ export default function WorkspaceUploadDataset() {
     license: '',
     is_premium: false,
     is_private: false,
-    dataset_image: '',
+    dataset_image: null,
     workspace: workspaceId,
     origin_region: [],
     tags: [],
@@ -48,11 +48,13 @@ export default function WorkspaceUploadDataset() {
   };
 
   const handleSubmit = async (data: UploadDatasetFormValues) => {
-    const payload = {
-      ...data,
+    const { dataset_image, ...rest } = data;
+    const payload: Record<string, unknown> = {
+      ...rest,
       workspace: workspaceId,
       origin_region: data.origin_region.join(','),
     };
+    if (dataset_image) payload.dataset_image = dataset_image;
 
     await createDataset.mutateAsync(payload as never, {
       onSuccess: () => {

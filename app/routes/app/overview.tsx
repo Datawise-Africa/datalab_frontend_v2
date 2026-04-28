@@ -14,30 +14,7 @@ import { useAppSelector } from '~/store';
 import { useBookmarkedDatasets } from '~/features/bookmarks';
 import { useDownloadHistory } from '~/features/downloads';
 import { AuthPerm } from '~/lib/utils/perm';
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+import { StatCard } from '~/components/analytics/stat-card';
 
 function QuickAction({
   label,
@@ -96,15 +73,22 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           label="Bookmarked Datasets"
-          value={bookmarks?.length ?? 0}
+          value={(bookmarks?.length ?? 0).toLocaleString()}
           icon={Bookmark}
+          hint="Datasets you've saved for quick access."
         />
         <StatCard
           label="Downloads"
-          value={downloads?.data?.length ?? 0}
+          value={(downloads?.data?.length ?? 0).toLocaleString()}
           icon={Download}
+          hint="Approved download requests on your account."
         />
-        <StatCard label="Datasets" value="--" icon={Database} />
+        <StatCard
+          label="Datasets"
+          value="—"
+          icon={Database}
+          hint="Total datasets you own."
+        />
       </div>
 
       {/* Quick actions */}

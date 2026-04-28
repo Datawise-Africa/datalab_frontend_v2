@@ -1,5 +1,6 @@
 import type { Route } from './+types/index';
 import { generateSEOTags } from '~/lib/utils/seo';
+import { organizationSchema, websiteSchema } from '~/lib/utils/structured-data';
 import { Hero } from '~/components/landing/hero';
 import { FeaturedDatasets } from '~/components/landing/featured-datasets';
 import { FeaturedReports } from '~/components/landing/featured-reports';
@@ -12,6 +13,8 @@ export function meta(_args: Route.MetaArgs) {
     title: 'Access, Integrate & Build with World-Class Datasets',
     description:
       'Data Lab provides curated, high-quality datasets with developer-friendly APIs. Browse thousands of datasets, integrate in minutes, and build data-driven applications at scale.',
+    url: '/',
+    jsonLd: [organizationSchema(), websiteSchema()],
   });
 }
 
