@@ -44,7 +44,7 @@ export default function WorkspaceLayout() {
   const myRole = getUserWorkspaceRole(user?.id, members ?? []);
 
   return (
-    <Protect roles={['creator', 'admin']}>
+    <Protect>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-2">

@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router';
+import { useParams, useSearchParams, Link } from 'react-router';
 import moment from 'moment';
 import type { Route } from './+types/view-dataset';
 import { generateSEOTags } from '~/lib/utils/seo';
@@ -19,7 +19,6 @@ import {
   Pencil,
   User,
   Calendar,
-  BookOpen,
   ClipboardList,
   Globe,
   Archive,
@@ -27,12 +26,15 @@ import {
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useMyDataset, useUpdateMyDatasetStatus } from '~/features/my-datasets';
-import type { MyDatasetInterface } from '~/features/my-datasets';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
 import {
   DATASET_STATUS_LABELS,
   DATASET_STATUS_VARIANTS,
+  getWorkspaceId,
+  getWorkspaceName,
 } from '~/features/my-datasets/types';
 import { VersionsTab } from '~/components/creator-dashboard/dataset-versions';
+import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -43,7 +45,17 @@ export function meta(_args: Route.MetaArgs) {
 
 export default function ViewDataset() {
   const { id: datasetId } = useParams() as { id: string };
+  const [searchParams] = useSearchParams();
   const { data: dataset, isLoading } = useMyDataset(datasetId);
+
+  const workspaceId =
+    searchParams.get('workspace') ?? getWorkspaceId(dataset?.workspace) ?? null;
+  const backHref = workspaceId
+    ? `/app/workspaces/${workspaceId}/datasets`
+    : '/app/creator-dashboard';
+  const editHref = workspaceId
+    ? `/app/edit-dataset/${datasetId}?workspace=${workspaceId}`
+    : `/app/edit-dataset/${datasetId}`;
 
   return (
     <Protect roles={['creator', 'admin']}>
@@ -52,7 +64,7 @@ export default function ViewDataset() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" asChild>
-              <Link to="/app/creator-dashboard">
+              <Link to={backHref}>
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
@@ -62,7 +74,7 @@ export default function ViewDataset() {
             <div className="flex items-center gap-2">
               <StatusActions dataset={dataset} />
               <Button asChild size="sm" variant="outline">
-                <Link to={`/app/edit-dataset/${datasetId}`}>
+                <Link to={editHref}>
                   <Pencil className="mr-1.5 h-4 w-4" />
                   Edit
                 </Link>
@@ -92,193 +104,238 @@ export default function ViewDataset() {
 function DatasetContent({
   dataset,
 }: Readonly<{ dataset: MyDatasetInterface }>) {
-  const authorName =
-    dataset.authors.length > 0
-      ? `${dataset.authors[0].user.first_name} ${dataset.authors[0].user.last_name}`
-      : 'Unknown';
+  const regions = dataset.origin_region
+    ? dataset.origin_region
+        .split(',')
+        .map((r) => r.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div className="space-y-6">
-      {/* Title + badges */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Badge
-            className={cn(
-              'text-xs font-medium',
-              DATASET_STATUS_VARIANTS[dataset.status]
-            )}
-          >
-            {DATASET_STATUS_LABELS[dataset.status]}
-          </Badge>
-          <Badge variant="secondary" className="capitalize">
-            {dataset.dataset_type}
-          </Badge>
-          {dataset.is_premium && (
-            <Badge className="bg-primary text-white">Premium</Badge>
-          )}
-          {dataset.is_private && (
-            <Badge variant="outline" className="text-muted-foreground">
-              Private
-            </Badge>
-          )}
-        </div>
-        <h2 className="text-xl font-bold tracking-tight">{dataset.name}</h2>
-        <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <User className="h-3.5 w-3.5" />
-            {authorName}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5" />
-            Updated: {moment(dataset.updated_at).format('YYYY-MM-DD')}
-          </span>
-        </div>
-        <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-          {dataset.description}
-        </p>
-      </div>
+      <DatasetHero dataset={dataset} />
 
-      {/* Tags */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <main className="space-y-6 lg:col-span-2">
+          <Tabs defaultValue="versions">
+            <TabsList>
+              <TabsTrigger value="versions">Versions</TabsTrigger>
+              <TabsTrigger value="schema">Schema</TabsTrigger>
+              <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="versions" className="mt-4">
+              <VersionsTab datasetId={dataset.id} />
+            </TabsContent>
+
+            <TabsContent value="schema" className="mt-4">
+              <DatasetSchemaTab schema={dataset.schema} />
+            </TabsContent>
+
+            <TabsContent value="datasheet" className="mt-4">
+              <DatasheetTab dataset={dataset} />
+            </TabsContent>
+          </Tabs>
+        </main>
+
+        <aside className="space-y-4">
+          <AboutCard dataset={dataset} regions={regions} />
+          <LicenseCard dataset={dataset} />
+          <AuthorsCard dataset={dataset} />
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+/* ── Hero (title + badges + description + tags) ── */
+
+function DatasetHero({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
+  return (
+    <section className="rounded-xl border bg-card p-5">
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <Badge
+          className={cn(
+            'text-xs font-medium',
+            DATASET_STATUS_VARIANTS[dataset.status]
+          )}
+        >
+          {DATASET_STATUS_LABELS[dataset.status]}
+        </Badge>
+        <Badge variant="secondary" className="capitalize">
+          {dataset.dataset_type}
+        </Badge>
+        {dataset.is_premium && (
+          <Badge className="bg-primary text-white">Premium</Badge>
+        )}
+        {dataset.is_private && (
+          <Badge variant="outline" className="text-muted-foreground">
+            Private
+          </Badge>
+        )}
+      </div>
+      <h2 className="text-xl font-bold tracking-tight">{dataset.name}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        {dataset.description}
+      </p>
       {dataset.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {dataset.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="text-xs">
-              {tag}
+              #{tag}
             </Badge>
           ))}
         </div>
       )}
+    </section>
+  );
+}
 
-      {/* Origin Regions */}
-      {dataset.origin_region && (
-        <div>
-          <p className="text-xs font-medium text-muted-foreground mb-1.5">
-            Origin Regions:
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {dataset.origin_region
-              .split(',')
-              .map((r) => r.trim())
-              .filter(Boolean)
-              .map((region) => (
-                <Badge key={region} variant="secondary" className="text-xs">
-                  {region}
+/* ── Sidebar Cards ── */
+
+function AboutCard({
+  dataset,
+  regions,
+}: Readonly<{ dataset: MyDatasetInterface; regions: string[] }>) {
+  const workspaceName = getWorkspaceName(dataset.workspace);
+  const workspaceId = getWorkspaceId(dataset.workspace);
+
+  return (
+    <section className="rounded-xl border bg-card p-5">
+      <h3 className="mb-3 text-sm font-semibold">About</h3>
+      <dl className="space-y-2.5 text-xs">
+        <Field label="Category">{dataset.category.name}</Field>
+        <Field label="Access" className="capitalize">
+          {dataset.access.access_type}
+        </Field>
+        {(workspaceName || workspaceId) && (
+          <Field label="Workspace">
+            {workspaceId ? (
+              <Link
+                to={`/app/workspaces/${workspaceId}/datasets`}
+                className="text-primary hover:underline"
+              >
+                {workspaceName ?? workspaceId}
+              </Link>
+            ) : (
+              workspaceName
+            )}
+          </Field>
+        )}
+        {regions.length > 0 && (
+          <Field label="Origin">
+            <div className="flex flex-wrap gap-1">
+              {regions.map((r) => (
+                <Badge key={r} variant="secondary" className="text-[10px]">
+                  {r}
                 </Badge>
               ))}
-          </div>
-        </div>
-      )}
-
-      {/* Category + Access */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <BookOpen className="h-3.5 w-3.5" />
-          Category: {dataset.category.name}
-        </span>
-        <span className="capitalize">Access: {dataset.access.access_type}</span>
-        {dataset.workspace && <span>Workspace: {dataset.workspace.name}</span>}
-      </div>
+            </div>
+          </Field>
+        )}
+        <Separator className="my-2" />
+        <Field label="Created" icon={<Calendar className="h-3 w-3" />}>
+          {moment(dataset.created_at).format('MMM D, YYYY')}
+        </Field>
+        <Field label="Updated" icon={<Calendar className="h-3 w-3" />}>
+          {moment(dataset.updated_at).format('MMM D, YYYY')}
+        </Field>
+      </dl>
 
       {dataset.access.access_instructions && (
-        <div className="rounded-md border p-3">
-          <p className="text-xs font-medium mb-1">Access Instructions</p>
-          <p className="text-xs text-muted-foreground">
+        <>
+          <Separator className="my-3" />
+          <p className="mb-1 text-xs font-medium">Access instructions</p>
+          <p className="text-xs leading-relaxed text-muted-foreground">
             {dataset.access.access_instructions}
           </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+function LicenseCard({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
+  if (!dataset.license) return null;
+  const flags = [
+    { label: 'Commercial use', on: dataset.license.allows_commercial_use },
+    { label: 'Modification', on: dataset.license.allows_modification },
+    { label: 'Attribution', on: dataset.license.requires_attribution },
+    { label: 'Redistribution', on: dataset.license.allows_redistribution },
+    { label: 'Share-alike', on: dataset.license.requires_share_alike },
+  ].filter((f) => f.on);
+
+  return (
+    <section className="rounded-xl border bg-card p-5">
+      <h3 className="mb-1 text-sm font-semibold">License</h3>
+      <p className="text-sm font-medium">{dataset.license.name}</p>
+      {dataset.license.description && (
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          {dataset.license.description}
+        </p>
+      )}
+      {flags.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
+          {flags.map((f) => (
+            <Badge key={f.label} variant="secondary" className="text-[10px]">
+              {f.label}
+            </Badge>
+          ))}
         </div>
       )}
+    </section>
+  );
+}
 
-      <Separator />
-
-      {/* License */}
-      {dataset.license && (
-        <div>
-          <h3 className="text-sm font-semibold mb-1">Usage License</h3>
-          <p className="text-xs text-muted-foreground">
-            {dataset.license.name}
-            {dataset.license.description && (
-              <span className="block mt-1">{dataset.license.description}</span>
-            )}
-          </p>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {dataset.license.allows_commercial_use && (
-              <Badge variant="secondary" className="text-xs">
-                Commercial use
-              </Badge>
-            )}
-            {dataset.license.allows_modification && (
-              <Badge variant="secondary" className="text-xs">
-                Modification
-              </Badge>
-            )}
-            {dataset.license.requires_attribution && (
-              <Badge variant="secondary" className="text-xs">
-                Attribution required
-              </Badge>
-            )}
-            {dataset.license.allows_redistribution && (
-              <Badge variant="secondary" className="text-xs">
-                Redistribution
-              </Badge>
-            )}
+function AuthorsCard({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
+  if (dataset.authors.length === 0) return null;
+  return (
+    <section className="rounded-xl border bg-card p-5">
+      <h3 className="mb-3 text-sm font-semibold">Authors</h3>
+      <div className="space-y-3">
+        {dataset.authors.map((author) => (
+          <div key={author.user.id} className="flex items-center gap-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <User className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">
+                {author.user.first_name} {author.user.last_name}
+              </p>
+              {author.user.email && (
+                <p className="truncate text-xs text-muted-foreground">
+                  {author.user.email}
+                </p>
+              )}
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                {author.role}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
-
-      <Separator />
-
-      {/* Authors */}
-      {dataset.authors.length > 0 && (
-        <div>
-          <h3 className="text-sm font-semibold mb-2">Authors</h3>
-          <div className="space-y-2">
-            {dataset.authors.map((author) => (
-              <div key={author.user.id} className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <User className="h-4 w-4" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">
-                    {author.user.first_name} {author.user.last_name}
-                  </p>
-                  {author.user.email && (
-                    <p className="text-xs text-muted-foreground">
-                      {author.user.email}
-                    </p>
-                  )}
-                  <p className="text-xs text-muted-foreground capitalize">
-                    {author.role}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Dates */}
-      <Separator />
-      <div className="flex gap-6 text-xs text-muted-foreground">
-        <span>Created: {moment(dataset.created_at).format('YYYY-MM-DD')}</span>
-        <span>Updated: {moment(dataset.updated_at).format('YYYY-MM-DD')}</span>
+        ))}
       </div>
+    </section>
+  );
+}
 
-      {/* ── Datasheet & Versions Tabs ── */}
-      <Separator />
-      <Tabs defaultValue="datasheet">
-        <TabsList>
-          <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
-          <TabsTrigger value="versions">Versions</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="datasheet">
-          <DatasheetTab dataset={dataset} />
-        </TabsContent>
-
-        <TabsContent value="versions">
-          <VersionsTab datasetId={dataset.id} />
-        </TabsContent>
-      </Tabs>
+function Field({
+  label,
+  children,
+  className,
+  icon,
+}: Readonly<{
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+  icon?: React.ReactNode;
+}>) {
+  return (
+    <div className="flex items-start justify-between gap-3">
+      <dt className="flex items-center gap-1 text-muted-foreground">
+        {icon}
+        {label}
+      </dt>
+      <dd className={cn('text-right font-medium', className)}>{children}</dd>
     </div>
   );
 }
@@ -295,7 +352,6 @@ function StatusActions({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
 
   return (
     <>
-      {/* Draft -> Published / Archived */}
       {dataset.status === 'DF' && (
         <>
           <Button
@@ -326,8 +382,6 @@ function StatusActions({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
           </Button>
         </>
       )}
-
-      {/* Published -> Draft / Archived */}
       {dataset.status === 'PB' && (
         <>
           <Button
@@ -358,8 +412,6 @@ function StatusActions({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
           </Button>
         </>
       )}
-
-      {/* Archived -> Draft */}
       {dataset.status === 'AR' && (
         <Button
           size="sm"
@@ -394,14 +446,11 @@ const datasheetFields = [
 function DatasheetTab({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
   if (!dataset.datasheet) {
     return (
-      <div className="py-12 text-center text-muted-foreground">
-        <ClipboardList className="mx-auto mb-3 h-8 w-8" />
-        <p className="text-sm font-medium">No datasheet available</p>
-        <p className="text-xs mt-1">
-          Edit this dataset to add documentation following the Datasheets for
-          Datasets framework.
-        </p>
-      </div>
+      <EmptyState
+        icon={<ClipboardList className="h-8 w-8" />}
+        title="No datasheet available"
+        description="Edit this dataset to add documentation following the Datasheets for Datasets framework."
+      />
     );
   }
 
@@ -409,13 +458,11 @@ function DatasheetTab({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
 
   if (populated.length === 0) {
     return (
-      <div className="py-12 text-center text-muted-foreground">
-        <ClipboardList className="mx-auto mb-3 h-8 w-8" />
-        <p className="text-sm font-medium">Datasheet is empty</p>
-        <p className="text-xs mt-1">
-          Edit this dataset to fill in the datasheet fields.
-        </p>
-      </div>
+      <EmptyState
+        icon={<ClipboardList className="h-8 w-8" />}
+        title="Datasheet is empty"
+        description="Edit this dataset to fill in the datasheet fields."
+      />
     );
   }
 
@@ -427,12 +474,32 @@ function DatasheetTab({ dataset }: Readonly<{ dataset: MyDatasetInterface }>) {
             {label}
           </AccordionTrigger>
           <AccordionContent className="px-3">
-            <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+            <p className="whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
               {dataset.datasheet![key]}
             </p>
           </AccordionContent>
         </AccordionItem>
       ))}
     </Accordion>
+  );
+}
+
+/* ── Empty State ── */
+
+function EmptyState({
+  icon,
+  title,
+  description,
+}: Readonly<{
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+}>) {
+  return (
+    <div className="rounded-md border border-dashed py-12 text-center text-muted-foreground">
+      <div className="mx-auto mb-3">{icon}</div>
+      <p className="text-sm font-medium">{title}</p>
+      <p className="mt-1 text-xs">{description}</p>
+    </div>
   );
 }

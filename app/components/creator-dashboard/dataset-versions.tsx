@@ -350,7 +350,11 @@ function UploadFilesDialog({
 
       const presignedFiles = response.files;
 
-      // Store presigned entries on items so retries can reuse them
+      // Pair each item with its presigned entry. Persist on state so retries
+      // can reuse the entries, and pass them explicitly to uploadFiles since
+      // setItems doesn't flush synchronously.
+      const pairs: { item: FileUploadItem; presigned: PresignedFileEntry }[] =
+        [];
       for (const item of pendingItems) {
         const idx = items.indexOf(item);
         const entry = presignedFiles.find(
@@ -358,11 +362,12 @@ function UploadFilesDialog({
         );
         if (entry) {
           updateItem(idx, { presignedEntry: entry });
+          pairs.push({ item, presigned: entry });
         }
       }
 
       // Step 2: Upload each file to its presigned URL
-      await uploadFiles(pendingItems);
+      await uploadFiles(pairs);
     } catch {
       items.forEach((item, i) => {
         if (item.status === 'pending') {
@@ -378,12 +383,13 @@ function UploadFilesDialog({
   };
 
   /** Upload a list of items using their presigned entries. */
-  const uploadFiles = async (toUpload: FileUploadItem[]) => {
+  const uploadFiles = async (
+    toUpload: { item: FileUploadItem; presigned: PresignedFileEntry }[]
+  ) => {
     const uploaded: { presigned: PresignedFileEntry; file: File }[] = [];
 
-    for (const item of toUpload) {
+    for (const { item, presigned } of toUpload) {
       const itemIndex = items.indexOf(item);
-      const presigned = item.presignedEntry;
 
       if (!presigned) {
         updateItem(itemIndex, {
@@ -419,6 +425,8 @@ function UploadFilesDialog({
             file_size: file.size,
             file_type: presigned.file_type,
             s3_key: presigned.s3_key,
+            mime_type:
+              presigned.content_type || file.type || 'application/octet-stream',
           })),
         },
       });
@@ -427,9 +435,12 @@ function UploadFilesDialog({
 
   /** Retry all failed uploads that have a presigned URL. */
   const handleRetry = async () => {
-    const retryable = items.filter(
-      (i) => i.status === 'error' && i.presignedEntry
-    );
+    const retryable = items
+      .filter(
+        (i): i is FileUploadItem & { presignedEntry: PresignedFileEntry } =>
+          i.status === 'error' && !!i.presignedEntry
+      )
+      .map((i) => ({ item: i, presigned: i.presignedEntry }));
     if (retryable.length === 0) return;
 
     setIsUploading(true);
@@ -518,10 +529,12 @@ function UploadFilesDialog({
                       <button
                         type="button"
                         onClick={() => {
+                          const presigned = item.presignedEntry;
+                          if (!presigned) return;
                           (async () => {
                             setIsUploading(true);
                             try {
-                              await uploadFiles([item]);
+                              await uploadFiles([{ item, presigned }]);
                             } finally {
                               setIsUploading(false);
                             }

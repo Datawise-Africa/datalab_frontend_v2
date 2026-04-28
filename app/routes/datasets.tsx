@@ -37,7 +37,11 @@ import { DatasetSearch } from '~/components/dataset-catalog/dataset-search';
 import { FilterSidebar } from '~/components/dataset-catalog/filter-sidebar';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import { useDatasets } from '~/features/datasets';
-import { useAddBookmark, useBookmarkedDatasets } from '~/features/bookmarks';
+import {
+  useAddBookmark,
+  useBookmarkedDatasets,
+  useRemoveBookmark,
+} from '~/features/bookmarks';
 import { useAppFilter } from '~/store/slices/filter-slice';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
@@ -49,12 +53,18 @@ import { cn } from '~/lib/utils';
 import { PageHeader } from '~/components/layout/page-header';
 import type { Route } from './+types/datasets';
 import { generateSEOTags } from '~/lib/utils/seo';
+import { breadcrumbSchema } from '~/lib/utils/structured-data';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Datasets',
     description:
       'Browse our curated collection of high-quality datasets for research and development.',
+    url: '/datasets',
+    jsonLd: breadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'Datasets', url: '/datasets' },
+    ]),
   });
 }
 
@@ -98,6 +108,7 @@ export default function Datasets() {
   } = useDatasets(params);
   const { data: bookmarksData } = useBookmarkedDatasets({}, isAuthenticated);
   const addBookmark = useAddBookmark();
+  const removeBookmark = useRemoveBookmark();
 
   const datasets: NormalizedDataset[] = useMemo(() => {
     if (!response?.data) return [];
@@ -133,9 +144,13 @@ export default function Datasets() {
         authModal.open();
         return;
       }
-      addBookmark.mutate(datasetId);
+      if (bookmarkedIds.has(datasetId)) {
+        removeBookmark.mutate(datasetId);
+      } else {
+        addBookmark.mutate(datasetId);
+      }
     },
-    [isAuthenticated, authModal, addBookmark]
+    [isAuthenticated, authModal, bookmarkedIds, addBookmark, removeBookmark]
   );
 
   return (
@@ -148,27 +163,29 @@ export default function Datasets() {
       {/* Sticky search + sort bar */}
       <section className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <DatasetSearch
               value={filter.searchQuery}
               onChange={filter.setSearchQuery}
               className="flex-1"
             />
 
-            {/* Mobile filter trigger */}
-            <MobileFilterSheet filter={filter} />
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Mobile filter trigger */}
+              <MobileFilterSheet filter={filter} />
 
-            {/* Sort */}
-            <AsyncSelect
-              value={filter.sortBy}
-              onChange={(val) => filter.setSortBy(val ?? 'created_at')}
-              options={datasetSortOptions.map((o) => ({
-                label: o.label,
-                value: o.value,
-              }))}
-              placeholder="Sort by"
-              className="h-9 w-40 shrink-0"
-            />
+              {/* Sort */}
+              <AsyncSelect
+                value={filter.sortBy}
+                onChange={(val) => filter.setSortBy(val ?? 'created_at')}
+                options={datasetSortOptions.map((o) => ({
+                  label: o.label,
+                  value: o.value,
+                }))}
+                placeholder="Sort by"
+                className="h-9 w-full sm:w-40 sm:shrink-0"
+              />
+            </div>
           </div>
 
           {/* Active filter pills */}
@@ -182,11 +199,11 @@ export default function Datasets() {
           {/* Desktop sidebar */}
           <FilterSidebar
             filter={filter}
-            className="hidden w-60 shrink-0 lg:block"
+            className="hidden w-60 shrink-0 md:block"
           />
 
           {/* Results area */}
-          <div className="min-w-0 flex-1">
+          <div className="@container min-w-0 flex-1">
             {/* Results header: count + refresh — always visible */}
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
@@ -218,18 +235,19 @@ export default function Datasets() {
               </Button>
             </div>
 
-            {/* Pagination — top — always visible */}
-            <PaginationControls
-              page={page}
-              limit={limit}
-              total={total}
-              onPageChange={setPage}
-              onLimitChange={(l) => {
-                setLimit(l);
-                setPage(1);
-              }}
-              className="mb-6"
-            />
+            {/* Pagination — top — hidden on mobile */}
+            <div className="mb-6 hidden sm:block">
+              <PaginationControls
+                page={page}
+                limit={limit}
+                total={total}
+                onPageChange={setPage}
+                onLimitChange={(l) => {
+                  setLimit(l);
+                  setPage(1);
+                }}
+              />
+            </div>
 
             {/* Content area */}
             {isLoading ? (
@@ -286,7 +304,7 @@ export default function Datasets() {
                 )}
               </Empty>
             ) : (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 @xl:grid-cols-2 @4xl:grid-cols-3">
                 {datasets.map((dataset) => (
                   <DatasetCard key={dataset.id} dataset={dataset}>
                     <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
@@ -347,7 +365,7 @@ function MobileFilterSheet({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="h-9 shrink-0 lg:hidden">
+        <Button variant="outline" size="sm" className="h-9 shrink-0 md:hidden">
           <SlidersHorizontal className="mr-1.5 h-4 w-4" />
           Filters
           {filter.activeTagCount > 0 && (

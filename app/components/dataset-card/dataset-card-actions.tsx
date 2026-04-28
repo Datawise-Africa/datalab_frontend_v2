@@ -38,24 +38,39 @@ export function DatasetCardActions({
         <Button
           variant="outline"
           size="sm"
-          className="flex-1"
+          className="flex-1 min-w-0"
           onClick={onPreview}
         >
           <Eye className="mr-1.5 h-3.5 w-3.5" />
           Preview
         </Button>
-        <Button variant="outline" size="sm" onClick={onEdit}>
-          <Pencil className="mr-1.5 h-3.5 w-3.5" />
-          Edit
-        </Button>
-        <Button variant="outline" size="sm" onClick={onArchive}>
-          <Archive className="mr-1.5 h-3.5 w-3.5" />
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={onEdit}
+          title="Edit"
+          aria-label="Edit"
+        >
+          <Pencil className="h-3.5 w-3.5" />
         </Button>
         <Button
           variant="outline"
-          size="sm"
-          className="text-destructive hover:text-destructive"
+          size="icon"
+          className="h-8 w-8 shrink-0"
+          onClick={onArchive}
+          title="Archive"
+          aria-label="Archive"
+        >
+          <Archive className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 w-8 shrink-0 text-destructive hover:text-destructive"
           onClick={onDelete}
+          title="Delete"
+          aria-label="Delete"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
@@ -76,8 +91,14 @@ export function DatasetCardActions({
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 shrink-0"
+            className={cn(
+              'h-8 w-8 shrink-0',
+              isBookmarked && 'border-primary text-primary'
+            )}
             onClick={onBookmark}
+            aria-pressed={isBookmarked}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+            title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
           >
             <Bookmark
               className={cn(

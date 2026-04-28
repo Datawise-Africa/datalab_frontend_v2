@@ -15,7 +15,11 @@ import { toastUtils } from '~/lib/utils/toast';
 export type { PresignedFileEntry };
 
 const transformFilTypePreUploadRequest = (files: RequestUploadFileInput[]) =>
-  files.map((f) => ({ ...f, file_type: f.file_type.split('/')[1] }));
+  files.map(({ file_type, ...f }) => ({
+    ...f,
+    mime_type: file_type,
+    // file_type: file_type.split('/')[1],
+  }));
 
 /* ── Interfaces ── */
 

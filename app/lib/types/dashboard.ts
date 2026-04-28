@@ -14,17 +14,18 @@ export interface Dashboard {
   title: string;
   slug: string;
   description: string;
-  dashboard_url: string;
-  category?: DashboardCategory;
+  dashboard_url?: string;
+  category: DashboardCategory | null;
   owner: MinimalUser;
-  workspace?: MinimalWorkspace;
+  workspace: MinimalWorkspace | null;
   is_public: boolean;
-  thumbnail?: string | null;
+  thumbnail: string | null;
   status: DashboardStatus;
   tags: string[];
-  average_rating?: string;
-  total_reviews?: string;
-  total_bookmarks?: string;
+  /** Backend returns number; spec says string — accept both. */
+  average_rating?: number | string;
+  total_reviews?: number | string;
+  total_bookmarks?: number | string;
   created_at: string;
   updated_at: string;
 }
@@ -32,7 +33,7 @@ export interface Dashboard {
 export interface CreateDashboardInput {
   title: string;
   description?: string;
-  dashboard_url: string;
+  dashboard_url?: string;
   category?: string | null;
   workspace?: string | null;
   is_public?: boolean;

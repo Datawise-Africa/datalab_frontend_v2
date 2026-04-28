@@ -38,40 +38,42 @@ export function DatasetList({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {datasets.map((dataset) => {
-        const normalized = normalizeMyDataset(dataset);
-        return (
-          <DatasetCard key={dataset.id} dataset={normalized}>
-            <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
-              <div className="flex items-center gap-1.5">
-                <DatasetCard.Badges />
-                <Badge
-                  className={cn(
-                    'rounded-md px-2 py-0.5 text-[10px] font-medium border-0',
-                    DATASET_STATUS_VARIANTS[dataset.status]
-                  )}
-                >
-                  {DATASET_STATUS_LABELS[dataset.status]}
-                </Badge>
-              </div>
-              <DatasetCard.Menu />
-            </CardHeader>
-            <CardContent className="flex flex-1 flex-col gap-3 px-5 pb-4">
-              <DatasetCard.Title />
-              <DatasetCard.Description lineClamp={1} />
-              <DatasetCard.Meta />
-            </CardContent>
-            <DatasetCard.Actions
-              variant="creator"
-              onPreview={() => onPreview?.(dataset.id)}
-              onEdit={() => onEdit?.(dataset.id)}
-              onDelete={() => onDelete?.(dataset.id)}
-              onArchive={() => onArchive?.(dataset.id)}
-            />
-          </DatasetCard>
-        );
-      })}
+    <div className="@container">
+      <div className="grid grid-cols-1 gap-6 @xl:grid-cols-2 @4xl:grid-cols-3">
+        {datasets.map((dataset) => {
+          const normalized = normalizeMyDataset(dataset);
+          return (
+            <DatasetCard key={dataset.id} dataset={normalized}>
+              <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
+                <div className="flex items-center gap-1.5">
+                  <DatasetCard.Badges />
+                  <Badge
+                    className={cn(
+                      'rounded-md px-2 py-0.5 text-[10px] font-medium border-0',
+                      DATASET_STATUS_VARIANTS[dataset.status]
+                    )}
+                  >
+                    {DATASET_STATUS_LABELS[dataset.status]}
+                  </Badge>
+                </div>
+                <DatasetCard.Menu />
+              </CardHeader>
+              <CardContent className="flex flex-1 flex-col gap-3 px-5 pb-4">
+                <DatasetCard.Title />
+                <DatasetCard.Description lineClamp={1} />
+                <DatasetCard.Meta />
+              </CardContent>
+              <DatasetCard.Actions
+                variant="creator"
+                onPreview={() => onPreview?.(dataset.id)}
+                onEdit={() => onEdit?.(dataset.id)}
+                onDelete={() => onDelete?.(dataset.id)}
+                onArchive={() => onArchive?.(dataset.id)}
+              />
+            </DatasetCard>
+          );
+        })}
+      </div>
     </div>
   );
 }

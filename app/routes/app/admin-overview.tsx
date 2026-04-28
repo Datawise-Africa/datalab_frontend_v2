@@ -1,11 +1,4 @@
-import {
-  Users,
-  Database,
-  Download,
-  FileText,
-  TrendingUp,
-  Loader2,
-} from 'lucide-react';
+import { Users, Database, Download, FileText, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '~/components/ui/card';
 import { Protect } from '~/components/auth/protect';
 import { useCreatorAnalytics } from '~/features/dataset-creator';
@@ -18,38 +11,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts';
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  trend,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ComponentType<{ className?: string }>;
-  trend?: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-          <Icon className="h-5 w-5 text-primary" />
-        </div>
-        <div className="flex-1">
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-sm text-muted-foreground">{label}</p>
-        </div>
-        {trend && (
-          <span className="flex items-center gap-1 text-xs font-medium text-green-600">
-            <TrendingUp className="h-3 w-3" />
-            {trend}
-          </span>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
+import { StatCard } from '~/components/analytics/stat-card';
 
 // Placeholder chart data - replace with real API data
 const monthlyData = [
@@ -84,23 +46,31 @@ export default function AdminOverview() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard
                 label="Total Datasets"
-                value={analytics?.total_datasets ?? '--'}
+                value={(analytics?.total_datasets ?? 0).toLocaleString()}
                 icon={Database}
-                trend="+12%"
+                delta={12}
+                hint="Datasets published across the platform."
               />
               <StatCard
                 label="Total Downloads"
-                value={analytics?.total_downloads ?? '--'}
+                value={(analytics?.total_downloads ?? 0).toLocaleString()}
                 icon={Download}
-                trend="+8%"
+                delta={8}
+                hint="Approved downloads in the current period."
               />
               <StatCard
                 label="Total Views"
-                value={analytics?.total_views ?? '--'}
+                value={(analytics?.total_views ?? 0).toLocaleString()}
                 icon={FileText}
-                trend="+15%"
+                delta={15}
+                hint="Dataset detail page views."
               />
-              <StatCard label="Active Users" value="--" icon={Users} />
+              <StatCard
+                label="Active Users"
+                value="—"
+                icon={Users}
+                hint="Coming soon."
+              />
             </div>
 
             {/* Growth chart */}

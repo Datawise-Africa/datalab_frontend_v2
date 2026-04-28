@@ -16,6 +16,7 @@ export default [
     route('dashboards', 'routes/dashboards.tsx'),
     route('dashboards/afyaken', 'routes/dashboards/afyaken.tsx'),
     route('dashboards/eduken', 'routes/dashboards/eduken.tsx'),
+    route('dashboards/:id', 'routes/dashboard-detail.tsx'),
     route('research', 'routes/research.tsx'),
     route('research/reports', 'routes/research-reports.tsx'),
     route('research/reports/:slug', 'routes/research-report-detail.tsx'),
@@ -45,7 +46,12 @@ export default [
     route('app/admin', 'routes/app/admin-overview.tsx'),
     route('app/applications', 'routes/app/applications.tsx'),
     route('app/approved-creators', 'routes/app/approved-creators.tsx'),
+    route('app/dashboard-categories', 'routes/app/dashboard-categories.tsx'),
     route('app/invitations', 'routes/app/invitations.tsx'),
+    route('app/my-dashboards', 'routes/app/my-dashboards.tsx'),
+    route('app/my-dashboards/new', 'routes/app/my-dashboard-create.tsx'),
+    route('app/my-dashboards/:id', 'routes/app/my-dashboard-detail.tsx'),
+    route('app/my-dashboards/:id/edit', 'routes/app/my-dashboard-edit.tsx'),
     route('app/workspaces', 'routes/app/workspaces.tsx'),
     route('app/workspaces/new', 'routes/app/workspace-create.tsx'),
     route('app/workspaces/:id', 'routes/app/workspace/layout.tsx', [
@@ -55,6 +61,14 @@ export default [
       route('datasets/new', 'routes/app/workspace/upload-dataset.tsx'),
       route('dashboards', 'routes/app/workspace/dashboards.tsx'),
       route('dashboards/new', 'routes/app/workspace/create-dashboard.tsx'),
+      route(
+        'dashboards/:dashboardId',
+        'routes/app/workspace/dashboard-detail.tsx'
+      ),
+      route(
+        'dashboards/:dashboardId/edit',
+        'routes/app/workspace/edit-dashboard.tsx'
+      ),
       route('analytics', 'routes/app/workspace/analytics.tsx'),
       route('invitations', 'routes/app/workspace/invitations.tsx'),
       route('settings', 'routes/app/workspace/settings.tsx'),
@@ -63,6 +77,7 @@ export default [
 
   // Utility routes
   route('sitemap.xml', 'routes/sitemap.xml.ts'),
+  route('robots.txt', 'routes/robots.txt.ts'),
   route(
     '.well-known/appspecific/com.chrome.devtools.json',
     'routes/[.]well-known.appspecific.[com.chrome.devtools.json].ts'

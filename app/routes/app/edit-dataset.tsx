@@ -1,4 +1,4 @@
-import { useNavigate, useParams, Link } from 'react-router';
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router';
 import type { Route } from './+types/edit-dataset';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
@@ -13,6 +13,7 @@ import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps'
 import { DatasetForm } from '~/components/forms';
 import { useMyDataset, useUpdateMyDataset } from '~/features/my-datasets';
 import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import { getWorkspaceId } from '~/features/my-datasets/types';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -38,8 +39,8 @@ function mapDatasetToFormValues(
           .map((r) => r.trim())
           .filter(Boolean)
       : [],
-    dataset_image: '',
-    workspace: dataset.workspace?.id ?? undefined,
+    dataset_image: dataset.dataset_image ?? null,
+    workspace: getWorkspaceId(dataset.workspace) ?? undefined,
     tags: dataset.tags ?? [],
     authors: dataset.authors.map((a) => ({
       user: a.user.id,
@@ -68,6 +69,7 @@ function mapDatasetToFormValues(
 
 export default function EditDataset() {
   const { id: datasetId } = useParams() as { id: string };
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const { data: dataset, isLoading } = useMyDataset(datasetId);
@@ -76,17 +78,38 @@ export default function EditDataset() {
   const { data: countries } = useCountries();
   const updateDataset = useUpdateMyDataset();
 
+  const workspaceId =
+    searchParams.get('workspace') ?? getWorkspaceId(dataset?.workspace) ?? null;
+  const backHref = workspaceId
+    ? `/app/workspaces/${workspaceId}/datasets`
+    : '/app/creator-dashboard';
+
   const handleSubmit = async (data: UploadDatasetFormValues) => {
-    const payload = {
-      ...data,
+    const { dataset_image, ...rest } = data;
+    const payload: Record<string, unknown> = {
+      ...rest,
       origin_region: data.origin_region.join(','),
     };
+
+    // Only send dataset_image when it changed: a new base64 upload, or
+    // explicit removal. Skip when unchanged to avoid clobbering existing URL.
+    const isDataUrl =
+      typeof dataset_image === 'string' && dataset_image.startsWith('data:');
+    const originalImage = dataset?.dataset_image ?? null;
+    if (isDataUrl || dataset_image === null) {
+      if (dataset_image !== originalImage) {
+        payload.dataset_image = dataset_image;
+      }
+    }
 
     await updateDataset.mutateAsync(
       { id: datasetId, input: payload as never },
       {
         onSuccess: () => {
-          navigate('/app/creator-dashboard');
+          const previewHref = workspaceId
+            ? `/app/view-dataset/${datasetId}?workspace=${workspaceId}`
+            : `/app/view-dataset/${datasetId}`;
+          navigate(previewHref);
         },
       }
     );
@@ -109,9 +132,9 @@ export default function EditDataset() {
         <div className="py-20 text-center">
           <p className="text-lg font-semibold">Dataset not found</p>
           <Button asChild variant="outline" className="mt-4">
-            <Link to="/app/creator-dashboard">
+            <Link to={backHref}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Dashboard
+              Back
             </Link>
           </Button>
         </div>
@@ -124,7 +147,7 @@ export default function EditDataset() {
       <div>
         <div className="flex items-center gap-3 mb-1">
           <Button asChild variant="ghost" size="sm">
-            <Link to="/app/creator-dashboard">
+            <Link to={backHref}>
               <ArrowLeft className="mr-1 h-4 w-4" />
               Back
             </Link>
