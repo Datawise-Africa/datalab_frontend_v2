@@ -174,7 +174,7 @@ function MobileAuthSection() {
         <Button asChild variant="outline" className="w-full">
           <Link to="/app/">
             <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
+            My Lab
           </Link>
         </Button>
       </SheetClose>

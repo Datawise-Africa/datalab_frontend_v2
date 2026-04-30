@@ -17,3 +17,23 @@ export function useTrackView(datasetId: string | undefined) {
     });
   }, [datasetId]);
 }
+
+/**
+ * Tracks a dashboard view by calling POST /dashboards/{id}/track_views/.
+ * Only fires once per unique dashboardId.
+ *
+ * Endpoint name differs from the dataset variant (track_views vs track-view) —
+ * the backend OpenAPI spec is the source of truth.
+ */
+export function useTrackDashboardView(dashboardId: string | undefined) {
+  const trackedId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!dashboardId || trackedId.current === dashboardId) return;
+    trackedId.current = dashboardId;
+
+    apiClient.post(`/dashboards/${dashboardId}/track_views/`).catch(() => {
+      // Silently ignore tracking failures
+    });
+  }, [dashboardId]);
+}
