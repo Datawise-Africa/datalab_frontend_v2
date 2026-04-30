@@ -15,6 +15,7 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { useDashboard } from '~/features/dashboards';
+import { useTrackDashboardView } from '~/hooks/use-track-view';
 import { generateSEOTags } from '~/lib/utils/seo';
 
 export function meta({ data }: Route.MetaArgs) {
@@ -42,6 +43,8 @@ export default function DashboardDetail() {
   const { data: dashboard, isLoading, isError } = useDashboard(id);
   const frameRef = useRef<HTMLIFrameElement | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useTrackDashboardView(dashboard?.id);
 
   const enterFullscreen = () => {
     const el = frameRef.current?.parentElement;

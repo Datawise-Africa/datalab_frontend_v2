@@ -28,6 +28,7 @@ import {
   GitBranch,
 } from 'lucide-react';
 import { useDataset, useDatasetVersions } from '~/features/datasets';
+import { useReviews, useCreateReview } from '~/features/reviews';
 import { useToggleBookmark } from '~/features/bookmarks';
 import { useTrackView } from '~/hooks/use-track-view';
 import { cn } from '~/lib/utils';
@@ -118,9 +119,12 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   const slug = params.slug;
   const { data: dataset, isLoading, isError } = useDataset(slug);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const currentUserId = useAppSelector((s) => s.auth.user?.id);
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
   const bookmark = useToggleBookmark(dataset?.id);
+  const { data: reviews } = useReviews(dataset?.id);
+  const createReview = useCreateReview();
 
   useTrackView(dataset?.id);
 
@@ -370,7 +374,40 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
               {/* Reviews tab */}
               <TabsContent value="reviews" className="mt-4">
-                <ReviewList reviews={[]} showForm={isAuthenticated} />
+                {(() => {
+                  const reviewList = reviews ?? [];
+                  const alreadyReviewed = currentUserId
+                    ? reviewList.some((r) => r.user.id === currentUserId)
+                    : false;
+                  const showForm = isAuthenticated && !alreadyReviewed;
+                  return (
+                    <div className="space-y-3">
+                      {showForm && (
+                        <p className="text-xs text-muted-foreground">
+                          Only users who have downloaded this dataset can submit
+                          a review.
+                        </p>
+                      )}
+                      {alreadyReviewed && (
+                        <p className="text-xs text-muted-foreground">
+                          You&apos;ve already reviewed this dataset.
+                        </p>
+                      )}
+                      <ReviewList
+                        reviews={reviewList}
+                        showForm={showForm}
+                        isSubmitting={createReview.isPending}
+                        onSubmitReview={(rating, comment) => {
+                          createReview.mutate({
+                            dataset: dataset.id,
+                            rating,
+                            comment,
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                })()}
               </TabsContent>
             </Tabs>
           </div>
