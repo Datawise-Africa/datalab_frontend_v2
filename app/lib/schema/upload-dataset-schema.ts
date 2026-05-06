@@ -57,34 +57,42 @@ export type DatasetDatasheetInput = z.infer<typeof datasetDatasheetSchema>;
 // values to numbers on change, so the payload is always clean numbers.
 // No .default() — all defaults are provided by useForm's defaultValues.
 
-export const uploadDatasetFormSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
-  dataset_type: datasetTypeEnum,
-  category: z
-    .string('Please select dataset category')
-    .min(1, 'Category is required'), // Allow empty string for optional category
-  license: z.string('Please select a license').min(1, 'License is required'),
-  workspace: z.string().optional(),
-  dataset_image: z.string().nullable().optional(),
-  is_premium: z.boolean(),
-  is_private: z.boolean(),
-  origin_region: z.array(z.string()).default([]),
-  tags: z.array(z.string().min(1).max(100)),
-  authors: z
-    .array(
-      z.object({
-        user: z.string().min(1, 'User ID is required'),
-        role: authorRoleEnum,
-      })
-    )
-    .min(1, 'At least one author is required'),
-  access: z.object({
-    access_type: accessTypeEnum,
-    access_instructions: z.string().optional(),
-  }),
-  datasheet: datasetDatasheetSchema.optional(),
-});
+export const uploadDatasetFormSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    description: z
+      .string()
+      .min(10, 'Description must be at least 10 characters'),
+    dataset_type: datasetTypeEnum,
+    category: z
+      .string('Please select dataset category')
+      .min(1, 'Category is required'), // Allow empty string for optional category
+    license: z.string('Please select a license').min(1, 'License is required'),
+    workspace: z.string().optional(),
+    dataset_image: z.string().nullable().optional(),
+    is_premium: z.boolean(),
+    is_private: z.boolean(),
+    price: z.coerce.number().min(0).nullable(),
+    origin_region: z.array(z.string()).default([]),
+    tags: z.array(z.string().min(1).max(100)),
+    authors: z
+      .array(
+        z.object({
+          user: z.string().min(1, 'User ID is required'),
+          role: authorRoleEnum,
+        })
+      )
+      .min(1, 'At least one author is required'),
+    access: z.object({
+      access_type: accessTypeEnum,
+      access_instructions: z.string().optional(),
+    }),
+    datasheet: datasetDatasheetSchema.optional(),
+  })
+  .refine((d) => !d.is_premium || (d.price !== null && d.price > 0), {
+    message: 'Price is required for premium datasets',
+    path: ['price'],
+  });
 
 export type UploadDatasetFormValues = z.infer<typeof uploadDatasetFormSchema>;
 

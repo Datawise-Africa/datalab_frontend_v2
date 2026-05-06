@@ -67,6 +67,16 @@ export function StepReview({ mode = 'create' }: Readonly<StepReviewProps>) {
             {values.is_premium ? 'Yes' : 'No'}
           </span>
         </div>
+        {values.is_premium && (
+          <div className="flex justify-between">
+            <span className="font-medium">Price</span>
+            <span className="text-muted-foreground">
+              {values.price !== null && values.price !== undefined
+                ? `KSh ${values.price}`
+                : '—'}
+            </span>
+          </div>
+        )}
         <div className="flex justify-between">
           <span className="font-medium">Private</span>
           <span className="text-muted-foreground">

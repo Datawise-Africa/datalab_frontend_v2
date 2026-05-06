@@ -17,6 +17,7 @@ import {
   FormTextField,
   FormTextareaField,
   FormSelectField,
+  FormNumberField,
 } from '~/components/form-fields';
 import type { UploadDatasetFormValues } from './types';
 import { DATASET_TYPES } from './types';
@@ -55,6 +56,14 @@ export function StepBasicInfo({
     }
   }, [newBase64, setValue]);
 
+  // Reset price to null whenever premium is turned off so the payload is clean.
+  const isPremium = watch('is_premium');
+  useEffect(() => {
+    if (!isPremium) {
+      setValue('price', null, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [isPremium, setValue]);
+
   useStepValidator(async () => {
     const fields = [
       'name',
@@ -62,6 +71,7 @@ export function StepBasicInfo({
       'dataset_type',
       'category',
       'license',
+      'price',
     ] as const;
     const valid = await trigger([...fields]);
     if (valid) return { valid: true };
@@ -222,6 +232,18 @@ export function StepBasicInfo({
           )}
         />
       </div>
+
+      {isPremium && (
+        <FormNumberField
+          control={control}
+          name="price"
+          label="Price (KSh)"
+          placeholder="e.g. 1500"
+          required
+          min={0}
+          step={1}
+        />
+      )}
     </div>
   );
 }

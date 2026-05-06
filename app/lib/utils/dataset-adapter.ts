@@ -50,7 +50,10 @@ export function normalizeMyDataset(
     rating: 0,
     reviewCount: 0,
     tags: dataset.tags,
-    price: dataset.is_premium ? null : 0,
+    price:
+      dataset.price !== null && dataset.price !== undefined
+        ? Number(dataset.price)
+        : null,
     accessType: dataset.is_private ? 'Private' : 'Public',
     availableTo: [],
     lastUpdated: dataset.updated_at,

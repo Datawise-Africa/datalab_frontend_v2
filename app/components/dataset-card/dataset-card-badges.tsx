@@ -16,7 +16,7 @@ export function DatasetCardBadges({ className }: { className?: string }) {
         className
       )}
     >
-      {isFree ? 'Free' : `$${dataset.price}`}
+      {isFree ? 'Free' : `KSh ${dataset.price}`}
     </Badge>
   );
 }

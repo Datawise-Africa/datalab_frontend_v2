@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { useIsClient } from '~/hooks/use-is-client';
 import { Link } from 'react-router';
 import {
-  Database,
-  Menu,
+  Bookmark,
   ChevronDown,
+  Database,
+  Download,
   LayoutDashboard,
-  User,
   LogOut,
+  Menu,
   Moon,
   Sun,
+  User,
 } from 'lucide-react';
 
 import { Button } from '~/components/ui/button';
@@ -78,7 +80,10 @@ function DesktopAuthButtons() {
         <Button variant="outline" size="sm" onClick={() => authModal.open()}>
           Sign in
         </Button>
-        <Button size="sm" onClick={() => authModal.open()}>
+        <Button
+          size="sm"
+          onClick={() => authModal.open({ initialTab: 'signup' })}
+        >
           Get Started
         </Button>
       </div>
@@ -117,6 +122,18 @@ function DesktopAuthButtons() {
             <Link to="/app/">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               My Lab
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/app/my-downloads">
+              <Download className="mr-2 h-4 w-4" />
+              My Downloads
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/app/bookmarks">
+              <Bookmark className="mr-2 h-4 w-4" />
+              Bookmarks
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -175,6 +192,22 @@ function MobileAuthSection() {
           <Link to="/app/">
             <LayoutDashboard className="mr-2 h-4 w-4" />
             My Lab
+          </Link>
+        </Button>
+      </SheetClose>
+      <SheetClose asChild>
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/app/my-downloads">
+            <Download className="mr-2 h-4 w-4" />
+            My Downloads
+          </Link>
+        </Button>
+      </SheetClose>
+      <SheetClose asChild>
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/app/bookmarks">
+            <Bookmark className="mr-2 h-4 w-4" />
+            Bookmarks
           </Link>
         </Button>
       </SheetClose>

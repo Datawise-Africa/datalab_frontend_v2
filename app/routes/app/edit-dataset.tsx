@@ -33,6 +33,7 @@ function mapDatasetToFormValues(
     license: dataset.license?.id ?? '',
     is_premium: dataset.is_premium,
     is_private: dataset.is_private,
+    price: dataset.price ?? null,
     origin_region: dataset.origin_region
       ? dataset.origin_region
           .split(',')

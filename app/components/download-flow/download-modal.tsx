@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Download, FileText, Loader2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { isAxiosError } from 'axios';
+import { CreditCard, Download, FileText, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -20,8 +21,13 @@ import { useAppModal } from '~/store/slices/modal-slice';
 import { useDatasetVersions } from '~/features/datasets';
 import {
   useRequestDownload,
-  type RequestDownloadResponse,
+  useResumeDownload,
+  type DownloadReadyResponse,
+  type PaymentRequiredResponse,
 } from '~/features/downloads';
+import { formatPrice, truncateMiddle } from '~/lib/utils/format';
+import { extractAccessCode, loadPaystackPop } from '~/lib/utils/paystack-pop';
+import { toastUtils } from '~/lib/utils/toast';
 
 interface DownloadModalData {
   datasetId: string;
@@ -56,13 +62,26 @@ function formatExpiry(seconds: number): string {
 export function DownloadModal() {
   const { isOpen, data, close } = useAppModal('download');
   const requestDownload = useRequestDownload();
+  const resumeDownload = useResumeDownload();
   const { data: versions, isLoading: versionsLoading } = useDatasetVersions(
     data?.datasetId ?? ''
   );
 
   const [intendedUse, setIntendedUse] = useState('');
   const [versionId, setVersionId] = useState<string>('');
-  const [result, setResult] = useState<RequestDownloadResponse | null>(null);
+  const [ready, setReady] = useState<DownloadReadyResponse | null>(null);
+  const [pending, setPending] = useState<PaymentRequiredResponse | null>(null);
+  const [pollingTimedOut, setPollingTimedOut] = useState(false);
+  const [checkoutOpening, setCheckoutOpening] = useState(false);
+  // True while the Paystack overlay is mounted. We drop our Dialog into
+  // non-modal mode for that window so Radix doesn't keep `pointer-events:
+  // none` on the body — otherwise the Paystack iframe receives no clicks.
+  const [checkoutVisible, setCheckoutVisible] = useState(false);
+
+  // Latest pending_id captured for the polling interval — avoids re-creating
+  // the timer on every mutation state change.
+  const pendingIdRef = useRef<string | null>(null);
+  pendingIdRef.current = pending?.pending_id ?? null;
 
   // Preselect the latest version (or the first) once versions load.
   useEffect(() => {
@@ -73,6 +92,47 @@ export function DownloadModal() {
       return latest.id;
     });
   }, [versions]);
+
+  // Keep mutate fn in a ref so the polling effect doesn't re-create on every
+  // mutation state change.
+  const resumeMutateRef = useRef(resumeDownload.mutate);
+  resumeMutateRef.current = resumeDownload.mutate;
+
+  // Auto-poll resume-download once we're in payment_required state. Stops
+  // when the response flips to download_ready (modal stays open on ready
+  // view so the user can grab files manually), the modal is closed, or we
+  // hit the 10-minute cap.
+  useEffect(() => {
+    if (!isOpen || !pending || pollingTimedOut || ready) return;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 150; // 10 min @ 4s
+    const id = setInterval(() => {
+      attempts += 1;
+      if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(id);
+        setPollingTimedOut(true);
+        toastUtils.warning(
+          'Stopped checking for payment',
+          'Click "I\'ve paid" once your payment clears.'
+        );
+        return;
+      }
+      const pid = pendingIdRef.current;
+      if (!pid) return;
+      resumeMutateRef.current(
+        { pending_id: pid },
+        {
+          onSuccess: (response) => {
+            if (response.status !== 'payment_required') {
+              setReady(response);
+              setPending(null);
+            }
+          },
+        }
+      );
+    }, 4000);
+    return () => clearInterval(id);
+  }, [isOpen, pending, pollingTimedOut, ready]);
 
   if (!data) return null;
 
@@ -94,8 +154,25 @@ export function DownloadModal() {
     close();
     setIntendedUse('');
     setVersionId('');
-    setResult(null);
+    setReady(null);
+    setPending(null);
+    setPollingTimedOut(false);
+    setCheckoutOpening(false);
+    setCheckoutVisible(false);
     requestDownload.reset();
+    resumeDownload.reset();
+  };
+
+  const handleRequestResponse = (
+    response: DownloadReadyResponse | PaymentRequiredResponse
+  ) => {
+    if (response.status === 'payment_required') {
+      setPending(response);
+      setReady(null);
+    } else {
+      setReady(response);
+      setPending(null);
+    }
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -107,12 +184,76 @@ export function DownloadModal() {
         intended_use: intendedUse.trim(),
         version: versionId || undefined,
       },
-      { onSuccess: (response) => setResult(response) }
+      { onSuccess: handleRequestResponse }
+    );
+  };
+
+  const handleOpenCheckout = async () => {
+    if (!pending || checkoutOpening) return;
+    setCheckoutOpening(true);
+    try {
+      const PaystackPop = await loadPaystackPop();
+      const popup = new PaystackPop();
+      popup.resumeTransaction(extractAccessCode(pending.authorization_url), {
+        onLoad: () => setCheckoutVisible(true),
+        onSuccess: () => {
+          setCheckoutVisible(false);
+          // Backend webhook will mark the pending request paid; auto-poll
+          // will then fetch download_ready and swap to the ready view.
+          toastUtils.success('Payment received', 'Fetching your files now…');
+        },
+        onCancel: () => {
+          setCheckoutVisible(false);
+          toastUtils.info(
+            'Checkout cancelled',
+            'You can resume payment any time.'
+          );
+        },
+        onError: () => {
+          setCheckoutVisible(false);
+          toastUtils.error(
+            'Checkout failed to load',
+            'Please try again or contact support.'
+          );
+        },
+      });
+    } catch {
+      setCheckoutVisible(false);
+      toastUtils.error(
+        'Could not open checkout',
+        'Paystack failed to load. Check your connection and retry.'
+      );
+    } finally {
+      setCheckoutOpening(false);
+    }
+  };
+
+  const handleResume = () => {
+    if (!pending) return;
+    resumeDownload.mutate(
+      { pending_id: pending.pending_id },
+      {
+        onSuccess: handleRequestResponse,
+        onError: (error) => {
+          // 404 from resume-download means payment hasn't cleared yet.
+          if (isAxiosError(error) && error.response?.status === 404) {
+            toastUtils.info(
+              'Payment still processing',
+              'Give it a moment after completing checkout, then try again.'
+            );
+            return;
+          }
+          toastUtils.error(
+            'Could not fetch download',
+            'Please retry, or contact support if payment was completed.'
+          );
+        },
+      }
     );
   };
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} modal={!checkoutVisible}>
       <DialogContent className="sm:max-w-xl p-6 sm:p-8" dismissible={false}>
         <DialogHeader className="mb-2">
           <DialogTitle className="text-lg">
@@ -120,7 +261,7 @@ export function DownloadModal() {
           </DialogTitle>
         </DialogHeader>
 
-        {result ? (
+        {ready ? (
           <div className="space-y-6">
             <div className="rounded-md border border-success/30 bg-success/5 p-4 text-sm">
               <p className="font-medium text-success">Download ready</p>
@@ -131,15 +272,15 @@ export function DownloadModal() {
             </div>
 
             <ul className="space-y-3">
-              {result.files.map((file) => (
+              {ready.files.map((file) => (
                 <li
                   key={file.file_id}
                   className="flex items-center gap-3 rounded-md border p-4"
                 >
                   <FileText className="h-5 w-5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {file.file_name}
+                    <p className="text-sm font-medium" title={file.file_name}>
+                      {truncateMiddle(file.file_name, 36)}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {formatFileSize(file.file_size)} · expires in{' '}
@@ -163,6 +304,73 @@ export function DownloadModal() {
             <div className="flex justify-end pt-4">
               <Button type="button" onClick={handleClose}>
                 Done
+              </Button>
+            </div>
+          </div>
+        ) : pending ? (
+          <div className="space-y-6">
+            <div className="rounded-md border border-warning/30 bg-warning/5 p-4 text-sm">
+              <p className="font-medium text-warning">Payment required</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {data.price
+                  ? `Complete a ${formatPrice(data.price)} payment via Paystack to unlock this download.`
+                  : 'Complete payment via Paystack to unlock this download.'}
+              </p>
+            </div>
+
+            <ol className="space-y-2 text-xs text-muted-foreground">
+              <li>1. Tap &ldquo;Pay now&rdquo; — Paystack opens right here.</li>
+              <li>
+                2. Files unlock automatically once payment clears — usually
+                within seconds.
+              </li>
+            </ol>
+
+            {!pollingTimedOut ? (
+              <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                Watching for payment confirmation…
+              </div>
+            ) : (
+              <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
+                Stopped checking automatically. Use &ldquo;I&apos;ve paid&rdquo;
+                once payment has cleared.
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                disabled={resumeDownload.isPending}
+              >
+                Cancel
+              </Button>
+              {pollingTimedOut ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleResume}
+                  disabled={resumeDownload.isPending}
+                >
+                  {resumeDownload.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
+                  I&apos;ve paid
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                onClick={handleOpenCheckout}
+                disabled={checkoutOpening}
+              >
+                {checkoutOpening ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <CreditCard className="mr-2 h-4 w-4" />
+                )}
+                Pay now
               </Button>
             </div>
           </div>
@@ -244,6 +452,14 @@ export function DownloadModal() {
               />
             </div>
 
+            {data.price ? (
+              <div className="rounded-md border border-warning/30 bg-warning/5 p-3 text-xs text-muted-foreground">
+                This is a paid dataset. After requesting, you&apos;ll be
+                prompted to complete a {formatPrice(data.price)} payment via
+                Paystack.
+              </div>
+            ) : null}
+
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
@@ -267,7 +483,7 @@ export function DownloadModal() {
                 ) : (
                   <Download className="mr-2 h-4 w-4" />
                 )}
-                Request Download
+                {data.price ? 'Continue to Payment' : 'Request Download'}
               </Button>
             </div>
           </form>
