@@ -241,7 +241,7 @@ export default function CreatorDashboard() {
             {!filter.searchQuery && (
               <EmptyContent>
                 <Button asChild className="bg-primary hover:bg-primary/90">
-                  <Link to="/app/creator-dashboard">
+                  <Link to="/app/upload-dataset">
                     <Plus className="mr-2 h-4 w-4" />
                     Upload Dataset
                   </Link>

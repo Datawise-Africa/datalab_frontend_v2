@@ -75,6 +75,7 @@ export type MyDatasetInterface = {
   }[];
   is_premium: boolean;
   is_private: boolean;
+  price: number | null;
   access: {
     access_type: string;
     access_instructions: string;

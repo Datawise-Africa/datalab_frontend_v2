@@ -38,6 +38,7 @@ export default function WorkspaceUploadDataset() {
     license: '',
     is_premium: false,
     is_private: false,
+    price: null,
     dataset_image: null,
     workspace: workspaceId,
     origin_region: [],

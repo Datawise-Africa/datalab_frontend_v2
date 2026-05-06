@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,18 +13,28 @@ import { ResetPasswordForm } from './reset-password-form';
 import { SignupForm } from './signup-form';
 import { ForgotPasswordForm } from './forgot-password-form';
 
+type AuthTab = 'login' | 'signup' | 'forgot' | 'reset';
+
 declare module '~/store/slices/modal-slice' {
   interface ModalRegistry {
-    auth: undefined;
+    /**
+     * Pass `{ initialTab: 'signup' }` when opening from a "Get Started" /
+     * "Create account" CTA. Defaults to login.
+     */
+    auth: { initialTab?: 'login' | 'signup' } | undefined;
   }
 }
 
-type AuthTab = 'login' | 'signup' | 'forgot' | 'reset';
-
 export function AuthModal() {
-  const { isOpen, close } = useAppModal('auth');
+  const { isOpen, data, close } = useAppModal('auth');
   const [tab, setTab] = useState<AuthTab>('login');
   const [resetEmail, setResetEmail] = useState('');
+
+  // Apply the requested initial tab whenever the modal opens fresh.
+  useEffect(() => {
+    if (!isOpen) return;
+    setTab(data?.initialTab ?? 'login');
+  }, [isOpen, data?.initialTab]);
 
   const handleClose = () => {
     close();

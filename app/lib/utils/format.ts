@@ -19,9 +19,25 @@ export function formatNumber(num: number): string {
 }
 
 /**
- * Format a price value for display (e.g. "Free", "$9.99").
+ * Format a price value for display (e.g. "Free", "KSh 1500").
  */
 export function formatPrice(price: number | null): string {
   if (price === null || price === 0) return 'Free';
-  return `$${price.toFixed(2)}`;
+  return `KSh ${price.toLocaleString('en-KE', { maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Shorten a file name by collapsing its middle, preserving the start and the
+ * extension/tail so it stays recognizable when constrained by a small width.
+ * Example: truncateMiddle('annual-enterprise-survey-2024.csv', 24)
+ *       → 'annual-enterp…2024.csv'
+ */
+export function truncateMiddle(name: string, max = 32): string {
+  if (name.length <= max) return name;
+  // Keep ~60% on the left, the rest on the right (so file extensions stay
+  // visible). Reserve one character for the ellipsis.
+  const keep = max - 1;
+  const head = Math.ceil(keep * 0.6);
+  const tail = Math.max(1, keep - head);
+  return `${name.slice(0, head)}…${name.slice(name.length - tail)}`;
 }
