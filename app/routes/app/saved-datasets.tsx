@@ -80,6 +80,10 @@ export default function SavedDatasets() {
                 <DatasetCard.Menu
                   showBookmark
                   isBookmarked
+                  isBookmarkPending={
+                    removeBookmark.isPending &&
+                    removeBookmark.variables === dataset.id
+                  }
                   onBookmark={() => removeBookmark.mutate(dataset.id)}
                   onDownload={() => handleDownload(dataset)}
                 />

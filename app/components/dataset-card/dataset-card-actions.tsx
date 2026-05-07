@@ -1,5 +1,13 @@
 import { Link } from 'react-router';
-import { Eye, Download, Pencil, Trash2, Archive, Bookmark } from 'lucide-react';
+import {
+  Eye,
+  Download,
+  Pencil,
+  Trash2,
+  Archive,
+  Heart,
+  Loader2,
+} from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { CardFooter } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
@@ -13,6 +21,7 @@ interface DatasetCardActionsProps {
   onDownload?: () => void;
   onBookmark?: () => void;
   isBookmarked?: boolean;
+  isBookmarkPending?: boolean;
   onPreview?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -25,11 +34,12 @@ export function DatasetCardActions({
   onDownload,
   onBookmark,
   isBookmarked = false,
+  isBookmarkPending = false,
   onPreview,
   onEdit,
   onDelete,
   onArchive,
-}: DatasetCardActionsProps) {
+}: Readonly<DatasetCardActionsProps>) {
   const { dataset } = useDatasetCard();
 
   if (variant === 'creator') {
@@ -93,19 +103,25 @@ export function DatasetCardActions({
             size="icon"
             className={cn(
               'h-8 w-8 shrink-0',
-              isBookmarked && 'border-primary text-primary'
+              isBookmarked && 'border-red-500 text-red-500'
             )}
             onClick={onBookmark}
+            disabled={isBookmarkPending}
             aria-pressed={isBookmarked}
-            aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
-            title={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
+            aria-busy={isBookmarkPending}
+            aria-label={isBookmarked ? 'Remove from saved' : 'Save dataset'}
+            title={isBookmarked ? 'Remove from saved' : 'Save dataset'}
           >
-            <Bookmark
-              className={cn(
-                'h-3.5 w-3.5',
-                isBookmarked && 'fill-primary text-primary'
-              )}
-            />
+            {isBookmarkPending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Heart
+                className={cn(
+                  'h-3.5 w-3.5',
+                  isBookmarked && 'fill-red-500 text-red-500'
+                )}
+              />
+            )}
           </Button>
         )}
       </CardFooter>

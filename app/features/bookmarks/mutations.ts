@@ -13,6 +13,7 @@ export const useAddBookmark = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });
+      toastUtils.success('Saved', 'Dataset added to your bookmarks.');
     },
     onError: (error) => {
       toastUtils.error('Bookmark failed', extractError(error));
@@ -29,6 +30,7 @@ export const useRemoveBookmark = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: bookmarkKeys.lists() });
+      toastUtils.success('Removed', 'Dataset removed from your bookmarks.');
     },
     onError: (error) => {
       toastUtils.error('Remove failed', extractError(error));

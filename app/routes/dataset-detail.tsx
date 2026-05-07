@@ -21,14 +21,14 @@ import {
   Calendar,
   HardDrive,
   MapPin,
-  Bookmark,
+  Heart,
   Share2,
   FileText,
   ClipboardList,
   GitBranch,
 } from 'lucide-react';
 import { useDataset, useDatasetVersions } from '~/features/datasets';
-import { useReviews, useCreateReview } from '~/features/reviews';
+import { useReviews } from '~/features/reviews';
 import { useToggleBookmark } from '~/features/bookmarks';
 import { useTrackView } from '~/hooks/use-track-view';
 import { cn } from '~/lib/utils';
@@ -119,12 +119,10 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   const slug = params.slug;
   const { data: dataset, isLoading, isError } = useDataset(slug);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
-  const currentUserId = useAppSelector((s) => s.auth.user?.id);
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
   const bookmark = useToggleBookmark(dataset?.id);
   const { data: reviews } = useReviews(dataset?.id);
-  const createReview = useCreateReview();
 
   useTrackView(dataset?.id);
 
@@ -372,42 +370,9 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 <PublicVersionsTab datasetId={dataset.id} />
               </TabsContent>
 
-              {/* Reviews tab */}
+              {/* Reviews tab — read-only; reviews are submitted from My Downloads */}
               <TabsContent value="reviews" className="mt-4">
-                {(() => {
-                  const reviewList = reviews ?? [];
-                  const alreadyReviewed = currentUserId
-                    ? reviewList.some((r) => r.user.id === currentUserId)
-                    : false;
-                  const showForm = isAuthenticated && !alreadyReviewed;
-                  return (
-                    <div className="space-y-3">
-                      {showForm && (
-                        <p className="text-xs text-muted-foreground">
-                          Only users who have downloaded this dataset can submit
-                          a review.
-                        </p>
-                      )}
-                      {alreadyReviewed && (
-                        <p className="text-xs text-muted-foreground">
-                          You&apos;ve already reviewed this dataset.
-                        </p>
-                      )}
-                      <ReviewList
-                        reviews={reviewList}
-                        showForm={showForm}
-                        isSubmitting={createReview.isPending}
-                        onSubmitReview={(rating, comment) => {
-                          createReview.mutate({
-                            dataset: dataset.id,
-                            rating,
-                            comment,
-                          });
-                        }}
-                      />
-                    </div>
-                  );
-                })()}
+                <ReviewList reviews={reviews ?? []} />
               </TabsContent>
             </Tabs>
           </div>
@@ -457,16 +422,33 @@ function SidebarContent({
         {/* Bookmark & Share */}
         <div className="flex gap-2">
           <Button
-            variant={isBookmarked ? 'default' : 'outline'}
-            className="flex-1"
+            variant="outline"
+            className={cn(
+              'flex-1',
+              isBookmarked && 'border-red-500 text-red-500'
+            )}
             onClick={onBookmark}
             disabled={isBookmarkPending}
             aria-pressed={isBookmarked}
+            aria-busy={isBookmarkPending}
           >
-            <Bookmark
-              className={cn('mr-1.5 h-4 w-4', isBookmarked && 'fill-current')}
-            />
-            {isBookmarked ? 'Bookmarked' : 'Bookmark'}
+            {isBookmarkPending ? (
+              <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+            ) : (
+              <Heart
+                className={cn(
+                  'mr-1.5 h-4 w-4',
+                  isBookmarked && 'fill-red-500 text-red-500'
+                )}
+              />
+            )}
+            {isBookmarkPending
+              ? isBookmarked
+                ? 'Removing…'
+                : 'Saving…'
+              : isBookmarked
+                ? 'Saved'
+                : 'Save'}
           </Button>
           <Button
             variant="outline"

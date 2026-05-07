@@ -1,7 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
+import { downloadKeys } from './queries';
+import { reviewKeys } from '~/features/reviews/query-keys';
+import { datasetKeys } from '~/features/datasets/query-keys';
+import type { DatasetReviewType } from '~/lib/types/dataset';
 
 export interface RequestDownloadInput {
   dataset: string;
@@ -90,3 +94,46 @@ export const useResumeDownload = () => {
 
 /** @deprecated Use useRequestDownload. Kept for compatibility until callers migrate. */
 export const useTrackDownload = useRequestDownload;
+
+interface ReviewDownloadInput {
+  download_id: string;
+  /** Dataset id is only used for cache invalidation, not the request body. */
+  dataset_id?: string;
+  rating: number;
+  comment: string;
+}
+
+/**
+ * POST /my-dataset-downloads/{download_id}/review/ — submit a review for a
+ * downloaded dataset. Server links the review to the dataset via the download.
+ */
+export const useReviewDownload = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (
+      input: ReviewDownloadInput
+    ): Promise<DatasetReviewType> => {
+      const { download_id, rating, comment } = input;
+      const { data } = await apiClient.post(
+        `/my-dataset-downloads/${download_id}/review/`,
+        { rating, comment }
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: downloadKeys.all() });
+      if (variables.dataset_id) {
+        queryClient.invalidateQueries({
+          queryKey: reviewKeys.list(variables.dataset_id),
+        });
+        queryClient.invalidateQueries({
+          queryKey: datasetKeys.detail(variables.dataset_id),
+        });
+      }
+    },
+    onError: (error) => {
+      toastUtils.error('Review failed', extractError(error));
+    },
+  });
+};

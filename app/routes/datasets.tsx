@@ -369,6 +369,12 @@ export default function Datasets() {
                         onBookmark={() => handleBookmark(dataset.id)}
                         onDownload={() => handleDownload(dataset)}
                         isBookmarked={bookmarkedIds.has(dataset.id)}
+                        isBookmarkPending={
+                          (addBookmark.isPending &&
+                            addBookmark.variables === dataset.id) ||
+                          (removeBookmark.isPending &&
+                            removeBookmark.variables === dataset.id)
+                        }
                       />
                     </CardHeader>
                     <CardContent className="flex flex-1 flex-col gap-3 px-5 pb-4">
