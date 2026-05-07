@@ -2,9 +2,10 @@
  * Schema.org JSON-LD builders. Emit via `generateSEOTags({ jsonLd: ... })`.
  * Reference: https://schema.org, https://developers.google.com/search/docs/appearance/structured-data
  */
+import { env } from '~/lib/env';
 
 const SITE_NAME = 'Datalab Africa';
-const SITE_URL = 'https://datalabafrica.com';
+const SITE_URL = env.VITE_SITE_URL;
 const LOGO_URL = `${SITE_URL}/assets/datawise-logo-dark.png`;
 
 export function organizationSchema() {
