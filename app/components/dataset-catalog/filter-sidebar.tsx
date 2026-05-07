@@ -4,16 +4,14 @@ import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
-import {
-  datasetFilterFacets,
-  type FilterFacet,
-} from '~/lib/constants/dataset-filter-options';
+import { type FilterFacet } from '~/lib/constants/dataset-filter-options';
 import type { useAppFilter } from '~/store/slices/filter-slice';
 
 type FilterHook = ReturnType<typeof useAppFilter>;
 
 interface FilterSidebarProps {
   filter: FilterHook;
+  facets: FilterFacet[];
   className?: string;
 }
 
@@ -21,7 +19,11 @@ interface FilterSidebarProps {
  * E-commerce style persistent filter sidebar for desktop.
  * Collapsible sections with checkboxes per facet.
  */
-export function FilterSidebar({ filter, className }: FilterSidebarProps) {
+export function FilterSidebar({
+  filter,
+  facets,
+  className,
+}: Readonly<FilterSidebarProps>) {
   return (
     <aside className={cn('space-y-1', className)}>
       <div className="flex items-center justify-between pb-2">
@@ -39,12 +41,19 @@ export function FilterSidebar({ filter, className }: FilterSidebarProps) {
       </div>
       <Separator />
 
-      {datasetFilterFacets.map((facet) => (
+      {facets.map((facet) => (
         <FilterSection
           key={facet.key}
           facet={facet}
           selected={filter.tags[facet.key] ?? []}
-          onToggle={(value) => filter.toggleTagValue(facet.key, value)}
+          onToggle={(value) => {
+            if (facet.single) {
+              const current = filter.tags[facet.key] ?? [];
+              filter.setTag(facet.key, current[0] === value ? [] : [value]);
+            } else {
+              filter.toggleTagValue(facet.key, value);
+            }
+          }}
           onClear={() => filter.setTag(facet.key, [])}
         />
       ))}
@@ -89,7 +98,18 @@ function FilterSection({
         />
       </button>
 
-      {expanded && (
+      {expanded && facet.loading && facet.options.length === 0 && (
+        <div className="mt-2 space-y-1.5" aria-busy="true">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-7 w-full animate-pulse rounded-md bg-muted"
+            />
+          ))}
+        </div>
+      )}
+
+      {expanded && !(facet.loading && facet.options.length === 0) && (
         <div className="mt-2 space-y-1">
           {facet.options.map((opt) => {
             const isActive = selected.includes(opt.value);

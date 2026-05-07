@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import {
   Database,
   Loader2,
@@ -42,12 +42,15 @@ import {
   useBookmarkedDatasets,
   useRemoveBookmark,
 } from '~/features/bookmarks';
+import { useDatasetTypes, useTopCategories } from '~/features/metadata';
 import { useAppFilter } from '~/store/slices/filter-slice';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
 import {
-  datasetFilterFacets,
+  staticDatasetFilterFacets,
   datasetSortOptions,
+  DEFAULT_DATASET_SORT,
+  type FilterFacet,
 } from '~/lib/constants/dataset-filter-options';
 import { cn } from '~/lib/utils';
 import { PageHeader } from '~/components/layout/page-header';
@@ -76,26 +79,75 @@ export default function Datasets() {
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
 
-  // Build API params from filter state
+  const { data: datasetTypeOptions, isPending: isDatasetTypesLoading } =
+    useDatasetTypes();
+  const { data: topCategories, isPending: isTopCategoriesLoading } =
+    useTopCategories();
+
+  const facets: FilterFacet[] = useMemo(() => {
+    const dynamic: FilterFacet[] = [
+      {
+        key: 'category',
+        label: 'Category',
+        loading: isTopCategoriesLoading,
+        options:
+          topCategories?.map((c) => ({
+            label: `${c.name} (${c.dataset_count})`,
+            value: c.slug,
+          })) ?? [],
+      },
+      {
+        key: 'dataset_type',
+        label: 'Dataset Type',
+        loading: isDatasetTypesLoading,
+        options:
+          datasetTypeOptions?.map((t) => ({
+            label: t.label,
+            value: t.value,
+          })) ?? [],
+      },
+    ];
+    // Hide dynamic facets with no options (failed load) — keep static + dynamic
+    // sections that are loading or have data.
+    return [
+      ...dynamic.filter((f) => f.loading || f.options.length > 0),
+      ...staticDatasetFilterFacets,
+    ];
+  }, [
+    topCategories,
+    datasetTypeOptions,
+    isTopCategoriesLoading,
+    isDatasetTypesLoading,
+  ]);
+
+  const allowedSortValues = useMemo(
+    () => new Set<string>(datasetSortOptions.map((o) => o.value)),
+    []
+  );
+  const activeSort = allowedSortValues.has(filter.sortBy)
+    ? filter.sortBy
+    : DEFAULT_DATASET_SORT;
+
+  // Normalize stale/persisted sort values (e.g. legacy 'name' or 'created_at')
+  // back to the catalog default so redux reflects what's actually applied.
+  useEffect(() => {
+    if (!allowedSortValues.has(filter.sortBy)) {
+      filter.setSortBy(DEFAULT_DATASET_SORT);
+    }
+  }, [filter, allowedSortValues]);
+
+  // Build API params from filter state. Facet keys equal backend param names.
   const params: Record<string, unknown> = {
     page,
     limit,
-    sort: filter.sortBy,
-    order: filter.sortOrder,
+    ordering: activeSort,
   };
   if (filter.searchQuery) params.search = filter.searchQuery;
-  if (filter.categoryFilter) params.category = filter.categoryFilter;
 
-  const tagMap: Record<string, string> = {
-    accessLevel: 'access_level',
-    dataType: 'datatype',
-    region: 'region',
-    timeframe: 'timeframe',
-  };
-  for (const [facetKey, apiKey] of Object.entries(tagMap)) {
-    const values = filter.tags[facetKey];
+  for (const facet of facets) {
+    const values = filter.tags[facet.key];
     if (values && values.length > 0) {
-      params[apiKey] = values.join(',');
+      params[facet.key] = facet.single ? values[0] : values.join(',');
     }
   }
 
@@ -172,12 +224,14 @@ export default function Datasets() {
 
             <div className="flex items-center gap-2 sm:gap-3">
               {/* Mobile filter trigger */}
-              <MobileFilterSheet filter={filter} />
+              <MobileFilterSheet filter={filter} facets={facets} />
 
               {/* Sort */}
               <AsyncSelect
-                value={filter.sortBy}
-                onChange={(val) => filter.setSortBy(val ?? 'created_at')}
+                value={activeSort}
+                onChange={(val) =>
+                  filter.setSortBy(val ?? DEFAULT_DATASET_SORT)
+                }
                 options={datasetSortOptions.map((o) => ({
                   label: o.label,
                   value: o.value,
@@ -189,7 +243,7 @@ export default function Datasets() {
           </div>
 
           {/* Active filter pills */}
-          <ActiveFilterPills filter={filter} />
+          <ActiveFilterPills filter={filter} facets={facets} />
         </div>
       </section>
 
@@ -199,6 +253,7 @@ export default function Datasets() {
           {/* Desktop sidebar */}
           <FilterSidebar
             filter={filter}
+            facets={facets}
             className="hidden w-60 shrink-0 md:block"
           />
 
@@ -357,9 +412,11 @@ export default function Datasets() {
 /** Mobile: bottom sheet with all filter facets. */
 function MobileFilterSheet({
   filter,
-}: {
+  facets,
+}: Readonly<{
   filter: ReturnType<typeof useAppFilter>;
-}) {
+  facets: FilterFacet[];
+}>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -381,14 +438,29 @@ function MobileFilterSheet({
         </SheetHeader>
 
         <div className="space-y-6">
-          {datasetFilterFacets.map((facet) => {
+          {facets.map((facet) => {
             const selected = filter.tags[facet.key] ?? [];
             return (
               <div key={facet.key}>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {facet.label}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div
+                  className="flex flex-wrap gap-2"
+                  aria-busy={
+                    facet.loading && facet.options.length === 0
+                      ? 'true'
+                      : undefined
+                  }
+                >
+                  {facet.loading && facet.options.length === 0
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-8 w-20 animate-pulse rounded-full bg-muted"
+                        />
+                      ))
+                    : null}
                   {facet.options.map((opt) => {
                     const isActive = selected.includes(opt.value);
                     return (
@@ -401,9 +473,16 @@ function MobileFilterSheet({
                             ? 'border-primary bg-primary text-white'
                             : 'border-border bg-background text-foreground hover:bg-muted'
                         )}
-                        onClick={() =>
-                          filter.toggleTagValue(facet.key, opt.value)
-                        }
+                        onClick={() => {
+                          if (facet.single) {
+                            filter.setTag(
+                              facet.key,
+                              isActive ? [] : [opt.value]
+                            );
+                          } else {
+                            filter.toggleTagValue(facet.key, opt.value);
+                          }
+                        }}
                       >
                         {isActive && <Check className="h-3 w-3" />}
                         {opt.label}
@@ -440,9 +519,11 @@ function MobileFilterSheet({
 /** Horizontal row of active filter pills with remove buttons. */
 function ActiveFilterPills({
   filter,
-}: {
+  facets,
+}: Readonly<{
   filter: ReturnType<typeof useAppFilter>;
-}) {
+  facets: FilterFacet[];
+}>) {
   const pills: {
     facetKey: string;
     facetLabel: string;
@@ -450,7 +531,7 @@ function ActiveFilterPills({
     label: string;
   }[] = [];
 
-  for (const facet of datasetFilterFacets) {
+  for (const facet of facets) {
     const selected = filter.tags[facet.key] ?? [];
     for (const val of selected) {
       const opt = facet.options.find((o) => o.value === val);

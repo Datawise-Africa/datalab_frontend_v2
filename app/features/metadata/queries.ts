@@ -5,6 +5,8 @@ import type {
   IDatasetCategory,
   IDatasetLicense,
   IDatasetTermsAndConditions,
+  IDatasetTypeOption,
+  ITopCategory,
 } from '~/lib/types/dataset';
 import type { Paginated } from '~/lib/types';
 
@@ -21,6 +23,36 @@ export const useDatasetCategories = () => {
     },
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
+  });
+};
+
+/** Fetch top categories (with dataset counts) for the catalog filter sidebar. */
+export const useTopCategories = () => {
+  return useQuery({
+    queryKey: metadataKeys.topCategories(),
+    queryFn: async (): Promise<ITopCategory[]> => {
+      const { data } = await apiClient.get<ITopCategory[]>(
+        '/dataset-discovery/top-categories/'
+      );
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 10 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
+};
+
+/** Fetch the supported dataset_type filter options. */
+export const useDatasetTypes = () => {
+  return useQuery({
+    queryKey: metadataKeys.datasetTypes(),
+    queryFn: async (): Promise<IDatasetTypeOption[]> => {
+      const { data } = await apiClient.get<IDatasetTypeOption[]>(
+        '/dataset-discovery/dataset-types/'
+      );
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 60 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
   });
 };
 

@@ -8,6 +8,15 @@ export interface IDatasetCategory {
   slug: string;
 }
 
+export interface ITopCategory extends IDatasetCategory {
+  dataset_count: number;
+}
+
+export interface IDatasetTypeOption {
+  value: string;
+  label: string;
+}
+
 interface IDatasetAuthor {
   user: {
     id: string;
