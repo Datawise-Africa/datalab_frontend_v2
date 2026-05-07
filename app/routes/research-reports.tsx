@@ -5,9 +5,8 @@ import { generateSEOTags } from '~/lib/utils/seo';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Research Reports',
-    description:
-      'Browse and search published research reports from the Data Lab team.',
+    title: 'Reports',
+    description: 'Browse and search published reports from the Data Lab team.',
   });
 }
 
@@ -15,7 +14,7 @@ export default function ResearchReports() {
   return (
     <div className="min-h-screen">
       <PageHeader
-        title="Research Reports"
+        title="Reports"
         description="Published findings, methodologies, and insights from our research projects."
       />
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">

@@ -109,6 +109,7 @@ export function useVersionedUpload() {
           file_name: string;
           file_size: number;
           file_type: string;
+          mime_type: string;
           s3_key: string;
           checksum?: string;
         }[] = [];
@@ -147,6 +148,7 @@ export function useVersionedUpload() {
             file_name: presigned.file_name,
             file_size: file.size,
             file_type: file.name.split('.').pop() ?? 'bin',
+            mime_type: file.type,
             s3_key: presigned.s3_key,
           });
 

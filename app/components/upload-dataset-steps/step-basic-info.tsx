@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { X } from 'lucide-react';
 import { useStepValidator } from '~/components/ui/multi-step-form';
 import {
   FormControl,
@@ -7,10 +9,15 @@ import {
   FormLabel,
 } from '~/components/ui/form';
 import { Switch } from '~/components/ui/switch';
+import { Button } from '~/components/ui/button';
+import { Label } from '~/components/ui/label';
+import { DropZone } from '~/components/ui/drop-zone';
+import { useFileUpload } from '~/hooks/use-file-upload';
 import {
   FormTextField,
   FormTextareaField,
   FormSelectField,
+  FormNumberField,
 } from '~/components/form-fields';
 import type { UploadDatasetFormValues } from './types';
 import { DATASET_TYPES } from './types';
@@ -26,8 +33,36 @@ export function StepBasicInfo({
   licenses,
   countries,
 }: Readonly<StepBasicInfoProps>) {
-  const { control, trigger, formState } =
+  const { control, trigger, formState, watch, setValue } =
     useFormContext<UploadDatasetFormValues>();
+
+  const datasetImage = watch('dataset_image');
+  const {
+    addFiles,
+    files,
+    error: imageError,
+  } = useFileUpload({
+    multiple: false,
+    output: 'base64',
+    preview: true,
+    maxSizeBytes: 2 * 1024 * 1024,
+    accept: ['image/*'],
+  });
+
+  const newBase64 = files[0]?.data as string | undefined;
+  useEffect(() => {
+    if (newBase64) {
+      setValue('dataset_image', newBase64, { shouldDirty: true });
+    }
+  }, [newBase64, setValue]);
+
+  // Reset price to null whenever premium is turned off so the payload is clean.
+  const isPremium = watch('is_premium');
+  useEffect(() => {
+    if (!isPremium) {
+      setValue('price', null, { shouldValidate: true, shouldDirty: true });
+    }
+  }, [isPremium, setValue]);
 
   useStepValidator(async () => {
     const fields = [
@@ -36,6 +71,7 @@ export function StepBasicInfo({
       'dataset_type',
       'category',
       'license',
+      'price',
     ] as const;
     const valid = await trigger([...fields]);
     if (valid) return { valid: true };
@@ -68,6 +104,38 @@ export function StepBasicInfo({
         rows={4}
         required
       />
+
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">Cover image</Label>
+        {datasetImage ? (
+          <div className="relative inline-flex items-start gap-3 rounded-md border p-3">
+            <img
+              src={datasetImage}
+              alt="Dataset cover preview"
+              className="h-24 w-40 rounded-md object-cover"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                setValue('dataset_image', null, { shouldDirty: true })
+              }
+              className="text-destructive hover:text-destructive"
+            >
+              <X className="mr-1 h-3.5 w-3.5" />
+              Remove
+            </Button>
+          </div>
+        ) : (
+          <DropZone
+            onFiles={addFiles}
+            accept="image/*"
+            hint="PNG, JPG, or WebP — max 2 MB"
+          />
+        )}
+        {imageError && <p className="text-xs text-destructive">{imageError}</p>}
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <FormSelectField
@@ -164,6 +232,18 @@ export function StepBasicInfo({
           )}
         />
       </div>
+
+      {isPremium && (
+        <FormNumberField
+          control={control}
+          name="price"
+          label="Price (KSh)"
+          placeholder="e.g. 1500"
+          required
+          min={0}
+          step={1}
+        />
+      )}
     </div>
   );
 }

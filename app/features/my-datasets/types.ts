@@ -1,6 +1,42 @@
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import type { Nullable } from '~/lib/types';
 
+/**
+ * Backend returns workspace either as a plain ID string (list/detail endpoints)
+ * or as a populated object on some endpoints. Normalize via `getWorkspaceId`.
+ */
+export type DatasetWorkspaceRef = string | { id: string; name: string } | null;
+
+export function getWorkspaceId(
+  workspace: DatasetWorkspaceRef | undefined
+): string | null {
+  if (!workspace) return null;
+  return typeof workspace === 'string' ? workspace : workspace.id;
+}
+
+export function getWorkspaceName(
+  workspace: DatasetWorkspaceRef | undefined
+): string | null {
+  if (!workspace || typeof workspace === 'string') return null;
+  return workspace.name;
+}
+
+/** Auto-derived schema from uploaded files. */
+export interface DatasetSchemaColumn {
+  name: string;
+  dtype: string;
+}
+
+export interface DatasetSchemaFile {
+  file: string;
+  columns: DatasetSchemaColumn[];
+}
+
+export interface DatasetSchema {
+  id: string;
+  schema_json: DatasetSchemaFile[];
+}
+
 export type MyDatasetInterface = {
   id: string;
   name: string;
@@ -26,10 +62,7 @@ export type MyDatasetInterface = {
     requires_share_alike: boolean;
     is_active: boolean;
   };
-  workspace: Nullable<{
-    id: string;
-    name: string;
-  }>;
+  workspace: DatasetWorkspaceRef;
   origin_region: string;
   authors: {
     user: {
@@ -42,6 +75,7 @@ export type MyDatasetInterface = {
   }[];
   is_premium: boolean;
   is_private: boolean;
+  price: number | null;
   access: {
     access_type: string;
     access_instructions: string;
@@ -59,6 +93,8 @@ export type MyDatasetInterface = {
   }>;
   status: 'PB' | 'DF' | 'AR';
   tags: string[];
+  dataset_image?: string | null;
+  schema?: DatasetSchema | null;
   created_at: string;
   updated_at: string;
 };

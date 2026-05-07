@@ -4,12 +4,20 @@ import { Button } from '~/components/ui/button';
 import { Protect } from '~/components/auth/protect';
 import { useWorkspaces } from '~/features/workspaces';
 import { WorkspaceCard } from '~/components/workspaces/workspace-card';
+import { useAppSelector } from '~/store';
+import { AuthPerm } from '~/lib/utils/perm';
 
 export default function WorkspacesPage() {
   const { data: workspaces, isLoading } = useWorkspaces();
+  const user = useAppSelector((s) => s.auth.user);
+  const perm = AuthPerm.getInstance();
+  const canCreate =
+    !!user &&
+    (perm.hasPermission('creator', user.user_role) ||
+      perm.hasPermission('admin', user.user_role));
 
   return (
-    <Protect roles={['creator', 'admin']}>
+    <Protect>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -18,12 +26,14 @@ export default function WorkspacesPage() {
               Collaborate on datasets with your team.
             </p>
           </div>
-          <Button asChild>
-            <Link to="/app/workspaces/new">
-              <Plus className="mr-1.5 h-4 w-4" />
-              Create Workspace
-            </Link>
-          </Button>
+          {canCreate && (
+            <Button asChild>
+              <Link to="/app/workspaces/new">
+                <Plus className="mr-1.5 h-4 w-4" />
+                Create Workspace
+              </Link>
+            </Button>
+          )}
         </div>
 
         {isLoading ? (
@@ -35,11 +45,17 @@ export default function WorkspacesPage() {
             <FolderKanban className="h-12 w-12 text-muted-foreground/40 mb-3" />
             <h3 className="font-medium mb-1">No workspaces yet</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Create a workspace to start collaborating on datasets.
+              {canCreate
+                ? 'Create a workspace to start collaborating on datasets.'
+                : "You don't belong to any workspaces yet. Wait for an invitation from a creator or admin."}
             </p>
-            <Button asChild>
-              <Link to="/app/workspaces/new">Create your first workspace</Link>
-            </Button>
+            {canCreate && (
+              <Button asChild>
+                <Link to="/app/workspaces/new">
+                  Create your first workspace
+                </Link>
+              </Button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

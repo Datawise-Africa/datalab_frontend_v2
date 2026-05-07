@@ -48,6 +48,7 @@ export interface ConfirmUploadFileInput {
   file_name: string;
   file_size: number;
   file_type: string;
+  mime_type: string;
   /** The S3 object key where the file was uploaded. */
   s3_key: string;
   /** Optional file checksum for integrity verification. */

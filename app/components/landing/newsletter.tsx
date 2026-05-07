@@ -22,8 +22,7 @@ export function Newsletter() {
           Stay Updated
         </h2>
         <p className="mt-3 text-muted-foreground">
-          Get notified about new datasets, research reports, and platform
-          updates.
+          Get notified about new datasets, reports, and platform updates.
         </p>
 
         {submitted ? (

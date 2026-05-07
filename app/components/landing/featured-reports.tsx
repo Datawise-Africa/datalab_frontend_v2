@@ -10,7 +10,7 @@ export function FeaturedReports() {
             Research
           </span>
           <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            Research Reports
+            Reports
           </h2>
           <p className="mt-3 text-lg text-muted-foreground">
             Published findings and insights from our research projects.

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { formatNumber } from '~/lib/utils/format';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
-import { Card, CardContent } from '~/components/ui/card';
 import { AsyncSelect } from '~/components/ui/async-select';
+import { StatCard } from '~/components/analytics/stat-card';
 import { Loader2, Eye, Download, Star, Database } from 'lucide-react';
 import { useCreatorAnalytics } from '~/features/dataset-creator';
 import { useMyDatasets } from '~/features/my-datasets';
@@ -58,17 +58,25 @@ export default function CreatorAnalytics() {
                 icon={Eye}
                 label="Total Views"
                 value={formatNumber(analytics?.total_views ?? 0)}
+                hint="Detail page views across your datasets."
               />
               <StatCard
                 icon={Download}
                 label="Total Downloads"
                 value={formatNumber(analytics?.total_downloads ?? 0)}
+                hint="Approved downloads served from your datasets."
               />
-              <StatCard icon={Star} label="Avg Rating" value="—" />
+              <StatCard
+                icon={Star}
+                label="Avg Rating"
+                value="—"
+                hint="Mean reviewer rating once reviews are submitted."
+              />
               <StatCard
                 icon={Database}
                 label="Total Datasets"
                 value={String(analytics?.total_datasets ?? 0)}
+                hint="Datasets you currently own."
               />
             </div>
 
@@ -117,31 +125,5 @@ export default function CreatorAnalytics() {
         )}
       </div>
     </Protect>
-  );
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-5">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-primary/10 p-2 dark:bg-primary/20">
-            <Icon className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold">{value}</p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

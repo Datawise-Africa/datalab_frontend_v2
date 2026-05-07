@@ -6,6 +6,7 @@ import type {
   WorkspaceInvitation,
 } from '~/lib/types/workspace';
 import type { Paginated } from '~/lib/types';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
 import { workspaceKeys } from './query-keys';
 
 export function useWorkspaces() {
@@ -45,14 +46,14 @@ export function useWorkspaceMembers(id: string) {
   });
 }
 
-// TODO: GET /workspaces/{id}/datasets/ is not in the OpenAPI spec.
 export function useWorkspaceDatasets(id: string) {
   return useQuery({
     queryKey: workspaceKeys.datasets(id),
-    queryFn: async () => {
-      const { data } = await apiClient.get<
-        { id: string; title: string; description: string; status: string }[]
-      >(`/workspaces/${id}/datasets/`);
+    queryFn: async (): Promise<Paginated<MyDatasetInterface>> => {
+      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+        '/my-datasets/',
+        { params: { workspace: id } }
+      );
       return data;
     },
     enabled: !!id,

@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
@@ -5,8 +6,19 @@ import { CardContent, CardHeader } from '~/components/ui/card';
 import { DatasetCard } from '~/components/dataset-card';
 import { normalizeMyDataset } from '~/lib/utils/dataset-adapter';
 import { useDatasets } from '~/features/datasets';
+import {
+  useAddBookmark,
+  useBookmarkedDatasets,
+  useRemoveBookmark,
+} from '~/features/bookmarks';
+import { useAppModal } from '~/store/slices/modal-slice';
+import { useAppSelector } from '~/store';
 
 export function FeaturedDatasets() {
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const authModal = useAppModal('auth');
+  const downloadModal = useAppModal('download');
+
   const { data: response, isLoading } = useDatasets({
     page: 1,
     limit: 8,
@@ -14,7 +26,45 @@ export function FeaturedDatasets() {
     order: 'desc',
   });
 
-  const datasets = response?.data?.map(normalizeMyDataset) ?? [];
+  const { data: bookmarksData } = useBookmarkedDatasets({}, isAuthenticated);
+  const addBookmark = useAddBookmark();
+  const removeBookmark = useRemoveBookmark();
+
+  const datasets = useMemo(
+    () => response?.data?.map(normalizeMyDataset) ?? [],
+    [response]
+  );
+
+  const bookmarkedIds = useMemo(() => {
+    if (!bookmarksData) return new Set<string>();
+    return new Set(bookmarksData.map((b) => b.dataset.id));
+  }, [bookmarksData]);
+
+  const handleDownload = (dataset: ReturnType<typeof normalizeMyDataset>) => {
+    if (!isAuthenticated) {
+      authModal.open();
+      return;
+    }
+    downloadModal.open({
+      datasetId: dataset.id,
+      datasetName: dataset.name,
+      price: dataset.price,
+      formats: dataset.formats,
+      license: dataset.license ?? 'Standard License',
+    });
+  };
+
+  const handleBookmark = (datasetId: string) => {
+    if (!isAuthenticated) {
+      authModal.open();
+      return;
+    }
+    if (bookmarkedIds.has(datasetId)) {
+      removeBookmark.mutate(datasetId);
+    } else {
+      addBookmark.mutate(datasetId);
+    }
+  };
 
   return (
     <section className="relative border-t border-border/60 py-16 lg:py-24">
@@ -55,7 +105,11 @@ export function FeaturedDatasets() {
                   <DatasetCard.Tags limit={2} />
                   <DatasetCard.Meta />
                 </CardContent>
-                <DatasetCard.Actions />
+                <DatasetCard.Actions
+                  onDownload={() => handleDownload(dataset)}
+                  onBookmark={() => handleBookmark(dataset.id)}
+                  isBookmarked={bookmarkedIds.has(dataset.id)}
+                />
               </DatasetCard>
             ))}
           </div>

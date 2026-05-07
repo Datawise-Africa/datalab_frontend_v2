@@ -28,18 +28,90 @@ import {
   GitBranch,
 } from 'lucide-react';
 import { useDataset, useDatasetVersions } from '~/features/datasets';
-import { useAddBookmark, useBookmarkedDatasets } from '~/features/bookmarks';
+import { useReviews, useCreateReview } from '~/features/reviews';
+import { useToggleBookmark } from '~/features/bookmarks';
 import { useTrackView } from '~/hooks/use-track-view';
+import { cn } from '~/lib/utils';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
 import { generateSEOTags } from '~/lib/utils/seo';
+import { breadcrumbSchema, datasetSchema } from '~/lib/utils/structured-data';
+import { apiClient } from '~/lib/api/client';
 import { formatBytes } from '~/lib/utils/format';
 import type { MyDatasetInterface } from '~/features/my-datasets';
+import { getWorkspaceId, getWorkspaceName } from '~/features/my-datasets/types';
+import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
 
-export function meta(_args: Route.MetaArgs) {
+/** Server-side fetch so meta() has real data for SEO. */
+export async function loader({ params }: Route.LoaderArgs) {
+  try {
+    const { data } = await apiClient.get<MyDatasetInterface>(
+      `/datasets/${params.slug}/`
+    );
+    return { dataset: data };
+  } catch {
+    return { dataset: null };
+  }
+}
+
+export function meta({ loaderData: data, params }: Route.MetaArgs) {
+  const dataset = data?.dataset as
+    | (MyDatasetInterface & {
+        dataset_image?: string | null;
+        owner?: {
+          email?: string;
+          first_name?: string;
+          last_name?: string;
+        } | null;
+      })
+    | null
+    | undefined;
+  const slug = params.slug;
+
+  if (!dataset) {
+    return generateSEOTags({
+      title: 'Dataset not found',
+      description:
+        'This dataset may have been removed or the URL was mistyped. Browse the full catalog on Datalab Africa.',
+      url: `/datasets/${slug}`,
+      noIndex: true,
+    });
+  }
+
+  const description = (dataset.description ?? '')
+    .replaceAll(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+
   return generateSEOTags({
-    title: 'Dataset',
-    description: 'View dataset details on Datalab Africa',
+    title: dataset.name,
+    description:
+      description || `Explore the ${dataset.name} dataset on Datalab Africa.`,
+    url: `/datasets/${slug}`,
+    type: 'article',
+    image: dataset.dataset_image ?? undefined,
+    keywords: dataset.tags?.join(', '),
+    jsonLd: [
+      datasetSchema({
+        id: dataset.id,
+        slug,
+        name: dataset.name,
+        description: dataset.description,
+        tags: dataset.tags,
+        license: dataset.license
+          ? { name: dataset.license.name, url: dataset.license.url }
+          : null,
+        owner: dataset.owner ?? null,
+        created_at: dataset.created_at,
+        updated_at: dataset.updated_at,
+        dataset_image: dataset.dataset_image ?? null,
+      }),
+      breadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Datasets', url: '/datasets' },
+        { name: dataset.name, url: `/datasets/${slug}` },
+      ]),
+    ],
   });
 }
 
@@ -47,10 +119,12 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   const slug = params.slug;
   const { data: dataset, isLoading, isError } = useDataset(slug);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const currentUserId = useAppSelector((s) => s.auth.user?.id);
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
-  const { data: bookmarksData } = useBookmarkedDatasets({}, isAuthenticated);
-  const addBookmark = useAddBookmark();
+  const bookmark = useToggleBookmark(dataset?.id);
+  const { data: reviews } = useReviews(dataset?.id);
+  const createReview = useCreateReview();
 
   useTrackView(dataset?.id);
 
@@ -82,8 +156,6 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
     );
   }
 
-  const _isBookmarked = bookmarksData?.some((b) => b.dataset.id === dataset.id);
-
   const handleDownload = () => {
     if (!isAuthenticated) {
       authModal.open();
@@ -98,12 +170,12 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
     });
   };
 
-  const _handleBookmark = () => {
+  const handleBookmark = () => {
     if (!isAuthenticated) {
       authModal.open();
       return;
     }
-    addBookmark.mutate(dataset.id);
+    bookmark.toggle();
   };
 
   const authorName =
@@ -190,7 +262,9 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               <SidebarContent
                 dataset={dataset}
                 onDownload={handleDownload}
-                onBookmark={_handleBookmark}
+                onBookmark={handleBookmark}
+                isBookmarked={bookmark.isBookmarked}
+                isBookmarkPending={bookmark.isPending}
               />
             </div>
 
@@ -199,6 +273,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               <TabsList>
                 <TabsTrigger value="details">Details</TabsTrigger>
                 <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
+                <TabsTrigger value="schema">Schema</TabsTrigger>
                 <TabsTrigger value="versions">Versions</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
@@ -284,6 +359,14 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 <DatasheetTab datasheet={dataset.datasheet} />
               </TabsContent>
 
+              {/* Schema tab */}
+              <TabsContent value="schema" className="mt-4">
+                <DatasetSchemaTab
+                  schema={dataset.schema}
+                  emptyHint="The dataset has not yet declared a structured-file schema."
+                />
+              </TabsContent>
+
               {/* Versions tab */}
               <TabsContent value="versions" className="mt-4">
                 <PublicVersionsTab datasetId={dataset.id} />
@@ -291,7 +374,40 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
               {/* Reviews tab */}
               <TabsContent value="reviews" className="mt-4">
-                <ReviewList reviews={[]} showForm={isAuthenticated} />
+                {(() => {
+                  const reviewList = reviews ?? [];
+                  const alreadyReviewed = currentUserId
+                    ? reviewList.some((r) => r.user.id === currentUserId)
+                    : false;
+                  const showForm = isAuthenticated && !alreadyReviewed;
+                  return (
+                    <div className="space-y-3">
+                      {showForm && (
+                        <p className="text-xs text-muted-foreground">
+                          Only users who have downloaded this dataset can submit
+                          a review.
+                        </p>
+                      )}
+                      {alreadyReviewed && (
+                        <p className="text-xs text-muted-foreground">
+                          You&apos;ve already reviewed this dataset.
+                        </p>
+                      )}
+                      <ReviewList
+                        reviews={reviewList}
+                        showForm={showForm}
+                        isSubmitting={createReview.isPending}
+                        onSubmitReview={(rating, comment) => {
+                          createReview.mutate({
+                            dataset: dataset.id,
+                            rating,
+                            comment,
+                          });
+                        }}
+                      />
+                    </div>
+                  );
+                })()}
               </TabsContent>
             </Tabs>
           </div>
@@ -302,7 +418,9 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               <SidebarContent
                 dataset={dataset}
                 onDownload={handleDownload}
-                onBookmark={_handleBookmark}
+                onBookmark={handleBookmark}
+                isBookmarked={bookmark.isBookmarked}
+                isBookmarkPending={bookmark.isPending}
               />
             </div>
           </div>
@@ -318,10 +436,14 @@ function SidebarContent({
   dataset,
   onDownload,
   onBookmark,
+  isBookmarked = false,
+  isBookmarkPending = false,
 }: Readonly<{
   dataset: MyDatasetInterface;
   onDownload: () => void;
   onBookmark: () => void;
+  isBookmarked?: boolean;
+  isBookmarkPending?: boolean;
 }>) {
   return (
     <Card>
@@ -334,9 +456,17 @@ function SidebarContent({
 
         {/* Bookmark & Share */}
         <div className="flex gap-2">
-          <Button variant="outline" className="flex-1" onClick={onBookmark}>
-            <Bookmark className="mr-1.5 h-4 w-4" />
-            Bookmark
+          <Button
+            variant={isBookmarked ? 'default' : 'outline'}
+            className="flex-1"
+            onClick={onBookmark}
+            disabled={isBookmarkPending}
+            aria-pressed={isBookmarked}
+          >
+            <Bookmark
+              className={cn('mr-1.5 h-4 w-4', isBookmarked && 'fill-current')}
+            />
+            {isBookmarked ? 'Bookmarked' : 'Bookmark'}
           </Button>
           <Button
             variant="outline"
@@ -367,6 +497,14 @@ function SidebarContent({
           {dataset.license && (
             <p className="text-muted-foreground">
               License: {dataset.license.identifier}
+            </p>
+          )}
+          {(getWorkspaceName(dataset.workspace) ||
+            getWorkspaceId(dataset.workspace)) && (
+            <p className="text-muted-foreground">
+              Workspace:{' '}
+              {getWorkspaceName(dataset.workspace) ??
+                getWorkspaceId(dataset.workspace)}
             </p>
           )}
         </div>

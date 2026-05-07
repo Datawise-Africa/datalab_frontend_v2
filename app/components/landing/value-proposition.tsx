@@ -17,9 +17,9 @@ const pillars = [
     icon: FileText,
     title: 'Research Publishing',
     description:
-      'Publish and discover expert research reports with in-browser reading, PDF downloads, and linked datasets.',
+      'Publish and discover expert reports with in-browser reading, PDF downloads, and linked datasets.',
     features: [
-      'Expert research reports',
+      'Expert reports',
       'In-browser reading',
       'PDF downloads',
       'Linked datasets',

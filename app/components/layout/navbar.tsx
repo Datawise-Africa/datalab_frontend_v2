@@ -2,12 +2,16 @@ import { useState } from 'react';
 import { useIsClient } from '~/hooks/use-is-client';
 import { Link } from 'react-router';
 import {
-  Database,
-  Menu,
+  Bookmark,
   ChevronDown,
+  Database,
+  Download,
   LayoutDashboard,
-  User,
   LogOut,
+  Menu,
+  Moon,
+  Sun,
+  User,
 } from 'lucide-react';
 
 import { Button } from '~/components/ui/button';
@@ -26,10 +30,32 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { useAppSelector } from '~/store';
+import { useAppSelector, useAppDispatch } from '~/store';
 import { useAppModal } from '~/store/slices/modal-slice';
+import { toggleDarkMode } from '~/store/slices/theme-slice';
 import { useLogout } from '~/features/auth';
 import { AuthPerm } from '~/lib/utils/perm';
+
+function ThemeToggle({ className }: { className?: string }) {
+  const isClient = useIsClient();
+  const dispatch = useAppDispatch();
+  const darkMode = useAppSelector((s) => s.theme.darkMode);
+  if (!isClient) {
+    return <div className={className} aria-hidden />;
+  }
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => dispatch(toggleDarkMode())}
+      className={className}
+      aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={darkMode ? 'Light mode' : 'Dark mode'}
+    >
+      {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    </Button>
+  );
+}
 
 const navLinks = [
   { label: 'Datasets', to: '/datasets' },
@@ -54,7 +80,10 @@ function DesktopAuthButtons() {
         <Button variant="outline" size="sm" onClick={() => authModal.open()}>
           Sign in
         </Button>
-        <Button size="sm" onClick={() => authModal.open()}>
+        <Button
+          size="sm"
+          onClick={() => authModal.open({ initialTab: 'signup' })}
+        >
           Get Started
         </Button>
       </div>
@@ -93,6 +122,18 @@ function DesktopAuthButtons() {
             <Link to="/app/">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               My Lab
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/app/my-downloads">
+              <Download className="mr-2 h-4 w-4" />
+              My Downloads
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/app/bookmarks">
+              <Bookmark className="mr-2 h-4 w-4" />
+              Bookmarks
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -150,7 +191,23 @@ function MobileAuthSection() {
         <Button asChild variant="outline" className="w-full">
           <Link to="/app/">
             <LayoutDashboard className="mr-2 h-4 w-4" />
-            Dashboard
+            My Lab
+          </Link>
+        </Button>
+      </SheetClose>
+      <SheetClose asChild>
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/app/my-downloads">
+            <Download className="mr-2 h-4 w-4" />
+            My Downloads
+          </Link>
+        </Button>
+      </SheetClose>
+      <SheetClose asChild>
+        <Button asChild variant="outline" className="w-full">
+          <Link to="/app/bookmarks">
+            <Bookmark className="mr-2 h-4 w-4" />
+            Bookmarks
           </Link>
         </Button>
       </SheetClose>
@@ -203,45 +260,51 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
-        <DesktopAuthButtons />
+        {/* Right cluster: theme toggle + auth (desktop) */}
+        <div className="flex items-center gap-1">
+          <ThemeToggle className="hidden h-8 w-8 lg:inline-flex" />
+          <DesktopAuthButtons />
 
-        {/* Mobile Menu */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
+          {/* Mobile theme toggle (always visible on mobile) */}
+          <ThemeToggle className="h-8 w-8 lg:hidden" />
 
-          <SheetContent side="right" className="w-80 overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle className="flex items-center gap-2">
-                <Database className="h-5 w-5 text-primary" />
-                <span>
-                  <span className="text-primary">Data</span>
-                  <span className="text-foreground">Lab</span>
-                </span>
-              </SheetTitle>
-            </SheetHeader>
+          {/* Mobile Menu */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
 
-            <nav className="mt-4 flex flex-col gap-1 px-1">
-              {navLinks.map((link) => (
-                <SheetClose key={link.to} asChild>
-                  <Link
-                    to={link.to}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
-                  >
-                    {link.label}
-                  </Link>
-                </SheetClose>
-              ))}
-            </nav>
+            <SheetContent side="right" className="w-80 overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5 text-primary" />
+                  <span>
+                    <span className="text-primary">Data</span>
+                    <span className="text-foreground">Lab</span>
+                  </span>
+                </SheetTitle>
+              </SheetHeader>
 
-            <MobileAuthSection />
-          </SheetContent>
-        </Sheet>
+              <nav className="mt-4 flex flex-col gap-1 px-1">
+                {navLinks.map((link) => (
+                  <SheetClose key={link.to} asChild>
+                    <Link
+                      to={link.to}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </SheetClose>
+                ))}
+              </nav>
+
+              <MobileAuthSection />
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

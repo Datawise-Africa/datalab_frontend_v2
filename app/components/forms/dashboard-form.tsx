@@ -1,15 +1,19 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2 } from 'lucide-react';
+import { Loader2, X } from 'lucide-react';
 import { Form } from '~/components/ui/form';
 import { Button } from '~/components/ui/button';
 import {
   FormTextField,
   FormTextareaField,
   FormSelectField,
+  FormTagInputField,
 } from '~/components/form-fields';
 import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
+import { DropZone } from '~/components/ui/drop-zone';
+import { useFileUpload } from '~/hooks/use-file-upload';
 import {
   createDashboardSchema,
   type CreateDashboardFormValues,
@@ -26,6 +30,12 @@ type DashboardFormProps = {
   categories?: ReadonlyArray<{ id: string; name: string }>;
 };
 
+const statusOptions = [
+  { label: 'Draft', value: 'DF' },
+  { label: 'Published', value: 'PB' },
+  { label: 'Archived', value: 'AR' },
+];
+
 export function DashboardForm({
   mode,
   defaultValues,
@@ -37,11 +47,37 @@ export function DashboardForm({
   const form = useForm({
     resolver: zodResolver(createDashboardSchema),
     defaultValues,
+    // In edit mode defaultValues may arrive after mount (async load).
+    // `values` forces RHF to sync whenever the prop reference changes.
+    values: defaultValues,
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await onSubmit(data);
   });
+
+  const thumbnail = form.watch('thumbnail');
+  const {
+    addFiles,
+    files,
+    error: thumbnailError,
+  } = useFileUpload({
+    multiple: false,
+    output: 'base64',
+    preview: true,
+    maxSizeBytes: 2 * 1024 * 1024,
+    accept: ['image/*'],
+  });
+
+  // Only update thumbnail when the user actually adds a new file.
+  // (useFileUpload fires onFileChange on mount with an empty list — which would
+  // clobber a pre-loaded thumbnail URL in edit mode.)
+  const newBase64 = files[0]?.data as string | undefined;
+  useEffect(() => {
+    if (newBase64) {
+      form.setValue('thumbnail', newBase64, { shouldDirty: true });
+    }
+  }, [newBase64, form]);
 
   const categoryOptions = categories.map((c) => ({
     label: c.name,
@@ -72,17 +108,69 @@ export function DashboardForm({
           name="dashboard_url"
           label="Dashboard URL"
           placeholder="https://..."
-          required
         />
 
-        {categoryOptions.length > 0 && (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Thumbnail</Label>
+          {thumbnail ? (
+            <div className="relative inline-flex items-start gap-3 rounded-md border p-3">
+              <img
+                src={thumbnail}
+                alt="Dashboard thumbnail preview"
+                className="h-24 w-40 rounded-md object-cover"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  form.setValue('thumbnail', null, { shouldDirty: true })
+                }
+                className="text-destructive hover:text-destructive"
+              >
+                <X className="mr-1 h-3.5 w-3.5" />
+                Remove
+              </Button>
+            </div>
+          ) : (
+            <DropZone
+              onFiles={addFiles}
+              accept="image/*"
+              hint="PNG, JPG, or WebP — max 2 MB"
+            />
+          )}
+          {thumbnailError && (
+            <p className="text-xs text-destructive">{thumbnailError}</p>
+          )}
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2">
           <FormSelectField
             control={form.control}
             name="category"
             label="Category"
+            placeholder={
+              categoryOptions.length > 0
+                ? 'Select a category'
+                : 'No categories available yet'
+            }
             options={categoryOptions}
           />
-        )}
+
+          <FormSelectField
+            control={form.control}
+            name="status"
+            label="Status"
+            options={statusOptions}
+          />
+        </div>
+
+        <FormTagInputField
+          control={form.control}
+          name="tags"
+          label="Tags"
+          placeholder="Add a tag and press Enter"
+        />
 
         <div className="flex items-start gap-3">
           <Checkbox
