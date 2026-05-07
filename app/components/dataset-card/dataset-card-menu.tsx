@@ -1,5 +1,12 @@
 import { Link } from 'react-router';
-import { MoreVertical, Bookmark, LinkIcon, Eye, Download } from 'lucide-react';
+import {
+  MoreVertical,
+  Heart,
+  LinkIcon,
+  Eye,
+  Download,
+  Loader2,
+} from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
@@ -9,11 +16,13 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { useDatasetCard } from './use-dataset-card';
+import { cn } from '~/lib/utils';
 
 interface DatasetCardMenuProps {
   onBookmark?: () => void;
   onDownload?: () => void;
   isBookmarked?: boolean;
+  isBookmarkPending?: boolean;
   showBookmark?: boolean;
 }
 
@@ -21,8 +30,9 @@ export function DatasetCardMenu({
   onBookmark,
   onDownload,
   isBookmarked = false,
+  isBookmarkPending = false,
   showBookmark = false,
-}: DatasetCardMenuProps) {
+}: Readonly<DatasetCardMenuProps>) {
   const { dataset } = useDatasetCard();
 
   const handleCopyLink = () => {
@@ -46,11 +56,28 @@ export function DatasetCardMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-44">
         {showBookmark && (
-          <DropdownMenuItem onClick={onBookmark}>
-            <Bookmark
-              className={`mr-2 h-4 w-4 ${isBookmarked ? 'fill-primary text-primary' : ''}`}
-            />
-            {isBookmarked ? 'Saved' : 'Save'}
+          <DropdownMenuItem
+            onClick={onBookmark}
+            disabled={isBookmarkPending}
+            aria-busy={isBookmarkPending}
+          >
+            {isBookmarkPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Heart
+                className={cn(
+                  'mr-2 h-4 w-4',
+                  isBookmarked && 'fill-red-500 text-red-500'
+                )}
+              />
+            )}
+            {isBookmarkPending
+              ? isBookmarked
+                ? 'Removing…'
+                : 'Saving…'
+              : isBookmarked
+                ? 'Saved'
+                : 'Save'}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={handleCopyLink}>

@@ -109,6 +109,12 @@ export function FeaturedDatasets() {
                   onDownload={() => handleDownload(dataset)}
                   onBookmark={() => handleBookmark(dataset.id)}
                   isBookmarked={bookmarkedIds.has(dataset.id)}
+                  isBookmarkPending={
+                    (addBookmark.isPending &&
+                      addBookmark.variables === dataset.id) ||
+                    (removeBookmark.isPending &&
+                      removeBookmark.variables === dataset.id)
+                  }
                 />
               </DatasetCard>
             ))}
