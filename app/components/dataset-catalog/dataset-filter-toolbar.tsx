@@ -20,7 +20,6 @@ import { Separator } from '~/components/ui/separator';
 import { DatasetSearch } from './dataset-search';
 import { cn } from '~/lib/utils';
 import {
-  datasetFilterFacets,
   datasetSortOptions,
   type FilterFacet,
 } from '~/lib/constants/dataset-filter-options';
@@ -30,13 +29,28 @@ type FilterHook = ReturnType<typeof useAppFilter>;
 
 interface DatasetFilterToolbarProps {
   filter: FilterHook;
+  facets: FilterFacet[];
   className?: string;
+}
+
+function applyFacetSelection(
+  filter: FilterHook,
+  facet: FilterFacet,
+  value: string,
+  isActive: boolean
+) {
+  if (facet.single) {
+    filter.setTag(facet.key, isActive ? [] : [value]);
+  } else {
+    filter.toggleTagValue(facet.key, value);
+  }
 }
 
 export function DatasetFilterToolbar({
   filter,
+  facets,
   className,
-}: DatasetFilterToolbarProps) {
+}: Readonly<DatasetFilterToolbarProps>) {
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       {/* Row 1: Search + Sort */}
@@ -49,11 +63,11 @@ export function DatasetFilterToolbar({
 
         <div className="flex items-center gap-2">
           {/* Mobile: Sheet trigger */}
-          <MobileFilterSheet filter={filter} />
+          <MobileFilterSheet filter={filter} facets={facets} />
 
           {/* Desktop: Popover per facet */}
           <div className="hidden items-center gap-1.5 md:flex">
-            {datasetFilterFacets.map((facet) => (
+            {facets.map((facet) => (
               <FacetPopover key={facet.key} facet={facet} filter={filter} />
             ))}
           </div>
@@ -73,7 +87,7 @@ export function DatasetFilterToolbar({
       </div>
 
       {/* Active filter pills */}
-      <ActiveFilterPills filter={filter} />
+      <ActiveFilterPills filter={filter} facets={facets} />
     </div>
   );
 }
@@ -82,10 +96,10 @@ export function DatasetFilterToolbar({
 function FacetPopover({
   facet,
   filter,
-}: {
+}: Readonly<{
   facet: FilterFacet;
   filter: FilterHook;
-}) {
+}>) {
   const selected = filter.tags[facet.key] ?? [];
   const count = selected.length;
 
@@ -103,6 +117,16 @@ function FacetPopover({
         </Button>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-52 p-2">
+        {facet.loading && facet.options.length === 0 ? (
+          <div className="space-y-1.5" aria-busy="true">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-7 w-full animate-pulse rounded-md bg-muted"
+              />
+            ))}
+          </div>
+        ) : null}
         <div className="space-y-0.5">
           {facet.options.map((opt) => {
             const isActive = selected.includes(opt.value);
@@ -116,7 +140,9 @@ function FacetPopover({
                     ? 'bg-primary/5 text-primary font-medium'
                     : 'text-foreground hover:bg-muted'
                 )}
-                onClick={() => filter.toggleTagValue(facet.key, opt.value)}
+                onClick={() =>
+                  applyFacetSelection(filter, facet, opt.value, isActive)
+                }
               >
                 <div
                   className={cn(
@@ -152,7 +178,10 @@ function FacetPopover({
 }
 
 /** Mobile: all facets in a bottom sheet. */
-function MobileFilterSheet({ filter }: { filter: FilterHook }) {
+function MobileFilterSheet({
+  filter,
+  facets,
+}: Readonly<{ filter: FilterHook; facets: FilterFacet[] }>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -174,14 +203,29 @@ function MobileFilterSheet({ filter }: { filter: FilterHook }) {
         </SheetHeader>
 
         <div className="space-y-6">
-          {datasetFilterFacets.map((facet) => {
+          {facets.map((facet) => {
             const selected = filter.tags[facet.key] ?? [];
             return (
               <div key={facet.key}>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {facet.label}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div
+                  className="flex flex-wrap gap-2"
+                  aria-busy={
+                    facet.loading && facet.options.length === 0
+                      ? 'true'
+                      : undefined
+                  }
+                >
+                  {facet.loading && facet.options.length === 0
+                    ? Array.from({ length: 4 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="h-8 w-20 animate-pulse rounded-full bg-muted"
+                        />
+                      ))
+                    : null}
                   {facet.options.map((opt) => {
                     const isActive = selected.includes(opt.value);
                     return (
@@ -195,7 +239,12 @@ function MobileFilterSheet({ filter }: { filter: FilterHook }) {
                             : 'border-border bg-background text-foreground hover:bg-muted'
                         )}
                         onClick={() =>
-                          filter.toggleTagValue(facet.key, opt.value)
+                          applyFacetSelection(
+                            filter,
+                            facet,
+                            opt.value,
+                            isActive
+                          )
                         }
                       >
                         {isActive && <Check className="h-3 w-3" />}
@@ -231,7 +280,10 @@ function MobileFilterSheet({ filter }: { filter: FilterHook }) {
 }
 
 /** Horizontal row of active filter pills with remove buttons. */
-function ActiveFilterPills({ filter }: { filter: FilterHook }) {
+function ActiveFilterPills({
+  filter,
+  facets,
+}: Readonly<{ filter: FilterHook; facets: FilterFacet[] }>) {
   const pills: {
     facetKey: string;
     facetLabel: string;
@@ -239,7 +291,7 @@ function ActiveFilterPills({ filter }: { filter: FilterHook }) {
     label: string;
   }[] = [];
 
-  for (const facet of datasetFilterFacets) {
+  for (const facet of facets) {
     const selected = filter.tags[facet.key] ?? [];
     for (const val of selected) {
       const opt = facet.options.find((o) => o.value === val);

@@ -7,55 +7,42 @@ export interface FilterFacet {
   key: string;
   label: string;
   options: FilterOption[];
+  /** Backend supports only one value at a time — UI enforces single-select. */
+  single?: boolean;
+  /** Dynamic facet still fetching — render skeleton instead of empty list. */
+  loading?: boolean;
 }
 
-export const datasetFilterFacets: FilterFacet[] = [
+export const staticDatasetFilterFacets: FilterFacet[] = [
   {
-    key: 'accessLevel',
-    label: 'Access Level',
+    key: 'pricing',
+    label: 'Pricing',
     options: [
-      { label: 'Public', value: 'public' },
-      { label: 'Non-Profit', value: 'non_profit' },
-      { label: 'Commercial', value: 'commercial' },
-      { label: 'Students', value: 'students' },
+      { label: 'Free', value: 'free' },
+      { label: 'Premium', value: 'premium' },
     ],
-  },
-  {
-    key: 'dataType',
-    label: 'Data Type',
-    options: [
-      { label: 'Education', value: 'Education' },
-      { label: 'Healthcare', value: 'Healthcare' },
-      { label: 'Agriculture', value: 'Agriculture' },
-      { label: 'Environmental', value: 'Environmental' },
-      { label: 'Finance', value: 'Finance' },
-      { label: 'Demographics', value: 'Demographics' },
-    ],
-  },
-  {
-    key: 'region',
-    label: 'Region',
-    options: [
-      { label: 'East Africa', value: 'east_africa' },
-      { label: 'West Africa', value: 'west_africa' },
-      { label: 'North Africa', value: 'north_africa' },
-      { label: 'Southern Africa', value: 'southern_africa' },
-      { label: 'Global', value: 'global' },
-    ],
+    single: true,
   },
   {
     key: 'timeframe',
     label: 'Timeframe',
     options: [
-      { label: 'Last Year', value: 'last_year' },
-      { label: 'Last 5 Years', value: 'last_5_years' },
-      { label: '5+ Years', value: '5_plus_years' },
+      { label: 'Last Year', value: '1y' },
+      { label: 'Last 5 Years', value: '5y' },
+      { label: '5+ Years', value: '5y+' },
     ],
+    single: true,
   },
 ];
 
 export const datasetSortOptions = [
-  { label: 'Most Recent', value: 'created_at' },
-  { label: 'Popular', value: 'download_count' },
-  { label: 'Name A-Z', value: 'name' },
+  { label: 'Newest', value: 'newest' },
+  { label: 'Oldest', value: 'oldest' },
+  { label: 'Highest Rated', value: 'highest_rated' },
+  { label: 'Most Downloaded', value: 'most_downloaded' },
+  { label: 'Most Viewed', value: 'most_viewed' },
+  { label: 'Name A-Z', value: 'a_z' },
+  { label: 'Name Z-A', value: 'z_a' },
 ] as const;
+
+export const DEFAULT_DATASET_SORT = 'newest';

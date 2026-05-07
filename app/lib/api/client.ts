@@ -15,6 +15,25 @@ export const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 30000,
+  // Django uses QueryDict.getlist() — multi-value params are repeated keys
+  // (e.g. ?x=a&x=b), not bracketed (?x[]=a) or comma-joined (?x=a,b).
+  paramsSerializer: {
+    serialize: (params) => {
+      const sp = new URLSearchParams();
+      for (const [key, value] of Object.entries(params)) {
+        if (value === undefined || value === null) continue;
+        if (Array.isArray(value)) {
+          for (const v of value) {
+            if (v === undefined || v === null) continue;
+            sp.append(key, String(v));
+          }
+        } else {
+          sp.append(key, String(value));
+        }
+      }
+      return sp.toString();
+    },
+  },
 });
 
 apiClient.interceptors.request.use(
