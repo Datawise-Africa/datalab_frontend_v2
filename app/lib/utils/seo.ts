@@ -18,13 +18,9 @@ export interface SEOConfig {
 }
 
 const SITE_NAME = 'Datalab Africa';
-const SITE_DOMAIN = 'https://datalabafrica.com';
 const TWITTER_HANDLE = '@datalabafrica';
 
-const baseUrl =
-  typeof window !== 'undefined'
-    ? window.location.origin
-    : process.env.PUBLIC_URL || SITE_DOMAIN;
+const baseUrl = env.VITE_SITE_URL;
 
 const defaultImage = `${baseUrl}/assets/datawise-logo-dark.png`;
 
