@@ -126,7 +126,7 @@ app/
 - SSR is **enabled** (`react-router.config.ts: ssr: true`)
 - `redux-persist` uses a noop storage adapter on the server (`app/store/storage.ts`)
 - `PersistGate` and `ThemeSynchronizer` are skipped during SSR
-- Always guard browser APIs with `typeof window !== 'undefined'`
+- Always reach for browser globals via `globalThis` — `globalThis.window`, `globalThis.document`, `globalThis.navigator` — and guard with `typeof globalThis.window !== 'undefined'` rather than bare `window`. Makes the "may not exist on server" intent explicit and avoids shadowing surprises.
 
 ### State Management
 

@@ -31,6 +31,9 @@ import { useDataset, useDatasetVersions } from '~/features/datasets';
 import { useReviews } from '~/features/reviews';
 import { useToggleBookmark } from '~/features/bookmarks';
 import { useTrackView } from '~/hooks/use-track-view';
+import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
+import { DatasetDefaultIllustration } from '~/components/illustrations/dataset-default';
+import { shareLink } from '~/lib/utils/share';
 import { cn } from '~/lib/utils';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
@@ -122,6 +125,9 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
   const bookmark = useToggleBookmark(dataset?.id);
+  const resumeBookmarkToggle = useResumeAfterAuth<void>(() =>
+    bookmark.toggle()
+  );
   const { data: reviews } = useReviews(dataset?.id);
 
   useTrackView(dataset?.id);
@@ -155,26 +161,21 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
   }
 
   const handleDownload = () => {
-    if (!isAuthenticated) {
-      authModal.open();
-      return;
-    }
-    downloadModal.open({
+    const payload = {
       datasetId: dataset.id,
       datasetName: dataset.name,
       price: dataset.is_premium ? null : null,
       formats: [],
       license: dataset.license?.name ?? 'Standard License',
-    });
-  };
-
-  const handleBookmark = () => {
+    };
     if (!isAuthenticated) {
-      authModal.open();
+      authModal.open({ next: { modal: 'download', payload } });
       return;
     }
-    bookmark.toggle();
+    downloadModal.open(payload);
   };
+
+  const handleBookmark = () => resumeBookmarkToggle();
 
   const authorName =
     dataset.authors.length > 0
@@ -199,6 +200,19 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
           Back to Datasets
         </Link>
+
+        {/* Cover image — uploaded by creator, falls back to default illustration */}
+        <div className="mb-8 aspect-21/9 w-full overflow-hidden rounded-xl border bg-primary/5">
+          {dataset.dataset_image ? (
+            <img
+              src={dataset.dataset_image}
+              alt={dataset.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <DatasetDefaultIllustration />
+          )}
+        </div>
 
         {/* ── Two-column layout (Udemy-style) ── */}
         <div className="flex flex-col lg:flex-row gap-8">
@@ -311,33 +325,33 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
                 {/* Authors */}
                 {dataset.authors.length > 0 && (
-                  <Card>
-                    <CardContent className="p-5">
-                      <h3 className="text-sm font-semibold mb-3">Authors</h3>
-                      <div className="space-y-2">
-                        {dataset.authors.map((author) => (
-                          <div
-                            key={author.user.id}
-                            className="flex items-center gap-3"
-                          >
-                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
-                              <User className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+                      Authors
+                    </p>
+                    <ul className="space-y-1">
+                      {dataset.authors.map((author) => (
+                        <li key={author.user.id}>
+                          <div className="-mx-2 flex items-center gap-3 rounded-md px-2 py-2">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                              <User className="h-4 w-4" aria-hidden="true" />
+                            </span>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">
                                 {author.user.first_name} {author.user.last_name}
                               </p>
+                              {/* Email intentionally hidden — kept for easy revert.
                               {author.user.email && (
-                                <p className="text-xs text-muted-foreground">
+                                <p className="truncate text-xs text-muted-foreground">
                                   {author.user.email}
                                 </p>
-                              )}
+                              )} */}
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
 
                 {dataset.access.access_instructions && (
@@ -444,20 +458,25 @@ function SidebarContent({
             )}
             {isBookmarkPending
               ? isBookmarked
-                ? 'Removing…'
-                : 'Saving…'
+                ? 'Removing bookmark…'
+                : 'Bookmarking…'
               : isBookmarked
-                ? 'Saved'
-                : 'Save'}
+                ? 'Bookmarked'
+                : 'Bookmark'}
           </Button>
           <Button
             variant="outline"
             className="flex-1"
-            onClick={() => {
-              if (typeof navigator !== 'undefined') {
-                navigator.clipboard.writeText(window.location.href);
-              }
-            }}
+            onClick={() =>
+              shareLink({
+                title: dataset.name,
+                text: dataset.description,
+                url:
+                  typeof globalThis.window !== 'undefined'
+                    ? globalThis.window.location.href
+                    : '',
+              })
+            }
           >
             <Share2 className="mr-1.5 h-4 w-4" />
             Share

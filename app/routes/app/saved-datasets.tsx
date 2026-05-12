@@ -75,6 +75,7 @@ export default function SavedDatasets() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {datasets.map((dataset) => (
             <DatasetCard key={dataset.id} dataset={dataset}>
+              <DatasetCard.Image />
               <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
                 <DatasetCard.Badges />
                 <DatasetCard.Menu

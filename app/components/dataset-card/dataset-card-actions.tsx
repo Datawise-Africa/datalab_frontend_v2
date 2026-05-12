@@ -109,8 +109,8 @@ export function DatasetCardActions({
             disabled={isBookmarkPending}
             aria-pressed={isBookmarked}
             aria-busy={isBookmarkPending}
-            aria-label={isBookmarked ? 'Remove from saved' : 'Save dataset'}
-            title={isBookmarked ? 'Remove from saved' : 'Save dataset'}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark dataset'}
+            title={isBookmarked ? 'Remove bookmark' : 'Bookmark dataset'}
           >
             {isBookmarkPending ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />

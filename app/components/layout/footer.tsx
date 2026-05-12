@@ -1,40 +1,45 @@
 import { Link } from 'react-router';
-import { Database } from 'lucide-react';
+import { Database, Mail, MapPin, Phone } from 'lucide-react';
 
 import { Separator } from '~/components/ui/separator';
 
 const productLinks = [
   { label: 'Datasets', to: '/datasets' },
-  { label: 'Become a Creator', to: '/creators' },
   { label: 'Dashboards', to: '/dashboards' },
+  { label: 'Become a Creator', to: '/creators' },
 ] as const;
 
-const companyLinks = [{ label: 'Contact', to: '/contact' }] as const;
+const companyLinks = [
+  { label: 'Contact', to: '/contact' },
+  { label: 'Privacy Policy', to: '/privacy-policy' },
+  { label: 'Terms of Service', to: '/terms-of-service' },
+] as const;
 
-const socialLinks = [
+const contactInfo = [
   {
-    label: 'LinkedIn',
-    href: 'https://linkedin.com',
-    svg: (
-      <svg
-        className="h-5 w-5"
-        fill="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-      </svg>
-    ),
+    icon: Mail,
+    value: 'info@datawiseafrica.com',
+    href: 'mailto:info@datawiseafrica.com',
+  },
+  {
+    icon: Phone,
+    value: '+254 704 237 879',
+    href: 'tel:+254704237879',
+  },
+  {
+    icon: MapPin,
+    value: 'Highway Heights, Marcus Garvey Rd, Kilimani, Nairobi, Kenya',
+    href: 'https://www.google.com/maps/search/?api=1&query=Highway+Heights+Marcus+Garvey+Rd+Kilimani+Nairobi',
   },
 ] as const;
 
 function FooterLinkGroup({
   title,
   links,
-}: {
+}: Readonly<{
   title: string;
   links: ReadonlyArray<{ label: string; to: string }>;
-}) {
+}>) {
   return (
     <div>
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
@@ -57,13 +62,15 @@ function FooterLinkGroup({
 }
 
 export default function Footer() {
+  const year = new Date().getFullYear();
+
   return (
     <footer className="bg-slate-950 text-slate-300">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Top section */}
-        <div className="grid grid-cols-1 gap-12 py-16 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-x-8 gap-y-12 py-16 sm:grid-cols-2 lg:grid-cols-12">
           {/* Brand column */}
-          <div className="space-y-6">
+          <div className="space-y-6 sm:col-span-2 lg:col-span-4">
             <Link to="/" className="inline-flex items-center gap-2">
               <Database className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold tracking-tight">
@@ -73,31 +80,47 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-xs text-sm leading-relaxed text-slate-400">
-              Access, integrate, and build with world-class datasets through a
-              single API.
+              Africa&apos;s home for curated, high-quality datasets — built by{' '}
+              <span className="text-white">Datawise Africa</span> to power
+              data-driven research, products, and decisions.
             </p>
-
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className="text-slate-400 transition-colors hover:text-white"
-                >
-                  {social.svg}
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Product column */}
-          <FooterLinkGroup title="Product" links={productLinks} />
+          <div className="lg:col-span-2">
+            <FooterLinkGroup title="Product" links={productLinks} />
+          </div>
 
           {/* Company column */}
-          <FooterLinkGroup title="Company" links={companyLinks} />
+          <div className="lg:col-span-2">
+            <FooterLinkGroup title="Company" links={companyLinks} />
+          </div>
+
+          {/* Contact column */}
+          <div className="sm:col-span-2 lg:col-span-4">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+              Contact
+            </h3>
+            <ul className="space-y-3">
+              {contactInfo.map(({ icon: Icon, value, href }) => (
+                <li key={value}>
+                  <a
+                    href={href}
+                    {...(href.startsWith('http')
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
+                    className="group flex items-start gap-3 text-sm text-slate-400 transition-colors hover:text-white"
+                  >
+                    <Icon
+                      className="mt-0.5 h-4 w-4 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    <span>{value}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <Separator className="bg-slate-800" />
@@ -105,7 +128,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
           <p className="text-sm text-slate-500">
-            &copy; 2026 Data Lab. All rights reserved.
+            &copy; {year} Datawise Africa. All rights reserved.
           </p>
 
           <div className="flex items-center gap-6">

@@ -1,15 +1,14 @@
 import { cn } from '~/lib/utils';
+import { DatasetDefaultIllustration } from '~/components/illustrations/dataset-default';
 import { useDatasetCard } from './use-dataset-card';
 
 interface DatasetCardImageProps {
   className?: string;
-  fallbackColor?: string;
 }
 
 export function DatasetCardImage({
   className,
-  fallbackColor = 'bg-primary/10',
-}: DatasetCardImageProps) {
+}: Readonly<DatasetCardImageProps>) {
   const { dataset } = useDatasetCard();
 
   if (dataset.image) {
@@ -27,14 +26,11 @@ export function DatasetCardImage({
   return (
     <div
       className={cn(
-        'flex aspect-video w-full items-center justify-center',
-        fallbackColor,
+        'aspect-video w-full overflow-hidden bg-primary/5',
         className
       )}
     >
-      <span className="text-2xl font-bold text-primary/30">
-        {dataset.category}
-      </span>
+      <DatasetDefaultIllustration />
     </div>
   );
 }

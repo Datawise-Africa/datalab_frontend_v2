@@ -13,6 +13,7 @@ import {
 } from '~/features/bookmarks';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
+import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
 
 export function FeaturedDatasets() {
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
@@ -41,30 +42,27 @@ export function FeaturedDatasets() {
   }, [bookmarksData]);
 
   const handleDownload = (dataset: ReturnType<typeof normalizeMyDataset>) => {
-    if (!isAuthenticated) {
-      authModal.open();
-      return;
-    }
-    downloadModal.open({
+    const payload = {
       datasetId: dataset.id,
       datasetName: dataset.name,
       price: dataset.price,
       formats: dataset.formats,
       license: dataset.license ?? 'Standard License',
-    });
-  };
-
-  const handleBookmark = (datasetId: string) => {
+    };
     if (!isAuthenticated) {
-      authModal.open();
+      authModal.open({ next: { modal: 'download', payload } });
       return;
     }
+    downloadModal.open(payload);
+  };
+
+  const handleBookmark = useResumeAfterAuth<string>((datasetId) => {
     if (bookmarkedIds.has(datasetId)) {
       removeBookmark.mutate(datasetId);
     } else {
       addBookmark.mutate(datasetId);
     }
-  };
+  });
 
   return (
     <section className="relative border-t border-border/60 py-16 lg:py-24">
@@ -93,9 +91,14 @@ export function FeaturedDatasets() {
             No featured datasets available at the moment.
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-6">
             {datasets.map((dataset) => (
-              <DatasetCard key={dataset.id} dataset={dataset}>
+              <DatasetCard
+                key={dataset.id}
+                dataset={dataset}
+                className="w-full sm:w-[300px] lg:w-[320px]"
+              >
+                <DatasetCard.Image />
                 <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
                   <DatasetCard.Badges />
                 </CardHeader>

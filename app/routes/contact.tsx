@@ -5,19 +5,9 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
-import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
 import { PageHeader } from '~/components/layout/page-header';
-import {
-  Mail,
-  MapPin,
-  Phone,
-  Twitter,
-  Github,
-  Linkedin,
-  ChevronDown,
-  Send,
-} from 'lucide-react';
+import { Mail, MapPin, Phone, ChevronDown, Send } from 'lucide-react';
 import { generateSEOTags } from '~/lib/utils/seo';
 
 export const meta: Route.MetaFunction = () =>
@@ -26,6 +16,27 @@ export const meta: Route.MetaFunction = () =>
     description:
       "Get in touch with the Data Lab team. We'd love to hear from you.",
   });
+
+const contactItems = [
+  {
+    icon: Mail,
+    label: 'Email',
+    value: 'info@datawiseafrica.com',
+    href: 'mailto:info@datawiseafrica.com',
+  },
+  {
+    icon: Phone,
+    label: 'Phone',
+    value: '+254 704 237 879',
+    href: 'tel:+254704237879',
+  },
+  {
+    icon: MapPin,
+    label: 'Office',
+    value: 'Highway Heights, Marcus Garvey Rd, Kilimani, Nairobi, Kenya',
+    href: 'https://www.google.com/maps/search/?api=1&query=Highway+Heights+Marcus+Garvey+Rd+Kilimani+Nairobi',
+  },
+] as const;
 
 const faqs = [
   {
@@ -39,14 +50,9 @@ const faqs = [
       'Data Lab supports CSV, JSON, Parquet, and Excel (.xlsx) formats for both import and export. Our API returns JSON by default, but you can request other formats via the Accept header or a query parameter.',
   },
   {
-    question: 'Is there a free tier?',
-    answer:
-      'Yes! Our free tier includes 1,000 API requests per month, access to all public datasets, and up to 50 MB of storage. No credit card is required to get started.',
-  },
-  {
     question: 'How do I report a data quality issue?',
     answer:
-      'You can report data quality issues directly from any dataset page using the "Report Issue" button, or by emailing us at support@datalab.io with the dataset ID and a description of the problem. We typically respond within 24 hours.',
+      'You can report data quality issues directly from any dataset page using the "Report Issue" button, or by emailing us at info@datawiseafrica.com with the dataset ID and a description of the problem. We typically respond within 24 hours.',
   },
 ];
 
@@ -204,102 +210,48 @@ export default function ContactPage() {
           </div>
 
           {/* Right — Contact Info */}
-          <div className="flex flex-col gap-6 lg:col-span-2">
-            {/* Email */}
-            <Card className="border-primary/20/60 shadow-sm dark:border-primary/40">
-              <CardContent className="flex items-start gap-4 p-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-medium">Email</p>
-                  <a
-                    href="mailto:hello@datalab.io"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
-                    hello@datalab.io
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
+          <aside className="lg:col-span-2">
+            <div className="lg:sticky lg:top-24">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Contact information
+              </p>
 
-            {/* Office */}
-            <Card className="border-primary/20/60 shadow-sm dark:border-primary/40">
-              <CardContent className="flex items-start gap-4 p-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
-                  <MapPin className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-medium">Office</p>
-                  <p className="text-sm text-muted-foreground">
-                    123 Data Street, San Francisco, CA 94105
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Phone */}
-            <Card className="border-primary/20/60 shadow-sm dark:border-primary/40">
-              <CardContent className="flex items-start gap-4 p-6">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary">
-                  <Phone className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-medium">Phone</p>
-                  <a
-                    href="tel:+15551234567"
-                    className="text-sm text-muted-foreground hover:text-primary"
-                  >
-                    +1 (555) 123-4567
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Social Links */}
-            <Separator className="bg-primary/20 dark:bg-primary/40" />
-            <div>
-              <p className="mb-3 text-sm font-medium">Follow Us</p>
-              <div className="flex gap-3">
-                <a
-                  href="https://twitter.com/datalab"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 text-muted-foreground transition-colors',
-                    'hover:border-primary/80 hover:bg-primary/5 hover:text-primary',
-                    'dark:border-primary dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary'
-                  )}
-                >
-                  <Twitter className="h-4 w-4" />
-                </a>
-                <a
-                  href="https://github.com/datalab"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 text-muted-foreground transition-colors',
-                    'hover:border-primary/80 hover:bg-primary/5 hover:text-primary',
-                    'dark:border-primary dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary'
-                  )}
-                >
-                  <Github className="h-4 w-4" />
-                </a>
-                <a
-                  href="https://linkedin.com/company/datalab"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    'flex h-10 w-10 items-center justify-center rounded-lg border border-primary/20 text-muted-foreground transition-colors',
-                    'hover:border-primary/80 hover:bg-primary/5 hover:text-primary',
-                    'dark:border-primary dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary'
-                  )}
-                >
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </div>
+              <ul className="mt-6 space-y-2">
+                {contactItems.map(({ icon: Icon, label, value, href }) => (
+                  <li key={label}>
+                    <a
+                      href={href}
+                      {...(href.startsWith('http')
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                      className={cn(
+                        'group -mx-3 flex items-start gap-4 rounded-xl px-3 py-3 transition-colors',
+                        'hover:bg-primary/5 dark:hover:bg-primary/10'
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors',
+                          'group-hover:bg-primary group-hover:text-white',
+                          'dark:bg-primary/20'
+                        )}
+                      >
+                        <Icon className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <span className="flex flex-col gap-0.5">
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                          {label}
+                        </span>
+                        <span className="text-sm font-medium text-foreground transition-colors group-hover:text-primary">
+                          {value}
+                        </span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
+          </aside>
         </div>
       </section>
 
@@ -329,7 +281,7 @@ export default function ContactPage() {
             <p className="text-sm text-muted-foreground">
               Still have questions?{' '}
               <a
-                href="mailto:hello@datalab.io"
+                href="mailto:info@datawiseafrica.com"
                 className="font-medium text-primary hover:underline dark:text-primary"
               >
                 Reach out directly
