@@ -471,7 +471,10 @@ function SidebarContent({
               shareLink({
                 title: dataset.name,
                 text: dataset.description,
-                url: typeof window !== 'undefined' ? window.location.href : '',
+                url:
+                  typeof globalThis.window !== 'undefined'
+                    ? globalThis.window.location.href
+                    : '',
               })
             }
           >

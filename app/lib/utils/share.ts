@@ -16,7 +16,7 @@ export async function shareLink({
   text,
   url,
 }: ShareLinkInput): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
   const data = { title, text, url };
   const canShare =

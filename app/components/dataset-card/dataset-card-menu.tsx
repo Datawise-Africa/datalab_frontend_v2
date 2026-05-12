@@ -37,7 +37,10 @@ export function DatasetCardMenu({
   const { dataset } = useDatasetCard();
 
   const handleShare = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    const origin =
+      typeof globalThis.window !== 'undefined'
+        ? globalThis.window.location.origin
+        : '';
     shareLink({
       title: dataset.name,
       text: dataset.description,
