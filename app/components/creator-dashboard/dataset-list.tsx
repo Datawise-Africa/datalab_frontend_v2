@@ -44,6 +44,7 @@ export function DatasetList({
           const normalized = normalizeMyDataset(dataset);
           return (
             <DatasetCard key={dataset.id} dataset={normalized}>
+              <DatasetCard.Image />
               <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
                 <div className="flex items-center gap-1.5">
                   <DatasetCard.Badges />

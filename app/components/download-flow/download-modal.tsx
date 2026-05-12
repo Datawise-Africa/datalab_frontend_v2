@@ -327,10 +327,9 @@ export function DownloadModal() {
             </ol>
 
             {!pollingTimedOut ? (
-              <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Watching for payment confirmation…
-              </div>
+              // "Watching for payment confirmation…" indicator hidden so users
+              // don't see the background poll; polling still runs.
+              <></>
             ) : (
               <div className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-muted-foreground">
                 Stopped checking automatically. Use &ldquo;I&apos;ve paid&rdquo;

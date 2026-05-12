@@ -46,6 +46,7 @@ import { useDatasetTypes, useTopCategories } from '~/features/metadata';
 import { useAppFilter } from '~/store/slices/filter-slice';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
+import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
 import {
   staticDatasetFilterFacets,
   datasetSortOptions,
@@ -175,35 +176,29 @@ export default function Datasets() {
 
   const handleDownload = useCallback(
     (dataset: NormalizedDataset) => {
-      if (!isAuthenticated) {
-        authModal.open();
-        return;
-      }
-      downloadModal.open({
+      const payload = {
         datasetId: dataset.id,
         datasetName: dataset.name,
         price: dataset.price,
         formats: dataset.formats,
         license: dataset.license ?? 'Standard License',
-      });
+      };
+      if (!isAuthenticated) {
+        authModal.open({ next: { modal: 'download', payload } });
+        return;
+      }
+      downloadModal.open(payload);
     },
     [isAuthenticated, authModal, downloadModal]
   );
 
-  const handleBookmark = useCallback(
-    (datasetId: string) => {
-      if (!isAuthenticated) {
-        authModal.open();
-        return;
-      }
-      if (bookmarkedIds.has(datasetId)) {
-        removeBookmark.mutate(datasetId);
-      } else {
-        addBookmark.mutate(datasetId);
-      }
-    },
-    [isAuthenticated, authModal, bookmarkedIds, addBookmark, removeBookmark]
-  );
+  const handleBookmark = useResumeAfterAuth<string>((datasetId) => {
+    if (bookmarkedIds.has(datasetId)) {
+      removeBookmark.mutate(datasetId);
+    } else {
+      addBookmark.mutate(datasetId);
+    }
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -362,6 +357,7 @@ export default function Datasets() {
               <div className="grid grid-cols-1 gap-6 @xl:grid-cols-2 @4xl:grid-cols-3">
                 {datasets.map((dataset) => (
                   <DatasetCard key={dataset.id} dataset={dataset}>
+                    <DatasetCard.Image />
                     <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
                       <DatasetCard.Badges />
                       <DatasetCard.Menu

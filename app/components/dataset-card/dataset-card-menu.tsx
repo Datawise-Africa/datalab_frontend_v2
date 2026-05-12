@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 import {
   MoreVertical,
   Heart,
-  LinkIcon,
+  Share2,
   Eye,
   Download,
   Loader2,
@@ -17,6 +17,7 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { useDatasetCard } from './use-dataset-card';
 import { cn } from '~/lib/utils';
+import { shareLink } from '~/lib/utils/share';
 
 interface DatasetCardMenuProps {
   onBookmark?: () => void;
@@ -35,10 +36,12 @@ export function DatasetCardMenu({
 }: Readonly<DatasetCardMenuProps>) {
   const { dataset } = useDatasetCard();
 
-  const handleCopyLink = () => {
-    const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/datasets/${dataset.slug}`;
-    navigator.clipboard.writeText(url).catch(() => {
-      // silently fail
+  const handleShare = () => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    shareLink({
+      title: dataset.name,
+      text: dataset.description,
+      url: `${origin}/datasets/${dataset.slug}`,
     });
   };
 
@@ -73,16 +76,16 @@ export function DatasetCardMenu({
             )}
             {isBookmarkPending
               ? isBookmarked
-                ? 'Removing…'
-                : 'Saving…'
+                ? 'Removing bookmark…'
+                : 'Bookmarking…'
               : isBookmarked
-                ? 'Saved'
-                : 'Save'}
+                ? 'Bookmarked'
+                : 'Bookmark'}
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem onClick={handleCopyLink}>
-          <LinkIcon className="mr-2 h-4 w-4" />
-          Copy Link
+        <DropdownMenuItem onClick={handleShare}>
+          <Share2 className="mr-2 h-4 w-4" />
+          Share
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

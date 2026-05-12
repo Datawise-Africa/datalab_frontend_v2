@@ -45,6 +45,7 @@ export function normalizeMyDataset(
     slug: dataset.id,
     name: dataset.name,
     description: dataset.description,
+    image: dataset.dataset_image ?? null,
     category: dataset.category.name,
     author: authorName,
     rating: 0,

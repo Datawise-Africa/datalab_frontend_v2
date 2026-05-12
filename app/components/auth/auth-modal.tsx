@@ -6,7 +6,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { useAppModal } from '~/store/slices/modal-slice';
+import {
+  openModal,
+  useAppModal,
+  type ModalRegistry,
+} from '~/store/slices/modal-slice';
+import { useAppDispatch } from '~/store';
 import { ArrowLeft } from 'lucide-react';
 import { LoginForm } from './login-form';
 import { ResetPasswordForm } from './reset-password-form';
@@ -15,18 +20,34 @@ import { ForgotPasswordForm } from './forgot-password-form';
 
 type AuthTab = 'login' | 'signup' | 'forgot' | 'reset';
 
+/**
+ * A modal continuation to open *after* the user finishes authenticating.
+ * Add new entries here when other modals need a "log-in-then-resume" flow.
+ */
+type AuthNextIntent = {
+  modal: 'download';
+  payload: ModalRegistry['download'];
+};
+
 declare module '~/store/slices/modal-slice' {
   interface ModalRegistry {
     /**
      * Pass `{ initialTab: 'signup' }` when opening from a "Get Started" /
      * "Create account" CTA. Defaults to login.
+     *
+     * Pass `{ next: { modal, payload } }` to queue another modal to open
+     * automatically once the user logs in or signs up — e.g. resuming a
+     * download intent that was interrupted by the auth prompt.
      */
-    auth: { initialTab?: 'login' | 'signup' } | undefined;
+    auth:
+      | { initialTab?: 'login' | 'signup'; next?: AuthNextIntent }
+      | undefined;
   }
 }
 
 export function AuthModal() {
   const { isOpen, data, close } = useAppModal('auth');
+  const dispatch = useAppDispatch();
   const [tab, setTab] = useState<AuthTab>('login');
   const [resetEmail, setResetEmail] = useState('');
 
@@ -40,6 +61,16 @@ export function AuthModal() {
     close();
     setTab('login');
     setResetEmail('');
+  };
+
+  // Fired after a successful login/signup. If the caller queued a `next`
+  // intent (e.g. resume a download), dispatch that modal before closing.
+  const handleAuthSuccess = () => {
+    const next = data?.next;
+    if (next) {
+      dispatch(openModal({ key: next.modal, data: next.payload }));
+    }
+    handleClose();
   };
 
   const handleOtpSent = (email: string) => {
@@ -91,11 +122,11 @@ export function AuthModal() {
 
         {tab === 'login' && (
           <LoginForm
-            onSuccess={handleClose}
+            onSuccess={handleAuthSuccess}
             onForgot={() => setTab('forgot')}
           />
         )}
-        {tab === 'signup' && <SignupForm onSuccess={handleClose} />}
+        {tab === 'signup' && <SignupForm onSuccess={handleAuthSuccess} />}
         {tab === 'forgot' && <ForgotPasswordForm onOtpSent={handleOtpSent} />}
         {tab === 'reset' && (
           <ResetPasswordForm

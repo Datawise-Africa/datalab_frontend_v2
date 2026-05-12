@@ -34,7 +34,7 @@ export function Hero() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link to="/creators">Become a creator</Link>
+                <Link to="/contact">Request our services</Link>
               </Button>
             </div>
           </div>
