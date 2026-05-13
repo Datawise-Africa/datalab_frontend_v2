@@ -91,6 +91,7 @@ export default function SavedDatasets() {
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-3 px-5 pb-4">
                 <DatasetCard.Title />
+                <DatasetCard.Workspace />
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <DatasetCard.Author />
                   <DatasetCard.Rating className="ml-2" />

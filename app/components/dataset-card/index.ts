@@ -10,6 +10,7 @@ import { DatasetCardAudience } from './dataset-card-audience';
 import { DatasetCardMeta } from './dataset-card-meta';
 import { DatasetCardImage } from './dataset-card-image';
 import { DatasetCardActions } from './dataset-card-actions';
+import { DatasetCardWorkspace } from './dataset-card-workspace';
 
 /**
  * Composable DatasetCard compound component.
@@ -42,6 +43,7 @@ export const DatasetCard = Object.assign(DatasetCardRoot, {
   Meta: DatasetCardMeta,
   Image: DatasetCardImage,
   Actions: DatasetCardActions,
+  Workspace: DatasetCardWorkspace,
 });
 
 export { useDatasetCard } from './use-dataset-card';

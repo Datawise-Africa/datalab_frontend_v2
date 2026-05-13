@@ -96,7 +96,7 @@ export function FeaturedDatasets() {
               <DatasetCard
                 key={dataset.id}
                 dataset={dataset}
-                className="w-full sm:w-[300px] lg:w-[320px]"
+                className="w-full sm:w-75 lg:w-80"
               >
                 <DatasetCard.Image />
                 <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">
@@ -104,6 +104,7 @@ export function FeaturedDatasets() {
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col gap-3 px-5 pb-4">
                   <DatasetCard.Title lineClamp={1} />
+                  <DatasetCard.Workspace />
                   <DatasetCard.Description lineClamp={2} />
                   <DatasetCard.Tags limit={2} />
                   <DatasetCard.Meta />

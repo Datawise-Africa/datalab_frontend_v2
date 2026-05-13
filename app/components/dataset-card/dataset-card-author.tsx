@@ -4,6 +4,7 @@ import { useDatasetCard } from './use-dataset-card';
 
 export function DatasetCardAuthor({ className }: { className?: string }) {
   const { dataset } = useDatasetCard();
+  if (dataset.workspaceName) return null;
 
   return (
     <span
