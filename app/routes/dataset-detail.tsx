@@ -15,6 +15,7 @@ import {
 import { ReviewList } from '~/components/reviews/review-list';
 import {
   ArrowLeft,
+  Building2,
   Download,
   Loader2,
   User,
@@ -181,6 +182,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
     dataset.authors.length > 0
       ? `${dataset.authors[0].user.first_name} ${dataset.authors[0].user.last_name}`
       : 'Unknown';
+  const workspaceName = getWorkspaceName(dataset.workspace);
 
   const regions = dataset.origin_region
     ? dataset.origin_region
@@ -242,8 +244,17 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
             {/* Metadata row */}
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground mb-4">
               <span className="flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5" />
-                {authorName}
+                {workspaceName ? (
+                  <>
+                    <Building2 className="h-3.5 w-3.5" />
+                    {workspaceName}
+                  </>
+                ) : (
+                  <>
+                    <User className="h-3.5 w-3.5" />
+                    {authorName}
+                  </>
+                )}
               </span>
               <span className="flex items-center gap-1.5">
                 <Calendar className="h-3.5 w-3.5" />
@@ -324,7 +335,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 )}
 
                 {/* Authors */}
-                {dataset.authors.length > 0 && (
+                {!workspaceName && dataset.authors.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
                       Authors
@@ -340,12 +351,6 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                               <p className="truncate text-sm font-medium">
                                 {author.user.first_name} {author.user.last_name}
                               </p>
-                              {/* Email intentionally hidden — kept for easy revert.
-                              {author.user.email && (
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {author.user.email}
-                                </p>
-                              )} */}
                             </div>
                           </div>
                         </li>

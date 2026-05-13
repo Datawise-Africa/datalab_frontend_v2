@@ -1,4 +1,5 @@
 import type { MyDatasetInterface } from '~/features/my-datasets';
+import { getWorkspaceId, getWorkspaceName } from '~/features/my-datasets/types';
 
 /**
  * Normalized dataset shape consumed by the composable DatasetCard.
@@ -12,6 +13,9 @@ export interface NormalizedDataset {
   category: string;
   author: string;
   authorAffiliation?: string | null;
+  workspaceName?: string | null;
+  workspaceSlug?: string | null;
+  workspaceId?: string | null;
   rating: number;
   reviewCount: number;
   tags: string[];
@@ -39,6 +43,12 @@ export function normalizeMyDataset(
     dataset.authors.length > 0
       ? `${dataset.authors[0].user.first_name} ${dataset.authors[0].user.last_name}`
       : 'Unknown';
+  const workspaceName = getWorkspaceName(dataset.workspace);
+  const workspaceId = getWorkspaceId(dataset.workspace);
+  const workspaceSlug =
+    dataset.workspace && typeof dataset.workspace === 'object'
+      ? ((dataset.workspace as { slug?: string }).slug ?? null)
+      : null;
 
   return {
     id: dataset.id,
@@ -48,6 +58,9 @@ export function normalizeMyDataset(
     image: dataset.dataset_image ?? null,
     category: dataset.category.name,
     author: authorName,
+    workspaceName,
+    workspaceSlug,
+    workspaceId,
     rating: 0,
     reviewCount: 0,
     tags: dataset.tags,
