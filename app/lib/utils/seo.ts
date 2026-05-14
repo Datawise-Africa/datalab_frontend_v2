@@ -20,9 +20,24 @@ export interface SEOConfig {
 const SITE_NAME = 'Datalab Africa';
 const TWITTER_HANDLE = '@datalabafrica';
 
-const baseUrl = env.VITE_SITE_URL;
+/**
+ * Resolve the public site origin.
+ *
+ * Server / build: use the configured env value — SSR-rendered meta tags must
+ * carry the public origin (canonical, OG URL, social crawlers).
+ * Client: prefer the live origin so links generated after navigation reflect
+ * whichever host the user is actually on (preview deploys, custom domains).
+ */
+function resolveBaseUrl(): string {
+  if (typeof globalThis.window !== 'undefined') {
+    return globalThis.window.location.origin;
+  }
+  return env.VITE_SITE_URL;
+}
 
-const defaultImage = `${baseUrl}/assets/datawise-logo-dark.png`;
+const defaultImage = () => `${resolveBaseUrl()}/assets/datalab-preview.png`;
+const DEFAULT_IMAGE_WIDTH = '1200';
+const DEFAULT_IMAGE_HEIGHT = '818';
 
 /**
  * Strip tracking query params and trailing slash for canonical URLs.
@@ -76,12 +91,15 @@ export function generateSEOTags(config: SEOConfig) {
     title,
     description,
     url,
-    image = defaultImage,
+    image,
     type = 'website',
     keywords,
     noIndex,
     jsonLd,
   } = config;
+
+  const baseUrl = resolveBaseUrl();
+  const resolvedImage = image ?? defaultImage();
 
   const fullTitle = title.includes(SITE_NAME)
     ? title
@@ -92,7 +110,9 @@ export function generateSEOTags(config: SEOConfig) {
       : `${baseUrl}${url}`
     : baseUrl;
   const fullUrl = canonicalize(rawUrl);
-  const fullImageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
+  const fullImageUrl = resolvedImage.startsWith('http')
+    ? resolvedImage
+    : `${baseUrl}${resolvedImage}`;
 
   const shouldNoIndex = noIndex || env.VITE_NOINDEX;
 
@@ -119,8 +139,8 @@ export function generateSEOTags(config: SEOConfig) {
     { property: 'og:image', content: fullImageUrl },
     { property: 'og:image:secure_url', content: fullImageUrl },
     { property: 'og:image:type', content: 'image/png' },
-    { property: 'og:image:width', content: '1200' },
-    { property: 'og:image:height', content: '630' },
+    { property: 'og:image:width', content: DEFAULT_IMAGE_WIDTH },
+    { property: 'og:image:height', content: DEFAULT_IMAGE_HEIGHT },
     { property: 'og:image:alt', content: title },
     { property: 'og:site_name', content: SITE_NAME },
     { property: 'og:locale', content: 'en_US' },

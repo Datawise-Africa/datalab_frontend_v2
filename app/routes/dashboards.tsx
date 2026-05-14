@@ -12,9 +12,9 @@ import { breadcrumbSchema } from '~/lib/utils/structured-data';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Dashboards',
+    title: 'Dashboards & insights from your data',
     description:
-      'Explore interactive analytics dashboards powered by Power BI, Tableau, Looker Studio, and more.',
+      'Generate insights from structured datasets with interactive dashboards built for research and intelligence workflows.',
     url: '/dashboards',
     jsonLd: breadcrumbSchema([
       { name: 'Home', url: '/' },
@@ -42,7 +42,7 @@ export default function Dashboards() {
     <div className="min-h-screen bg-white">
       <PageHeader
         title="Dashboards"
-        description="Interactive analytics dashboards powered by Power BI, Tableau, Looker Studio, and more."
+        description="Generate and explore insights from structured datasets through interactive analytics for research and intelligence workflows."
       />
 
       <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">

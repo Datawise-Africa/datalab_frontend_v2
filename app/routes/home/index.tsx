@@ -10,9 +10,9 @@ import { CreatorCTA } from '~/components/landing/creator-cta';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Access, Integrate & Build with World-Class Datasets',
+    title: 'The data lifecycle for intelligent systems',
     description:
-      'Data Lab provides curated, high-quality datasets with developer-friendly APIs. Browse thousands of datasets, integrate in minutes, and build data-driven applications at scale.',
+      'Host, share, and access structured datasets, generate insights, and publish research — one platform for scalable data and intelligence workflows.',
     url: '/',
     jsonLd: [organizationSchema(), websiteSchema()],
   });

@@ -61,9 +61,9 @@ import { breadcrumbSchema } from '~/lib/utils/structured-data';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'Datasets',
+    title: 'Datasets for intelligent systems',
     description:
-      'Browse our curated collection of high-quality datasets for research and development.',
+      'Discover, host, and access structured datasets that power insights, research, and intelligence workflows on Datalab Africa.',
     url: '/datasets',
     jsonLd: breadcrumbSchema([
       { name: 'Home', url: '/' },
@@ -93,7 +93,7 @@ export default function Datasets() {
         loading: isTopCategoriesLoading,
         options:
           topCategories?.map((c) => ({
-            label: `${c.name} (${c.dataset_count})`,
+            label: c.name /* `${c.name} (${c.dataset_count})` */,
             value: c.slug,
           })) ?? [],
       },
@@ -204,7 +204,7 @@ export default function Datasets() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Dataset Catalog"
-        description="Browse our curated collection of high-quality datasets for research, machine learning, and analytics."
+        description="Discover, host, and access structured datasets that power insights, research, and intelligence workflows."
       />
 
       {/* Sticky search + sort bar */}
