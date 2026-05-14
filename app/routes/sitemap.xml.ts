@@ -1,4 +1,5 @@
 import type { Route } from './+types/sitemap.xml';
+import { env } from '~/lib/env';
 
 type ChangeFreq =
   | 'always'
@@ -24,15 +25,7 @@ const routes: SitemapRoute[] = [
   { path: '/', priority: 1.0, changefreq: 'daily' },
   { path: '/datasets', priority: 0.9, changefreq: 'daily' },
   { path: '/dashboards', priority: 0.9, changefreq: 'daily' },
-  { path: '/dashboards/afyaken', priority: 0.8, changefreq: 'weekly' },
-  { path: '/dashboards/eduken', priority: 0.8, changefreq: 'weekly' },
-  { path: '/research', priority: 0.8, changefreq: 'weekly' },
-  { path: '/research/reports', priority: 0.8, changefreq: 'weekly' },
-  { path: '/creators', priority: 0.7, changefreq: 'weekly' },
-  { path: '/docs', priority: 0.7, changefreq: 'weekly' },
   { path: '/contact', priority: 0.5, changefreq: 'monthly' },
-  { path: '/privacy-policy', priority: 0.3, changefreq: 'yearly' },
-  { path: '/terms-of-service', priority: 0.3, changefreq: 'yearly' },
 ];
 
 function escapeXml(s: string): string {
@@ -45,7 +38,7 @@ function escapeXml(s: string): string {
 }
 
 export const loader = ({ request }: Route.LoaderArgs) => {
-  const { origin } = new URL(request.url);
+  const origin = env.VITE_SITE_URL || new URL(request.url).origin;
   const lastmod = new Date().toISOString();
 
   const urls = routes

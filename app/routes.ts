@@ -11,11 +11,8 @@ export default [
     index('routes/home/index.tsx'),
     route('datasets', 'routes/datasets.tsx'),
     route('datasets/:slug', 'routes/dataset-detail.tsx'),
-    route('docs', 'routes/docs.tsx'),
     route('creators', 'routes/creators.tsx'),
     route('dashboards', 'routes/dashboards.tsx'),
-    route('dashboards/afyaken', 'routes/dashboards/afyaken.tsx'),
-    route('dashboards/eduken', 'routes/dashboards/eduken.tsx'),
     route('dashboards/:id', 'routes/dashboard-detail.tsx'),
     route('research', 'routes/research.tsx'),
     route('research/reports', 'routes/research-reports.tsx'),
@@ -23,7 +20,6 @@ export default [
     route('contact', 'routes/contact.tsx'),
     route('privacy-policy', 'routes/privacy-policy.tsx'),
     route('terms-of-service', 'routes/terms-of-service.tsx'),
-    route('workspace', 'routes/workspace.tsx'),
   ]),
 
   // Dashboard routes (isolated layout, no header/footer)

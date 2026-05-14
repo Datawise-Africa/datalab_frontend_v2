@@ -23,15 +23,12 @@ const TWITTER_HANDLE = '@datalabafrica';
 /**
  * Resolve the public site origin.
  *
- * Server / build: use the configured env value — SSR-rendered meta tags must
- * carry the public origin (canonical, OG URL, social crawlers).
- * Client: prefer the live origin so links generated after navigation reflect
- * whichever host the user is actually on (preview deploys, custom domains).
+ * `VITE_SITE_URL` wins when configured (defaults to https://datalabafrica.com)
+ * — production canonical / OG URLs must point at the public domain even from
+ * preview environments and SSR. On the client we still defer to env so the
+ * canonical never drifts away from the configured production origin.
  */
 function resolveBaseUrl(): string {
-  if (typeof globalThis.window !== 'undefined') {
-    return globalThis.window.location.origin;
-  }
   return env.VITE_SITE_URL;
 }
 
