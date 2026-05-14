@@ -28,6 +28,21 @@ import { DownloadModal } from '~/components/download-flow/download-modal';
 import { CommandPalette } from '~/components/command-palette';
 
 export const links: Route.LinksFunction = () => [
+  { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
+  {
+    rel: 'icon',
+    href: '/favicon-32x32.png',
+    sizes: '32x32',
+    type: 'image/png',
+  },
+  {
+    rel: 'icon',
+    href: '/favicon-16x16.png',
+    sizes: '16x16',
+    type: 'image/png',
+  },
+  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png', sizes: '180x180' },
+  { rel: 'manifest', href: '/site.webmanifest' },
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
     rel: 'preconnect',
@@ -47,6 +62,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#ffffff" />
+        <meta name="apple-mobile-web-app-title" content="Datalab Africa" />
+        <meta name="application-name" content="Datalab Africa" />
         <Meta />
         <Links />
         {GTAG && (
