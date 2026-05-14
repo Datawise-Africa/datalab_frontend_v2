@@ -1,0 +1,63 @@
+{
+  "name": "Datawise Datalab Frontend",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "pnpmVersion": "9"
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "pnpm install",
+  "postStartCommand": "cp -n .env.example .env 2>/dev/null || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss",
+        "csstools.postcss",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense",
+        "ZixuanChen.vitest-explorer",
+        "YoavBls.pretty-ts-errors",
+        "usernamehw.errorlens"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.enablePromptUseWorkspaceTsdk": true
+      }
+    },
+    "jetbrains": {
+      "plugins": [
+        "com.intellij.plugins.tailwindcss",
+        "com.intellij.lang.jsgraphql",
+        "com.dmarcotte.handlebars"
+      ],
+      "settings": {
+        "prettier": {
+          "runOnSave": true
+        },
+        "eslint": {
+          "enabled": true,
+          "runOnSave": true
+        }
+      }
+    }
+  },
+  "containerEnv": {
+    "NODE_ENV": "development"
+  }
+}
