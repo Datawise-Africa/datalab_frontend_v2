@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Separator } from '~/components/ui/separator';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Terms of Service — Data Lab' },
+  { title: 'Terms of Service — Datalab Africa' },
 ];
 
 export default function TermsOfService() {
@@ -16,362 +16,320 @@ export default function TermsOfService() {
             Terms of Service
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Last updated: January 1, 2026
+            Effective Date: 1 May 2026
           </p>
         </div>
       </section>
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* 1. Acceptance of Terms */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          1. Acceptance of Terms
-        </h2>
-        <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          By accessing or using the Data Lab platform (the &quot;Service&quot;),
-          you agree to be bound by these Terms of Service (&quot;Terms&quot;).
-          These Terms constitute a legally binding agreement between you and
-          Data Lab Inc. (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;).
+          Welcome to our platform. These Terms of Service (the
+          &quot;Terms&quot;) govern your access to and use of our website,
+          applications, and related services (together, the
+          &quot;Services&quot;).
         </p>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          If you do not agree with any part of these Terms, you must not access
-          or use the Service. By continuing to use the Service, you acknowledge
-          that you have read, understood, and agree to be bound by these Terms.
+          Our platform enables users to create, host, access, and share
+          datasets, generate insights, and publish research and data products.
+          By creating an account or using the Services, you agree to these
+          Terms.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          We may update these Terms from time to time. When we do, we will
+          revise the &quot;Effective Date&quot; above. Continued use of the
+          Services means you accept the updated Terms.
         </p>
 
-        {/* 2. Description of Service */}
+        {/* Eligibility & Accounts */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          2. Description of Service
+          Eligibility and Accounts
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Data Lab provides a comprehensive data platform that includes:
+          You must be able to form a binding contract to use the Services. If
+          you are using the Services on behalf of an organization, you confirm
+          that you have authority to bind that organization to these Terms.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You are responsible for the accuracy of the information you provide,
+          for keeping your login credentials secure, and for all activity that
+          happens under your account. Let us know promptly if you suspect
+          unauthorized access.
+        </p>
+
+        {/* User Content */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Your Content
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You retain ownership of the datasets, documentation, dashboards,
+          research, and other content you create or upload to the platform
+          (&quot;Your Content&quot;).
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          By using the Services, you grant us a non-exclusive, worldwide,
+          royalty-free licence to host, store, process, transmit, and display
+          Your Content solely for the purpose of operating, improving, and
+          providing the Services to you and the audiences you choose.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You are responsible for ensuring that you have the rights and
+          permissions needed to upload and share Your Content, and that it does
+          not infringe anyone&apos;s rights or violate any law.
+        </p>
+
+        {/* Acceptable Use */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Acceptable Use
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You agree not to use the Services to:
         </p>
         <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
+          <li>break the law or infringe anyone&apos;s rights</li>
           <li>
-            <strong>Hosted datasets</strong> — curated, maintained, and
-            regularly updated collections of structured and unstructured data
+            upload or share content you do not have the right to distribute
           </li>
           <li>
-            <strong>APIs for dataset access</strong> — RESTful and GraphQL
-            endpoints for programmatic access to datasets with robust query
-            capabilities
+            upload datasets containing personal data without a lawful basis
           </li>
           <li>
-            <strong>Research tools</strong> — built-in analytics, visualization
-            dashboards, and data exploration features
+            attempt to disrupt, reverse-engineer, or gain unauthorized access to
+            the platform
           </li>
           <li>
-            <strong>Collaboration features</strong> — team workspaces, shared
-            queries, annotations, and project management tools
+            scrape, crawl, or harvest data beyond what is permitted by the
+            Services
+          </li>
+          <li>
+            misrepresent the origin, ownership, or licensing of any content
+          </li>
+          <li>
+            abuse, harass, or defraud other users, or undermine platform
+            integrity
           </li>
         </ul>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          We reserve the right to modify, suspend, or discontinue any part of
-          the Service at any time with reasonable notice to our users.
+          We may restrict, suspend, or terminate access to the Services for
+          violations of these Terms.
         </p>
 
-        {/* 3. User Accounts & Access */}
+        {/* Datasets, Licences & Purchases */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          3. User Accounts &amp; Access
+          Datasets, Licences, and Purchases
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          To access most features of the Service, you must create an account.
-          When creating and maintaining your account, you agree to the
-          following:
+          Datasets and other products on the platform may be free or paid, and
+          each is offered under its own licence. Your use of any dataset or
+          product is subject to that licence in addition to these Terms.
         </p>
-        <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
-          <li>
-            <strong>Accurate information</strong> — you must provide truthful,
-            accurate, and complete registration information, and keep it up to
-            date
-          </li>
-          <li>
-            <strong>Account security</strong> — you are solely responsible for
-            safeguarding your login credentials and access tokens; treat them as
-            confidential and do not share them publicly
-          </li>
-          <li>
-            <strong>Unauthorized access</strong> — you must notify us
-            immediately at{' '}
-            <a
-              href="mailto:legal@datalab.io"
-              className="text-primary hover:text-primary underline"
-            >
-              legal@datalab.io
-            </a>{' '}
-            if you suspect any unauthorized access to your account
-          </li>
-          <li>
-            <strong>One account per entity</strong> — each individual or
-            organization may maintain only one account; duplicate accounts may
-            be suspended or terminated
-          </li>
-        </ul>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          You are responsible for all activities that occur under your account
-          and access credentials, whether or not you have authorized such
-          activities.
+          When you publish a dataset or product, you are responsible for
+          choosing an appropriate licence and for accurately describing what
+          buyers or users receive.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          Paid transactions are processed by third-party payment providers.
+          Prices are shown at the point of purchase. Unless required by law or
+          stated otherwise on the product page, purchases are non-refundable
+          once delivered.
         </p>
 
-        {/* 4. Acceptable Use */}
+        {/* Workspaces & Collaboration */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          4. Acceptable Use
+          Workspaces and Collaboration
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          You agree to use the Service in a responsible and lawful manner. You
-          must not:
-        </p>
-        <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
-          <li>
-            <strong>Exceed rate limits</strong> — make API requests in excess of
-            the rate limits defined by your subscription plan
-          </li>
-          <li>
-            <strong>Redistribute datasets without proper license</strong> —
-            share, resell, or redistribute any datasets accessed through the
-            Service unless expressly permitted by the dataset&apos;s license
-          </li>
-          <li>
-            <strong>Reverse-engineer the platform</strong> — attempt to
-            decompile, disassemble, or reverse-engineer any part of the Service,
-            including its underlying algorithms or infrastructure
-          </li>
-          <li>
-            <strong>Use for illegal purposes</strong> — use the Service or any
-            data obtained through it for any unlawful, fraudulent, or harmful
-            activity
-          </li>
-          <li>
-            <strong>Upload malicious content</strong> — introduce viruses,
-            malware, or any other harmful code or content to the Service
-          </li>
-        </ul>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Violation of these acceptable use terms may result in immediate
-          suspension or termination of your account without prior notice.
+          You can collaborate through workspaces. Workspace owners and admins
+          can manage members, invite collaborators, and control what is
+          published from the workspace. Workspace members are responsible for
+          the content they contribute and for following any internal policies
+          their workspace sets.
         </p>
 
-        {/* 5. Intellectual Property */}
+        {/* Intellectual Property */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          5. Intellectual Property
-        </h2>
-        <Separator className="mb-6" />
-
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
-          Dataset Licenses
-        </h3>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Each dataset available on the Service is governed by its own
-          individual license. Before accessing or using any dataset, you must
-          review and comply with the applicable license terms displayed on the
-          dataset&apos;s detail page.
-        </p>
-
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
-          Platform Intellectual Property
-        </h3>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The Data Lab platform, including its design, code, features,
-          documentation, trademarks, and all related intellectual property, is
-          owned by Data Lab Inc. and is protected by applicable copyright,
-          trademark, and other intellectual property laws. Nothing in these
-          Terms grants you any right to use our branding or proprietary
-          materials.
-        </p>
-
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
-          User-Generated Content
-        </h3>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Any content you create, upload, or share through the Service
-          (including queries, annotations, and derived datasets) remains your
-          property. By using the Service, you grant us a limited, non-exclusive
-          license to host and display your content solely for the purpose of
-          providing the Service to you.
-        </p>
-
-        {/* 6. API Usage Terms */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          6. API Usage Terms
+          Our Intellectual Property
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Access to our APIs is subject to the following terms:
+          The platform itself — including its software, design, branding, and
+          documentation — is owned by us and our licensors. We grant you a
+          limited, revocable, non-exclusive licence to use the Services
+          consistent with these Terms.
         </p>
-        <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
-          <li>
-            <strong>Rate limits per plan tier</strong> — each subscription plan
-            includes defined rate limits (requests per minute and per day);
-            these limits are documented in your plan details and API
-            documentation
-          </li>
-          <li>
-            <strong>Fair use policy</strong> — API usage should be consistent
-            with normal application patterns; automated bulk scraping or
-            excessive concurrent connections may be considered abuse
-          </li>
-          <li>
-            <strong>Throttling and suspension</strong> — we reserve the right to
-            throttle, rate-limit, or temporarily suspend API access if we detect
-            usage patterns that constitute abuse or threaten the stability of
-            the Service
-          </li>
-          <li>
-            <strong>Availability target</strong> — we target 99.9% API
-            availability (uptime) measured on a monthly basis, excluding
-            scheduled maintenance windows
-          </li>
-        </ul>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You may not copy, modify, or redistribute the platform&apos;s code or
+          assets except as expressly permitted.
+        </p>
 
-        {/* 7. Payment Terms */}
+        {/* Feedback */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          7. Payment Terms
+          Feedback
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          If you subscribe to a paid plan, the following payment terms apply:
+          If you send us feedback, suggestions, or bug reports, you give us
+          permission to use them without obligation to you. We&apos;ll always
+          appreciate it.
         </p>
-        <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
-          <li>
-            <strong>Billing cycle</strong> — subscriptions are billed either
-            monthly or annually, depending on the plan you select; billing
-            occurs at the beginning of each cycle
-          </li>
-          <li>
-            <strong>Price changes</strong> — we may adjust subscription prices
-            with at least 30 days&apos; written notice; price changes take
-            effect at the start of your next billing cycle
-          </li>
-          <li>
-            <strong>Refunds</strong> — refund requests are handled at our sole
-            discretion; please contact our support team within 14 days of a
-            charge to request a review
-          </li>
-          <li>
-            <strong>Failed payments</strong> — if a payment fails, we will
-            attempt to process it again over the following 7 days; continued
-            payment failure may result in suspension of your account and access
-            to paid features
-          </li>
-        </ul>
 
-        {/* 8. Disclaimers */}
+        {/* Privacy */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          8. Disclaimers
+          Privacy
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          THE SERVICE IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS
-          AVAILABLE&quot; BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS
-          OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF
-          MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
-          NON-INFRINGEMENT.
-        </p>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          We make no warranty or representation regarding the accuracy,
-          completeness, reliability, or timeliness of any datasets available
-          through the Service. Data is provided for informational purposes and
-          should be independently verified before being used for critical
-          decisions.
-        </p>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          We are not liable for any decisions, actions, or outcomes resulting
-          from your use of or reliance on data obtained through the Service.
+          Our handling of personal information is described in our{' '}
+          <Link
+            to="/privacy-policy"
+            className="text-primary hover:text-primary underline"
+          >
+            Privacy Policy
+          </Link>
+          . By using the Services, you also agree to that Policy.
         </p>
 
-        {/* 9. Limitation of Liability */}
+        {/* Third-Party Services */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          9. Limitation of Liability
+          Third-Party Services
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, DATA LAB
-          INC.&apos;S AGGREGATE LIABILITY ARISING OUT OF OR RELATED TO THESE
-          TERMS OR THE SERVICE SHALL NOT EXCEED THE TOTAL FEES PAID BY YOU TO US
-          DURING THE TWELVE (12) MONTHS PRECEDING THE EVENT GIVING RISE TO THE
-          CLAIM.
-        </p>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          IN NO EVENT SHALL DATA LAB INC. BE LIABLE FOR ANY INDIRECT,
-          INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT
-          NOT LIMITED TO LOSS OF PROFITS, DATA, BUSINESS OPPORTUNITIES, OR
-          GOODWILL, WHETHER BASED ON WARRANTY, CONTRACT, TORT, OR ANY OTHER
-          LEGAL THEORY, EVEN IF WE HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH
-          DAMAGES.
+          The Services may rely on or link to third-party tools (for example,
+          payments, analytics, hosting, or authentication). Those tools are
+          governed by their own terms, and we are not responsible for them.
         </p>
 
-        {/* 10. Termination */}
+        {/* Availability & Changes */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          10. Termination
+          Availability and Changes to the Services
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Either party may terminate the use of the Service under the following
-          conditions:
+          We work to keep the Services reliable but do not guarantee
+          uninterrupted availability. We may add, change, or remove features at
+          any time, and we may perform maintenance that temporarily limits
+          access.
         </p>
-        <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground leading-relaxed">
-          <li>
-            <strong>Voluntary termination</strong> — either party may terminate
-            the agreement with 30 days&apos; written notice; you can cancel your
-            account through your account settings or by contacting support
-          </li>
-          <li>
-            <strong>Termination for violations</strong> — we may terminate or
-            suspend your account immediately and without prior notice if you
-            violate these Terms, engage in fraudulent activity, or pose a risk
-            to the Service or other users
-          </li>
-          <li>
-            <strong>Data export window</strong> — upon termination, you will
-            have a 30-day window to export your data, including saved queries,
-            annotations, and any user-generated content; after this period, your
-            data will be permanently deleted
-          </li>
-        </ul>
 
-        {/* 11. Governing Law */}
+        {/* Suspension & Termination */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          11. Governing Law
+          Suspension and Termination
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          These Terms shall be governed by and construed in accordance with the
-          laws of the State of California, United States, without regard to its
-          conflict of law provisions.
+          You can stop using the Services at any time and request deletion of
+          your account.
         </p>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Any disputes arising out of or relating to these Terms or the Service
-          shall be resolved exclusively in the state or federal courts located
-          in San Francisco, California. You consent to the personal jurisdiction
-          of such courts and waive any objection to venue.
+          We may suspend or terminate access if you breach these Terms, if your
+          activity puts the platform or other users at risk, or if we are
+          required to by law. Where reasonable, we will give you notice and a
+          chance to fix the issue.
         </p>
 
-        {/* 12. Contact */}
+        {/* Disclaimer */}
         <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
-          12. Contact
+          Disclaimers
         </h2>
         <Separator className="mb-6" />
         <p className="text-muted-foreground leading-relaxed mb-4">
-          If you have any questions or concerns about these Terms of Service,
-          please contact us:
+          The Services and any datasets, insights, or research made available
+          through the platform are provided &quot;as is&quot; and &quot;as
+          available&quot;. We do not guarantee that content is accurate,
+          complete, or fit for any particular purpose.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You are responsible for evaluating whether the Services and any
+          content are suitable for your intended use.
+        </p>
+
+        {/* Limitation of Liability */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Limitation of Liability
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          To the maximum extent permitted by law, we are not liable for
+          indirect, incidental, special, consequential, or punitive damages,
+          including lost profits, lost data, or lost goodwill, arising out of
+          your use of the Services.
+        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          Nothing in these Terms limits liability that cannot be limited by law.
+        </p>
+
+        {/* Indemnity */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Your Responsibility for Claims
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          You agree to defend, indemnify, and hold us harmless from claims
+          arising out of Your Content, your use of the Services, or your
+          violation of these Terms.
+        </p>
+
+        {/* Governing Law */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Governing Law
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          These Terms are governed by the laws of the Republic of Kenya, without
+          regard to its conflict-of-law rules. Disputes will be resolved by the
+          courts located in Nairobi, Kenya, unless another venue is required by
+          law.
+        </p>
+
+        {/* Changes */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Changes to These Terms
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          We may update these Terms from time to time. When we do, we will
+          revise the &quot;Effective Date&quot; above and, where appropriate,
+          notify you. Continued use of the Services after changes take effect
+          means you accept the updated Terms.
+        </p>
+
+        {/* Contact */}
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+          Contact
+        </h2>
+        <Separator className="mb-6" />
+        <p className="text-muted-foreground leading-relaxed mb-4">
+          If you have any questions about these Terms, please contact us:
         </p>
         <ul className="list-none space-y-2 mb-4 text-muted-foreground leading-relaxed">
           <li>
             <strong>Email:</strong>{' '}
             <a
-              href="mailto:legal@datalab.io"
+              href="mailto:info@datawiseafrica.com"
               className="text-primary hover:text-primary underline"
             >
-              legal@datalab.io
+              info@datawiseafrica.com
             </a>
           </li>
           <li>
-            <strong>Address:</strong> Data Lab Inc., 123 Data Street, San
-            Francisco, CA 94105
+            <strong>Phone:</strong>{' '}
+            <a
+              href="tel:+254704237879"
+              className="text-primary hover:text-primary underline"
+            >
+              +254 704 237 879
+            </a>
+          </li>
+          <li>
+            <strong>Office:</strong> Highway Heights, Marcus Garvey Rd,
+            Kilimani, Nairobi, Kenya
           </li>
         </ul>
 
@@ -385,7 +343,8 @@ export default function TermsOfService() {
             Privacy Policy
           </Link>
           <p>
-            &copy; {new Date().getFullYear()} Data Lab Inc. All rights reserved.
+            &copy; {new Date().getFullYear()} Datalab Africa. All rights
+            reserved.
           </p>
         </div>
       </div>

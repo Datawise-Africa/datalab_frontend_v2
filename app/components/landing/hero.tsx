@@ -1,30 +1,32 @@
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '~/components/ui/button';
-import { AllTheDataIllustration } from '~/components/illustrations/all-the-data';
+
+const DATALAB_IMAGE_SRC = '/assets/datalab.png';
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-linear-to-b from-primary/4 via-background to-background">
+    <section className="relative overflow-hidden">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
+        className="absolute -inset-2 scale-105 bg-cover bg-no-repeat bg-center blur-[2px]"
+        style={{ backgroundImage: `url(${DATALAB_IMAGE_SRC})` }}
       />
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
-          {/* Left — text content */}
+      <div
+        aria-hidden
+        className="absolute inset-y-0 left-0 w-full bg-linear-to-r from-background from-30% via-background/90 via-55% to-transparent"
+      />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+        <div className="relative max-w-2xl">
           <div>
-            {/* <p className="text-sm text-muted-foreground mb-4">
-              Trusted by 100+ data professionals
-            </p> */}
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
-              Access, Integrate &amp; Build with{' '}
-              <span className="text-primary">World-Class Datasets</span>
+              Powering the Full Data Lifecycle for{' '}
+              <span className="text-primary">Intelligent Systems</span>
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">
-              Curated, high-quality datasets with developer-friendly APIs.
-              Browse thousands of datasets, integrate in minutes, and build
-              data-driven applications at scale.
+            <p className="mt-6 text-lg text-muted-foreground max-w-xl leading-relaxed">
+              Build, host, and access structured datasets, generate insights,
+              and publish research through a unified platform for scalable data
+              and intelligence workflows.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
               <Button asChild size="lg">
@@ -37,11 +39,6 @@ export function Hero() {
                 <Link to="/contact">Request our services</Link>
               </Button>
             </div>
-          </div>
-
-          {/* Right — hero illustration */}
-          <div className="relative hidden lg:flex items-center justify-center">
-            <AllTheDataIllustration className="h-auto w-full max-w-lg" />
           </div>
         </div>
       </div>
