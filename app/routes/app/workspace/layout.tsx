@@ -1,11 +1,25 @@
 import { Link, Outlet, useParams } from 'react-router';
-import { ArrowLeft, Loader2, Users, Database, LayoutGrid } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  ArrowLeft,
+  Loader2,
+  Users,
+  Database,
+  LayoutGrid,
+  RefreshCw,
+} from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Protect } from '~/components/auth/protect';
-import { useWorkspace, useWorkspaceMembers } from '~/features/workspaces';
+import {
+  useWorkspace,
+  useWorkspaceDatasets,
+  useWorkspaceMembers,
+} from '~/features/workspaces';
+import { workspaceKeys } from '~/features/workspaces/query-keys';
 import { useAppSelector } from '~/store';
 import type { WorkspaceMember, WorkspaceRole } from '~/lib/types/workspace';
+import { cn } from '~/lib/utils';
 
 function getUserWorkspaceRole(
   userId: string | undefined,
@@ -19,8 +33,39 @@ function getUserWorkspaceRole(
 export default function WorkspaceLayout() {
   const { id } = useParams<{ id: string }>();
   const user = useAppSelector((s) => s.auth.user);
-  const { data: workspace, isLoading } = useWorkspace(id!);
-  const { data: members } = useWorkspaceMembers(id!);
+  const queryClient = useQueryClient();
+  const {
+    data: workspace,
+    isLoading,
+    isFetching: isFetchingWorkspace,
+  } = useWorkspace(id!);
+  const { data: members, isFetching: isFetchingMembers } = useWorkspaceMembers(
+    id!
+  );
+  const { data: datasetsResponse, isFetching: isFetchingDatasets } =
+    useWorkspaceDatasets(id!);
+
+  const isFetching =
+    isFetchingWorkspace || isFetchingMembers || isFetchingDatasets;
+
+  const handleRefresh = () => {
+    if (!id) return;
+    queryClient.invalidateQueries({ queryKey: workspaceKeys.detail(id) });
+    queryClient.invalidateQueries({ queryKey: workspaceKeys.members(id) });
+    queryClient.invalidateQueries({ queryKey: workspaceKeys.datasets(id) });
+    queryClient.invalidateQueries({ queryKey: workspaceKeys.invitations(id) });
+    queryClient.invalidateQueries({ queryKey: workspaceKeys.analytics(id) });
+  };
+
+  // Counts: prefer the server-reported aggregate, fall back to fetched
+  // collection lengths so a freshly-created workspace (or a backend that
+  // doesn't aggregate) still shows accurate totals.
+  const memberCount = workspace?.member_count || (members?.length ?? 0);
+  const datasetCount =
+    workspace?.dataset_count ||
+    datasetsResponse?.meta?.total_docs ||
+    datasetsResponse?.data?.length ||
+    0;
 
   if (isLoading) {
     return (
@@ -66,11 +111,11 @@ export default function WorkspaceLayout() {
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <Users className="h-3.5 w-3.5" />
-                {workspace.member_count ?? 0} members
+                {memberCount} members
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <Database className="h-3.5 w-3.5" />
-                {workspace.dataset_count ?? 0} datasets
+                {datasetCount} datasets
               </span>
               <span className="inline-flex items-center gap-1.5">
                 <LayoutGrid className="h-3.5 w-3.5" />
@@ -83,6 +128,19 @@ export default function WorkspaceLayout() {
               )}
             </div>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="shrink-0 gap-1.5"
+            aria-busy={isFetching}
+          >
+            <RefreshCw
+              className={cn('h-4 w-4', isFetching && 'animate-spin')}
+            />
+            Refresh
+          </Button>
         </div>
 
         <Outlet />

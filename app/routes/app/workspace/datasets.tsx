@@ -30,20 +30,18 @@ export default function WorkspaceDatasetsPage() {
   );
   const canManage = myMember?.role === 'admin' || myMember?.role === 'creator';
 
-  const workspaceQuery = id ? `?workspace=${id}` : '';
-
   const handlePreview = useCallback(
     (datasetId: string) => {
-      navigate(`/app/view-dataset/${datasetId}${workspaceQuery}`);
+      navigate(`/app/workspaces/${id}/datasets/${datasetId}`);
     },
-    [navigate, workspaceQuery]
+    [navigate, id]
   );
 
   const handleEdit = useCallback(
     (datasetId: string) => {
-      navigate(`/app/edit-dataset/${datasetId}${workspaceQuery}`);
+      navigate(`/app/workspaces/${id}/datasets/${datasetId}/edit`);
     },
-    [navigate, workspaceQuery]
+    [navigate, id]
   );
 
   const handleArchive = useCallback(

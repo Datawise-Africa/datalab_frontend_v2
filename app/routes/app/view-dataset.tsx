@@ -46,10 +46,32 @@ export function meta(_args: Route.MetaArgs) {
 export default function ViewDataset() {
   const { id: datasetId } = useParams() as { id: string };
   const [searchParams] = useSearchParams();
+  const workspaceParam = searchParams.get('workspace');
+  return (
+    <ViewDatasetView
+      datasetId={datasetId}
+      workspaceIdOverride={workspaceParam}
+    />
+  );
+}
+
+interface ViewDatasetViewProps {
+  datasetId: string;
+  /** When provided (workspace-scoped routes), wins over dataset.workspace. */
+  workspaceIdOverride?: string | null;
+  /** Workspace-scoped routes already render a workspace header; suppress back. */
+  hideBack?: boolean;
+}
+
+export function ViewDatasetView({
+  datasetId,
+  workspaceIdOverride,
+  hideBack,
+}: Readonly<ViewDatasetViewProps>) {
   const { data: dataset, isLoading } = useMyDataset(datasetId);
 
   const workspaceId =
-    searchParams.get('workspace') ?? getWorkspaceId(dataset?.workspace) ?? null;
+    workspaceIdOverride ?? getWorkspaceId(dataset?.workspace) ?? null;
   const backHref = workspaceId
     ? `/app/workspaces/${workspaceId}/datasets`
     : '/app/creator-dashboard';
@@ -63,11 +85,13 @@ export default function ViewDataset() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to={backHref}>
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
+            {!hideBack && (
+              <Button variant="ghost" size="icon" asChild>
+                <Link to={backHref}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+            )}
             <h1 className="text-2xl font-bold">Dataset Details</h1>
           </div>
           {dataset && (

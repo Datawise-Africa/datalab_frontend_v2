@@ -71,6 +71,23 @@ function mapDatasetToFormValues(
 export default function EditDataset() {
   const { id: datasetId } = useParams() as { id: string };
   const [searchParams] = useSearchParams();
+  return (
+    <EditDatasetView
+      datasetId={datasetId}
+      workspaceIdOverride={searchParams.get('workspace')}
+    />
+  );
+}
+
+interface EditDatasetViewProps {
+  datasetId: string;
+  workspaceIdOverride?: string | null;
+}
+
+export function EditDatasetView({
+  datasetId,
+  workspaceIdOverride,
+}: Readonly<EditDatasetViewProps>) {
   const navigate = useNavigate();
 
   const { data: dataset, isLoading } = useMyDataset(datasetId);
@@ -80,7 +97,7 @@ export default function EditDataset() {
   const updateDataset = useUpdateMyDataset();
 
   const workspaceId =
-    searchParams.get('workspace') ?? getWorkspaceId(dataset?.workspace) ?? null;
+    workspaceIdOverride ?? getWorkspaceId(dataset?.workspace) ?? null;
   const backHref = workspaceId
     ? `/app/workspaces/${workspaceId}/datasets`
     : '/app/creator-dashboard';
@@ -108,7 +125,7 @@ export default function EditDataset() {
       {
         onSuccess: () => {
           const previewHref = workspaceId
-            ? `/app/view-dataset/${datasetId}?workspace=${workspaceId}`
+            ? `/app/workspaces/${workspaceId}/datasets/${datasetId}`
             : `/app/view-dataset/${datasetId}`;
           navigate(previewHref);
         },
