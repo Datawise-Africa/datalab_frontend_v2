@@ -52,10 +52,10 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+        <div className="flex min-h-screen items-center justify-center bg-background p-4">
           <Card className="max-w-lg w-full">
             <CardHeader>
-              <div className="flex items-center gap-2 text-red-600">
+              <div className="flex items-center gap-2 text-destructive">
                 <AlertCircle className="h-6 w-6" />
                 <CardTitle>Something went wrong</CardTitle>
               </div>
@@ -67,18 +67,18 @@ export class ErrorBoundary extends Component<Props, State> {
 
             {import.meta.env.DEV && this.state.error && (
               <CardContent>
-                <div className="rounded-md bg-gray-100 p-4 text-sm">
-                  <p className="font-semibold text-red-600 mb-2">Error:</p>
-                  <pre className="whitespace-pre-wrap wrap-break-word text-gray-700">
+                <div className="rounded-md bg-muted p-4 text-sm">
+                  <p className="font-semibold text-destructive mb-2">Error:</p>
+                  <pre className="whitespace-pre-wrap wrap-break-word text-foreground">
                     {this.state.error.message}
                   </pre>
 
                   {this.state.errorInfo?.componentStack && (
                     <>
-                      <p className="font-semibold text-red-600 mt-4 mb-2">
+                      <p className="font-semibold text-destructive mt-4 mb-2">
                         Component Stack:
                       </p>
-                      <pre className="whitespace-pre-wrap wrap-break-word text-xs text-gray-600 max-h-48 overflow-y-auto">
+                      <pre className="whitespace-pre-wrap wrap-break-word text-xs text-muted-foreground max-h-48 overflow-y-auto">
                         {this.state.errorInfo.componentStack}
                       </pre>
                     </>

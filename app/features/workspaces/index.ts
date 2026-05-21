@@ -4,6 +4,9 @@ export {
   useWorkspace,
   useWorkspaceMembers,
   useWorkspaceDatasets,
+  useWorkspaceDataset,
+  useWorkspaceDashboards,
+  useWorkspaceDashboard,
   useWorkspaceAnalytics,
   useWorkspaceInvitations,
 } from './queries';
@@ -14,4 +17,11 @@ export {
   useInviteMember,
   useUpdateMemberRole,
   useRemoveMember,
+  useCreateWorkspaceDataset,
+  useUpdateWorkspaceDataset,
+  useUpdateWorkspaceDatasetStatus,
+  useDeleteWorkspaceDataset,
+  useCreateWorkspaceDashboard,
+  useUpdateWorkspaceDashboard,
+  useDeleteWorkspaceDashboard,
 } from './mutations';

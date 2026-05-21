@@ -80,11 +80,8 @@ function DesktopAuthButtons() {
         <Button variant="outline" size="sm" onClick={() => authModal.open()}>
           Sign in
         </Button>
-        <Button
-          size="sm"
-          onClick={() => authModal.open({ initialTab: 'signup' })}
-        >
-          Get Started
+        <Button asChild size="sm">
+          <Link to="/contact">Request a Quote</Link>
         </Button>
       </div>
     );
@@ -162,8 +159,14 @@ function MobileAuthSection() {
     return (
       <div className="mt-6 flex flex-col gap-2 border-t px-3 pt-6">
         <SheetClose asChild>
+          <Button asChild className="w-full">
+            <Link to="/contact">Request a Quote</Link>
+          </Button>
+        </SheetClose>
+        <SheetClose asChild>
           <Button
-            className="w-full bg-primary hover:bg-primary/90"
+            variant="outline"
+            className="w-full"
             onClick={() => authModal.open()}
           >
             Sign in

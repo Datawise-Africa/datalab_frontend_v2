@@ -55,6 +55,11 @@ export default [
       route('members', 'routes/app/workspace/members.tsx'),
       route('datasets', 'routes/app/workspace/datasets.tsx'),
       route('datasets/new', 'routes/app/workspace/upload-dataset.tsx'),
+      route('datasets/:datasetId', 'routes/app/workspace/dataset-preview.tsx'),
+      route(
+        'datasets/:datasetId/edit',
+        'routes/app/workspace/dataset-edit.tsx'
+      ),
       route('dashboards', 'routes/app/workspace/dashboards.tsx'),
       route('dashboards/new', 'routes/app/workspace/create-dashboard.tsx'),
       route(

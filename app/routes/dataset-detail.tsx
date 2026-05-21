@@ -298,6 +298,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
                 <TabsTrigger value="schema">Schema</TabsTrigger>
                 <TabsTrigger value="versions">Versions</TabsTrigger>
+                <TabsTrigger value="authors">Authors</TabsTrigger>
                 <TabsTrigger value="reviews">Reviews</TabsTrigger>
               </TabsList>
 
@@ -387,6 +388,42 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               {/* Versions tab */}
               <TabsContent value="versions" className="mt-4">
                 <PublicVersionsTab datasetId={dataset.id} />
+              </TabsContent>
+
+              {/* Authors tab — full credits list; emails hidden for public view */}
+              <TabsContent value="authors" className="mt-4">
+                {dataset.authors.length === 0 ? (
+                  <div className="rounded-md border border-dashed py-12 text-center text-muted-foreground">
+                    <User className="mx-auto mb-3 h-8 w-8" />
+                    <p className="text-sm font-medium">No authors listed</p>
+                  </div>
+                ) : (
+                  <div className="rounded-md border bg-card">
+                    <ul className="divide-y">
+                      {dataset.authors.map((author) => (
+                        <li
+                          key={author.user.id}
+                          className="flex items-center gap-4 px-4 py-3"
+                        >
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <User className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium">
+                              {author.user.first_name} {author.user.last_name}
+                            </p>
+                          </div>
+                          <Badge
+                            variant="secondary"
+                            className="shrink-0 text-[10px] uppercase tracking-wide"
+                          >
+                            {author.role}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </TabsContent>
 
               {/* Reviews tab — read-only; reviews are submitted from My Downloads */}
