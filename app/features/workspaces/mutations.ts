@@ -7,6 +7,13 @@ import type {
   InviteMemberInput,
   UpdateMemberRoleInput,
 } from '~/lib/schema/workspace-schema';
+import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import type {
+  Dashboard,
+  CreateDashboardInput,
+  UpdateDashboardInput,
+} from '~/lib/types/dashboard';
+import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import { workspaceKeys } from './query-keys';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
@@ -154,6 +161,188 @@ export function useRemoveMember() {
     },
     onError: (error) => {
       toastUtils.error('Remove failed', extractError(error));
+    },
+  });
+}
+
+/* ── Workspace-scoped dataset mutations ── */
+
+/** POST /workspaces/{workspaceId}/datasets/ */
+export function useCreateWorkspaceDataset(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      input: UploadDatasetFormValues
+    ): Promise<MyDatasetInterface> => {
+      const { data } = await apiClient.post(
+        `/workspaces/${workspaceId}/datasets/`,
+        input
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasets(workspaceId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Upload failed', extractError(error));
+    },
+  });
+}
+
+/** PUT /workspaces/{workspaceId}/datasets/{datasetId}/ */
+export function useUpdateWorkspaceDataset(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: UploadDatasetFormValues;
+    }): Promise<MyDatasetInterface> => {
+      const { data } = await apiClient.put(
+        `/workspaces/${workspaceId}/datasets/${id}/`,
+        input
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasets(workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasetDetail(workspaceId, variables.id),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Update failed', extractError(error));
+    },
+  });
+}
+
+/** PATCH /workspaces/{workspaceId}/datasets/{datasetId}/update-status/ */
+export function useUpdateWorkspaceDatasetStatus(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: 'PB' | 'DF' | 'AR';
+    }): Promise<void> => {
+      await apiClient.patch(
+        `/workspaces/${workspaceId}/datasets/${id}/update-status/`,
+        { status }
+      );
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasets(workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasetDetail(workspaceId, variables.id),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Status change failed', extractError(error));
+    },
+  });
+}
+
+/** DELETE /workspaces/{workspaceId}/datasets/{datasetId}/ */
+export function useDeleteWorkspaceDataset(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (datasetId: string): Promise<void> => {
+      await apiClient.delete(
+        `/workspaces/${workspaceId}/datasets/${datasetId}/`
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.datasets(workspaceId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Delete failed', extractError(error));
+    },
+  });
+}
+
+/* ── Workspace-scoped dashboard mutations ── */
+
+/** POST /workspaces/{workspaceId}/dashboards/ */
+export function useCreateWorkspaceDashboard(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateDashboardInput): Promise<Dashboard> => {
+      const { data } = await apiClient.post<Dashboard>(
+        `/workspaces/${workspaceId}/dashboards/`,
+        input
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.dashboards(workspaceId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Create failed', extractError(error));
+    },
+  });
+}
+
+/** PATCH /workspaces/{workspaceId}/dashboards/{dashboardId}/ */
+export function useUpdateWorkspaceDashboard(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: UpdateDashboardInput;
+    }): Promise<Dashboard> => {
+      const { data } = await apiClient.patch<Dashboard>(
+        `/workspaces/${workspaceId}/dashboards/${id}/`,
+        input
+      );
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.dashboards(workspaceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.dashboardDetail(workspaceId, variables.id),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Update failed', extractError(error));
+    },
+  });
+}
+
+/** DELETE /workspaces/{workspaceId}/dashboards/{dashboardId}/ */
+export function useDeleteWorkspaceDashboard(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (dashboardId: string): Promise<void> => {
+      await apiClient.delete(
+        `/workspaces/${workspaceId}/dashboards/${dashboardId}/`
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: workspaceKeys.dashboards(workspaceId),
+      });
+    },
+    onError: (error) => {
+      toastUtils.error('Delete failed', extractError(error));
     },
   });
 }

@@ -20,9 +20,9 @@ export function LoadingIndicator() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <div className="h-1 bg-blue-600 animate-progress" />
-      <div className="absolute top-4 right-4 bg-white rounded-full shadow-lg p-3">
-        <Loader2 className="h-5 w-5 text-blue-600 animate-spin" />
+      <div className="h-1 bg-primary animate-progress" />
+      <div className="absolute top-4 right-4 bg-background rounded-full shadow-lg p-3">
+        <Loader2 className="h-5 w-5 text-primary animate-spin" />
       </div>
     </div>
   );
@@ -31,10 +31,10 @@ export function LoadingIndicator() {
 // Simple full-page loader for initial loads
 export function FullPageLoader() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
-        <p className="text-gray-600 font-medium">Loading...</p>
+        <Loader2 className="h-12 w-12 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium">Loading...</p>
       </div>
     </div>
   );
@@ -44,8 +44,8 @@ export function FullPageLoader() {
 export function InlineLoader({ text = 'Loading...' }: { text?: string }) {
   return (
     <div className="flex items-center justify-center gap-3 py-8">
-      <Loader2 className="h-6 w-6 text-blue-600 animate-spin" />
-      <span className="text-gray-600">{text}</span>
+      <Loader2 className="h-6 w-6 text-primary animate-spin" />
+      <span className="text-muted-foreground">{text}</span>
     </div>
   );
 }

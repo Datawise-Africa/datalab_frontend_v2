@@ -8,11 +8,11 @@ export const meta: Route.MetaFunction = () => [
 
 export default function TermsOfService() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="bg-primary/5 py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Terms of Service
           </h1>
           <p className="mt-4 text-muted-foreground">
@@ -42,7 +42,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Eligibility & Accounts */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Eligibility and Accounts
         </h2>
         <Separator className="mb-6" />
@@ -59,7 +59,7 @@ export default function TermsOfService() {
         </p>
 
         {/* User Content */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Your Content
         </h2>
         <Separator className="mb-6" />
@@ -81,7 +81,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Acceptable Use */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Acceptable Use
         </h2>
         <Separator className="mb-6" />
@@ -118,7 +118,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Datasets, Licences & Purchases */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Datasets, Licences, and Purchases
         </h2>
         <Separator className="mb-6" />
@@ -140,7 +140,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Workspaces & Collaboration */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Workspaces and Collaboration
         </h2>
         <Separator className="mb-6" />
@@ -153,7 +153,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Intellectual Property */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Our Intellectual Property
         </h2>
         <Separator className="mb-6" />
@@ -169,7 +169,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Feedback */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Feedback
         </h2>
         <Separator className="mb-6" />
@@ -180,7 +180,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Privacy */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Privacy
         </h2>
         <Separator className="mb-6" />
@@ -196,7 +196,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Third-Party Services */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Third-Party Services
         </h2>
         <Separator className="mb-6" />
@@ -207,7 +207,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Availability & Changes */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Availability and Changes to the Services
         </h2>
         <Separator className="mb-6" />
@@ -219,7 +219,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Suspension & Termination */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Suspension and Termination
         </h2>
         <Separator className="mb-6" />
@@ -235,7 +235,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Disclaimer */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Disclaimers
         </h2>
         <Separator className="mb-6" />
@@ -251,7 +251,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Limitation of Liability */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Limitation of Liability
         </h2>
         <Separator className="mb-6" />
@@ -266,7 +266,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Indemnity */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Your Responsibility for Claims
         </h2>
         <Separator className="mb-6" />
@@ -277,7 +277,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Governing Law */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Governing Law
         </h2>
         <Separator className="mb-6" />
@@ -289,7 +289,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Changes */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Changes to These Terms
         </h2>
         <Separator className="mb-6" />
@@ -301,7 +301,7 @@ export default function TermsOfService() {
         </p>
 
         {/* Contact */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Contact
         </h2>
         <Separator className="mb-6" />

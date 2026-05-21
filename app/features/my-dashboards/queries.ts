@@ -12,7 +12,10 @@ interface MyDashboardsParams {
   workspace?: string;
 }
 
-export function useMyDashboards(params?: MyDashboardsParams) {
+export function useMyDashboards(
+  params?: MyDashboardsParams,
+  options?: { enabled?: boolean }
+) {
   const apiParams: Record<string, unknown> = { ...params };
   if (!apiParams.status || apiParams.status === 'all') {
     delete apiParams.status;
@@ -26,6 +29,7 @@ export function useMyDashboards(params?: MyDashboardsParams) {
       );
       return data;
     },
+    enabled: options?.enabled ?? true,
     placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
   });

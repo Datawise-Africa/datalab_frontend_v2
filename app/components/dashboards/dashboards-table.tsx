@@ -1,12 +1,22 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { LayoutGrid, Plus, Loader2, AlertTriangle } from 'lucide-react';
+import {
+  LayoutGrid,
+  Plus,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import {
   useMyDashboards,
   useDeleteMyDashboard,
 } from '~/features/my-dashboards';
+import {
+  useWorkspaceDashboards,
+  useDeleteWorkspaceDashboard,
+} from '~/features/workspaces';
 import { DashboardCard } from './dashboard-card';
 
 interface Props {
@@ -30,13 +40,16 @@ export function DashboardsTable({
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
 
-  const params = {
-    page,
-    limit,
-    ...(workspaceId ? { workspace: workspaceId } : {}),
-  };
-  const { data, isLoading, isError, refetch } = useMyDashboards(params);
-  const deleteMutation = useDeleteMyDashboard();
+  const params = { page, limit };
+  const personalQuery = useMyDashboards(params, { enabled: !workspaceId });
+  const workspaceQuery = useWorkspaceDashboards(workspaceId ?? '', params);
+  const { data, isLoading, isError, isFetching, refetch } = workspaceId
+    ? workspaceQuery
+    : personalQuery;
+
+  const personalDelete = useDeleteMyDashboard();
+  const workspaceDelete = useDeleteWorkspaceDashboard(workspaceId ?? '');
+  const deleteMutation = workspaceId ? workspaceDelete : personalDelete;
 
   const dashboards = data?.data ?? [];
   const total = data?.meta?.total_docs ?? 0;
@@ -73,12 +86,26 @@ export function DashboardsTable({
           <h2 className="text-lg font-semibold">{title}</h2>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>
-        <Button asChild>
-          <Link to={createHref}>
-            <Plus className="mr-1.5 h-4 w-4" />
-            New Dashboard
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            aria-label="Refresh dashboards"
+            title="Refresh"
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`}
+            />
+          </Button>
+          <Button asChild>
+            <Link to={createHref}>
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Dashboard
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (

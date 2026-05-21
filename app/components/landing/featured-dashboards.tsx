@@ -1,10 +1,11 @@
 import { Link } from 'react-router';
 import { ArrowRight, BarChart3, Loader2 } from 'lucide-react';
+import { Button } from '~/components/ui/button';
 import { PublicDashboardCard } from '~/components/dashboards/public-dashboard-card';
 import { useDashboards } from '~/features/dashboards';
 
 export function FeaturedDashboards() {
-  const { data, isLoading } = useDashboards({ page: 1, limit: 6 });
+  const { data, isLoading } = useDashboards({ page: 1, limit: 4 });
   const dashboards = data?.data ?? [];
 
   return (
@@ -37,19 +38,18 @@ export function FeaturedDashboards() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {dashboards.map((d) => (
                 <PublicDashboardCard key={d.id} dashboard={d} />
               ))}
             </div>
-            <div className="mt-10 flex justify-center">
-              <Link
-                to="/dashboards"
-                className="inline-flex items-center gap-1.5 rounded-md border border-primary/30 bg-primary/5 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
-              >
-                View all dashboards
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            <div className="mt-10 text-center">
+              <Button asChild variant="outline" size="lg">
+                <Link to="/dashboards">
+                  View All Dashboards
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
             </div>
           </>
         )}

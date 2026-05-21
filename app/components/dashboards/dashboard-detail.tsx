@@ -26,6 +26,11 @@ import {
   useDeleteMyDashboard,
   useUpdateMyDashboard,
 } from '~/features/my-dashboards';
+import {
+  useWorkspaceDashboard,
+  useDeleteWorkspaceDashboard,
+  useUpdateWorkspaceDashboard,
+} from '~/features/workspaces';
 import { toastUtils } from '~/lib/utils/toast';
 import type { DashboardStatus } from '~/lib/types/dashboard';
 
@@ -51,9 +56,26 @@ const statusVariant: Record<
 };
 
 export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
-  const { data: dashboard, isLoading, isError } = useMyDashboard(dashboardId);
-  const deleteMutation = useDeleteMyDashboard();
-  const updateMutation = useUpdateMyDashboard();
+  const isWorkspace = !!workspaceId;
+  const personalQuery = useMyDashboard(isWorkspace ? '' : dashboardId);
+  const workspaceQuery = useWorkspaceDashboard(
+    workspaceId ?? '',
+    isWorkspace ? dashboardId : ''
+  );
+  const {
+    data: dashboard,
+    isLoading,
+    isError,
+  } = isWorkspace ? workspaceQuery : personalQuery;
+
+  const personalDelete = useDeleteMyDashboard();
+  const workspaceDelete = useDeleteWorkspaceDashboard(workspaceId ?? '');
+  const deleteMutation = isWorkspace ? workspaceDelete : personalDelete;
+
+  const personalUpdate = useUpdateMyDashboard();
+  const workspaceUpdate = useUpdateWorkspaceDashboard(workspaceId ?? '');
+  const updateMutation = isWorkspace ? workspaceUpdate : personalUpdate;
+
   const [copied, setCopied] = useState(false);
 
   const changeStatus = (status: DashboardStatus) => {
