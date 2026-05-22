@@ -20,10 +20,11 @@ interface PaginationControlsProps {
   total: number;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
+  pageSizes?: number[];
   className?: string;
 }
 
-const pageSizes = [5, 10, 20, 50, 100];
+const defaultPageSizes = [5, 10, 20, 50, 100];
 
 export function PaginationControls({
   page,
@@ -31,6 +32,7 @@ export function PaginationControls({
   total,
   onPageChange,
   onLimitChange,
+  pageSizes = defaultPageSizes,
   className,
 }: PaginationControlsProps) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
