@@ -22,7 +22,7 @@ export function FeaturedDatasets() {
 
   const { data: response, isLoading } = useDatasets({
     page: 1,
-    limit: 8,
+    limit: 4,
     sort: 'download_count',
     order: 'desc',
   });

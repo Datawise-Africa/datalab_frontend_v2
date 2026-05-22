@@ -75,7 +75,7 @@ export function meta(_args: Route.MetaArgs) {
 export default function Datasets() {
   const filter = useAppFilter('datasets');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const authModal = useAppModal('auth');
   const downloadModal = useAppModal('download');
@@ -291,6 +291,7 @@ export default function Datasets() {
                 page={page}
                 limit={limit}
                 total={total}
+                pageSizes={[6, 12, 24, 48]}
                 onPageChange={setPage}
                 onLimitChange={(l) => {
                   setLimit(l);
@@ -398,6 +399,7 @@ export default function Datasets() {
               page={page}
               limit={limit}
               total={total}
+              pageSizes={[6, 12, 24, 48]}
               onPageChange={setPage}
               onLimitChange={(l) => {
                 setLimit(l);

@@ -101,6 +101,7 @@ export default function Dashboards() {
               page={page}
               limit={limit}
               total={total}
+              pageSizes={[6, 12, 24, 48]}
               onPageChange={setPage}
               onLimitChange={(l) => {
                 setLimit(l);
