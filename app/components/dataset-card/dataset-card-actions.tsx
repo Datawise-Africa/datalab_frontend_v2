@@ -46,13 +46,13 @@ export function DatasetCardActions({
     return (
       <CardFooter className={cn('gap-2 border-t px-5 py-3', className)}>
         <Button
-          variant="outline"
+          variant="default"
           size="sm"
-          className="flex-1 min-w-0"
+          className="flex-1 min-w-0 shadow-sm"
           onClick={onPreview}
         >
           <Eye className="mr-1.5 h-3.5 w-3.5" />
-          Preview
+          Open dataset
         </Button>
         <Button
           variant="outline"

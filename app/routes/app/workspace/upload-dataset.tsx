@@ -9,8 +9,7 @@ import {
 import { useAppSelector } from '~/store';
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import { DatasetForm } from '~/components/forms';
-import { useCreateMyDataset } from '~/features/my-datasets';
-import { useWorkspace } from '~/features/workspaces';
+import { useWorkspace, useCreateWorkspaceDataset } from '~/features/workspaces';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -28,7 +27,7 @@ export default function WorkspaceUploadDataset() {
   const { data: categories } = useDatasetCategories();
   const { data: licenses } = useLicenses();
   const { data: countries } = useCountries();
-  const createDataset = useCreateMyDataset();
+  const createDataset = useCreateWorkspaceDataset(workspaceId!);
 
   const defaultValues: UploadDatasetFormValues = {
     name: '',

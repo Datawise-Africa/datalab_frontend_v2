@@ -22,7 +22,7 @@ export function FeaturedDatasets() {
 
   const { data: response, isLoading } = useDatasets({
     page: 1,
-    limit: 8,
+    limit: 4,
     sort: 'download_count',
     order: 'desc',
   });
@@ -91,12 +91,12 @@ export function FeaturedDatasets() {
             No featured datasets available at the moment.
           </p>
         ) : (
-          <div className="mx-auto flex max-w-6xl flex-wrap justify-center gap-6">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {datasets.map((dataset) => (
               <DatasetCard
                 key={dataset.id}
                 dataset={dataset}
-                className="w-full sm:w-75 lg:w-80"
+                className="w-full"
               >
                 <DatasetCard.Image />
                 <CardHeader className="flex flex-row items-center justify-between gap-2 px-5 pt-5 pb-3">

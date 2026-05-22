@@ -35,7 +35,12 @@ export function Hero() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button
+                asChild
+                variant="secondary"
+                size="lg"
+                className="border border-border shadow-sm"
+              >
                 <Link to="/contact">Request our services</Link>
               </Button>
             </div>

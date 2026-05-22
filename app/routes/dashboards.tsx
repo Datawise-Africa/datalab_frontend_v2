@@ -39,7 +39,7 @@ export default function Dashboards() {
   const total = data?.meta?.total_docs ?? 0;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <PageHeader
         title="Dashboards"
         description="Generate and explore insights from structured datasets through interactive analytics for research and intelligence workflows."
@@ -101,6 +101,7 @@ export default function Dashboards() {
               page={page}
               limit={limit}
               total={total}
+              pageSizes={[6, 12, 24, 48]}
               onPageChange={setPage}
               onLimitChange={(l) => {
                 setLimit(l);

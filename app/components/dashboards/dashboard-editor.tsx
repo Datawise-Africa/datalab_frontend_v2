@@ -12,7 +12,12 @@ import {
   useUpdateMyDashboard,
 } from '~/features/my-dashboards';
 import { useDashboardCategories } from '~/features/dashboard-categories';
-import { useWorkspace } from '~/features/workspaces';
+import {
+  useWorkspace,
+  useWorkspaceDashboard,
+  useCreateWorkspaceDashboard,
+  useUpdateWorkspaceDashboard,
+} from '~/features/workspaces';
 
 interface BaseProps {
   /** If provided, the dashboard is scoped to this workspace. */
@@ -50,9 +55,12 @@ function listHref(workspaceId?: string) {
 
 function CreateEditor({ workspaceId }: Readonly<{ workspaceId?: string }>) {
   const navigate = useNavigate();
+  const isWorkspace = !!workspaceId;
   const { data: workspace } = useWorkspace(workspaceId ?? '');
   const { data: categories } = useDashboardCategories();
-  const createMutation = useCreateMyDashboard();
+  const personalCreate = useCreateMyDashboard();
+  const workspaceCreate = useCreateWorkspaceDashboard(workspaceId ?? '');
+  const createMutation = isWorkspace ? workspaceCreate : personalCreate;
 
   const defaultValues = useMemo<CreateDashboardFormValues>(
     () => ({
@@ -110,9 +118,19 @@ function EditEditor({
   dashboardId,
 }: Readonly<{ workspaceId?: string; dashboardId: string }>) {
   const navigate = useNavigate();
-  const { data: dashboard, isLoading } = useMyDashboard(dashboardId);
+  const isWorkspace = !!workspaceId;
+  const personalQuery = useMyDashboard(isWorkspace ? '' : dashboardId);
+  const workspaceQuery = useWorkspaceDashboard(
+    workspaceId ?? '',
+    isWorkspace ? dashboardId : ''
+  );
+  const { data: dashboard, isLoading } = isWorkspace
+    ? workspaceQuery
+    : personalQuery;
   const { data: categories } = useDashboardCategories();
-  const updateMutation = useUpdateMyDashboard();
+  const personalUpdate = useUpdateMyDashboard();
+  const workspaceUpdate = useUpdateWorkspaceDashboard(workspaceId ?? '');
+  const updateMutation = isWorkspace ? workspaceUpdate : personalUpdate;
 
   const defaultValues = useMemo<CreateDashboardFormValues | null>(
     () =>

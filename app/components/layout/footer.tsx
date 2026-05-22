@@ -42,7 +42,7 @@ function FooterLinkGroup({
 }>) {
   return (
     <div>
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-sidebar-foreground">
         {title}
       </h3>
       <ul className="space-y-3">
@@ -50,7 +50,7 @@ function FooterLinkGroup({
           <li key={link.to}>
             <Link
               to={link.to}
-              className="text-sm text-slate-400 transition-colors hover:text-white"
+              className="text-sm text-muted-foreground transition-colors hover:text-sidebar-foreground"
             >
               {link.label}
             </Link>
@@ -65,7 +65,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-950 text-slate-300">
+    <footer className="border-t border-border bg-sidebar text-sidebar-foreground">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Top section */}
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 py-16 sm:grid-cols-2 lg:grid-cols-12">
@@ -75,14 +75,14 @@ export default function Footer() {
               <Database className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold tracking-tight">
                 <span className="text-primary">Data</span>
-                <span className="text-white">Lab</span>
+                <span className="text-sidebar-foreground">Lab</span>
               </span>
             </Link>
 
-            <p className="max-w-xs text-sm leading-relaxed text-slate-400">
+            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
               Africa&apos;s home for curated, high-quality datasets — built by{' '}
-              <span className="text-white">Datawise Africa</span> to power
-              data-driven research, products, and decisions.
+              <span className="text-sidebar-foreground">Datawise Africa</span>{' '}
+              to power data-driven research, products, and decisions.
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export default function Footer() {
 
           {/* Contact column */}
           <div className="sm:col-span-2 lg:col-span-4">
-            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-sidebar-foreground">
               Contact
             </h3>
             <ul className="space-y-3">
@@ -109,7 +109,7 @@ export default function Footer() {
                     {...(href.startsWith('http')
                       ? { target: '_blank', rel: 'noopener noreferrer' }
                       : {})}
-                    className="group flex items-start gap-3 text-sm text-slate-400 transition-colors hover:text-white"
+                    className="group flex items-start gap-3 text-sm text-muted-foreground transition-colors hover:text-sidebar-foreground"
                   >
                     <Icon
                       className="mt-0.5 h-4 w-4 shrink-0 text-primary"
@@ -123,24 +123,24 @@ export default function Footer() {
           </div>
         </div>
 
-        <Separator className="bg-slate-800" />
+        <Separator className="bg-sidebar-border" />
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             &copy; {year} Datawise Africa. All rights reserved.
           </p>
 
           <div className="flex items-center gap-6">
             <Link
               to="/privacy-policy"
-              className="text-sm text-slate-500 transition-colors hover:text-white"
+              className="text-sm text-muted-foreground transition-colors hover:text-sidebar-foreground"
             >
               Privacy Policy
             </Link>
             <Link
               to="/terms-of-service"
-              className="text-sm text-slate-500 transition-colors hover:text-white"
+              className="text-sm text-muted-foreground transition-colors hover:text-sidebar-foreground"
             >
               Terms of Service
             </Link>

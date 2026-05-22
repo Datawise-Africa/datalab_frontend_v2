@@ -8,11 +8,11 @@ export const meta: Route.MetaFunction = () => [
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="bg-primary/5 py-16 md:py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
             Privacy Policy
           </h1>
           <p className="mt-4 text-muted-foreground">
@@ -40,7 +40,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Information We Collect */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Information We Collect
         </h2>
         <Separator className="mb-6" />
@@ -49,7 +49,7 @@ export default function PrivacyPolicy() {
           Services.
         </p>
 
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
+        <h3 className="text-xl font-medium mt-8 mb-3 text-foreground">
           Information you provide directly
         </h3>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
           comments, and feedback.
         </p>
 
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
+        <h3 className="text-xl font-medium mt-8 mb-3 text-foreground">
           Information collected automatically
         </h3>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -74,7 +74,7 @@ export default function PrivacyPolicy() {
           working properly and to understand usage patterns.
         </p>
 
-        <h3 className="text-xl font-medium mt-8 mb-3 text-gray-900">
+        <h3 className="text-xl font-medium mt-8 mb-3 text-foreground">
           Payment information
         </h3>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* How We Use Information */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           How We Use Information
         </h2>
         <Separator className="mb-6" />
@@ -104,7 +104,7 @@ export default function PrivacyPolicy() {
         </ul>
 
         {/* Data Ownership */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Data Ownership
         </h2>
         <Separator className="mb-6" />
@@ -123,7 +123,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Sharing of Information */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Sharing of Information
         </h2>
         <Separator className="mb-6" />
@@ -144,7 +144,7 @@ export default function PrivacyPolicy() {
         </ul>
 
         {/* Data Security */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Data Security
         </h2>
         <Separator className="mb-6" />
@@ -159,7 +159,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Data Retention */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Data Retention
         </h2>
         <Separator className="mb-6" />
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Your Rights */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Your Rights
         </h2>
         <Separator className="mb-6" />
@@ -189,7 +189,7 @@ export default function PrivacyPolicy() {
         </ul>
 
         {/* Cookies */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Cookies
         </h2>
         <Separator className="mb-6" />
@@ -203,7 +203,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Third-Party Services */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Third-Party Services
         </h2>
         <Separator className="mb-6" />
@@ -214,7 +214,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Platform Integrity */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Platform Integrity
         </h2>
         <Separator className="mb-6" />
@@ -225,7 +225,7 @@ export default function PrivacyPolicy() {
         </p>
 
         {/* Contact */}
-        <h2 className="text-2xl font-semibold mt-12 mb-4 text-gray-900">
+        <h2 className="text-2xl font-semibold mt-12 mb-4 text-foreground">
           Contact
         </h2>
         <Separator className="mb-6" />
