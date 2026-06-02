@@ -8,7 +8,7 @@ import {
 export default [
   // Public routes (with header + footer)
   layout('routes/public-layout.tsx', [
-    index('routes/home/index.tsx'),
+    index('routes/home.tsx'),
     route('datasets', 'routes/datasets.tsx'),
     route('datasets/:slug', 'routes/dataset-detail.tsx'),
     route('creators', 'routes/creators.tsx'),
