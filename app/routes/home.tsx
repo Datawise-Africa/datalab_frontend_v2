@@ -1,4 +1,4 @@
-import type { Route } from './+types/index';
+import type { Route } from './home/+types/index';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { organizationSchema, websiteSchema } from '~/lib/utils/structured-data';
 import { Hero } from '~/components/landing/hero';
@@ -12,7 +12,7 @@ export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'The data lifecycle for intelligent systems',
     description:
-      'Host, share, and access structured datasets, generate insights, and publish research — one platform for scalable data and intelligence workflows.',
+      "Africa's home for curated, high-quality datasets — to power data-driven research, products, and decisions.",
     url: '/',
     jsonLd: [organizationSchema(), websiteSchema()],
   });
