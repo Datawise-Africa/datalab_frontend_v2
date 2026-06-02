@@ -1,4 +1,4 @@
-import type { Route } from './home/+types/index';
+import type { Route } from './+types/home';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { organizationSchema, websiteSchema } from '~/lib/utils/structured-data';
 import { Hero } from '~/components/landing/hero';
