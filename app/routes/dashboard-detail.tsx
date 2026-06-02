@@ -23,7 +23,7 @@ export function meta({ data }: Route.MetaArgs) {
   return generateSEOTags({
     title,
     description:
-      data?.description ?? 'Interactive analytics dashboard on Datalab Africa.',
+      data?.description ?? 'Interactive analytics dashboard on Datalab.',
     noIndex: !data,
   });
 }

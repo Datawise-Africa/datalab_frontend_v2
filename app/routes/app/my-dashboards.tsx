@@ -6,7 +6,7 @@ import { DashboardsTable } from '~/components/dashboards/dashboards-table';
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'My Dashboards',
-    description: 'Dashboards you have published on Datalab Africa',
+    description: 'Dashboards you have published on Datalab',
     noIndex: true,
   });
 }

@@ -10,7 +10,7 @@ import { AuthPerm } from '~/lib/utils/perm';
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Become a Dataset Creator',
-    description: 'Apply to become a dataset creator on Datalab Africa',
+    description: 'Apply to become a dataset creator on Datalab',
   });
 }
 
@@ -54,8 +54,8 @@ export default function BecomeDatasetCreator() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Become a Dataset Creator</h1>
         <p className="text-muted-foreground">
-          Apply to publish datasets on Datalab Africa. Share your data with
-          thousands of researchers and developers.
+          Apply to publish datasets on Datalab. Share your data with thousands
+          of researchers and developers.
         </p>
       </div>
 

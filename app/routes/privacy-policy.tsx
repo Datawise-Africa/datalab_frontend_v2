@@ -267,10 +267,7 @@ export default function PrivacyPolicy() {
           >
             Terms of Service
           </Link>
-          <p>
-            &copy; {new Date().getFullYear()} Datalab Africa. All rights
-            reserved.
-          </p>
+          <p>&copy; {new Date().getFullYear()} Datalab. All rights reserved.</p>
         </div>
       </div>
     </div>
