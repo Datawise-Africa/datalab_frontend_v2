@@ -7,7 +7,7 @@ export function meta(_: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Become a Dataset Creator',
     description:
-      "Join Datalab Africa's creator program. Publish datasets, reach thousands of developers, and earn revenue.",
+      "Join Datalab's creator program. Publish datasets, reach thousands of developers, and earn revenue.",
   });
 }
 

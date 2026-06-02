@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { Separator } from '~/components/ui/separator';
 
 export const meta: Route.MetaFunction = () => [
-  { title: 'Terms of Service — Datalab Africa' },
+  { title: 'Terms of Service — Datalab' },
 ];
 
 export default function TermsOfService() {
@@ -342,10 +342,7 @@ export default function TermsOfService() {
           >
             Privacy Policy
           </Link>
-          <p>
-            &copy; {new Date().getFullYear()} Datalab Africa. All rights
-            reserved.
-          </p>
+          <p>&copy; {new Date().getFullYear()} Datalab. All rights reserved.</p>
         </div>
       </div>
     </div>

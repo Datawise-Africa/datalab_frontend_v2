@@ -1,0 +1,1 @@
+import{j as e}from"./index-vXA_btNS.js";import{S as t}from"./Section-7rOTnEef.js";const o=()=>e.jsx(t,{className:"flex h-96 items-center justify-center",children:e.jsx("p",{children:"Reports Coming Soon"})});export{o as default};
