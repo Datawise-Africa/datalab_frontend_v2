@@ -63,7 +63,7 @@ export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Datasets for intelligent systems',
     description:
-      'Discover, host, and access structured datasets that power insights, research, and intelligence workflows on Datalab Africa.',
+      'Discover, host, and access structured datasets that power insights, research, and intelligence workflows on Datalab.',
     url: '/datasets',
     jsonLd: breadcrumbSchema([
       { name: 'Home', url: '/' },

@@ -17,7 +17,7 @@ export interface SEOConfig {
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
-const SITE_NAME = 'Datalab Africa';
+const SITE_NAME = 'Datalab';
 const TWITTER_HANDLE = '@datalabafrica';
 
 /**

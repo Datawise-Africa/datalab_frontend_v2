@@ -6,7 +6,7 @@ import { DashboardEditor } from '~/components/dashboards/dashboard-editor';
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'New Dashboard',
-    description: 'Publish a new dashboard on Datalab Africa',
+    description: 'Publish a new dashboard on Datalab',
     noIndex: true,
   });
 }

@@ -15,7 +15,7 @@ import { useCreateMyDataset } from '~/features/my-datasets';
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Create Dataset',
-    description: 'Create a new dataset on Datalab Africa',
+    description: 'Create a new dataset on Datalab',
   });
 }
 

@@ -80,9 +80,8 @@ export default function Footer() {
             </Link>
 
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Africa&apos;s home for curated, high-quality datasets — built by{' '}
-              <span className="text-sidebar-foreground">Datawise Africa</span>{' '}
-              to power data-driven research, products, and decisions.
+              Africa&apos;s home for curated, high-quality datasets — to power
+              data-driven research, products, and decisions.
             </p>
           </div>
 
@@ -128,7 +127,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 py-8 sm:flex-row">
           <p className="text-sm text-muted-foreground">
-            &copy; {year} Datawise Africa. All rights reserved.
+            &copy; {year} Datalab. All rights reserved.
           </p>
 
           <div className="flex items-center gap-6">

@@ -76,7 +76,7 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
     return generateSEOTags({
       title: 'Dataset not found',
       description:
-        'This dataset may have been removed or the URL was mistyped. Browse the full catalog on Datalab Africa.',
+        'This dataset may have been removed or the URL was mistyped. Browse the full catalog on Datalab.',
       url: `/datasets/${slug}`,
       noIndex: true,
     });
@@ -90,7 +90,7 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
   return generateSEOTags({
     title: dataset.name,
     description:
-      description || `Explore the ${dataset.name} dataset on Datalab Africa.`,
+      description || `Explore the ${dataset.name} dataset on Datalab.`,
     url: `/datasets/${slug}`,
     type: 'article',
     image: dataset.dataset_image ?? undefined,

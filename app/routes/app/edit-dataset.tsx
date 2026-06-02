@@ -6,7 +6,7 @@ import { DatasetEditView } from '~/components/dataset-preview/dataset-edit-view'
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
     title: 'Edit Dataset',
-    description: 'Edit an existing dataset on Datalab Africa',
+    description: 'Edit an existing dataset on Datalab',
   });
 }
 

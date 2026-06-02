@@ -63,8 +63,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#ffffff" />
-        <meta name="apple-mobile-web-app-title" content="Datalab Africa" />
-        <meta name="application-name" content="Datalab Africa" />
+        <meta name="apple-mobile-web-app-title" content="Datalab" />
+        <meta name="application-name" content="Datalab" />
         <Meta />
         <Links />
         {GTAG && (
