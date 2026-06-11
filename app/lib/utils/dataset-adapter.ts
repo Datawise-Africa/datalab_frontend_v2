@@ -73,7 +73,7 @@ export function normalizeMyDataset(
     lastUpdated: dataset.updated_at,
     formats: [],
     size: '',
-    downloads: 0,
+    downloads: dataset.downloads_count ?? 0,
     license: dataset.license?.name,
     status: dataset.status,
   };

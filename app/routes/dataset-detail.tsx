@@ -293,14 +293,16 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
             {/* Tabs */}
             <Tabs defaultValue="details" className="mb-8">
-              <TabsList>
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
-                <TabsTrigger value="schema">Schema</TabsTrigger>
-                <TabsTrigger value="versions">Versions</TabsTrigger>
-                <TabsTrigger value="authors">Authors</TabsTrigger>
-                <TabsTrigger value="reviews">Reviews</TabsTrigger>
-              </TabsList>
+              <div className="-mx-1 max-w-full overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <TabsList>
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
+                  <TabsTrigger value="schema">Schema</TabsTrigger>
+                  <TabsTrigger value="versions">Versions</TabsTrigger>
+                  <TabsTrigger value="authors">Authors</TabsTrigger>
+                  <TabsTrigger value="reviews">Reviews</TabsTrigger>
+                </TabsList>
+              </div>
 
               {/* Details tab */}
               <TabsContent value="details" className="mt-4 space-y-8">
