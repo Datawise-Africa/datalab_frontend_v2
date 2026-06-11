@@ -93,6 +93,7 @@ export type MyDatasetInterface = {
   }>;
   status: 'PB' | 'DF' | 'AR';
   tags: string[];
+  downloads_count: number;
   dataset_image?: string | null;
   schema?: DatasetSchema | null;
   created_at: string;

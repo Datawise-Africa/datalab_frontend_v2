@@ -10,7 +10,7 @@ import { CreatorCTA } from '~/components/landing/creator-cta';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
-    title: 'The data lifecycle for intelligent systems',
+    title: 'Build, Manage, and Publish Data Products',
     description:
       "Africa's home for curated, high-quality datasets — to power data-driven research, products, and decisions.",
     url: '/',
