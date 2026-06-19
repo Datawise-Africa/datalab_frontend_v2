@@ -32,6 +32,7 @@ import {
   useUpdateWorkspaceDashboard,
 } from '~/features/workspaces';
 import { toastUtils } from '~/lib/utils/toast';
+import { resolveMediaUrl } from '~/lib/utils/media-url';
 import type { DashboardStatus } from '~/lib/types/dashboard';
 
 interface Props {
@@ -214,7 +215,7 @@ export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
         {dashboard.thumbnail && (
           <div className="aspect-video w-full overflow-hidden rounded-lg bg-muted md:w-64 md:shrink-0">
             <img
-              src={dashboard.thumbnail}
+              src={resolveMediaUrl(dashboard.thumbnail) ?? undefined}
               alt={dashboard.title}
               className="h-full w-full object-cover"
             />

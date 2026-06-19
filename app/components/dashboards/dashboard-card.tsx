@@ -17,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
+import { resolveMediaUrl } from '~/lib/utils/media-url';
 import type { Dashboard, DashboardStatus } from '~/lib/types/dashboard';
 
 interface Props {
@@ -55,7 +56,7 @@ export function DashboardCard({
       <div className="relative aspect-video w-full overflow-hidden bg-muted">
         {dashboard.thumbnail ? (
           <img
-            src={dashboard.thumbnail}
+            src={resolveMediaUrl(dashboard.thumbnail) ?? undefined}
             alt={dashboard.title}
             className="h-full w-full object-cover"
           />
