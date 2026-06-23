@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
-import { Database, Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 
+import { Logo } from '~/components/layout/logo';
 import { Separator } from '~/components/ui/separator';
 
 const productLinks = [
@@ -71,12 +72,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-x-8 gap-y-12 py-16 sm:grid-cols-2 lg:grid-cols-12">
           {/* Brand column */}
           <div className="space-y-6 sm:col-span-2 lg:col-span-4">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <Database className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold tracking-tight">
-                <span className="text-primary">Data</span>
-                <span className="text-sidebar-foreground">Lab</span>
-              </span>
+            <Link
+              to="/"
+              className="inline-flex items-center"
+              aria-label="Datalab home"
+            >
+              <Logo className="h-8" />
             </Link>
 
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
