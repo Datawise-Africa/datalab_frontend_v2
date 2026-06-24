@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import {
   ArrowLeft,
+  Building2,
   Calendar,
   LayoutGrid,
   Loader2,
@@ -127,11 +128,6 @@ export default function DashboardDetail() {
                 {dashboard.category.name}
               </Badge>
             )}
-            {dashboard.workspace?.name && (
-              <Badge variant="outline" className="text-[10px]">
-                {dashboard.workspace.name}
-              </Badge>
-            )}
           </div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {dashboard.title}
@@ -140,11 +136,18 @@ export default function DashboardDetail() {
             {dashboard.description}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            {ownerName && (
+            {dashboard.workspace?.name ? (
               <span className="flex items-center gap-1">
-                <User className="h-3.5 w-3.5" />
-                {ownerName}
+                <Building2 className="h-3.5 w-3.5" />
+                {dashboard.workspace.name}
               </span>
+            ) : (
+              ownerName && (
+                <span className="flex items-center gap-1">
+                  <User className="h-3.5 w-3.5" />
+                  {ownerName}
+                </span>
+              )
             )}
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />

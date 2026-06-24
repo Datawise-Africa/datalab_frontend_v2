@@ -18,6 +18,7 @@ import {
   createDashboardSchema,
   type CreateDashboardFormValues,
 } from '~/lib/schema/dashboard-schema';
+import { resolveMediaUrl } from '~/lib/utils/media-url';
 
 export type DashboardFormMode = 'create' | 'edit';
 
@@ -115,7 +116,7 @@ export function DashboardForm({
           {thumbnail ? (
             <div className="relative inline-flex items-start gap-3 rounded-md border p-3">
               <img
-                src={thumbnail}
+                src={resolveMediaUrl(thumbnail) ?? undefined}
                 alt="Dashboard thumbnail preview"
                 className="h-24 w-40 rounded-md object-cover"
               />

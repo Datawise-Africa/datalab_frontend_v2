@@ -36,6 +36,7 @@ import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
 import { DatasetDefaultIllustration } from '~/components/illustrations/dataset-default';
 import { shareLink } from '~/lib/utils/share';
 import { cn } from '~/lib/utils';
+import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
 import { generateSEOTags } from '~/lib/utils/seo';
@@ -93,7 +94,7 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
       description || `Explore the ${dataset.name} dataset on Datalab.`,
     url: `/datasets/${slug}`,
     type: 'article',
-    image: dataset.dataset_image ?? undefined,
+    image: resolveMediaUrl(dataset.dataset_image) ?? undefined,
     keywords: dataset.tags?.join(', '),
     jsonLd: [
       datasetSchema({
@@ -108,7 +109,7 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
         owner: dataset.owner ?? null,
         created_at: dataset.created_at,
         updated_at: dataset.updated_at,
-        dataset_image: dataset.dataset_image ?? null,
+        dataset_image: resolveMediaUrl(dataset.dataset_image),
       }),
       breadcrumbSchema([
         { name: 'Home', url: '/' },
@@ -207,7 +208,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
         <div className="mb-8 aspect-21/9 w-full overflow-hidden rounded-xl border bg-primary/5">
           {dataset.dataset_image ? (
             <img
-              src={dataset.dataset_image}
+              src={resolveMediaUrl(dataset.dataset_image) ?? undefined}
               alt={dataset.name}
               className="h-full w-full object-cover"
             />
