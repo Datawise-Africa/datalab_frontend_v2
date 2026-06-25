@@ -25,6 +25,7 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
+import { Logo } from '~/components/layout/logo';
 import { Button } from '~/components/ui/button';
 import {
   Sheet,
@@ -255,14 +256,13 @@ function SidebarContent({
           collapsed ? 'justify-center px-2' : 'gap-2 px-4'
         )}
       >
-        <Link to="/" className="flex items-center gap-2" onClick={onNavigate}>
-          <Database className="h-5 w-5 text-primary shrink-0" />
-          {!collapsed && (
-            <span className="text-lg font-bold tracking-tight">
-              <span className="text-primary">Data</span>
-              <span className="text-foreground">Lab</span>
-            </span>
-          )}
+        <Link
+          to="/"
+          className="flex items-center"
+          onClick={onNavigate}
+          aria-label="Datalab home"
+        >
+          <Logo variant={collapsed ? 'icon' : 'wordmark'} className="h-7" />
         </Link>
       </div>
 

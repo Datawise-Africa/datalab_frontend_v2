@@ -6,7 +6,7 @@ import { env } from '~/lib/env';
 
 const SITE_NAME = 'Datalab';
 const SITE_URL = env.VITE_SITE_URL;
-const LOGO_URL = `${SITE_URL}/assets/datawise-logo-dark.png`;
+const LOGO_URL = `${SITE_URL}/brand/datalab-logo.png`;
 
 export function organizationSchema() {
   return {

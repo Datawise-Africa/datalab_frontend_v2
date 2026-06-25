@@ -4,7 +4,6 @@ import { Link } from 'react-router';
 import {
   Bookmark,
   ChevronDown,
-  Database,
   Download,
   LayoutDashboard,
   LogOut,
@@ -14,6 +13,7 @@ import {
   User,
 } from 'lucide-react';
 
+import { Logo } from '~/components/layout/logo';
 import { Button } from '~/components/ui/button';
 import {
   Sheet,
@@ -242,12 +242,8 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-background">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <Database className="h-6 w-6 text-primary" />
-          <span className="text-xl font-bold tracking-tight">
-            <span className="text-primary">Data</span>
-            <span className="text-foreground">Lab</span>
-          </span>
+        <Link to="/" className="flex items-center" aria-label="Datalab home">
+          <Logo className="h-8" />
         </Link>
 
         {/* Desktop Flat Navigation */}
@@ -282,12 +278,9 @@ export default function Navbar() {
 
             <SheetContent side="right" className="w-80 overflow-y-auto">
               <SheetHeader>
-                <SheetTitle className="flex items-center gap-2">
-                  <Database className="h-5 w-5 text-primary" />
-                  <span>
-                    <span className="text-primary">Data</span>
-                    <span className="text-foreground">Lab</span>
-                  </span>
+                <SheetTitle>
+                  <Logo className="h-7" />
+                  <span className="sr-only">Datalab</span>
                 </SheetTitle>
               </SheetHeader>
 

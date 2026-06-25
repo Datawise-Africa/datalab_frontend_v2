@@ -28,6 +28,8 @@ import { DownloadModal } from '~/components/download-flow/download-modal';
 import { CommandPalette } from '~/components/command-palette';
 
 export const links: Route.LinksFunction = () => [
+  // SVG favicon adapts to light/dark browser chrome; raster files are fallbacks.
+  { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
   { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
   {
     rel: 'icon',
