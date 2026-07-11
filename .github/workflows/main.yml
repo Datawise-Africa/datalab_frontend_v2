@@ -87,7 +87,7 @@ jobs:
         id: commit_msg
         run: echo "message=$(git log -1 --pretty=format:'%s')" >> "$GITHUB_OUTPUT"
       - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v1.23.0
+        uses: slackapi/slack-github-action@v3.0.5
         with:
           payload: |
             {
