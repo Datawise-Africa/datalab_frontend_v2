@@ -6,5 +6,6 @@ export {
   FormSelectField,
   FormSelectField as FormAsyncSelectField,
 } from './form-select-field';
+export { FormCheckboxField } from './form-checkbox-field';
 export { FormOtpField } from './form-otp-field';
 export { FormTagInputField } from './form-tag-input-field';

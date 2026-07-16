@@ -34,7 +34,7 @@ export function PaginationControls({
   onLimitChange,
   pageSizes = defaultPageSizes,
   className,
-}: PaginationControlsProps) {
+}: Readonly<PaginationControlsProps>) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
   const start = total === 0 ? 0 : (page - 1) * limit + 1;
   const end = total === 0 ? 0 : Math.min(page * limit, total);

@@ -1,19 +1,16 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
-import { Input } from '~/components/ui/input';
+import { Form } from '~/components/ui/form';
+import { FormTextField, FormPasswordField } from '~/components/form-fields';
 import { Button } from '~/components/ui/button';
 import { signupSchema, type SignupInput } from '~/lib/schema/auth-schema';
 import { useSignup } from '~/features/auth';
 
-export function SignupForm({ onSuccess }: { onSuccess: () => void }) {
+interface SignupFormProps {
+  onSuccess: () => void;
+}
+
+export function SignupForm({ onSuccess }: Readonly<SignupFormProps>) {
   const signupMutation = useSignup();
   const form = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -34,77 +31,38 @@ export function SignupForm({ onSuccess }: { onSuccess: () => void }) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <FormField
+          <FormTextField
             control={form.control}
             name="first_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First name</FormLabel>
-                <FormControl>
-                  <Input placeholder="John" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="First name"
+            placeholder="John"
           />
-          <FormField
+          <FormTextField
             control={form.control}
             name="last_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Last name"
+            placeholder="Doe"
           />
         </div>
-        <FormField
+        <FormTextField
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
         />
-        <FormField
+        <FormPasswordField
           control={form.control}
           name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Password"
+          placeholder="••••••"
         />
-        <FormField
+        <FormPasswordField
           control={form.control}
           name="confirm_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Confirm password"
+          placeholder="••••••"
         />
-        {signupMutation.isError && (
-          <p className="text-sm text-destructive">
-            Registration failed. Please try again.
-          </p>
-        )}
         <Button
           type="submit"
           className="w-full bg-primary hover:bg-primary/90"

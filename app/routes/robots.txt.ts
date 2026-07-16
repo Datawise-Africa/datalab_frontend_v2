@@ -2,7 +2,7 @@ import type { Route } from './+types/robots.txt';
 import { env } from '~/lib/env';
 
 export const loader = ({ request }: Route.LoaderArgs) => {
-  const { origin } = new URL(request.url);
+  const origin = env.VITE_SITE_URL || new URL(request.url).origin;
   const noIndex = env.VITE_NOINDEX;
 
   const body = noIndex

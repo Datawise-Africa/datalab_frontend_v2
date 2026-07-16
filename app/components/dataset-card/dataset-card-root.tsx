@@ -14,7 +14,7 @@ export function DatasetCardRoot({
   dataset,
   children,
   className,
-}: DatasetCardRootProps) {
+}: Readonly<DatasetCardRootProps>) {
   return (
     <DatasetCardContext.Provider value={{ dataset }}>
       <Card

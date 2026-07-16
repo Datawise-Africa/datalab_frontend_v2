@@ -24,7 +24,7 @@ interface ProfileSettingsTabProps {
 export function ProfileSettingsTab({
   onSubmit,
   isPending,
-}: ProfileSettingsTabProps) {
+}: Readonly<ProfileSettingsTabProps>) {
   const user = useAppSelector((state) => state.auth.user);
 
   const form = useForm<UpdateProfileInput>({

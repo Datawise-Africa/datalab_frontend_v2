@@ -10,7 +10,7 @@ interface DatasetCardTagsProps {
 export function DatasetCardTags({
   className,
   limit = 3,
-}: DatasetCardTagsProps) {
+}: Readonly<DatasetCardTagsProps>) {
   const { dataset } = useDatasetCard();
   const visible = dataset.tags.slice(0, limit);
   const overflow = Math.max(0, dataset.tags.length - limit);

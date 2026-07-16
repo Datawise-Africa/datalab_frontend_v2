@@ -25,15 +25,17 @@ interface ReviewListProps {
   isSubmitting?: boolean;
 }
 
+interface StarRatingProps {
+  rating: number;
+  interactive?: boolean;
+  onRate?: (rating: number) => void;
+}
+
 function StarRating({
   rating,
   interactive,
   onRate,
-}: {
-  rating: number;
-  interactive?: boolean;
-  onRate?: (rating: number) => void;
-}) {
+}: Readonly<StarRatingProps>) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (

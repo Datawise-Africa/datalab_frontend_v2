@@ -2,7 +2,13 @@ import { Badge } from '~/components/ui/badge';
 import { cn } from '~/lib/utils';
 import { useDatasetCard } from './use-dataset-card';
 
-export function DatasetCardBadges({ className }: { className?: string }) {
+interface DatasetCardBadgesProps {
+  className?: string;
+}
+
+export function DatasetCardBadges({
+  className,
+}: Readonly<DatasetCardBadgesProps>) {
   const { dataset } = useDatasetCard();
   const isFree = dataset.price === null || dataset.price === 0;
 

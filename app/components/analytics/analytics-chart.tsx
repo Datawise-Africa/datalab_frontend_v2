@@ -20,7 +20,7 @@ interface AnalyticsChartProps {
   data: ChartDataPoint[];
 }
 
-export function AnalyticsChart({ data }: AnalyticsChartProps) {
+export function AnalyticsChart({ data }: Readonly<AnalyticsChartProps>) {
   if (!data.length) {
     return (
       <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">

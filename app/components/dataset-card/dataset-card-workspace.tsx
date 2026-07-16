@@ -2,7 +2,13 @@ import { Building2 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useDatasetCard } from './use-dataset-card';
 
-export function DatasetCardWorkspace({ className }: { className?: string }) {
+interface DatasetCardWorkspaceProps {
+  className?: string;
+}
+
+export function DatasetCardWorkspace({
+  className,
+}: Readonly<DatasetCardWorkspaceProps>) {
   const { dataset } = useDatasetCard();
   if (!dataset.workspaceName) return null;
 

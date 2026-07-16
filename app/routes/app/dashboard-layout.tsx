@@ -50,9 +50,9 @@ import { AuthPerm } from '~/lib/utils/perm';
 import { useLogout } from '~/features/auth';
 import { useIsClient } from '~/hooks/use-is-client';
 import { useMediaQuery } from '~/hooks/use-media-query';
-import { NotificationBell } from '~/components/dashboard/notification-bell';
-import { BecomeCreatorBanner } from '~/components/dashboard/become-creator-banner';
-import { UserProfileMenu } from '~/components/dashboard/user-profile-menu';
+import { NotificationBell } from '~/components/dashboard-shell/notification-bell';
+import { BecomeCreatorBanner } from '~/components/dashboard-shell/become-creator-banner';
+import { UserProfileMenu } from '~/components/dashboard-shell/user-profile-menu';
 
 interface SidebarLink {
   label: string;

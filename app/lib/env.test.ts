@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 // Re-define the schema here to test validation logic without import.meta.env side effects
 const envSchema = z.object({
-  VITE_API_BASE_URL: z.string().url(),
+  VITE_API_BASE_URL: z.url(),
   VITE_APP_NAME: z.string().default('Datawise Frontend'),
   VITE_APP_VERSION: z.string().default('1.0.0'),
   VITE_GTAG_ID: z.string().optional(),

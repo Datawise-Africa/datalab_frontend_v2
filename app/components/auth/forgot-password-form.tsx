@@ -1,25 +1,21 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
-import { Input } from '~/components/ui/input';
+import { Form } from '~/components/ui/form';
+import { FormTextField } from '~/components/form-fields';
 import { Button } from '~/components/ui/button';
 import {
   forgotPasswordSchema,
   type ForgotPasswordInput,
 } from '~/lib/schema/auth-schema';
 import { useRequestPasswordReset } from '~/features/auth';
+
+interface ForgotPasswordFormProps {
+  onOtpSent: (email: string) => void;
+}
+
 export function ForgotPasswordForm({
   onOtpSent,
-}: {
-  onOtpSent: (email: string) => void;
-}) {
+}: Readonly<ForgotPasswordFormProps>) {
   const requestReset = useRequestPasswordReset();
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -35,24 +31,13 @@ export function ForgotPasswordForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+        <FormTextField
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email address</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Email address"
+          type="email"
+          placeholder="you@example.com"
         />
-        {requestReset.isError && (
-          <p className="text-sm text-destructive">
-            Failed to send reset code. Please check your email and try again.
-          </p>
-        )}
         <Button
           type="submit"
           className="w-full bg-primary hover:bg-primary/90"

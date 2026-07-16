@@ -15,7 +15,12 @@ import {
   resetTheme,
 } from '~/store/slices/theme-slice';
 
-function HuePreview({ hue, label }: { hue: number; label: string }) {
+interface HuePreviewProps {
+  hue: number;
+  label: string;
+}
+
+function HuePreview({ hue, label }: Readonly<HuePreviewProps>) {
   return (
     <div className="flex items-center gap-2">
       <div

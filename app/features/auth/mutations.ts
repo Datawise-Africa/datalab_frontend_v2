@@ -13,8 +13,7 @@ import type {
 } from '~/lib/schema/user-profile-schema';
 import type { RegisterOrLoginResponse, AuthUser } from '~/lib/types/auth';
 import { useAppDispatch } from '~/store';
-import { login, clearAuth, setToken } from '~/store/slices/auth-slice';
-import { authKeys } from './query-keys';
+import { login, clearAuth } from '~/store/slices/auth-slice';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
 
@@ -32,23 +31,7 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       queryClient.clear();
-
-      dispatch(
-        login({
-          access: data.access,
-          refresh: data.refresh,
-          user_role: data.user_role,
-          user: {
-            id: data.user.id,
-            email: data.user.email,
-            first_name: data.user.first_name,
-            last_name: data.user.last_name,
-            is_verified: true,
-            is_active: true,
-            date_joined: new Date().toISOString(),
-          },
-        })
-      );
+      dispatch(login(data));
     },
     onError: (error) => {
       toastUtils.error('Login failed', extractError(error));
@@ -73,22 +56,7 @@ export const useSignup = () => {
     },
     onSuccess: (data) => {
       queryClient.clear();
-      dispatch(
-        login({
-          access: data.access,
-          refresh: data.refresh,
-          user_role: data.user_role,
-          user: {
-            id: data.user.id,
-            email: data.user.email,
-            first_name: data.user.first_name,
-            last_name: data.user.last_name,
-            is_verified: true,
-            is_active: true,
-            date_joined: new Date().toISOString(),
-          },
-        })
-      );
+      dispatch(login(data));
     },
     onError: (error) => {
       toastUtils.error('Signup failed', extractError(error));
@@ -111,17 +79,14 @@ export const useLogout = () => {
   });
 };
 
-// TODO: No profile update endpoint in OpenAPI spec. Backend confirmation pending.
+// UNVERIFIED: `/auth/me/` is not in the OpenAPI spec and this hook is already wired
+// into the account-settings profile tab, so that form 404s. Confirm the endpoint with
+// the backend, or delete this hook and the tab together.
 export const useUpdateProfile = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (input: UpdateProfileInput): Promise<AuthUser> => {
       const { data } = await apiClient.put('/auth/me/', input);
       return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
     onError: (error) => {
       toastUtils.error('Profile update failed', extractError(error));
@@ -164,27 +129,6 @@ export const useCompletePasswordReset = () => {
     },
     onError: (error) => {
       toastUtils.error('Password reset failed', extractError(error));
-    },
-  });
-};
-
-/** Refresh the access token using the stored refresh token. */
-export const useRefreshToken = () => {
-  const dispatch = useAppDispatch();
-
-  return useMutation({
-    mutationFn: async (refresh: string): Promise<string> => {
-      const { data } = await apiClient.post<{ access: string }>(
-        '/auth/token/refresh/',
-        { refresh }
-      );
-      return data.access;
-    },
-    onSuccess: (access) => {
-      dispatch(setToken(access));
-    },
-    onError: () => {
-      dispatch(clearAuth());
     },
   });
 };
