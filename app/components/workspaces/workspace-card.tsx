@@ -8,7 +8,7 @@ interface WorkspaceCardProps {
   workspace: Workspace;
 }
 
-export function WorkspaceCard({ workspace }: WorkspaceCardProps) {
+export function WorkspaceCard({ workspace }: Readonly<WorkspaceCardProps>) {
   const memberAvatars = workspace.members?.slice(0, 4) ?? [];
   const extraCount =
     (workspace.member_count ?? workspace.members?.length ?? 0) -

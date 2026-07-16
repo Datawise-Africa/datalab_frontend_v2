@@ -16,7 +16,7 @@ export function DatasetSearch({
   onChange,
   className,
   placeholder = 'Search datasets...',
-}: DatasetSearchProps) {
+}: Readonly<DatasetSearchProps>) {
   const [localValue, setLocalValue] = useState(value);
 
   useEffect(() => {

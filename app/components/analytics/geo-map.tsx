@@ -25,7 +25,7 @@ export function GeoMap({
   data,
   title = 'Geographic Breakdown',
   metric = 'views',
-}: GeoMapProps) {
+}: Readonly<GeoMapProps>) {
   const isClient = useIsClient();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<unknown>(null);

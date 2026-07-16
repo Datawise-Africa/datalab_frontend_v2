@@ -61,7 +61,7 @@ export function FilterPanel({
   onReset,
   activeCount,
   className,
-}: FilterPanelProps) {
+}: Readonly<FilterPanelProps>) {
   return (
     <div className={cn('space-y-6', className)}>
       <div className="flex items-center justify-between">

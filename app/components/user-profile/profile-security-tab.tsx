@@ -23,7 +23,7 @@ interface ProfileSecurityTabProps {
 export function ProfileSecurityTab({
   onSubmit,
   isPending,
-}: ProfileSecurityTabProps) {
+}: Readonly<ProfileSecurityTabProps>) {
   const form = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {

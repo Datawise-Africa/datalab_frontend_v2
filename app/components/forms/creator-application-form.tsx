@@ -3,17 +3,13 @@ import { Link } from 'react-router';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '~/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '~/components/ui/form';
+import { Form } from '~/components/ui/form';
 import { Badge } from '~/components/ui/badge';
-import { FormTextField, FormTextareaField } from '~/components/form-fields';
-import { Checkbox } from '~/components/ui/checkbox';
-import { Label } from '~/components/ui/label';
+import {
+  FormTextField,
+  FormTextareaField,
+  FormCheckboxField,
+} from '~/components/form-fields';
 import {
   CheckCircle,
   ArrowRight,
@@ -290,36 +286,20 @@ function ApplicationFormFields({
         </div> */}
 
         {/* Terms */}
-        <FormField
+        <FormCheckboxField
           control={form.control}
           name="accept_terms"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-start gap-3">
-                <FormControl>
-                  <Checkbox
-                    id="creator-terms"
-                    checked={field.value === true}
-                    onCheckedChange={field.onChange}
-                    className="mt-0.5"
-                  />
-                </FormControl>
-                <Label
-                  htmlFor="creator-terms"
-                  className="text-sm font-normal text-muted-foreground leading-relaxed cursor-pointer"
-                >
-                  I agree to the{' '}
-                  <Link
-                    to="/terms-of-service"
-                    className="text-primary underline hover:text-primary"
-                  >
-                    Creator Terms and Conditions
-                  </Link>
-                </Label>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={
+            <>
+              I agree to the{' '}
+              <Link
+                to="/terms-of-service"
+                className="text-primary underline hover:text-primary"
+              >
+                Creator Terms and Conditions
+              </Link>
+            </>
+          }
         />
 
         {error && <p className="text-sm text-destructive">{error}</p>}

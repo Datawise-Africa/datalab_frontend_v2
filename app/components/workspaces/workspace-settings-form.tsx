@@ -20,7 +20,7 @@ interface WorkspaceSettingsFormProps {
 
 export function WorkspaceSettingsForm({
   workspace,
-}: WorkspaceSettingsFormProps) {
+}: Readonly<WorkspaceSettingsFormProps>) {
   const navigate = useNavigate();
   const updateWorkspace = useUpdateWorkspace();
   const deleteWorkspace = useDeleteWorkspace();
