@@ -19,6 +19,23 @@ export function useTrackView(datasetId: string | undefined) {
 }
 
 /**
+ * Tracks a report view by calling POST /reports/{id}/track-view/.
+ * Only fires once per unique reportId.
+ */
+export function useTrackReportView(reportId: string | undefined) {
+  const trackedId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!reportId || trackedId.current === reportId) return;
+    trackedId.current = reportId;
+
+    apiClient.post(`/reports/${reportId}/track-view/`).catch(() => {
+      // Silently ignore tracking failures
+    });
+  }, [reportId]);
+}
+
+/**
  * Tracks a dashboard view by calling POST /dashboards/{id}/track_views/.
  * Only fires once per unique dashboardId.
  *
