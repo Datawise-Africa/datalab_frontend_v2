@@ -18,4 +18,11 @@ export {
   useUploadReportFileToS3,
   useConfirmReportUpload,
 } from './version-mutations';
-export { useWorkspaceReports } from './workspace-queries';
+export {
+  useWorkspaceReports,
+  useWorkspaceReport,
+  useCreateWorkspaceReport,
+  useUpdateWorkspaceReport,
+  useUpdateWorkspaceReportStatus,
+  useDeleteWorkspaceReport,
+} from './workspace-queries';

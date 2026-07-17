@@ -2,7 +2,7 @@ import { useNavigate, useParams, Link } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { ReportForm } from '~/components/forms/report-form';
-import { useCreateMyReport } from '~/features/my-reports';
+import { useCreateWorkspaceReport } from '~/features/my-reports';
 import type { ReportFormValues } from '~/lib/schema/report-schema';
 import { toastUtils } from '~/lib/utils/toast';
 
@@ -22,18 +22,16 @@ export default function WorkspaceReportCreate() {
   const { id } = useParams<{ id: string }>();
   const workspaceId = id ?? '';
   const navigate = useNavigate();
-  const createMutation = useCreateMyReport();
+  const createMutation = useCreateWorkspaceReport(workspaceId);
 
+  // The workspace comes from the endpoint path — no need to send it in the body.
   const handleSubmit = (values: ReportFormValues) => {
-    createMutation.mutate(
-      { ...values, workspace: workspaceId },
-      {
-        onSuccess: (created) => {
-          toastUtils.success('Created report', values.title);
-          navigate(`/app/workspaces/${workspaceId}/reports/${created.id}/edit`);
-        },
-      }
-    );
+    createMutation.mutate(values, {
+      onSuccess: (created) => {
+        toastUtils.success('Created report', values.title);
+        navigate(`/app/workspaces/${workspaceId}/reports/${created.id}/edit`);
+      },
+    });
   };
 
   return (
@@ -53,7 +51,6 @@ export default function WorkspaceReportCreate() {
       <ReportForm
         mode="create"
         defaultValues={emptyValues}
-        lockedWorkspaceId={workspaceId}
         onSubmit={handleSubmit}
         isSubmitting={createMutation.isPending}
         onCancel={() => navigate(`/app/workspaces/${workspaceId}/reports`)}

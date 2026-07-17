@@ -6,9 +6,9 @@ import { Separator } from '~/components/ui/separator';
 import { ReportForm } from '~/components/forms/report-form';
 import { ReportVersions } from '~/components/reports/report-versions';
 import {
-  useMyReport,
-  useUpdateMyReport,
-  useUpdateMyReportStatus,
+  useWorkspaceReport,
+  useUpdateWorkspaceReport,
+  useUpdateWorkspaceReportStatus,
 } from '~/features/my-reports';
 import type { ReportFormValues } from '~/lib/schema/report-schema';
 import type { Report, ReportStatus } from '~/lib/types/report';
@@ -41,13 +41,17 @@ export default function WorkspaceReportEdit() {
   const reportKey = reportId ?? '';
   const navigate = useNavigate();
 
-  const { data: report, isLoading, isError } = useMyReport(reportKey);
-  const updateMutation = useUpdateMyReport();
-  const statusMutation = useUpdateMyReportStatus();
+  const {
+    data: report,
+    isLoading,
+    isError,
+  } = useWorkspaceReport(workspaceId, reportKey);
+  const updateMutation = useUpdateWorkspaceReport(workspaceId);
+  const statusMutation = useUpdateWorkspaceReportStatus(workspaceId);
 
   const handleSubmit = (values: ReportFormValues) => {
     updateMutation.mutate(
-      { id: reportKey, input: { ...values, workspace: workspaceId } },
+      { id: reportKey, input: values },
       { onSuccess: () => toastUtils.success('Saved report', values.title) }
     );
   };
@@ -130,7 +134,6 @@ export default function WorkspaceReportEdit() {
       <ReportForm
         mode="edit"
         defaultValues={toFormValues(report)}
-        lockedWorkspaceId={workspaceId}
         onSubmit={handleSubmit}
         isSubmitting={updateMutation.isPending}
         onCancel={() => navigate(`/app/workspaces/${workspaceId}/reports`)}

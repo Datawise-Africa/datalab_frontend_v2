@@ -23,8 +23,6 @@ interface ReportFormProps {
   onSubmit: (data: ReportFormValues) => Promise<void> | void;
   isSubmitting: boolean;
   onCancel?: () => void;
-  /** When set, the report is pinned to this workspace and no picker is shown. */
-  lockedWorkspaceId?: string;
 }
 
 const reportTypeOptions = [
@@ -49,13 +47,10 @@ export function ReportForm({
   onSubmit,
   isSubmitting,
   onCancel,
-  lockedWorkspaceId,
 }: Readonly<ReportFormProps>) {
   const form = useForm({
     resolver: reportResolver,
-    defaultValues: lockedWorkspaceId
-      ? { ...defaultValues, workspace: lockedWorkspaceId }
-      : defaultValues,
+    defaultValues,
   });
 
   // Categories are a small bounded set; one page covers the picker.
