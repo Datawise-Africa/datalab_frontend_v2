@@ -132,7 +132,7 @@ export default function DashboardDetail() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             {dashboard.title}
           </h1>
-          <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground">
             {dashboard.description}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">

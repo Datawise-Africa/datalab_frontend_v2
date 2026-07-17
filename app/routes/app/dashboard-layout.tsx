@@ -143,7 +143,7 @@ function buildAppSections({
           icon: LayoutGrid,
         },
         { label: 'Analytics', to: '/app/analytics', icon: BarChart3 },
-        { label: 'Reports', to: '/app/creator-reports', icon: FileText },
+        { label: 'My Reports', to: '/app/my-reports', icon: FileText },
       ],
     });
   }
@@ -174,6 +174,11 @@ function buildAppSections({
           label: 'Dashboard Categories',
           to: '/app/dashboard-categories',
           icon: LayoutGrid,
+        },
+        {
+          label: 'Report Categories',
+          to: '/app/report-categories',
+          icon: FileText,
         },
       ],
     });
