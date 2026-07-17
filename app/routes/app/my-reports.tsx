@@ -1,11 +1,9 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import type { ColumnDef } from '@tanstack/react-table';
-import { FileText, Loader2, Pencil, Plus, Trash2 } from 'lucide-react';
+import { FileText, Loader2, Plus } from 'lucide-react';
 import type { Route } from './+types/my-reports';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
-import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import {
   Dialog,
@@ -15,9 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog';
-import { DataTable } from '~/components/data-table';
+import { ReportList } from '~/components/reports/report-list';
+import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import { useMyReports, useDeleteMyReport } from '~/features/my-reports';
-import type { Report, ReportStatus } from '~/lib/types/report';
+import type { Report } from '~/lib/types/report';
 import { toastUtils } from '~/lib/utils/toast';
 
 export function meta(_args: Route.MetaArgs) {
@@ -27,48 +26,18 @@ export function meta(_args: Route.MetaArgs) {
   });
 }
 
-const statusLabels: Record<ReportStatus, string> = {
-  DF: 'Draft',
-  PB: 'Published',
-  AR: 'Archived',
-};
-
-const statusVariants: Record<
-  ReportStatus,
-  'default' | 'secondary' | 'outline'
-> = {
-  PB: 'default',
-  DF: 'secondary',
-  AR: 'outline',
-};
-
 export default function MyReports() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(12);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
 
-  const {
-    data: response,
-    isLoading,
-    isError,
-    isFetching,
-    refetch,
-  } = useMyReports({ page, limit });
+  const { data: response, isLoading, isError } = useMyReports({ page, limit });
 
   const deleteMutation = useDeleteMyReport();
 
   const reports = response?.data ?? [];
-  const totalDocs = response?.meta?.total_docs ?? 0;
-
-  const handlePageChange = useCallback((pageIndex: number) => {
-    setPage(pageIndex + 1);
-  }, []);
-
-  const handlePageSizeChange = useCallback((newSize: number) => {
-    setLimit(newSize);
-    setPage(1);
-  }, []);
+  const total = response?.meta?.total_docs ?? 0;
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -80,70 +49,6 @@ export default function MyReports() {
       },
     });
   };
-
-  const columns = useMemo<ColumnDef<Report, unknown>[]>(
-    () => [
-      {
-        accessorKey: 'title',
-        header: 'Title',
-        cell: ({ row }) => (
-          <div>
-            <p className="font-medium text-sm">{row.original.title}</p>
-            <p className="text-xs text-muted-foreground">
-              {row.original.category?.name ?? 'Uncategorized'}
-            </p>
-          </div>
-        ),
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => (
-          <Badge variant={statusVariants[row.original.status]}>
-            {statusLabels[row.original.status]}
-          </Badge>
-        ),
-      },
-      {
-        accessorKey: 'downloads_count',
-        header: 'Downloads',
-        cell: ({ row }) => (
-          <span className="text-sm text-muted-foreground">
-            {row.original.downloads_count}
-          </span>
-        ),
-      },
-      {
-        id: 'actions',
-        header: '',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                navigate(`/app/my-reports/${row.original.id}/edit`)
-              }
-              aria-label="Edit report"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteTarget(row.original)}
-              aria-label="Delete report"
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    [navigate]
-  );
 
   return (
     <Protect>
@@ -172,24 +77,39 @@ export default function MyReports() {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : isError ? (
+          <div className="flex min-h-[30vh] flex-col items-center justify-center rounded-lg border border-dashed text-center">
+            <p className="text-lg font-semibold text-muted-foreground">
+              Couldn&apos;t load reports
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Something went wrong. Please try again shortly.
+            </p>
+          </div>
         ) : (
-          <DataTable
-            columns={columns}
-            data={reports}
-            onRefresh={() => refetch()}
-            isRefreshing={isFetching}
-            isError={isError}
-            emptyTitle="No reports yet"
-            emptyDescription="Create your first report to get started."
-            emptyIcon={<FileText className="h-8 w-8" />}
-            serverPagination={{
-              pageIndex: page - 1,
-              pageSize: limit,
-              totalRows: totalDocs,
-              onPageChange: handlePageChange,
-              onPageSizeChange: handlePageSizeChange,
-            }}
-          />
+          <div className="space-y-6">
+            <ReportList
+              reports={reports}
+              onEdit={(reportId) =>
+                navigate(`/app/my-reports/${reportId}/edit`)
+              }
+              onDelete={setDeleteTarget}
+              emptyTitle="No reports yet"
+              emptyDescription="Create your first report to get started."
+            />
+            {total > 0 && (
+              <PaginationControls
+                page={page}
+                limit={limit}
+                total={total}
+                onPageChange={setPage}
+                onLimitChange={(next) => {
+                  setLimit(next);
+                  setPage(1);
+                }}
+              />
+            )}
+          </div>
         )}
 
         <Dialog

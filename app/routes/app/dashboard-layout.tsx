@@ -85,6 +85,7 @@ function buildWorkspaceSections(workspaceId: string): SidebarSection[] {
         { label: 'Members', to: `${base}/members`, icon: Users },
         { label: 'Datasets', to: `${base}/datasets`, icon: Database },
         { label: 'Dashboards', to: `${base}/dashboards`, icon: LayoutGrid },
+        { label: 'Reports', to: `${base}/reports`, icon: FileText },
         { label: 'Analytics', to: `${base}/analytics`, icon: BarChart3 },
         { label: 'Invitations', to: `${base}/invitations`, icon: Mail },
         { label: 'Settings', to: `${base}/settings`, icon: Settings },
