@@ -20,7 +20,7 @@ export function CsvPreview({
   dataFiles,
   maxRows = 20,
   className,
-}: CsvPreviewProps) {
+}: Readonly<CsvPreviewProps>) {
   const [headers, setHeaders] = useState<string[]>([]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
   const [isLoading, setIsLoading] = useState(false);

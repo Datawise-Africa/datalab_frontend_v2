@@ -6,24 +6,19 @@ import {
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
-import { Input } from '~/components/ui/input';
+import { Form } from '~/components/ui/form';
+import { FormOtpField, FormPasswordField } from '~/components/form-fields';
 import { Button } from '~/components/ui/button';
+
+interface ResetPasswordFormProps {
+  email: string;
+  onSuccess: () => void;
+}
 
 export function ResetPasswordForm({
   email,
   onSuccess,
-}: {
-  email: string;
-  onSuccess: () => void;
-}) {
+}: Readonly<ResetPasswordFormProps>) {
   const [done, setDone] = useState(false);
   const completeReset = useCompletePasswordReset();
   const form = useForm<ResetPasswordInput>({
@@ -68,50 +63,23 @@ export function ResetPasswordForm({
           We sent a code to{' '}
           <span className="font-medium text-foreground">{email}</span>
         </p>
-        <FormField
+        <FormOtpField
           control={form.control}
           name="otp_code"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Reset code</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter code" maxLength={6} {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Reset code"
         />
-        <FormField
+        <FormPasswordField
           control={form.control}
           name="new_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>New password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="New password"
+          placeholder="••••••"
         />
-        <FormField
+        <FormPasswordField
           control={form.control}
           name="confirm_password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm new password</FormLabel>
-              <FormControl>
-                <Input type="password" placeholder="••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Confirm new password"
+          placeholder="••••••"
         />
-        {completeReset.isError && (
-          <p className="text-sm text-destructive">
-            Invalid or expired code. Please try again.
-          </p>
-        )}
         <Button
           type="submit"
           className="w-full bg-primary hover:bg-primary/90"

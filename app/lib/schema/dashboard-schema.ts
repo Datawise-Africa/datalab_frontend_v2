@@ -9,7 +9,6 @@ export const createDashboardSchema = z.object({
     .max(255, 'Title must be at most 255 characters'),
   description: z.string().optional().or(z.literal('')),
   dashboard_url: z
-    .string()
     .url('Enter a valid URL')
     .max(200, 'URL must be at most 200 characters')
     .optional()

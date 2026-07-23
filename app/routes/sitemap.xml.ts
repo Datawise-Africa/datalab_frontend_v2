@@ -25,7 +25,12 @@ const routes: SitemapRoute[] = [
   { path: '/', priority: 1.0, changefreq: 'daily' },
   { path: '/datasets', priority: 0.9, changefreq: 'daily' },
   { path: '/dashboards', priority: 0.9, changefreq: 'daily' },
+  { path: '/creators', priority: 0.7, changefreq: 'weekly' },
+  { path: '/research', priority: 0.7, changefreq: 'weekly' },
+  { path: '/research/reports', priority: 0.7, changefreq: 'weekly' },
   { path: '/contact', priority: 0.5, changefreq: 'monthly' },
+  { path: '/privacy-policy', priority: 0.3, changefreq: 'yearly' },
+  { path: '/terms-of-service', priority: 0.3, changefreq: 'yearly' },
 ];
 
 function escapeXml(s: string): string {
@@ -39,14 +44,15 @@ function escapeXml(s: string): string {
 
 export const loader = ({ request }: Route.LoaderArgs) => {
   const origin = env.VITE_SITE_URL || new URL(request.url).origin;
-  const lastmod = new Date().toISOString();
 
+  // No <lastmod>: these are prerendered, so any generated timestamp would freeze to
+  // build time rather than the content's real modification date. Omitting it beats
+  // emitting one crawlers learn to distrust.
   const urls = routes
     .map((r) => {
       const loc = escapeXml(`${origin}${r.path}`);
       return `  <url>
     <loc>${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority.toFixed(1)}</priority>
   </url>`;

@@ -50,9 +50,9 @@ import { AuthPerm } from '~/lib/utils/perm';
 import { useLogout } from '~/features/auth';
 import { useIsClient } from '~/hooks/use-is-client';
 import { useMediaQuery } from '~/hooks/use-media-query';
-import { NotificationBell } from '~/components/dashboard/notification-bell';
-import { BecomeCreatorBanner } from '~/components/dashboard/become-creator-banner';
-import { UserProfileMenu } from '~/components/dashboard/user-profile-menu';
+import { NotificationBell } from '~/components/dashboard-shell/notification-bell';
+import { BecomeCreatorBanner } from '~/components/dashboard-shell/become-creator-banner';
+import { UserProfileMenu } from '~/components/dashboard-shell/user-profile-menu';
 
 interface SidebarLink {
   label: string;
@@ -85,6 +85,7 @@ function buildWorkspaceSections(workspaceId: string): SidebarSection[] {
         { label: 'Members', to: `${base}/members`, icon: Users },
         { label: 'Datasets', to: `${base}/datasets`, icon: Database },
         { label: 'Dashboards', to: `${base}/dashboards`, icon: LayoutGrid },
+        { label: 'Reports', to: `${base}/reports`, icon: FileText },
         { label: 'Analytics', to: `${base}/analytics`, icon: BarChart3 },
         { label: 'Invitations', to: `${base}/invitations`, icon: Mail },
         { label: 'Settings', to: `${base}/settings`, icon: Settings },
@@ -143,7 +144,7 @@ function buildAppSections({
           icon: LayoutGrid,
         },
         { label: 'Analytics', to: '/app/analytics', icon: BarChart3 },
-        { label: 'Reports', to: '/app/creator-reports', icon: FileText },
+        { label: 'My Reports', to: '/app/my-reports', icon: FileText },
       ],
     });
   }
@@ -174,6 +175,11 @@ function buildAppSections({
           label: 'Dashboard Categories',
           to: '/app/dashboard-categories',
           icon: LayoutGrid,
+        },
+        {
+          label: 'Report Categories',
+          to: '/app/report-categories',
+          icon: FileText,
         },
       ],
     });

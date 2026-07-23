@@ -46,7 +46,7 @@ export function CustomToast({
   message,
   type,
   onDismiss,
-}: CustomToastProps) {
+}: Readonly<CustomToastProps>) {
   const { icon: Icon, bg, border, iconColor, titleColor } = config[type];
 
   return (

@@ -25,7 +25,11 @@ const roleVariant: Record<WorkspaceRole, 'default' | 'secondary' | 'outline'> =
     member: 'outline',
   };
 
-export function MemberList({ members, workspaceId, isAdmin }: MemberListProps) {
+export function MemberList({
+  members,
+  workspaceId,
+  isAdmin,
+}: Readonly<MemberListProps>) {
   const updateRole = useUpdateMemberRole();
   const removeMember = useRemoveMember();
 

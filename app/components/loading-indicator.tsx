@@ -41,7 +41,13 @@ export function FullPageLoader() {
 }
 
 // Inline loader for components
-export function InlineLoader({ text = 'Loading...' }: { text?: string }) {
+interface InlineLoaderProps {
+  text?: string;
+}
+
+export function InlineLoader({
+  text = 'Loading...',
+}: Readonly<InlineLoaderProps>) {
   return (
     <div className="flex items-center justify-center gap-3 py-8">
       <Loader2 className="h-6 w-6 text-primary animate-spin" />

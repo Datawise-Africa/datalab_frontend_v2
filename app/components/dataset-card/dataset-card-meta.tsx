@@ -3,7 +3,11 @@ import { Clock, HardDrive, Users } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useDatasetCard } from './use-dataset-card';
 
-export function DatasetCardMeta({ className }: { className?: string }) {
+interface DatasetCardMetaProps {
+  className?: string;
+}
+
+export function DatasetCardMeta({ className }: Readonly<DatasetCardMetaProps>) {
   const { dataset } = useDatasetCard();
 
   return (

@@ -19,7 +19,7 @@ export function DatasetStatusTabs({
   activeTab,
   onTabChange,
   counts,
-}: DatasetStatusTabsProps) {
+}: Readonly<DatasetStatusTabsProps>) {
   return (
     <div className="flex gap-1 rounded-lg border p-1">
       {tabs.map((tab) => (

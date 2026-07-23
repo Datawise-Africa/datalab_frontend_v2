@@ -2,7 +2,13 @@ import { Star } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useDatasetCard } from './use-dataset-card';
 
-export function DatasetCardRating({ className }: { className?: string }) {
+interface DatasetCardRatingProps {
+  className?: string;
+}
+
+export function DatasetCardRating({
+  className,
+}: Readonly<DatasetCardRatingProps>) {
   const { dataset } = useDatasetCard();
 
   return (

@@ -1,10 +1,10 @@
 # CLAUDE.md
 
-> **The canonical project guide lives in [`agents.md`](./agents.md).** Read it before answering questions or making changes. Treat it as the single source of truth for project conventions, patterns, tech stack, commands, and contribution rules — do not duplicate that content here.
+> **The canonical project guide lives in [`AGENTS.md`](./AGENTS.md).** Read it before answering questions or making changes. Treat it as the single source of truth for project conventions, patterns, tech stack, commands, and contribution rules — do not duplicate that content here.
 
-This file exists solely so the harness loads automatically; it is a thin pointer, not a parallel handbook. When you find yourself wanting to add a convention or recipe here, put it in `agents.md` instead and link back if needed.
+This file exists solely so the harness loads automatically; it is a thin pointer, not a parallel handbook. When you find yourself wanting to add a convention or recipe here, put it in `AGENTS.md` instead and link back if needed.
 
-## What to read in `agents.md` first
+## What to read in `AGENTS.md` first
 
 - **Project Overview, Tech Stack, Commands** — for orientation.
 - **Key Patterns** — SSR compatibility (incl. the `globalThis.window` rule), state management, API layer, data fetching, env vars, lint/format, styling, component variant rule, mutation error handling, animations.
@@ -16,7 +16,7 @@ This file exists solely so the harness loads automatically; it is a thin pointer
 - **Browser Automation with Playwright MCP** — for visual QA.
 - **Contribution Guide** — Conventional Commits, branch naming, pre-commit hooks, release flow.
 
-If anything in `agents.md` looks stale, fix it there — not here.
+If anything in `AGENTS.md` looks stale, fix it there — not here.
 
 ## Other top-level docs
 

@@ -12,7 +12,7 @@ export function PageHeader({
   description,
   children,
   className,
-}: PageHeaderProps) {
+}: Readonly<PageHeaderProps>) {
   return (
     <div
       className={cn(

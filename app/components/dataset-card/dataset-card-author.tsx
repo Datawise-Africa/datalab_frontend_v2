@@ -2,7 +2,13 @@ import { User } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { useDatasetCard } from './use-dataset-card';
 
-export function DatasetCardAuthor({ className }: { className?: string }) {
+interface DatasetCardAuthorProps {
+  className?: string;
+}
+
+export function DatasetCardAuthor({
+  className,
+}: Readonly<DatasetCardAuthorProps>) {
   const { dataset } = useDatasetCard();
   if (dataset.workspaceName) return null;
 

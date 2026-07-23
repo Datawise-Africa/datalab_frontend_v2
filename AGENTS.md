@@ -215,6 +215,50 @@ This eliminates the need for try/catch or onError at call sites.
 - Use `whileInView` with `viewport={{ once: true }}` for scroll triggers
 - Use `as const` on easing strings (e.g., `ease: 'easeOut' as const`)
 
+### Icons
+
+- **`lucide-react` is the only icon source.** Import named icons directly:
+  `import { Sun, Moon } from 'lucide-react'`.
+- Size with Tailwind (`className="h-4 w-4"`), not props. Colour with `text-*`.
+- Do not add another icon library, and do not hand-roll SVGs for something lucide
+  already has. One-off brand marks and illustrations live in
+  `app/components/illustrations/`.
+
+## Auth
+
+Auth is client-side by design. Understand this before touching route protection.
+
+- **Tokens live in `localStorage`**, via `redux-persist` (`store/index.ts:28-33`
+  whitelists the `auth` and `theme` slices). This is a deliberate trade-off: it accepts
+  XSS exposure in exchange for not needing a token-issuing backend session.
+- **The consequence: guards cannot be loader-based.** A React Router loader runs on the
+  server, where `localStorage` doesn't exist, so the server never knows who the user is.
+  Every guard must therefore run after hydration, client-side.
+- **`<Protect>`** (`components/auth/protect.tsx`) is that guard. It renders a spinner
+  until `useIsClient()` is true — which keeps SSR and first client render identical and
+  avoids a hydration mismatch — then checks the store. Pass `roles` to restrict by role;
+  pass `fallback` to override the default "sign in required" panel.
+- **`AuthPerm`** (`lib/utils/perm.ts`) is the role engine. Use it for permission checks
+  rather than comparing `user_role` strings inline.
+- **Login is modal-only.** There is no `/login` route; `useAppModal('auth')` opens it.
+  That's why `<Protect>` opens a modal instead of redirecting.
+- **Auth state comes from the login/signup response and nothing else.** There is no
+  `GET /auth/me/` in the OpenAPI spec, so the auth slice is the only source of user data.
+  Never invent user fields client-side — if the API doesn't return it, don't store it.
+
+## SEO
+
+- **`generateSEOTags()`** (`lib/utils/seo.ts`) builds the meta tag array. Call it from a
+  route's `meta` export. Pass `noIndex: true` to exclude a page; `env.VITE_NOINDEX`
+  forces it globally for non-production deploys.
+- **`lib/utils/structured-data.ts`** emits JSON-LD: `organizationSchema()`,
+  `websiteSchema()`, `datasetSchema()`, `breadcrumbSchema()`, `articleSchema()`.
+- **`sitemap.xml.ts` is a hardcoded list of static public routes.** Add new public routes
+  to it by hand. Dynamic `:slug` routes are deliberately excluded — they'd need a
+  sitemap-index sourced from the API.
+- **Prerendering**: only `/robots.txt` and `/sitemap.xml` prerender. See
+  `react-router.config.ts` — the static pages are listed but disabled.
+
 ## Conventions
 
 - **Imports**: use `~/` alias for app-relative imports
@@ -231,14 +275,16 @@ All forms must use **React Hook Form** with **Zod** validation via `zodResolver`
 
 ### Available field components
 
-| Component           | Use for                               |
-| ------------------- | ------------------------------------- |
-| `FormTextField`     | Text, email, url, date inputs         |
-| `FormTextareaField` | Multi-line text inputs                |
-| `FormSelectField`   | Single-select dropdowns (AsyncSelect) |
-| `FormNumberField`   | Numeric inputs                        |
-| `FormPasswordField` | Password inputs                       |
-| `FormOtpField`      | OTP code inputs                       |
+| Component           | Use for                                                |
+| ------------------- | ------------------------------------------------------ |
+| `FormTextField`     | Text, email, url, date inputs                          |
+| `FormTextareaField` | Multi-line text inputs                                 |
+| `FormSelectField`   | Single-select dropdowns (AsyncSelect)                  |
+| `FormNumberField`   | Numeric inputs                                         |
+| `FormPasswordField` | Password inputs (has show/hide toggle)                 |
+| `FormOtpField`      | OTP code inputs                                        |
+| `FormCheckboxField` | Booleans; `label` accepts nodes, so it can embed links |
+| `FormTagInputField` | Tag / chip list inputs                                 |
 
 ### Single-step form pattern
 

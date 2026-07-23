@@ -46,7 +46,7 @@ export function ApplicantModal({
   onClose,
   onApprove,
   onReject,
-}: ApplicantModalProps) {
+}: Readonly<ApplicantModalProps>) {
   if (!application) return null;
 
   const badge = getDatasetCreatorBadge(application.status);
@@ -208,15 +208,13 @@ export function ApplicantModal({
   );
 }
 
-function DetailItem({
-  icon: Icon,
-  label,
-  value,
-}: {
+interface DetailItemProps {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   value: string;
-}) {
+}
+
+function DetailItem({ icon: Icon, label, value }: Readonly<DetailItemProps>) {
   return (
     <div className="flex items-start gap-3">
       <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-muted">

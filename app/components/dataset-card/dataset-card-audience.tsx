@@ -21,7 +21,13 @@ const audienceIcons: Record<
   Academic: BookOpen,
 };
 
-export function DatasetCardAudience({ className }: { className?: string }) {
+interface DatasetCardAudienceProps {
+  className?: string;
+}
+
+export function DatasetCardAudience({
+  className,
+}: Readonly<DatasetCardAudienceProps>) {
   const { dataset } = useDatasetCard();
 
   if (dataset.availableTo.length === 0) return null;

@@ -30,7 +30,9 @@ interface InviteMemberDialogProps {
   workspaceId: string;
 }
 
-export function InviteMemberDialog({ workspaceId }: InviteMemberDialogProps) {
+export function InviteMemberDialog({
+  workspaceId,
+}: Readonly<InviteMemberDialogProps>) {
   const [open, setOpen] = useState(false);
   const inviteMember = useInviteMember();
   const {

@@ -1,25 +1,17 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
-import { Input } from '~/components/ui/input';
+import { Form } from '~/components/ui/form';
+import { FormTextField, FormPasswordField } from '~/components/form-fields';
 import { Button } from '~/components/ui/button';
 import { loginSchema, type LoginInput } from '~/lib/schema/auth-schema';
 import { useLogin } from '~/features/auth';
 
-export function LoginForm({
-  onSuccess,
-  onForgot,
-}: {
+interface LoginFormProps {
   onSuccess: () => void;
   onForgot: () => void;
-}) {
+}
+
+export function LoginForm({ onSuccess, onForgot }: Readonly<LoginFormProps>) {
   const loginMutation = useLogin();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -33,46 +25,26 @@ export function LoginForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+        <FormTextField
           control={form.control}
           name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input type="email" placeholder="you@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
         />
-        <FormField
+        <FormPasswordField
           control={form.control}
           name="password"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center justify-between">
-                <FormLabel>Password</FormLabel>
-                <button
-                  type="button"
-                  className="text-xs text-primary hover:underline"
-                  onClick={onForgot}
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <FormControl>
-                <Input type="password" placeholder="••••••" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Password"
+          placeholder="••••••"
         />
-        {loginMutation.isError && (
-          <p className="text-sm text-destructive">
-            Invalid email or password. Please try again.
-          </p>
-        )}
+        <button
+          type="button"
+          className="text-xs text-primary hover:underline"
+          onClick={onForgot}
+        >
+          Forgot password?
+        </button>
         <Button
           type="submit"
           className="w-full bg-primary hover:bg-primary/90"

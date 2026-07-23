@@ -1,5 +1,12 @@
 import { Link, useParams } from 'react-router';
-import { Users, Database, LayoutGrid, Mail, BarChart3 } from 'lucide-react';
+import {
+  Users,
+  Database,
+  LayoutGrid,
+  Mail,
+  BarChart3,
+  FileText,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useWorkspace } from '~/features/workspaces';
 
@@ -26,6 +33,12 @@ const tiles: {
     description: 'Embedded dashboards shared here',
     icon: LayoutGrid,
     to: (id) => `/app/workspaces/${id}/dashboards`,
+  },
+  {
+    label: 'Reports',
+    description: 'Reports scoped to this workspace',
+    icon: FileText,
+    to: (id) => `/app/workspaces/${id}/reports`,
   },
   {
     label: 'Analytics',

@@ -36,7 +36,11 @@ import { toggleDarkMode } from '~/store/slices/theme-slice';
 import { useLogout } from '~/features/auth';
 import { AuthPerm } from '~/lib/utils/perm';
 
-function ThemeToggle({ className }: { className?: string }) {
+interface ThemeToggleProps {
+  className?: string;
+}
+
+function ThemeToggle({ className }: Readonly<ThemeToggleProps>) {
   const isClient = useIsClient();
   const dispatch = useAppDispatch();
   const darkMode = useAppSelector((s) => s.theme.darkMode);

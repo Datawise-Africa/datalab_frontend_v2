@@ -9,7 +9,7 @@ interface DatasetCardDescriptionProps {
 export function DatasetCardDescription({
   className,
   lineClamp = 2,
-}: DatasetCardDescriptionProps) {
+}: Readonly<DatasetCardDescriptionProps>) {
   const { dataset } = useDatasetCard();
 
   return (

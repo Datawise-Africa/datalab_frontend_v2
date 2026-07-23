@@ -13,7 +13,7 @@ export function DatasetGrid({
   datasets,
   className,
   onDownload,
-}: DatasetGridProps) {
+}: Readonly<DatasetGridProps>) {
   if (datasets.length === 0) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">

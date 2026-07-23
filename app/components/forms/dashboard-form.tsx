@@ -9,8 +9,8 @@ import {
   FormTextareaField,
   FormSelectField,
   FormTagInputField,
+  FormCheckboxField,
 } from '~/components/form-fields';
-import { Checkbox } from '~/components/ui/checkbox';
 import { Label } from '~/components/ui/label';
 import { DropZone } from '~/components/ui/drop-zone';
 import { useFileUpload } from '~/hooks/use-file-upload';
@@ -173,24 +173,12 @@ export function DashboardForm({
           placeholder="Add a tag and press Enter"
         />
 
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="dashboard-public"
-            checked={form.watch('is_public') === true}
-            onCheckedChange={(checked) =>
-              form.setValue('is_public', Boolean(checked))
-            }
-          />
-          <Label
-            htmlFor="dashboard-public"
-            className="text-sm font-normal leading-relaxed cursor-pointer"
-          >
-            Make this dashboard public
-            <span className="block text-xs text-muted-foreground">
-              Public dashboards are visible to anyone with the link.
-            </span>
-          </Label>
-        </div>
+        <FormCheckboxField
+          control={form.control}
+          name="is_public"
+          label="Make this dashboard public"
+          description="Public dashboards are visible to anyone with the link."
+        />
 
         {error && <p className="text-sm text-destructive">{error}</p>}
 
