@@ -59,16 +59,41 @@ export function useReportVersions(reportId: string) {
   });
 }
 
-export function useBookmarkedReports(params?: ReportListParams) {
+/**
+ * One row of GET /reports/my-bookmarks/. The report is nested under `report`,
+ * mirroring `BookmarkedDataset` in `~/features/bookmarks`.
+ */
+export interface BookmarkedReport {
+  id: string;
+  user: string;
+  report: Report;
+}
+
+/**
+ * GET /reports/my-bookmarks/ — the user's bookmarked reports.
+ *
+ * Returns a **bare array**, not the `{meta,data}` envelope the rest of the
+ * reports API uses, and each row wraps the report rather than being one.
+ * Verified live 2026-07-23; the OpenAPI spec declares a DRF
+ * `{count,results}` page here and is wrong.
+ *
+ * Gated on auth: anonymous users have no bookmarks and the endpoint 401s.
+ */
+export function useBookmarkedReports(
+  params?: ReportListParams,
+  isAuthenticated: boolean = false
+) {
   return useQuery({
     queryKey: [...reportKeys.bookmarks(), params],
-    queryFn: async (): Promise<Paginated<Report>> => {
-      const { data } = await apiClient.get<Paginated<Report>>(
+    queryFn: async (): Promise<BookmarkedReport[]> => {
+      const { data } = await apiClient.get<BookmarkedReport[]>(
         '/reports/my-bookmarks/',
         { params }
       );
       return data;
     },
     placeholderData: keepPreviousData,
+    staleTime: 5 * 60 * 1000,
+    enabled: !!isAuthenticated,
   });
 }

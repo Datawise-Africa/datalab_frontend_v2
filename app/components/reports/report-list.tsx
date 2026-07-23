@@ -1,4 +1,5 @@
 import { Download, FileText, Lock, Pencil, Trash2 } from 'lucide-react';
+import { ReportDefaultIllustration } from '~/components/illustrations/report-default';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardFooter } from '~/components/ui/card';
@@ -82,9 +83,7 @@ export function ReportList({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <FileText className="h-10 w-10 text-muted-foreground/40" />
-                  </div>
+                  <ReportDefaultIllustration />
                 )}
                 {report.is_premium && (
                   <Badge className="absolute right-2 top-2 gap-1">
