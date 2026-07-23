@@ -15,13 +15,15 @@ import { Separator } from '~/components/ui/separator';
 import {
   useReport,
   useReportVersions,
-  useToggleReportBookmark,
+  useReportBookmark,
   useRequestReportDownload,
 } from '~/features/reports';
+import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
 import { useTrackReportView } from '~/hooks/use-track-view';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { formatBytes } from '~/lib/utils/format';
 import { fileCount } from '~/lib/types/report';
+import { cn } from '~/lib/utils';
 
 export function meta(_args: Route.MetaArgs) {
   return generateSEOTags({
@@ -46,7 +48,11 @@ export default function ResearchReportDetail() {
 
   const { data: report, isLoading, isError } = useReport(reportId);
   const { data: versionsData } = useReportVersions(reportId);
-  const bookmarkMutation = useToggleReportBookmark();
+  const bookmark = useReportBookmark(reportId);
+  const resumeBookmarkToggle = useResumeAfterAuth<void>(() =>
+    bookmark.toggle()
+  );
+  const handleBookmark = () => resumeBookmarkToggle();
   const downloadMutation = useRequestReportDownload();
 
   useTrackReportView(report ? reportId : undefined);
@@ -138,13 +144,25 @@ export default function ResearchReportDetail() {
           </Button>
           <Button
             variant="outline"
-            onClick={() =>
-              bookmarkMutation.mutate({ id: report.id, bookmarked: false })
-            }
-            disabled={bookmarkMutation.isPending}
+            className={cn(
+              bookmark.isBookmarked && 'border-red-500 text-red-500'
+            )}
+            onClick={handleBookmark}
+            disabled={bookmark.isPending}
+            aria-pressed={bookmark.isBookmarked}
+            aria-busy={bookmark.isPending}
           >
-            <Bookmark className="mr-2 h-4 w-4" />
-            Bookmark
+            {bookmark.isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Bookmark
+                className={cn(
+                  'mr-2 h-4 w-4',
+                  bookmark.isBookmarked && 'fill-red-500 text-red-500'
+                )}
+              />
+            )}
+            {bookmark.isBookmarked ? 'Bookmarked' : 'Bookmark'}
           </Button>
         </div>
 

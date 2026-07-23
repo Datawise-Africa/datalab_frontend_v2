@@ -1,9 +1,12 @@
 import { Link } from 'react-router';
-import { FileText, Download, Lock } from 'lucide-react';
+import { Bookmark, Download, Loader2, Lock } from 'lucide-react';
+import { ReportDefaultIllustration } from '~/components/illustrations/report-default';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent } from '~/components/ui/card';
+import { useReportBookmark } from '~/features/reports';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { cn } from '~/lib/utils';
+import { useAppSelector } from '~/store';
 import type { Report } from '~/lib/types/report';
 
 const reportTypeLabels: Record<string, string> = {
@@ -24,11 +27,13 @@ interface ReportCardProps {
 export function ReportCard({ report, className }: Readonly<ReportCardProps>) {
   const cover = resolveMediaUrl(report.cover_image);
   const typeLabel = reportTypeLabels[report.report_type] ?? 'Report';
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const bookmark = useReportBookmark(report.id);
 
   return (
     <Card
       className={cn(
-        'group overflow-hidden transition-shadow hover:shadow-md',
+        'group relative overflow-hidden transition-shadow hover:shadow-md',
         className
       )}
     >
@@ -42,9 +47,7 @@ export function ReportCard({ report, className }: Readonly<ReportCardProps>) {
               className="h-full w-full object-cover transition-transform group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <FileText className="h-10 w-10 text-muted-foreground/40" />
-            </div>
+            <ReportDefaultIllustration className="transition-transform group-hover:scale-105" />
           )}
           {report.is_premium && (
             <Badge className="absolute right-2 top-2 gap-1">
@@ -54,6 +57,34 @@ export function ReportCard({ report, className }: Readonly<ReportCardProps>) {
           )}
         </div>
       </Link>
+
+      {/* Sits outside the <Link> — a button nested in an anchor is invalid.
+          Hidden when signed out: anonymous users have no bookmarks. */}
+      {isAuthenticated && (
+        <button
+          type="button"
+          onClick={bookmark.toggle}
+          disabled={bookmark.isPending}
+          aria-pressed={bookmark.isBookmarked}
+          aria-busy={bookmark.isPending}
+          aria-label={
+            bookmark.isBookmarked ? 'Remove bookmark' : 'Bookmark report'
+          }
+          title={bookmark.isBookmarked ? 'Remove bookmark' : 'Bookmark report'}
+          className="absolute left-2 top-2 z-10 rounded-full bg-background/80 p-2 shadow-sm backdrop-blur-sm transition-colors hover:bg-background disabled:opacity-60"
+        >
+          {bookmark.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          ) : (
+            <Bookmark
+              className={cn(
+                'h-4 w-4 text-muted-foreground',
+                bookmark.isBookmarked && 'fill-red-500 text-red-500'
+              )}
+            />
+          )}
+        </button>
+      )}
 
       <CardContent className="space-y-2 p-4">
         <div className="flex flex-wrap items-center gap-2">

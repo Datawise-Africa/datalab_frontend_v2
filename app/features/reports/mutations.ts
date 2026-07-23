@@ -26,6 +26,13 @@ export function useToggleReportBookmark() {
       queryClient.invalidateQueries({
         queryKey: reportKeys.detail(variables.id),
       });
+      // `bookmarked` is the state *before* the toggle, so it tells us which
+      // way the request went.
+      if (variables.bookmarked) {
+        toastUtils.success('Removed', 'Report removed from your bookmarks.');
+      } else {
+        toastUtils.success('Saved', 'Report added to your bookmarks.');
+      }
     },
     onError: (error) => {
       toastUtils.error('Bookmark failed', extractError(error));
