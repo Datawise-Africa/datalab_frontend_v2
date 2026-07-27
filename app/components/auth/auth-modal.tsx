@@ -24,10 +24,15 @@ type AuthTab = 'login' | 'signup' | 'forgot' | 'reset';
  * A modal continuation to open *after* the user finishes authenticating.
  * Add new entries here when other modals need a "log-in-then-resume" flow.
  */
-type AuthNextIntent = {
-  modal: 'download';
-  payload: ModalRegistry['download'];
-};
+type AuthNextIntent =
+  | {
+      modal: 'download';
+      payload: ModalRegistry['download'];
+    }
+  | {
+      modal: 'reportDownload';
+      payload: ModalRegistry['reportDownload'];
+    };
 
 declare module '~/store/slices/modal-slice' {
   interface ModalRegistry {

@@ -25,6 +25,7 @@ import { Button } from '~/components/ui/button';
 import { Toaster } from 'react-hot-toast';
 import { AuthModal } from '~/components/auth/auth-modal';
 import { DownloadModal } from '~/components/download-flow/download-modal';
+import { ReportDownloadModal } from '~/components/download-flow/report-download-modal';
 import { CommandPalette } from '~/components/command-palette';
 
 export const links: Route.LinksFunction = () => [
@@ -57,7 +58,7 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children }: Readonly<{ children: React.ReactNode }>) {
   const GTAG = env.VITE_GTAG_ID;
   return (
     <html lang="en">
@@ -95,6 +96,7 @@ export default function App() {
         <Outlet />
         <AuthModal />
         <DownloadModal />
+        <ReportDownloadModal />
         <CommandPalette />
         <Toaster
           position="top-right"
@@ -144,10 +146,10 @@ function NotFoundError() {
 function ServerError({
   status,
   statusText,
-}: {
+}: Readonly<{
   status: number;
   statusText: string;
-}) {
+}>) {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -199,10 +201,10 @@ function ServerError({
 function UnexpectedError({
   message,
   stack,
-}: {
+}: Readonly<{
   message: string;
   stack?: string;
-}) {
+}>) {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center px-4 text-center">
       <div className="absolute inset-0 -z-10 overflow-hidden">
