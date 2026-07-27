@@ -4,6 +4,7 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import prettier from 'eslint-config-prettier';
+import { readonlyProps } from './eslint-rules/readonly-props.js';
 
 export default tseslint.config(
   {
@@ -33,6 +34,7 @@ export default tseslint.config(
       react,
       'react-hooks': reactHooks,
       'jsx-a11y': jsxA11y,
+      local: { rules: { 'readonly-props': readonlyProps } },
     },
     languageOptions: {
       parserOptions: {
@@ -73,6 +75,9 @@ export default tseslint.config(
 
       // General
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+
+      // Local conventions (see AGENTS.md)
+      'local/readonly-props': 'error',
     },
   },
   prettier

@@ -66,12 +66,12 @@ function FilterSection({
   selected,
   onToggle,
   onClear,
-}: {
+}: Readonly<{
   facet: FilterFacet;
   selected: string[];
   onToggle: (value: string) => void;
   onClear: () => void;
-}) {
+}>) {
   const [expanded, setExpanded] = useState(true);
   const count = selected.length;
 

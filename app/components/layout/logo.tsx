@@ -22,7 +22,7 @@ const SOURCES = {
  * swaps them with the `dark:` variant so it stays correct after hydration with
  * no flash. Pass a height via `className` (e.g. `h-8 w-auto`).
  */
-export function Logo({ className, variant = 'wordmark' }: LogoProps) {
+export function Logo({ className, variant = 'wordmark' }: Readonly<LogoProps>) {
   const src = SOURCES[variant];
   return (
     <>

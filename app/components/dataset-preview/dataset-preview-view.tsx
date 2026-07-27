@@ -62,7 +62,7 @@ function useDatasetForContext(context: PreviewContext, datasetId: string) {
   return isWorkspace ? workspace : personal;
 }
 
-export function DatasetPreviewView({ datasetId, context }: Props) {
+export function DatasetPreviewView({ datasetId, context }: Readonly<Props>) {
   const navigate = useNavigate();
   const { data: dataset, isLoading } = useDatasetForContext(context, datasetId);
 

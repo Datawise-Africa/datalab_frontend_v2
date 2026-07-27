@@ -18,7 +18,7 @@ const ReactQueryDevtoolsPanel = import.meta.env.DEV
     )
   : null;
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+export function QueryProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [queryClient] = useState(
     () =>
       new QueryClient({

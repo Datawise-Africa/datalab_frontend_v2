@@ -56,7 +56,10 @@ const faqs = [
   },
 ];
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
+function FaqItem({
+  question,
+  answer,
+}: Readonly<{ question: string; answer: string }>) {
   const [open, setOpen] = useState(false);
 
   return (

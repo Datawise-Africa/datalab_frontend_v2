@@ -21,12 +21,12 @@ function QuickAction({
   description,
   to,
   icon: Icon,
-}: {
+}: Readonly<{
   label: string;
   description: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-}) {
+}>) {
   return (
     <Card className="group transition-colors hover:border-primary/30">
       <CardContent className="p-5">
