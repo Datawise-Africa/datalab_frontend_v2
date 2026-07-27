@@ -7,7 +7,7 @@ import { DatasetStatusTabs } from '~/components/creator-dashboard/dataset-status
 import { DatasetList } from '~/components/creator-dashboard/dataset-list';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import { DatasetSearch } from '~/components/dataset-catalog/dataset-search';
-import { AsyncSelect } from '~/components/ui/async-select';
+import { Picker } from '~/components/ui/picker';
 import { Button } from '~/components/ui/button';
 import {
   Empty,
@@ -150,10 +150,10 @@ export default function CreatorDashboard() {
             placeholder="Search your datasets..."
           />
           <div className="flex items-center gap-2">
-            <AsyncSelect
+            <Picker
               value={filter.sortBy || 'created_at'}
               onChange={(val) => filter.setSortBy(val ?? 'created_at')}
-              options={sortOptions}
+              items={sortOptions}
               placeholder="Sort by"
               className="h-9 w-40 shrink-0"
             />

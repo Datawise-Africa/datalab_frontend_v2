@@ -3,8 +3,8 @@ import { useFieldArray, useFormContext } from 'react-hook-form';
 import { useStepValidator } from '~/components/ui/multi-step-form';
 import { Separator } from '~/components/ui/separator';
 import { X } from 'lucide-react';
-import { AsyncSelect } from '~/components/ui/async-select';
-import { FormSelectField, FormTextareaField } from '~/components/form-fields';
+import { Picker } from '~/components/ui/picker';
+import { FormPickerField, FormTextareaField } from '~/components/form-fields';
 import type { UploadDatasetFormValues } from './types';
 import { ACCESS_TYPES } from './types';
 import { useAuthors } from '~/features/metadata';
@@ -126,17 +126,17 @@ export function StepAuthorsAccess() {
         <p className="text-sm font-medium">
           Add Author <span className="text-destructive">*</span>
         </p>
-        <AsyncSelect
+        <Picker
           value={null}
           onChange={(val) => {
             if (val && !currentAuthors.some((a) => a.user === val)) {
               append({ user: val, role: 'creator' });
             }
           }}
-          options={authorOptions}
+          items={authorOptions}
           placeholder="Search for an author..."
           searchPlaceholder="Type to search..."
-          emptyText="No authors found."
+          emptyMessage="No authors found."
         />
       </div>
 
@@ -149,7 +149,7 @@ export function StepAuthorsAccess() {
         </p>
       </div>
 
-      <FormSelectField
+      <FormPickerField
         control={control}
         name="access.access_type"
         label="Access Type"

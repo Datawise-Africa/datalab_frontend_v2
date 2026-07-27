@@ -15,7 +15,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from '~/components/ui/sheet';
-import { AsyncSelect } from '~/components/ui/async-select';
+import { Picker } from '~/components/ui/picker';
 import { Separator } from '~/components/ui/separator';
 import { DatasetSearch } from './dataset-search';
 import { cn } from '~/lib/utils';
@@ -73,10 +73,10 @@ export function DatasetFilterToolbar({
           </div>
 
           {/* Sort */}
-          <AsyncSelect
+          <Picker
             value={filter.sortBy}
             onChange={(val) => filter.setSortBy(val ?? 'created_at')}
-            options={datasetSortOptions.map((o) => ({
+            items={datasetSortOptions.map((o) => ({
               label: o.label,
               value: o.value,
             }))}

@@ -27,7 +27,7 @@ import {
   SheetTrigger,
   SheetClose,
 } from '~/components/ui/sheet';
-import { AsyncSelect } from '~/components/ui/async-select';
+import { Picker } from '~/components/ui/picker';
 import { DatasetCard } from '~/components/dataset-card';
 import {
   normalizeMyDataset,
@@ -222,12 +222,12 @@ export default function Datasets() {
               <MobileFilterSheet filter={filter} facets={facets} />
 
               {/* Sort */}
-              <AsyncSelect
+              <Picker
                 value={activeSort}
                 onChange={(val) =>
                   filter.setSortBy(val ?? DEFAULT_DATASET_SORT)
                 }
-                options={datasetSortOptions.map((o) => ({
+                items={datasetSortOptions.map((o) => ({
                   label: o.label,
                   value: o.value,
                 }))}
