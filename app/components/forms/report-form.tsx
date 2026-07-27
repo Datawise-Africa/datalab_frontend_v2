@@ -5,7 +5,7 @@ import { Button } from '~/components/ui/button';
 import {
   FormTextField,
   FormTextareaField,
-  FormSelectField,
+  FormPickerField,
   FormTagInputField,
   FormCheckboxField,
 } from '~/components/form-fields';
@@ -90,24 +90,24 @@ export function ReportForm({
         />
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormSelectField
+          <FormPickerField
             control={form.control}
             name="report_type"
             label="Report type"
             options={reportTypeOptions}
             required
           />
-          <FormSelectField
+          <FormPickerField
             control={form.control}
             name="category"
             label="Category"
             options={categoryOptions}
             placeholder="Select a category"
-            emptyText="No categories yet"
+            emptyMessage="No categories yet"
           />
         </div>
 
-        <FormSelectField
+        <FormPickerField
           control={form.control}
           name="access_type"
           label="Access"

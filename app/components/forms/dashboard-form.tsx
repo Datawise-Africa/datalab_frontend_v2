@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/button';
 import {
   FormTextField,
   FormTextareaField,
-  FormSelectField,
+  FormPickerField,
   FormTagInputField,
   FormCheckboxField,
 } from '~/components/form-fields';
@@ -146,7 +146,7 @@ export function DashboardForm({
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <FormSelectField
+          <FormPickerField
             control={form.control}
             name="category"
             label="Category"
@@ -158,7 +158,7 @@ export function DashboardForm({
             options={categoryOptions}
           />
 
-          <FormSelectField
+          <FormPickerField
             control={form.control}
             name="status"
             label="Status"

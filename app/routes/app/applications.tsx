@@ -5,7 +5,7 @@ import { Protect } from '~/components/auth/protect';
 import { ApplicationsTable } from '~/components/admin/applications-table';
 import { ApplicantModal } from '~/components/admin/applicant-modal';
 import { Input } from '~/components/ui/input';
-import { AsyncSelect } from '~/components/ui/async-select';
+import { Picker } from '~/components/ui/picker';
 import { Loader2, Search, Users } from 'lucide-react';
 import { useCreatorApplications } from '~/features/dataset-creator';
 import type { BecomeDatasetCreatorType } from '~/lib/types/dataset-creator';
@@ -106,13 +106,13 @@ export default function Applications() {
               className="pl-10"
             />
           </div>
-          <AsyncSelect
+          <Picker
             value={statusFilter}
             onChange={(val) => {
               filter.setTag('status', val && val !== 'all' ? [val] : []);
               setPage(1);
             }}
-            options={statusOptions}
+            items={statusOptions}
             placeholder="Filter by status"
             className="w-40 shrink-0"
           />

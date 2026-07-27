@@ -104,12 +104,15 @@ Number input with proper type handling and validation.
 - `max?` - Maximum allowed value
 - `step?` - Increment step for number input
 
-### 5. FormSelectField
+### 5. FormPickerField
 
-Dropdown select field with shadcn/ui Select component.
+The one select field — single or multi, static options or remote search. Renders
+`Picker` (`~/components/ui/picker.tsx`), our own control; it is deliberately not
+named `Combobox` so it never collides with shadcn's recipe, and
+`~/components/ui/select.tsx` remains the unrelated vendored shadcn primitive.
 
 ```tsx
-<FormSelectField
+<FormPickerField
   control={form.control}
   name="categoryId"
   label="Category"
@@ -122,15 +125,46 @@ Dropdown select field with shadcn/ui Select component.
 />
 ```
 
+Multi-select, and remote search where the parent owns the fetch:
+
+```tsx
+<FormPickerField
+  control={form.control}
+  name="countries"
+  label="Countries"
+  multi
+  max={5}
+  options={countryOptions}
+/>
+
+<FormPickerField
+  control={form.control}
+  name="author"
+  label="Author"
+  minSearchLength={2}
+  onSearch={(query, signal) => searchAuthors(query, { signal })}
+/>
+```
+
 **Props:**
 
 - `control` - React Hook Form control object
 - `name` - Field name (typed from form schema)
 - `label` - Field label text
-- `placeholder?` - Placeholder text (default: 'Select an option')
+- `placeholder?` - Placeholder text
+- `searchPlaceholder?` - Placeholder for the search input
+- `emptyMessage?` - Text shown when nothing matches
+- `loading?` / `loadingText?` - Parent-owned loading flag and its label
 - `required?` - Show required asterisk (default: false)
 - `disabled?` - Disable the field (default: false)
-- `options` - Array of `{ value: string, label: string }` objects
+- `readOnly?` - Show the selection but block interaction
+- `options` - Array of `{ value: string, label: string }` objects (static mode)
+- `onSearch?` - `(query, signal) => Promise<PickerItem[]>` (remote mode; also
+  accepts `debounceMs`, `initialItems`, `minSearchLength`)
+- `multi?` - Store an array; adds `max`, `optionStyle`, `maxVisibleChips`
+- `valueAs?` - `'string' | 'number' | 'boolean'` coercion. Clearing writes `null`
+
+For selects outside a form, use `Picker` from `~/components/ui/picker` directly.
 
 ## Usage Example
 
@@ -174,7 +208,7 @@ import {
   FormPasswordField,
   FormTextareaField,
   FormNumberField,
-  FormSelectField,
+  FormPickerField,
 } from '~/components/form-fields';
 ```
 
