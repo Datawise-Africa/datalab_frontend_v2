@@ -22,7 +22,7 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = { hasError: false };
   }

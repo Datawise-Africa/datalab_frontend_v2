@@ -61,7 +61,7 @@ export function ReviewList({
   showForm,
   onSubmitReview,
   isSubmitting,
-}: ReviewListProps) {
+}: Readonly<ReviewListProps>) {
   const [formRating, setFormRating] = useState(0);
   const [formComment, setFormComment] = useState('');
 
