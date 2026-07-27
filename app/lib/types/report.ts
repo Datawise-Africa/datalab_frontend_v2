@@ -106,6 +106,33 @@ export interface Report {
   updated_at: string;
 }
 
+/**
+ * One presigned file from POST /reports/{id}/request-download/. Identical to the
+ * dataset download entry shape, which is why the ready-state rendering is shared
+ * (`~/components/download-flow/download-ready-files`).
+ */
+export interface ReportDownloadFile {
+  file_id: string;
+  file_name: string;
+  file_size: number;
+  download_url: string;
+  expires_in: number;
+}
+
+/**
+ * Success body (HTTP 200) of POST /reports/{id}/request-download/.
+ *
+ * `files` only ever covers the LATEST version — the backend serializer filters
+ * `versions.filter(is_latest=True)` — and comes back empty when no latest
+ * version exists, so callers must handle a zero-length list. Premium reports
+ * never reach here; they raise 403 (or 404 when no marketplace product exists).
+ */
+export interface ReportDownloadReadyResponse {
+  status: 'download_ready';
+  download_id: string;
+  files: ReportDownloadFile[];
+}
+
 /** Row from GET /my-report-downloads/. Shape per spec — not yet observed live. */
 export interface MyReportDownload {
   id: string;

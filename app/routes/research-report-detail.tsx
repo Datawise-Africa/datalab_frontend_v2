@@ -16,9 +16,10 @@ import {
   useReport,
   useReportVersions,
   useReportBookmark,
-  useRequestReportDownload,
 } from '~/features/reports';
 import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
+import { useAppModal } from '~/store/slices/modal-slice';
+import { useAppSelector } from '~/store';
 import { useTrackReportView } from '~/hooks/use-track-view';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { formatBytes } from '~/lib/utils/format';
@@ -53,7 +54,10 @@ export default function ResearchReportDetail() {
     bookmark.toggle()
   );
   const handleBookmark = () => resumeBookmarkToggle();
-  const downloadMutation = useRequestReportDownload();
+
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const authModal = useAppModal('auth');
+  const reportDownloadModal = useAppModal('reportDownload');
 
   useTrackReportView(report ? reportId : undefined);
 
@@ -87,6 +91,18 @@ export default function ResearchReportDetail() {
 
   const cover = resolveMediaUrl(report.cover_image);
   const typeLabel = reportTypeLabels[report.report_type] ?? 'Report';
+
+  // The endpoint is IsAuthenticated, so anonymous users are routed through the
+  // auth modal's `next` intent — signing in re-opens the download modal with
+  // the same payload rather than dropping the click.
+  const handleDownload = () => {
+    const payload = { reportId: report.id, reportName: report.title };
+    if (!isAuthenticated) {
+      authModal.open({ next: { modal: 'reportDownload', payload } });
+      return;
+    }
+    reportDownloadModal.open(payload);
+  };
 
   return (
     <div className="min-h-screen">
@@ -131,15 +147,8 @@ export default function ResearchReportDetail() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <Button
-            onClick={() => downloadMutation.mutate(report.id)}
-            disabled={downloadMutation.isPending}
-          >
-            {downloadMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="mr-2 h-4 w-4" />
-            )}
+          <Button onClick={handleDownload}>
+            <Download className="mr-2 h-4 w-4" />
             Download
           </Button>
           <Button
