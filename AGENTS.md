@@ -62,7 +62,7 @@ app/
       form-text-field.tsx
       form-password-field.tsx
       form-textarea-field.tsx
-      form-select-field.tsx
+      form-picker-field.tsx
       form-number-field.tsx
       form-otp-field.tsx
     admin/             # Admin components (applications table, modals)
@@ -279,12 +279,37 @@ All forms must use **React Hook Form** with **Zod** validation via `zodResolver`
 | ------------------- | ------------------------------------------------------ |
 | `FormTextField`     | Text, email, url, date inputs                          |
 | `FormTextareaField` | Multi-line text inputs                                 |
-| `FormSelectField`   | Single-select dropdowns (AsyncSelect)                  |
+| `FormPickerField`   | **Every** select — single/multi, static or remote      |
 | `FormNumberField`   | Numeric inputs                                         |
 | `FormPasswordField` | Password inputs (has show/hide toggle)                 |
 | `FormOtpField`      | OTP code inputs                                        |
 | `FormCheckboxField` | Booleans; `label` accepts nodes, so it can embed links |
 | `FormTagInputField` | Tag / chip list inputs                                 |
+
+### `FormPickerField` — the one select field
+
+There is a single select field component. It has two independent axes:
+
+- **static** (`options`) vs **remote** (`onSearch(query, signal) => Promise<PickerItem[]>`,
+  debounced; the parent owns the fetch and gets an `AbortSignal` for stale ones).
+  Remote mode also takes `debounceMs`, `initialItems` and `minSearchLength`.
+- **single** (stores one value) vs **multi** (`multi`, stores an array; plus
+  `max`, `optionStyle`, `maxVisibleChips`).
+
+`valueAs="number" | "boolean"` coerces the selected string(s) before they reach
+form state. Clearing always writes `null` — never `0`/`false`, which would look
+like a real value and slip past a `z.number()` required check.
+
+It renders `Picker` (`~/components/ui/picker.tsx`), our own control — **not**
+shadcn's "Combobox" recipe, hence the distinct name; `~/components/ui/select.tsx`
+is the vendored shadcn primitive and is unrelated. `Picker` also supports chips,
+checkbox rows, `readOnly`, and an always-open inline list. When it renders inside
+a modal Sheet/Dialog it is deliberately **not portaled**, so the mouse wheel
+scrolls its list (a body-portaled popover sits outside the overlay's
+`react-remove-scroll` subtree and the wheel is blocked).
+
+Use `Picker` directly (not `FormPickerField`) for selects that live outside a
+form — toolbar sort/filter controls, for example.
 
 ### Single-step form pattern
 

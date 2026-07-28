@@ -16,7 +16,7 @@ import { useFileUpload } from '~/hooks/use-file-upload';
 import {
   FormTextField,
   FormTextareaField,
-  FormSelectField,
+  FormPickerField,
   FormNumberField,
 } from '~/components/form-fields';
 import type { UploadDatasetFormValues } from './types';
@@ -138,7 +138,7 @@ export function StepBasicInfo({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-        <FormSelectField
+        <FormPickerField
           control={control}
           name="dataset_type"
           label="Dataset Type"
@@ -149,7 +149,7 @@ export function StepBasicInfo({
           }))}
         />
 
-        <FormSelectField
+        <FormPickerField
           control={control}
           name="category"
           label="Category"
@@ -165,7 +165,7 @@ export function StepBasicInfo({
         />
       </div>
 
-      <FormSelectField
+      <FormPickerField
         control={control}
         name="license"
         label="License"
@@ -180,14 +180,14 @@ export function StepBasicInfo({
         }
       />
 
-      <FormSelectField
+      <FormPickerField
         control={control}
         name="origin_region"
         label="Origin Region (Countries)"
         placeholder="Select countries..."
         searchPlaceholder="Search countries..."
-        emptyText="No countries found."
-        multiple
+        emptyMessage="No countries found."
+        multi
         options={
           countries?.map((c) => ({
             label: c.name,

@@ -8,7 +8,9 @@ import { useIsClient } from '~/hooks/use-is-client';
  * Avoids PersistGate which renders null until rehydration, causing hydration mismatch.
  * Children always render; redux-persist rehydrates in the background.
  */
-export function StoreProvider({ children }: { children: React.ReactNode }) {
+export function StoreProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const isClient = useIsClient();
 
   return (

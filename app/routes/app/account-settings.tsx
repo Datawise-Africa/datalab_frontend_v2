@@ -11,7 +11,7 @@ import { Separator } from '~/components/ui/separator';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import { ProfileSettingsTab } from '~/components/user-profile/profile-settings-tab';
 import { ProfileSecurityTab } from '~/components/user-profile/profile-security-tab';
-import { useUpdateProfile, useChangePassword } from '~/features/auth';
+import { useChangePassword } from '~/features/auth';
 import { useAppSelector, useAppDispatch } from '~/store';
 import { setDarkMode } from '~/store/slices/theme-slice';
 import { cn } from '~/lib/utils';
@@ -30,7 +30,6 @@ const themeOptions = [
 ] as const;
 
 export default function AccountSettings() {
-  const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
   const user = useAppSelector((s) => s.auth.user);
   const darkMode = useAppSelector((s) => s.theme.darkMode);
@@ -93,10 +92,9 @@ export default function AccountSettings() {
               <h3 className="text-sm font-semibold mb-4">
                 Personal Information
               </h3>
-              <ProfileSettingsTab
-                onSubmit={(data) => updateProfile.mutate(data)}
-                isPending={updateProfile.isPending}
-              />
+              {/* Read-only until `PUT /api/auth/me/` is routed on the backend —
+                  submitting would 404. See `features/auth/mutations.ts`. */}
+              <ProfileSettingsTab readOnly />
             </CardContent>
           </Card>
         </TabsContent>
@@ -186,11 +184,11 @@ function NotificationToggle({
   label,
   description,
   defaultChecked = false,
-}: {
+}: Readonly<{
   label: string;
   description: string;
   defaultChecked?: boolean;
-}) {
+}>) {
   return (
     <div className="flex items-start justify-between gap-4">
       <div>

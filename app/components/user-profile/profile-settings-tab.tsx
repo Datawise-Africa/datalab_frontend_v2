@@ -17,13 +17,20 @@ import {
 import { useAppSelector } from '~/store';
 
 interface ProfileSettingsTabProps {
-  onSubmit: (data: UpdateProfileInput) => void;
+  onSubmit?: (data: UpdateProfileInput) => void;
   isPending?: boolean;
+  /**
+   * Render the form without a save path. Set while `PUT /api/auth/me/` is unrouted
+   * on the backend — the fields still show the signed-in user's details, but there
+   * is nowhere to submit them. See `features/auth/mutations.ts` for the detail.
+   */
+  readOnly?: boolean;
 }
 
 export function ProfileSettingsTab({
   onSubmit,
   isPending,
+  readOnly = false,
 }: Readonly<ProfileSettingsTabProps>) {
   const user = useAppSelector((state) => state.auth.user);
 
@@ -38,7 +45,10 @@ export function ProfileSettingsTab({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit((data) => onSubmit?.(data))}
+        className="space-y-4"
+      >
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -47,7 +57,7 @@ export function ProfileSettingsTab({
               <FormItem>
                 <FormLabel>First name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} disabled={readOnly} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -60,7 +70,7 @@ export function ProfileSettingsTab({
               <FormItem>
                 <FormLabel>Last name</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} disabled={readOnly} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -74,19 +84,27 @@ export function ProfileSettingsTab({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" {...field} />
+                <Input type="email" {...field} disabled={readOnly} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          className="bg-primary hover:bg-primary/90"
-          disabled={isPending}
-        >
-          {isPending ? 'Saving...' : 'Save changes'}
-        </Button>
+        {readOnly ? (
+          <p className="text-sm text-muted-foreground">
+            Editing your profile isn&apos;t available yet — the backend endpoint
+            for saving these changes hasn&apos;t shipped. Your details are shown
+            here for reference.
+          </p>
+        ) : (
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary/90"
+            disabled={isPending}
+          >
+            {isPending ? 'Saving...' : 'Save changes'}
+          </Button>
+        )}
       </form>
     </Form>
   );

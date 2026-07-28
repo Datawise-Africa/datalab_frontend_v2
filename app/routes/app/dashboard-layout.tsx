@@ -206,10 +206,10 @@ function useDashboardSections(): SidebarSection[] {
 function SidebarContent({
   onNavigate,
   collapsed = false,
-}: {
+}: Readonly<{
   onNavigate?: () => void;
   collapsed?: boolean;
-}) {
+}>) {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector((s) => s.auth.user);

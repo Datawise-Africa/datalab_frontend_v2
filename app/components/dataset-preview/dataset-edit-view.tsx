@@ -84,7 +84,7 @@ function mapDatasetToFormValues(
   };
 }
 
-export function DatasetEditView({ datasetId, context }: Props) {
+export function DatasetEditView({ datasetId, context }: Readonly<Props>) {
   const navigate = useNavigate();
   const isWorkspace = context.kind === 'workspace';
   const { data: dataset, isLoading } = useDatasetForContext(context, datasetId);

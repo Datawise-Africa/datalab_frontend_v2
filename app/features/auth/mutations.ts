@@ -79,9 +79,18 @@ export const useLogout = () => {
   });
 };
 
-// UNVERIFIED: `/auth/me/` is not in the OpenAPI spec and this hook is already wired
-// into the account-settings profile tab, so that form 404s. Confirm the endpoint with
-// the backend, or delete this hook and the tab together.
+// BLOCKED ON BACKEND — verified against `datalab_backend` 2026-07-27, do not wire this up.
+// `PUT /api/auth/me/` is not routed: `apps/authentication/urls.py:16-27` is the complete
+// auth route list and has no `me/`, no DRF router, and no user-detail route by pk. Calling
+// this returns 404 from Django's URL resolver.
+//
+// The backend is half-built, not absent: `apps/authentication/serializers.py:14-33` already
+// defines `UpdateUserSerializer` (id, email, first_name, last_name + nested profile write)
+// and `UserSerializer` alongside it, and neither is referenced by any view. Landing this
+// needs one view — a `RetrieveUpdateAPIView` at `api/auth/me/` using those serializers.
+//
+// Until then the account-settings profile tab renders read-only (see `account-settings.tsx`).
+// Keep this hook so the frontend half stays ready; re-enable the tab when the route exists.
 export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: async (input: UpdateProfileInput): Promise<AuthUser> => {

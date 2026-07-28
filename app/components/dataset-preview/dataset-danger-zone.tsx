@@ -13,7 +13,11 @@ type Props = Readonly<{
   onDeleted: () => void;
 }>;
 
-export function DatasetDangerZone({ datasetId, context, onDeleted }: Props) {
+export function DatasetDangerZone({
+  datasetId,
+  context,
+  onDeleted,
+}: Readonly<Props>) {
   const [confirm, setConfirm] = useState(false);
   const isWorkspace = context.kind === 'workspace';
   const personalDelete = useDeleteMyDataset();

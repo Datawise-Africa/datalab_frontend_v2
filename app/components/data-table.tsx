@@ -93,7 +93,7 @@ export function DataTable<TData, TValue>({
   errorDescription = 'Something went wrong. Please try again.',
   showRowNumber = true,
   serverPagination,
-}: DataTableProps<TData, TValue>) {
+}: Readonly<DataTableProps<TData, TValue>>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const isServerPaginated = !!serverPagination;
 
