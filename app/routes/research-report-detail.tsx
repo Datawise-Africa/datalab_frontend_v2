@@ -1,11 +1,13 @@
 import { useParams, Link } from 'react-router';
 import {
   ArrowLeft,
+  Building2,
   Download,
   FileText,
   Loader2,
   Lock,
   Bookmark,
+  User,
 } from 'lucide-react';
 import type { Route } from './+types/research-report-detail';
 import { generateSEOTags } from '~/lib/utils/seo';
@@ -18,6 +20,7 @@ import {
   useReportBookmark,
 } from '~/features/reports';
 import { useResumeAfterAuth } from '~/hooks/use-resume-after-auth';
+import { getWorkspaceName } from '~/features/my-datasets/types';
 import { useAppModal } from '~/store/slices/modal-slice';
 import { useAppSelector } from '~/store';
 import { useTrackReportView } from '~/hooks/use-track-view';
@@ -95,6 +98,9 @@ export default function ResearchReportDetail() {
   // The endpoint is IsAuthenticated, so anonymous users are routed through the
   // auth modal's `next` intent — signing in re-opens the download modal with
   // the same payload rather than dropping the click.
+  // Workspace attribution replaces the individual, matching dataset-detail.tsx.
+  const workspaceName = getWorkspaceName(report.workspace);
+
   const handleDownload = () => {
     const payload = { reportId: report.id, reportName: report.title };
     if (!isAuthenticated) {
@@ -132,8 +138,18 @@ export default function ResearchReportDetail() {
         </h1>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-          <span>
-            {report.owner.first_name} {report.owner.last_name}
+          <span className="flex items-center gap-1.5">
+            {workspaceName ? (
+              <>
+                <Building2 className="h-3.5 w-3.5" />
+                {workspaceName}
+              </>
+            ) : (
+              <>
+                <User className="h-3.5 w-3.5" />
+                {report.owner.first_name} {report.owner.last_name}
+              </>
+            )}
           </span>
           {report.published_at && (
             <span>
@@ -201,7 +217,7 @@ export default function ResearchReportDetail() {
           </section>
         )}
 
-        {report.authors.length > 0 && (
+        {!workspaceName && report.authors.length > 0 && (
           <section className="mt-6">
             <h2 className="text-lg font-semibold">Authors</h2>
             <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
