@@ -1,9 +1,17 @@
 import { Link } from 'react-router';
-import { Bookmark, Download, Loader2, Lock } from 'lucide-react';
+import {
+  Bookmark,
+  Building2,
+  Download,
+  Loader2,
+  Lock,
+  User,
+} from 'lucide-react';
 import { ReportDefaultIllustration } from '~/components/illustrations/report-default';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent } from '~/components/ui/card';
 import { useReportBookmark } from '~/features/reports';
+import { getWorkspaceName } from '~/features/my-datasets/types';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { cn } from '~/lib/utils';
 import { useAppSelector } from '~/store';
@@ -27,6 +35,8 @@ interface ReportCardProps {
 export function ReportCard({ report, className }: Readonly<ReportCardProps>) {
   const cover = resolveMediaUrl(report.cover_image);
   const typeLabel = reportTypeLabels[report.report_type] ?? 'Report';
+  // Workspace attribution replaces the individual, matching dataset-detail.tsx.
+  const workspaceName = getWorkspaceName(report.workspace);
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
   const bookmark = useReportBookmark(report.id);
 
@@ -107,8 +117,18 @@ export function ReportCard({ report, className }: Readonly<ReportCardProps>) {
         ) : null}
 
         <div className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
-          <span className="truncate">
-            {report.owner.first_name} {report.owner.last_name}
+          <span className="flex min-w-0 items-center gap-1 truncate">
+            {workspaceName ? (
+              <>
+                <Building2 className="h-3 w-3 shrink-0" />
+                {workspaceName}
+              </>
+            ) : (
+              <>
+                <User className="h-3 w-3 shrink-0" />
+                {report.owner.first_name} {report.owner.last_name}
+              </>
+            )}
           </span>
           <span className="flex items-center gap-1">
             <Download className="h-3 w-3" />
