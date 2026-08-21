@@ -6,6 +6,7 @@ import {
   Pencil,
   Trash2,
   LayoutGrid,
+  WandSparkles,
   Loader2,
   Calendar,
   User,
@@ -34,6 +35,8 @@ import {
 import { toastUtils } from '~/lib/utils/toast';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import type { DashboardStatus } from '~/lib/types/dashboard';
+import { ValidationStatusPanel } from '~/components/validation/validation-status-panel';
+import { isInternalWorkspace } from '~/lib/types/common';
 
 interface Props {
   dashboardId: string;
@@ -89,6 +92,9 @@ export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
   const editHref = workspaceId
     ? `/app/workspaces/${workspaceId}/dashboards/${dashboardId}/edit`
     : `/app/my-dashboards/${dashboardId}/edit`;
+  const studioHref = workspaceId
+    ? `/app/workspaces/${workspaceId}/dashboards/${dashboardId}/studio`
+    : `/app/my-dashboards/${dashboardId}/studio`;
 
   if (isLoading) {
     return (
@@ -147,6 +153,14 @@ export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
           Back to dashboards
         </Link>
         <div className="flex flex-wrap items-center gap-2">
+          {dashboard.builder_mode === 'native' && (
+            <Button asChild size="sm">
+              <Link to={studioHref}>
+                <WandSparkles className="mr-1.5 h-3.5 w-3.5" />
+                Open Studio
+              </Link>
+            </Button>
+          )}
           {dashboard.status === 'DF' && (
             <Button
               size="sm"
@@ -154,7 +168,9 @@ export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
               disabled={updateMutation.isPending}
             >
               <Send className="mr-1.5 h-3.5 w-3.5" />
-              Publish
+              {isInternalWorkspace(dashboard.workspace)
+                ? 'Publish'
+                : 'Submit for review'}
             </Button>
           )}
           {dashboard.status === 'PB' && (
@@ -209,6 +225,14 @@ export function DashboardDetail({ dashboardId, workspaceId }: Readonly<Props>) {
           </Button>
         </div>
       </div>
+
+      {dashboard.status === 'PB' && (
+        <ValidationStatusPanel
+          verificationStatus={dashboard.verification_status}
+          validation={dashboard.validation}
+          validationRequired={!isInternalWorkspace(dashboard.workspace)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex flex-col gap-4 border-b pb-6 md:flex-row md:items-start">

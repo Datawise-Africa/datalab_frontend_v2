@@ -4,7 +4,11 @@ import { useStepValidator } from '~/components/ui/multi-step-form';
 import { Separator } from '~/components/ui/separator';
 import { X } from 'lucide-react';
 import { Picker } from '~/components/ui/picker';
-import { FormPickerField, FormTextareaField } from '~/components/form-fields';
+import {
+  FormPickerField,
+  FormTextField,
+  FormTextareaField,
+} from '~/components/form-fields';
 import type { UploadDatasetFormValues } from './types';
 import { ACCESS_TYPES } from './types';
 import { useAuthors } from '~/features/metadata';
@@ -83,6 +87,7 @@ export function StepAuthorsAccess() {
   });
 
   const accessType = watch('access.access_type');
+  const doiOption = watch('doi_option');
 
   return (
     <div className="space-y-6">
@@ -168,6 +173,45 @@ export function StepAuthorsAccess() {
           placeholder="Describe how users can request access..."
           rows={3}
         />
+      )}
+
+      <Separator />
+
+      <div>
+        <h2 className="text-lg font-semibold">Persistent identifier</h2>
+        <p className="text-sm text-muted-foreground">
+          A DOI is optional. Attach an existing DOI or request a Datalab-issued
+          DOI after the dataset passes publication review.
+        </p>
+      </div>
+
+      <FormPickerField
+        control={control}
+        name="doi_option"
+        label="DOI preference"
+        placeholder="Choose a DOI option"
+        options={[
+          { label: 'No DOI', value: 'none' },
+          { label: 'Use an existing DOI', value: 'existing' },
+          { label: 'Request a Datalab-issued DOI', value: 'datalab' },
+        ]}
+      />
+
+      {doiOption === 'existing' && (
+        <FormTextField
+          control={control}
+          name="doi"
+          label="Existing DOI"
+          placeholder="10.1234/example.dataset"
+        />
+      )}
+
+      {doiOption === 'datalab' && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm">
+          Datalab will reserve and publish the DOI through DataCite only after
+          an administrator approves this dataset. The DOI will resolve to the
+          public Datalab landing page and becomes permanent once registered.
+        </div>
       )}
     </div>
   );

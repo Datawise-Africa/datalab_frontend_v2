@@ -23,6 +23,12 @@ export const accessTypeEnum = z.enum(['public', 'private', 'restricted']);
 
 export type AccessType = z.infer<typeof accessTypeEnum>;
 
+export const doiOptionEnum = z.enum(['none', 'existing', 'datalab']);
+export type DOIOption = z.infer<typeof doiOptionEnum>;
+
+const DOI_PATTERN =
+  /^(?:doi:\s*)?(?:https?:\/\/(?:(?:dx|www)\.)?doi\.org\/)?10\.\d{4,9}\/\S+$/i;
+
 // ── Sub-schemas ──
 
 export const datasetAuthorSchema = z.object({
@@ -88,10 +94,34 @@ export const uploadDatasetFormSchema = z
       access_instructions: z.string().optional(),
     }),
     datasheet: datasetDatasheetSchema.optional(),
+    doi_option: doiOptionEnum,
+    doi: z
+      .string()
+      .trim()
+      .refine((value) => value === '' || DOI_PATTERN.test(value), {
+        message: 'Enter a valid DOI, for example 10.1234/example.dataset',
+      })
+      .optional(),
   })
   .refine((d) => !d.is_premium || (d.price !== null && d.price > 0), {
     message: 'Price is required for premium datasets',
     path: ['price'],
+  })
+  .superRefine((data, context) => {
+    if (data.doi_option === 'existing' && !data.doi) {
+      context.addIssue({
+        code: 'custom',
+        path: ['doi'],
+        message: 'Enter the existing DOI you want to attach',
+      });
+    }
+    if (data.doi_option !== 'existing' && data.doi) {
+      context.addIssue({
+        code: 'custom',
+        path: ['doi'],
+        message: 'A DOI value is only used with the existing DOI option',
+      });
+    }
   });
 
 export type UploadDatasetFormValues = z.infer<typeof uploadDatasetFormSchema>;

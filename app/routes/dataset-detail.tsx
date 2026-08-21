@@ -27,6 +27,9 @@ import {
   FileText,
   ClipboardList,
   GitBranch,
+  Copy,
+  ExternalLink,
+  Fingerprint,
 } from 'lucide-react';
 import { useDataset, useDatasetVersions } from '~/features/datasets';
 import { useReviews } from '~/features/reviews';
@@ -46,6 +49,7 @@ import { formatBytes } from '~/lib/utils/format';
 import type { MyDatasetInterface } from '~/features/my-datasets';
 import { getWorkspaceId, getWorkspaceName } from '~/features/my-datasets/types';
 import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
+import { toastUtils } from '~/lib/utils/toast';
 
 /** Server-side fetch so meta() has real data for SEO. */
 export async function loader({ params }: Route.LoaderArgs) {
@@ -88,7 +92,7 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
     .trim()
     .slice(0, 160);
 
-  return generateSEOTags({
+  const tags = generateSEOTags({
     title: dataset.name,
     description:
       description || `Explore the ${dataset.name} dataset on Datalab.`,
@@ -110,6 +114,9 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
         created_at: dataset.created_at,
         updated_at: dataset.updated_at,
         dataset_image: resolveMediaUrl(dataset.dataset_image),
+        doi: dataset.doi,
+        doi_url: dataset.doi_url,
+        citation: dataset.citation,
       }),
       breadcrumbSchema([
         { name: 'Home', url: '/' },
@@ -118,6 +125,14 @@ export function meta({ loaderData: data, params }: Route.MetaArgs) {
       ]),
     ],
   });
+
+  if (!dataset.doi) return tags;
+
+  return [
+    ...tags,
+    { name: 'citation_doi', content: dataset.doi },
+    { name: 'DC.identifier', content: dataset.doi_url ?? dataset.doi },
+  ];
 }
 
 export default function DatasetDetail({ params }: Route.ComponentProps) {
@@ -307,6 +322,14 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
 
               {/* Details tab */}
               <TabsContent value="details" className="mt-4 space-y-8">
+                {dataset.doi && dataset.doi_url && (
+                  <DoiMetadata
+                    doi={dataset.doi}
+                    doiUrl={dataset.doi_url}
+                    citation={dataset.citation}
+                  />
+                )}
+
                 {/* Origin Regions */}
                 {regions.length > 0 && (
                   <div>
@@ -451,6 +474,68 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+function DoiMetadata({
+  doi,
+  doiUrl,
+  citation,
+}: Readonly<{
+  doi: string;
+  doiUrl: string;
+  citation: string | null;
+}>) {
+  const copyCitation = async () => {
+    if (!citation || typeof globalThis.navigator === 'undefined') return;
+
+    try {
+      await globalThis.navigator.clipboard.writeText(citation);
+      toastUtils.success('Citation copied to clipboard');
+    } catch {
+      toastUtils.error('Could not copy citation');
+    }
+  };
+
+  return (
+    <section className="rounded-lg border bg-muted/30 p-4">
+      <div className="mb-3 flex items-center gap-2">
+        <Fingerprint className="h-4 w-4 text-primary" aria-hidden="true" />
+        <h3 className="text-sm font-semibold">Persistent identifier</h3>
+      </div>
+      <a
+        href={doiUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 break-all text-sm font-medium text-primary hover:underline"
+      >
+        {doiUrl}
+        <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      </a>
+      <p className="sr-only">DOI {doi}</p>
+
+      {citation && (
+        <div className="mt-4 border-t pt-4">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Cite this dataset
+            </p>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={copyCitation}
+            >
+              <Copy className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+              Copy citation
+            </Button>
+          </div>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {citation}
+          </p>
+        </div>
+      )}
+    </section>
   );
 }
 

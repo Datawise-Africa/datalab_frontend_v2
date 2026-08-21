@@ -13,6 +13,8 @@ import {
 import type { ReportFormValues } from '~/lib/schema/report-schema';
 import type { Report, ReportStatus } from '~/lib/types/report';
 import { toastUtils } from '~/lib/utils/toast';
+import { ValidationStatusPanel } from '~/components/validation/validation-status-panel';
+import { isInternalWorkspace } from '~/lib/types/common';
 
 const statusLabels: Record<ReportStatus, string> = {
   DF: 'Draft',
@@ -117,7 +119,9 @@ export default function WorkspaceReportEdit() {
               {statusMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Publish
+              {isInternalWorkspace(report.workspace)
+                ? 'Publish'
+                : 'Submit for review'}
             </Button>
           ) : (
             <Button
@@ -130,6 +134,16 @@ export default function WorkspaceReportEdit() {
           )}
         </div>
       </div>
+
+      {report.status === 'PB' && (
+        <div className="mb-8">
+          <ValidationStatusPanel
+            verificationStatus={report.verification_status}
+            validation={report.validation}
+            validationRequired={!isInternalWorkspace(report.workspace)}
+          />
+        </div>
+      )}
 
       <ReportForm
         mode="edit"

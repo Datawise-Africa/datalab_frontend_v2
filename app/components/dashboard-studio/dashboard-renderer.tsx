@@ -1,0 +1,521 @@
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ComposedChart,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  PolarAngleAxis,
+  PolarGrid,
+  PolarRadiusAxis,
+  Radar,
+  RadarChart,
+  RadialBar,
+  RadialBarChart,
+  ResponsiveContainer,
+  Scatter,
+  ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { BarChart3, FilterX } from 'lucide-react';
+import { Button } from '~/components/ui/button';
+import type {
+  DashboardDefinition,
+  DashboardWidget,
+} from '~/lib/types/dashboard';
+
+const DATALAB_PALETTE = [
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+];
+const WIDTH_CLASS: Record<number, string> = {
+  3: 'lg:col-span-3',
+  4: 'lg:col-span-4',
+  6: 'lg:col-span-6',
+  8: 'lg:col-span-8',
+  9: 'lg:col-span-9',
+  12: 'lg:col-span-12',
+};
+
+function formatValue(value: unknown, widget: DashboardWidget) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value ?? '—');
+  const decimals = widget.config?.decimals ?? 0;
+  const format = widget.config?.numberFormat ?? 'standard';
+  if (format === 'compact')
+    return new Intl.NumberFormat(undefined, {
+      notation: 'compact',
+      maximumFractionDigits: decimals,
+    }).format(number);
+  if (format === 'currency')
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: widget.config?.currency ?? 'USD',
+      maximumFractionDigits: decimals,
+    }).format(number);
+  if (format === 'percent')
+    return new Intl.NumberFormat(undefined, {
+      style: 'percent',
+      maximumFractionDigits: decimals,
+    }).format(number / 100);
+  return new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: decimals,
+  }).format(number);
+}
+
+function datumValue(row: unknown, key: string) {
+  return (row as { payload?: Record<string, unknown> }).payload?.[key];
+}
+
+function Chart({
+  widget,
+  interactive,
+  onFilter,
+}: Readonly<{
+  widget: DashboardWidget;
+  interactive: boolean;
+  onFilter: (column: string, value: unknown) => void;
+}>) {
+  const rows = widget.data?.rows ?? [];
+  const columns = widget.data?.columns.map((item) => item.name) ?? [];
+  const x = widget.config?.x ?? columns[0];
+  const requestedY = widget.config?.y;
+  const yKeys = columns.filter(
+    (column) =>
+      column !== x && rows.some((row) => Number.isFinite(Number(row[column])))
+  );
+  const series = requestedY
+    ? [requestedY, ...yKeys.filter((key) => key !== requestedY)]
+    : yKeys;
+  const palette = widget.config?.palette?.length
+    ? widget.config.palette
+    : DATALAB_PALETTE;
+  const height = Math.max(150, (widget.layout?.height ?? 360) - 105);
+  const click = (row: unknown) =>
+    interactive && x && onFilter(x, datumValue(row, x));
+  if (widget.type === 'text')
+    return (
+      <div className="prose prose-sm max-w-none whitespace-pre-wrap text-foreground/80">
+        {widget.text || 'Add a narrative, interpretation or methodology note.'}
+      </div>
+    );
+  if (widget.type === 'kpi') {
+    const key = requestedY ?? series[0] ?? x;
+    return (
+      <div className="flex h-full flex-col justify-center">
+        <div className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          {widget.config?.prefix}
+          {formatValue(rows[0]?.[key ?? ''], widget)}
+          {widget.config?.suffix}
+        </div>
+        {widget.config?.description && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            {widget.config.description}
+          </p>
+        )}
+        <p className="mt-3 text-xs text-muted-foreground">
+          Calculated from{' '}
+          {widget.data?.source_row_count?.toLocaleString() ??
+            widget.data?.row_count ??
+            0}{' '}
+          source rows
+        </p>
+      </div>
+    );
+  }
+  if (widget.type === 'table')
+    return (
+      <div className="overflow-auto" style={{ maxHeight: height }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr>
+              {widget.data?.columns.map((column) => (
+                <th
+                  key={column.name}
+                  className="sticky top-0 border-b bg-card p-2.5 text-left font-medium"
+                >
+                  {column.name}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr
+                key={`${widget.id}-${index}`}
+                className="border-b last:border-0 hover:bg-muted/40"
+              >
+                {widget.data?.columns.map((column) => (
+                  <td key={column.name} className="p-2.5">
+                    {column.type === 'number'
+                      ? formatValue(row[column.name], widget)
+                      : String(row[column.name] ?? '')}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  if (!rows.length || !x || !series.length)
+    return (
+      <div
+        className="flex flex-col items-center justify-center text-muted-foreground"
+        style={{ height }}
+      >
+        <BarChart3 className="mb-2 h-8 w-8 opacity-35" />
+        <span className="text-sm">Configure the fields, then run analysis</span>
+      </div>
+    );
+  const grid =
+    widget.config?.showGrid === false ? null : (
+      <CartesianGrid strokeDasharray="3 3" opacity={0.18} />
+    );
+  const legend =
+    widget.config?.showLegend === false ? null : (
+      <Legend wrapperStyle={{ fontSize: 12 }} />
+    );
+  const tooltip = (
+    <Tooltip
+      formatter={(value) => formatValue(value, widget)}
+      contentStyle={{ borderRadius: 10, borderColor: 'var(--border)' }}
+    />
+  );
+  const axes = (
+    <>
+      {grid}
+      <XAxis dataKey={x} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+      <YAxis
+        tick={{ fontSize: 11 }}
+        tickFormatter={(value) =>
+          formatValue(value, {
+            ...widget,
+            config: { ...widget.config, numberFormat: 'compact' },
+          })
+        }
+      />
+      {tooltip}
+      {legend}
+    </>
+  );
+  if (widget.type === 'pie' || widget.type === 'donut')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <PieChart>
+          {tooltip}
+          {legend}
+          <Pie
+            data={rows}
+            dataKey={series[0]}
+            nameKey={x}
+            innerRadius={widget.type === 'donut' ? '52%' : 0}
+            outerRadius="78%"
+            paddingAngle={2}
+            onClick={click}
+          >
+            {rows.map((_, index) => (
+              <Cell
+                key={`${widget.id}-${index}`}
+                fill={palette[index % palette.length]}
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'radar')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <RadarChart data={rows}>
+          <PolarGrid />
+          <PolarAngleAxis dataKey={x} tick={{ fontSize: 11 }} />
+          <PolarRadiusAxis tick={{ fontSize: 10 }} />
+          {tooltip}
+          {legend}
+          {series.slice(0, 4).map((key, index) => (
+            <Radar
+              key={key}
+              name={key}
+              dataKey={key}
+              stroke={palette[index]}
+              fill={palette[index]}
+              fillOpacity={0.12}
+            />
+          ))}
+        </RadarChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'radial')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <RadialBarChart
+          data={rows.slice(0, 8)}
+          innerRadius="20%"
+          outerRadius="92%"
+          startAngle={90}
+          endAngle={-270}
+        >
+          <PolarAngleAxis type="number" domain={[0, 'dataMax']} tick={false} />
+          <RadialBar dataKey={series[0]} background cornerRadius={8}>
+            {rows.slice(0, 8).map((_, index) => (
+              <Cell
+                key={`${widget.id}-${index}`}
+                fill={palette[index % palette.length]}
+              />
+            ))}
+          </RadialBar>
+          {tooltip}
+          {legend}
+        </RadialBarChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'line')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <LineChart data={rows}>
+          {axes}
+          {series.slice(0, 6).map((key, index) => (
+            <Line
+              key={key}
+              dataKey={key}
+              stroke={palette[index]}
+              strokeWidth={2.5}
+              dot={rows.length < 40 ? { r: 3 } : false}
+            />
+          ))}
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'area')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <AreaChart data={rows}>
+          {axes}
+          {series.slice(0, 6).map((key, index) => (
+            <Area
+              key={key}
+              dataKey={key}
+              stackId={widget.config?.stacked ? 'stack' : undefined}
+              stroke={palette[index]}
+              fill={palette[index]}
+              fillOpacity={0.14}
+            />
+          ))}
+        </AreaChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'scatter')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <ScatterChart data={rows}>
+          {grid}
+          <XAxis type="number" dataKey={x} name={x} tick={{ fontSize: 11 }} />
+          <YAxis
+            type="number"
+            dataKey={series[0]}
+            name={series[0]}
+            tick={{ fontSize: 11 }}
+          />
+          {tooltip}
+          <Scatter data={rows} fill={palette[0]} />
+        </ScatterChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'combo')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <ComposedChart data={rows}>
+          {axes}
+          <Bar dataKey={series[0]} fill={palette[0]} radius={[5, 5, 0, 0]} />
+          {series.slice(1, 4).map((key, index) => (
+            <Line
+              key={key}
+              dataKey={key}
+              stroke={palette[index + 1]}
+              strokeWidth={2.5}
+            />
+          ))}
+        </ComposedChart>
+      </ResponsiveContainer>
+    );
+  const horizontal = widget.type === 'horizontal_bar';
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart data={rows} layout={horizontal ? 'vertical' : 'horizontal'}>
+        {grid}
+        {horizontal ? (
+          <>
+            <XAxis type="number" tick={{ fontSize: 11 }} />
+            <YAxis
+              type="category"
+              dataKey={x}
+              width={100}
+              tick={{ fontSize: 11 }}
+            />
+          </>
+        ) : (
+          <>
+            <XAxis dataKey={x} tick={{ fontSize: 11 }} />
+            <YAxis tick={{ fontSize: 11 }} />
+          </>
+        )}
+        {tooltip}
+        {legend}
+        {series.slice(0, 6).map((key, index) => (
+          <Bar
+            key={key}
+            dataKey={key}
+            stackId={widget.type === 'stacked_bar' ? 'stack' : undefined}
+            fill={palette[index]}
+            radius={widget.type === 'stacked_bar' ? 0 : [5, 5, 0, 0]}
+            onClick={click}
+          />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function DashboardRenderer({
+  definition,
+  interactive = true,
+  selectedId,
+  onSelect,
+  activePageId,
+  onPageChange,
+  hidePageTabs = false,
+}: Readonly<{
+  definition: DashboardDefinition;
+  interactive?: boolean;
+  selectedId?: string;
+  onSelect?: (id: string) => void;
+  activePageId?: string;
+  onPageChange?: (id: string) => void;
+  hidePageTabs?: boolean;
+}>) {
+  const [internalPageId, setInternalPageId] = useState(definition.pages[0]?.id);
+  const [crossFilter, setCrossFilter] = useState<{
+    column: string;
+    value: unknown;
+  } | null>(null);
+  const pageId = activePageId ?? internalPageId;
+  useEffect(() => {
+    if (!definition.pages.some((page) => page.id === pageId))
+      setInternalPageId(definition.pages[0]?.id);
+  }, [definition.pages, pageId]);
+  const page =
+    definition.pages.find((item) => item.id === pageId) ?? definition.pages[0];
+  const widgets = useMemo(
+    () =>
+      (page?.widgets ?? []).map((widget) =>
+        crossFilter && widget.data
+          ? {
+              ...widget,
+              data: {
+                ...widget.data,
+                rows: widget.data.rows.filter(
+                  (row) =>
+                    String(row[crossFilter.column]) ===
+                    String(crossFilter.value)
+                ),
+              },
+            }
+          : widget
+      ),
+    [page, crossFilter]
+  );
+  const changePage = (id: string) => {
+    setInternalPageId(id);
+    onPageChange?.(id);
+    setCrossFilter(null);
+  };
+  if (!page)
+    return (
+      <div className="rounded-xl border border-dashed p-16 text-center text-sm text-muted-foreground">
+        This dashboard has no pages yet.
+      </div>
+    );
+  return (
+    <div
+      className="space-y-4 rounded-xl p-1"
+      style={{ background: definition.theme?.background || undefined }}
+    >
+      {!hidePageTabs && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-1 rounded-lg bg-muted p-1">
+            {definition.pages.map((item) => (
+              <Button
+                key={item.id}
+                variant={item.id === page.id ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => changePage(item.id)}
+              >
+                {item.title ?? item.name ?? 'Page'}
+              </Button>
+            ))}
+          </div>
+          {crossFilter && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setCrossFilter(null)}
+            >
+              <FilterX className="mr-1 h-4 w-4" />
+              Clear {crossFilter.column}: {String(crossFilter.value)}
+            </Button>
+          )}
+        </div>
+      )}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        {widgets.map((widget) => (
+          <section
+            key={widget.id}
+            onClick={onSelect ? () => onSelect(widget.id) : undefined}
+            onKeyDown={
+              onSelect
+                ? (event) => {
+                    if (event.key === 'Enter' || event.key === ' ')
+                      onSelect(widget.id);
+                  }
+                : undefined
+            }
+            role="button"
+            tabIndex={0}
+            className={`border bg-card p-5 shadow-sm transition ${WIDTH_CLASS[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
+            style={{
+              minHeight: widget.layout?.height ?? 360,
+              borderRadius: definition.theme?.radius ?? 12,
+            }}
+          >
+            <div className="mb-3">
+              <h3 className="font-semibold text-foreground">{widget.title}</h3>
+              {widget.config?.description && widget.type !== 'kpi' && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {widget.config.description}
+                </p>
+              )}
+            </div>
+            <Chart
+              widget={widget}
+              interactive={interactive}
+              onFilter={(column, value) => setCrossFilter({ column, value })}
+            />
+          </section>
+        ))}
+      </div>
+    </div>
+  );
+}

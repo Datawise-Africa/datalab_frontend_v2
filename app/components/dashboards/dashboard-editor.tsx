@@ -65,6 +65,7 @@ function CreateEditor({ workspaceId }: Readonly<{ workspaceId?: string }>) {
   const defaultValues = useMemo<CreateDashboardFormValues>(
     () => ({
       title: '',
+      builder_mode: 'native',
       description: '',
       dashboard_url: '',
       category: null,
@@ -81,7 +82,14 @@ function CreateEditor({ workspaceId }: Readonly<{ workspaceId?: string }>) {
     await createMutation.mutateAsync(
       { ...data, workspace: workspaceId ?? null },
       {
-        onSuccess: () => navigate(listHref(workspaceId)),
+        onSuccess: (dashboard) =>
+          navigate(
+            data.builder_mode === 'native'
+              ? workspaceId
+                ? `/app/workspaces/${workspaceId}/dashboards/${dashboard.id}/studio`
+                : `/app/my-dashboards/${dashboard.id}/studio`
+              : listHref(workspaceId)
+          ),
       }
     );
   };
@@ -137,6 +145,7 @@ function EditEditor({
       dashboard
         ? {
             title: dashboard.title,
+            builder_mode: dashboard.builder_mode ?? 'external',
             description: dashboard.description ?? '',
             dashboard_url: dashboard.dashboard_url ?? '',
             category: dashboard.category?.id ?? null,

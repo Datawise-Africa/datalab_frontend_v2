@@ -32,6 +32,13 @@ export function StepReview({ mode = 'create' }: Readonly<StepReviewProps>) {
           </span>
         </div>
         <Separator />
+        <div className="flex justify-between gap-4">
+          <span className="font-medium">DOI</span>
+          <span className="break-all text-right text-muted-foreground">
+            {values.doi || '(not provided)'}
+          </span>
+        </div>
+        <Separator />
         <div className="flex justify-between">
           <span className="font-medium">Type</span>
           <Badge variant="secondary" className="capitalize">

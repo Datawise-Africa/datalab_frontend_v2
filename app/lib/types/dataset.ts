@@ -76,6 +76,8 @@ export interface IDataset {
   description: string;
   dataset_image?: string | null;
   doi?: string | null;
+  doi_url?: string | null;
+  citation?: string | null;
   status?: DatasetStatus;
   license: IDatasetLicense | null;
   doi_citation: string | null;
