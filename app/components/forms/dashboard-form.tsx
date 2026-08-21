@@ -58,6 +58,7 @@ export function DashboardForm({
   });
 
   const thumbnail = form.watch('thumbnail');
+  const builderMode = form.watch('builder_mode');
   const {
     addFiles,
     files,
@@ -104,12 +105,38 @@ export function DashboardForm({
           rows={3}
         />
 
-        <FormTextField
-          control={form.control}
-          name="dashboard_url"
-          label="Dashboard URL"
-          placeholder="https://..."
-        />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => form.setValue('builder_mode', 'native')}
+            className={`rounded-xl border p-4 text-left transition ${builderMode === 'native' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/40'}`}
+          >
+            <span className="block font-semibold">Build in Datalab</span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Connect data, analyse it and create an interactive dashboard.
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => form.setValue('builder_mode', 'external')}
+            className={`rounded-xl border p-4 text-left transition ${builderMode === 'external' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'hover:border-primary/40'}`}
+          >
+            <span className="block font-semibold">Embed another tool</span>
+            <span className="mt-1 block text-xs text-muted-foreground">
+              Keep using Power BI, Tableau, Flourish or another provider.
+            </span>
+          </button>
+        </div>
+
+        {builderMode === 'external' && (
+          <FormTextField
+            control={form.control}
+            name="dashboard_url"
+            label="Dashboard embed URL"
+            placeholder="https://..."
+            required
+          />
+        )}
 
         <div className="space-y-2">
           <Label className="text-sm font-medium">Thumbnail</Label>
@@ -185,7 +212,11 @@ export function DashboardForm({
         <div className="flex items-center gap-2 pt-2">
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {mode === 'create' ? 'Create Dashboard' : 'Save Changes'}
+            {mode === 'create' && builderMode === 'native'
+              ? 'Create & open Studio'
+              : mode === 'create'
+                ? 'Create Dashboard'
+                : 'Save Changes'}
           </Button>
         </div>
       </form>

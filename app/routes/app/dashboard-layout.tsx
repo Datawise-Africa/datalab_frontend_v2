@@ -23,6 +23,7 @@ import {
   Mail,
   PanelLeftClose,
   PanelLeftOpen,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Logo } from '~/components/layout/logo';
@@ -166,6 +167,11 @@ function buildAppSections({
       links: [
         { label: 'Overview', to: '/app/admin', icon: LayoutDashboard },
         { label: 'Applications', to: '/app/applications', icon: Users },
+        {
+          label: 'Publication Reviews',
+          to: '/app/validations',
+          icon: ShieldCheck,
+        },
         {
           label: 'Approved Creators',
           to: '/app/approved-creators',

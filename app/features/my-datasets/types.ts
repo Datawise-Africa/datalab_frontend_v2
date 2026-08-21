@@ -1,11 +1,29 @@
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import type { Nullable } from '~/lib/types';
+import type { ProductValidation } from '~/lib/types/validation';
 
 /**
  * Backend returns workspace either as a plain ID string (list/detail endpoints)
  * or as a populated object on some endpoints. Normalize via `getWorkspaceId`.
  */
-export type DatasetWorkspaceRef = string | { id: string; name: string } | null;
+export type DatasetWorkspaceRef =
+  | string
+  | {
+      id: string;
+      name: string;
+      workspace_type?: 'internal' | 'external';
+    }
+  | null;
+
+export function isInternalDatasetWorkspace(
+  workspace: DatasetWorkspaceRef | undefined
+): boolean {
+  return (
+    !!workspace &&
+    typeof workspace !== 'string' &&
+    workspace.workspace_type === 'internal'
+  );
+}
 
 export function getWorkspaceId(
   workspace: DatasetWorkspaceRef | undefined
@@ -96,6 +114,23 @@ export type MyDatasetInterface = {
   downloads_count: number;
   dataset_image?: string | null;
   schema?: DatasetSchema | null;
+  doi: string | null;
+  doi_url: string | null;
+  citation: string | null;
+  doi_option: 'none' | 'existing' | 'datalab';
+  doi_source: 'external' | 'datalab' | null;
+  doi_status:
+    | 'external'
+    | 'requested'
+    | 'draft'
+    | 'registered'
+    | 'findable'
+    | 'failed'
+    | 'hidden'
+    | null;
+  doi_error: string | null;
+  verification_status: 'PE' | 'IR' | 'CR' | 'AP' | 'RE';
+  validation: ProductValidation | null;
   created_at: string;
   updated_at: string;
 };

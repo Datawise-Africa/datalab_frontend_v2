@@ -9,6 +9,7 @@ import {
   Maximize2,
   Minimize2,
   User,
+  Share2,
 } from 'lucide-react';
 import moment from 'moment';
 import type { Route } from './+types/dashboard-detail';
@@ -18,6 +19,8 @@ import { Separator } from '~/components/ui/separator';
 import { useDashboard } from '~/features/dashboards';
 import { useTrackDashboardView } from '~/hooks/use-track-view';
 import { generateSEOTags } from '~/lib/utils/seo';
+import { DashboardRenderer } from '~/components/dashboard-studio/dashboard-renderer';
+import { toastUtils } from '~/lib/utils/toast';
 
 export function meta({ data }: Route.MetaArgs) {
   const title = data?.title ? `${data.title} | Dashboards` : 'Dashboard';
@@ -71,7 +74,12 @@ export default function DashboardDetail() {
       setIsFullscreen(false);
     }
   };
-
+  const sharePage = async () => {
+    await globalThis.navigator?.clipboard?.writeText(
+      globalThis.location?.href ?? ''
+    );
+    toastUtils.success('Dashboard link copied');
+  };
   useEffect(() => {
     const onChange = () => setIsFullscreen(!!document.fullscreenElement);
     document.addEventListener('fullscreenchange', onChange);
@@ -156,17 +164,27 @@ export default function DashboardDetail() {
           </div>
         </div>
 
-        {dashboard.dashboard_url && (
-          <Button variant="outline" onClick={enterFullscreen}>
-            <Maximize2 className="mr-1.5 h-4 w-4" />
-            Fullscreen
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={sharePage}>
+            <Share2 className="mr-1.5 h-4 w-4" />
+            Share
           </Button>
-        )}
+          {dashboard.dashboard_url && (
+            <Button variant="outline" onClick={enterFullscreen}>
+              <Maximize2 className="mr-1.5 h-4 w-4" />
+              Fullscreen
+            </Button>
+          )}
+        </div>
       </header>
 
       <Separator className="mb-6" />
 
-      {dashboard.dashboard_url ? (
+      {dashboard.builder_mode === 'native' ? (
+        <div className="rounded-2xl border bg-muted/20 p-4 md:p-6">
+          <DashboardRenderer definition={dashboard.definition} />
+        </div>
+      ) : dashboard.dashboard_url ? (
         <div className="group relative overflow-hidden rounded-lg border bg-muted">
           <iframe
             ref={frameRef}

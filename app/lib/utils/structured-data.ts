@@ -44,10 +44,14 @@ export interface DatasetLike {
   created_at?: string;
   updated_at?: string;
   dataset_image?: string | null;
+  doi?: string | null;
+  doi_url?: string | null;
+  citation?: string | null;
 }
 
 export function datasetSchema(dataset: DatasetLike) {
-  const identifier = dataset.slug ?? dataset.id;
+  const routeIdentifier = dataset.slug ?? dataset.id;
+  const identifier = dataset.doi_url ?? dataset.doi ?? routeIdentifier;
   const creatorName =
     dataset.owner?.first_name || dataset.owner?.last_name
       ? `${dataset.owner?.first_name ?? ''} ${dataset.owner?.last_name ?? ''}`.trim()
@@ -58,8 +62,10 @@ export function datasetSchema(dataset: DatasetLike) {
     '@type': 'Dataset',
     name: dataset.name,
     description: dataset.description,
-    url: `${SITE_URL}/datasets/${identifier}`,
+    url: `${SITE_URL}/datasets/${routeIdentifier}`,
     identifier,
+    ...(dataset.doi_url ? { sameAs: dataset.doi_url } : {}),
+    ...(dataset.citation ? { citation: dataset.citation } : {}),
     ...(dataset.tags?.length ? { keywords: dataset.tags.join(', ') } : {}),
     ...(dataset.license?.url ? { license: dataset.license.url } : {}),
     ...(dataset.dataset_image ? { image: dataset.dataset_image } : {}),

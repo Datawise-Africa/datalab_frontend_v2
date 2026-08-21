@@ -1,4 +1,5 @@
 import type { MinimalUser, MinimalWorkspace } from '~/lib/types/common';
+import type { ProductValidation } from '~/lib/types/validation';
 
 /**
  * Report types mirror the datasets API, not dashboards — reports have versions,
@@ -94,6 +95,7 @@ export interface Report {
   price?: string;
   status: ReportStatus;
   verification_status: string;
+  validation: ProductValidation | null;
   /** Array, not a single object — the spec is wrong here. Verified live. */
   access: ReportAccess[];
   authors: ReportAuthor[];

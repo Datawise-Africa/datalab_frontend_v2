@@ -30,6 +30,7 @@ import {
   useUpdateWorkspaceDatasetStatus,
 } from '~/features/workspaces';
 import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import { isInternalDatasetWorkspace } from '~/features/my-datasets/types';
 import {
   DATASET_STATUS_LABELS,
   DATASET_STATUS_VARIANTS,
@@ -44,6 +45,7 @@ import {
   type PreviewContext,
 } from './preview-context';
 import { DatasetDangerZone } from './dataset-danger-zone';
+import { ValidationStatusPanel } from '~/components/validation/validation-status-panel';
 
 type Props = Readonly<{
   datasetId: string;
@@ -138,6 +140,13 @@ function DatasetContent({
   return (
     <div className="space-y-6">
       <DatasetHero dataset={dataset} />
+      {dataset.status === 'PB' && (
+        <ValidationStatusPanel
+          verificationStatus={dataset.verification_status}
+          validation={dataset.validation}
+          validationRequired={!isInternalDatasetWorkspace(dataset.workspace)}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <main className="space-y-6 lg:col-span-2">
@@ -414,7 +423,9 @@ function StatusActions({
             ) : (
               <Globe className="mr-1.5 h-4 w-4" />
             )}
-            Publish
+            {isInternalDatasetWorkspace(dataset.workspace)
+              ? 'Publish'
+              : 'Submit for review'}
           </Button>
           <Button
             size="sm"

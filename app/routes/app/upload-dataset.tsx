@@ -46,6 +46,8 @@ export default function UploadDataset() {
     authors: user ? [{ user: user.id, role: 'creator' }] : [],
     access: { access_type: 'public', access_instructions: '' },
     datasheet: undefined,
+    doi: '',
+    doi_option: 'none',
   };
 
   const handleSubmit = async (data: UploadDatasetFormValues) => {
