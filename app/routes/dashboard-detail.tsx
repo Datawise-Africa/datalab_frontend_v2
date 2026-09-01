@@ -19,7 +19,7 @@ import { Separator } from '~/components/ui/separator';
 import { useDashboard } from '~/features/dashboards';
 import { useTrackDashboardView } from '~/hooks/use-track-view';
 import { generateSEOTags } from '~/lib/utils/seo';
-import { DashboardRenderer } from '~/components/dashboard-studio/dashboard-renderer';
+import { LiveDashboard } from '~/components/dashboard-studio/live-dashboard';
 import { toastUtils } from '~/lib/utils/toast';
 
 export function meta({ data }: Route.MetaArgs) {
@@ -182,7 +182,10 @@ export default function DashboardDetail() {
 
       {dashboard.builder_mode === 'native' ? (
         <div className="rounded-2xl border bg-muted/20 p-4 md:p-6">
-          <DashboardRenderer definition={dashboard.definition} />
+          <LiveDashboard
+            dashboard={dashboard}
+            endpoint={`/dashboards/${dashboard.id}/render/`}
+          />
         </div>
       ) : dashboard.dashboard_url ? (
         <div className="group relative overflow-hidden rounded-lg border bg-muted">

@@ -9,6 +9,12 @@ import type {
   DashboardDefinition,
   DashboardQuery,
   DashboardShareLink,
+  DashboardExecution,
+  DashboardSemanticModel,
+  DashboardRefreshPolicy,
+  DashboardRefreshRun,
+  DashboardAlert,
+  DashboardComment,
 } from '~/lib/types/dashboard';
 import { dashboardApiBase } from './queries';
 import { dashboardStudioKeys } from './query-keys';
@@ -60,8 +66,17 @@ export function usePrepareDashboardSource(id: string, workspaceId?: string) {
   const client = useQueryClient();
   const base = dashboardApiBase(workspaceId);
   return useMutation({
-    mutationFn: async (sourceId: string) =>
-      (
+    mutationFn: async (
+      input:
+        | string
+        | {
+            sourceId: string;
+            recipe: Array<Record<string, unknown>>;
+          }
+    ) => {
+      const sourceId = typeof input === 'string' ? input : input.sourceId;
+      const recipe = typeof input === 'string' ? [] : input.recipe;
+      return (
         await apiClient.post<DashboardDataSource>(
           `${base}/${id}/data-sources/${sourceId}/prepare/`,
           {
@@ -70,9 +85,11 @@ export function usePrepareDashboardSource(id: string, workspaceId?: string) {
             infer_numbers: true,
             drop_empty_rows: true,
             drop_duplicates: true,
+            recipe,
           }
         )
-      ).data,
+      ).data;
+    },
     onSuccess: () => {
       client.invalidateQueries({
         queryKey: dashboardStudioKeys.sources(base, id),
@@ -195,4 +212,131 @@ export function useRestoreDashboardRevision(id: string, workspaceId?: string) {
     },
     onError: (error) => toastUtils.error('Restore failed', extractError(error)),
   });
+}
+
+export function useRenderDashboard(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (input: {
+      definition?: DashboardDefinition;
+      filters?: DashboardQuery['filters'];
+      page_id?: string;
+    }) =>
+      (await apiClient.post<DashboardExecution>(`${base}/${id}/render/`, input))
+        .data,
+    onError: (error) =>
+      toastUtils.error('Dashboard query failed', extractError(error)),
+  });
+}
+
+export function useSaveSemanticModel(id: string, workspaceId?: string) {
+  const client = useQueryClient();
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (model: DashboardSemanticModel) =>
+      (
+        await apiClient.patch<DashboardSemanticModel>(
+          `${base}/${id}/semantic-model/`,
+          model
+        )
+      ).data,
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: dashboardStudioKeys.sources(base, id),
+      });
+      toastUtils.success('Data model saved');
+    },
+    onError: (error) =>
+      toastUtils.error('Model save failed', extractError(error)),
+  });
+}
+
+export function useSaveRefreshPolicy(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (policy: DashboardRefreshPolicy) =>
+      (
+        await apiClient.patch<DashboardRefreshPolicy>(
+          `${base}/${id}/refresh-policy/`,
+          policy
+        )
+      ).data,
+    onSuccess: () => toastUtils.success('Refresh schedule saved'),
+    onError: (error) =>
+      toastUtils.error('Schedule save failed', extractError(error)),
+  });
+}
+
+export function useRefreshDashboard(id: string, workspaceId?: string) {
+  const client = useQueryClient();
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async () =>
+      (await apiClient.post<DashboardRefreshRun>(`${base}/${id}/refresh/`, {}))
+        .data,
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: dashboardStudioKeys.sources(base, id),
+      });
+      toastUtils.success('Dashboard data refreshed');
+    },
+    onError: (error) => toastUtils.error('Refresh failed', extractError(error)),
+  });
+}
+
+export function useCreateDashboardAlert(id: string, workspaceId?: string) {
+  const client = useQueryClient();
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (input: Omit<DashboardAlert, 'id'>) =>
+      (await apiClient.post<DashboardAlert>(`${base}/${id}/alerts/`, input))
+        .data,
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: [...dashboardStudioKeys.sources(base, id), 'alerts'],
+      });
+      toastUtils.success('Alert created');
+    },
+    onError: (error) => toastUtils.error('Alert failed', extractError(error)),
+  });
+}
+
+export function useCreateDashboardComment(id: string, workspaceId?: string) {
+  const client = useQueryClient();
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (
+      input: Pick<DashboardComment, 'body' | 'page_id' | 'widget_id'>
+    ) =>
+      (await apiClient.post<DashboardComment>(`${base}/${id}/comments/`, input))
+        .data,
+    onSuccess: () => {
+      client.invalidateQueries({
+        queryKey: [...dashboardStudioKeys.sources(base, id), 'comments'],
+      });
+      toastUtils.success('Comment added');
+    },
+    onError: (error) => toastUtils.error('Comment failed', extractError(error)),
+  });
+}
+
+export async function exportDashboardAnalysis(
+  id: string,
+  sourceId: string,
+  query: DashboardQuery,
+  format: 'csv' | 'xlsx',
+  workspaceId?: string
+) {
+  const base = dashboardApiBase(workspaceId);
+  const response = await apiClient.post(
+    `${base}/${id}/data-sources/${sourceId}/export/`,
+    { query, format },
+    { responseType: 'blob' }
+  );
+  const url = URL.createObjectURL(response.data as Blob);
+  const anchor = globalThis.document.createElement('a');
+  anchor.href = url;
+  anchor.download = `datalab-analysis.${format}`;
+  anchor.click();
+  URL.revokeObjectURL(url);
 }

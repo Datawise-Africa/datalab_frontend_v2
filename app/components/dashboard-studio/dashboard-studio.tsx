@@ -28,6 +28,11 @@ import {
   Trash2,
   Undo2,
   X,
+  Network,
+  RefreshCw,
+  Bell,
+  MessageSquare,
+  Download,
 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import {
@@ -52,24 +57,33 @@ import {
 import { Textarea } from '~/components/ui/textarea';
 import { Badge } from '~/components/ui/badge';
 import { Switch } from '~/components/ui/switch';
+import { Picker } from '~/components/ui/picker';
 import { DashboardRenderer } from './dashboard-renderer';
+import {
+  AlertsDialog,
+  CommentsDialog,
+  DataModelDialog,
+  RefreshDialog,
+} from './studio-management-dialogs';
+import { SourcePreparationDialog } from './source-preparation-dialog';
+import { InfographicBuilder } from './infographic-builder';
 import { useMyDashboard } from '~/features/my-dashboards';
 import { useWorkspaceDashboard } from '~/features/workspaces';
 import {
   useAddDashboardSource,
   useCreateDashboardShare,
-  useCreateInfographic,
   useDashboardRevisions,
   useDashboardDatasetOptions,
   useDashboardShareLinks,
   useDashboardSourceProfile,
   useDashboardSources,
   useDeleteDashboardSource,
-  usePrepareDashboardSource,
   useRestoreDashboardRevision,
   useRevokeDashboardShare,
   useRunDashboardAnalysis,
   useSaveDashboardDefinition,
+  useRenderDashboard,
+  exportDashboardAnalysis,
 } from '~/features/dashboard-studio';
 import type {
   DashboardDataSource,
@@ -111,6 +125,29 @@ const visualTypes: Array<{
     label: 'Narrative',
     description: 'Context and interpretation',
   },
+  { value: 'map', label: 'Map', description: 'Geographic patterns' },
+  { value: 'heatmap', label: 'Heatmap', description: 'Intensity matrix' },
+  {
+    value: 'waterfall',
+    label: 'Waterfall',
+    description: 'Metric contributions',
+  },
+  {
+    value: 'treemap',
+    label: 'Treemap',
+    description: 'Hierarchical composition',
+  },
+  { value: 'funnel', label: 'Funnel', description: 'Stage conversion' },
+  { value: 'gauge', label: 'Gauge', description: 'Progress against target' },
+  {
+    value: 'histogram',
+    label: 'Histogram',
+    description: 'Numeric distribution',
+  },
+  { value: 'box_plot', label: 'Box plot', description: 'Spread and outliers' },
+  { value: 'filter', label: 'Filter control', description: 'Viewer filtering' },
+  { value: 'image', label: 'Image', description: 'Photos and branding' },
+  { value: 'shape', label: 'Shape', description: 'Grouping and emphasis' },
 ];
 const operations: DashboardQuery['measures'][number]['operation'][] = [
   'count',
@@ -119,6 +156,10 @@ const operations: DashboardQuery['measures'][number]['operation'][] = [
   'average',
   'min',
   'max',
+  'median',
+  'stddev',
+  'variance',
+  'percentile',
 ];
 type FilterOperator = NonNullable<
   DashboardQuery['filters']
@@ -131,10 +172,14 @@ const filterOperators: FilterOperator[] = [
   'not_equals',
   'contains',
   'not_contains',
+  'starts_with',
+  'ends_with',
   'gt',
   'gte',
   'lt',
   'lte',
+  'between',
+  'date_between',
   'in',
   'is_null',
   'not_null',
@@ -192,11 +237,10 @@ export function DashboardStudio({
   const { data: sources = [] } = useDashboardSources(dashboardId, workspaceId);
   const addSource = useAddDashboardSource(dashboardId, workspaceId);
   const deleteSource = useDeleteDashboardSource(dashboardId, workspaceId);
-  const prepareSource = usePrepareDashboardSource(dashboardId, workspaceId);
   const runAnalysis = useRunDashboardAnalysis(dashboardId, workspaceId);
   const saveDefinition = useSaveDashboardDefinition(dashboardId, workspaceId);
-  const createInfographic = useCreateInfographic(dashboardId, workspaceId);
   const restoreRevision = useRestoreDashboardRevision(dashboardId, workspaceId);
+  const renderDashboard = useRenderDashboard(dashboardId, workspaceId);
 
   const [definition, setDefinition] = useState<DashboardDefinition>();
   const [activePageId, setActivePageId] = useState<string>();
@@ -206,6 +250,12 @@ export function DashboardStudio({
   const [shareOpen, setShareOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [profileSourceId, setProfileSourceId] = useState<string>();
+  const [prepareSourceId, setPrepareSourceId] = useState<string>();
+  const [modelOpen, setModelOpen] = useState(false);
+  const [refreshOpen, setRefreshOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const [infographicOpen, setInfographicOpen] = useState(false);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const [inspectorWidth, setInspectorWidth] = useState(420);
@@ -214,6 +264,7 @@ export function DashboardStudio({
   const undoStack = useRef<DashboardDefinition[]>([]);
   const redoStack = useRef<DashboardDefinition[]>([]);
   const currentRef = useRef<DashboardDefinition | undefined>(undefined);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -285,7 +336,10 @@ export function DashboardStudio({
   };
   useEffect(() => {
     if (!dirty || !definition) return;
-    const timeout = globalThis.setTimeout(() => void save(true), 12000);
+    const timeout = globalThis.setTimeout(
+      () => void save(true).catch(() => undefined),
+      12000
+    );
     return () => globalThis.clearTimeout(timeout);
     // Save is intentionally triggered from the latest definition snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -322,20 +376,20 @@ export function DashboardStudio({
   const addWidget = (type: DashboardWidgetType) => {
     const id = newId();
     const source = sources.find((item) => item.status === 'ready');
+    const isDecorative = ['text', 'image', 'shape'].includes(type);
     const widget: DashboardWidget = {
       id,
       type,
       title: visualTypes.find((item) => item.value === type)?.label ?? 'Visual',
-      source_id: type === 'text' ? undefined : source?.id,
-      query:
-        type === 'text'
-          ? undefined
-          : {
-              dimensions: [],
-              measures: [{ operation: 'count', label: 'Records' }],
-              filters: [],
-              limit: 250,
-            },
+      source_id: isDecorative ? undefined : source?.id,
+      query: isDecorative
+        ? undefined
+        : {
+            dimensions: [],
+            measures: [{ operation: 'count', label: 'Records' }],
+            filters: [],
+            limit: 250,
+          },
       text:
         type === 'text'
           ? 'Explain the insight, methodology or recommended action here.'
@@ -345,6 +399,7 @@ export function DashboardStudio({
         showLegend: true,
         numberFormat: 'standard',
         decimals: 0,
+        target: type === 'gauge' ? 100 : undefined,
       },
       layout: {
         width: type === 'kpi' ? 4 : type === 'text' ? 12 : 6,
@@ -408,6 +463,26 @@ export function DashboardStudio({
       },
     });
   };
+  const hydrateDashboard = async () => {
+    if (!definition) return;
+    const execution = await renderDashboard.mutateAsync({ definition });
+    setDefinition((current) => {
+      if (!current) return current;
+      const next = structuredClone(current);
+      for (const page of next.pages)
+        for (const widget of page.widgets)
+          if (execution.results[widget.id])
+            widget.data = execution.results[widget.id];
+      return next;
+    });
+  };
+  useEffect(() => {
+    if (!definition || !sources.length || hydratedRef.current) return;
+    hydratedRef.current = true;
+    void hydrateDashboard().catch(() => undefined);
+    // Hydrate once when the authored definition and sources are available.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [definition, sources.length]);
   const addPage = () => {
     const id = newId();
     change((draft) =>
@@ -438,13 +513,7 @@ export function DashboardStudio({
     setHistoryOpen(false);
     setDirty(false);
   };
-  const infographic = () =>
-    selected &&
-    createInfographic.mutate({
-      title: selected.title,
-      definition: { widget: selected, theme: definition?.theme },
-      is_public: false,
-    });
+  const infographic = () => selected && setInfographicOpen(true);
   const back = workspaceId
     ? `/app/workspaces/${workspaceId}/dashboards/${dashboardId}`
     : `/app/my-dashboards/${dashboardId}`;
@@ -507,7 +576,11 @@ export function DashboardStudio({
           <Button
             variant={preview ? 'secondary' : 'ghost'}
             size="sm"
-            onClick={() => setPreview((value) => !value)}
+            onClick={() => {
+              const next = !preview;
+              setPreview(next);
+              if (next) void hydrateDashboard().catch(() => undefined);
+            }}
           >
             <Eye className="mr-1.5 h-4 w-4" />
             {preview ? 'Exit preview' : 'Preview'}
@@ -523,6 +596,38 @@ export function DashboardStudio({
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setModelOpen(true)}
+          >
+            <Network className="mr-1.5 h-4 w-4" />
+            <span className="hidden 2xl:inline">Model</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setRefreshOpen(true)}
+          >
+            <RefreshCw className="mr-1.5 h-4 w-4" />
+            <span className="hidden 2xl:inline">Refresh</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAlertsOpen(true)}
+          >
+            <Bell className="mr-1.5 h-4 w-4" />
+            <span className="hidden 2xl:inline">Alerts</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCommentsOpen(true)}
+          >
+            <MessageSquare className="mr-1.5 h-4 w-4" />
+            <span className="hidden 2xl:inline">Review</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShareOpen(true)}
           >
             <Share2 className="mr-1.5 h-4 w-4" />
@@ -530,7 +635,7 @@ export function DashboardStudio({
           </Button>
           <Button
             size="sm"
-            onClick={() => void save(false)}
+            onClick={() => void save(false).catch(() => undefined)}
             disabled={!dirty || saveDefinition.isPending}
           >
             {saveDefinition.isPending ? (
@@ -627,8 +732,8 @@ export function DashboardStudio({
               setSourceOpen={setSourceOpen}
               addSource={addSource}
               deleteSource={deleteSource}
-              prepareSource={prepareSource}
               setProfileSourceId={setProfileSourceId}
+              setPrepareSourceId={setPrepareSourceId}
             />
           ) : (
             <aside className="border-r bg-background pt-4 text-center">
@@ -713,6 +818,7 @@ export function DashboardStudio({
               hidePageTabs
               selectedId={preview ? undefined : selectedId}
               onSelect={preview ? undefined : setSelectedId}
+              loading={renderDashboard.isPending}
             />
             {!activePage?.widgets.length && (
               <button
@@ -732,6 +838,8 @@ export function DashboardStudio({
         {!preview &&
           (rightOpen ? (
             <VisualPanel
+              dashboardId={dashboardId}
+              workspaceId={workspaceId}
               inspectorWidth={inspectorWidth}
               setInspectorWidth={setInspectorWidth}
               selected={selected}
@@ -759,6 +867,13 @@ export function DashboardStudio({
         open={Boolean(profileSourceId)}
         onOpenChange={(open) => !open && setProfileSourceId(undefined)}
       />
+      <SourcePreparationDialog
+        open={Boolean(prepareSourceId)}
+        onOpenChange={(open) => !open && setPrepareSourceId(undefined)}
+        source={sources.find((item) => item.id === prepareSourceId)}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+      />
       <ShareDialog
         dashboardId={dashboardId}
         workspaceId={workspaceId}
@@ -772,6 +887,43 @@ export function DashboardStudio({
         onOpenChange={setHistoryOpen}
         restore={restore}
       />
+      <DataModelDialog
+        open={modelOpen}
+        onOpenChange={setModelOpen}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+        sources={sources}
+        initialModel={dashboard.semantic_model}
+      />
+      <RefreshDialog
+        open={refreshOpen}
+        onOpenChange={setRefreshOpen}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+        initialFrequency={dashboard.refresh_policy?.frequency}
+      />
+      <AlertsDialog
+        open={alertsOpen}
+        onOpenChange={setAlertsOpen}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+        definition={definition}
+      />
+      <CommentsDialog
+        open={commentsOpen}
+        onOpenChange={setCommentsOpen}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+        pageId={activePage?.id}
+        widgetId={selected?.id}
+      />
+      <InfographicBuilder
+        open={infographicOpen}
+        onOpenChange={setInfographicOpen}
+        dashboardId={dashboardId}
+        workspaceId={workspaceId}
+        widget={selected}
+      />
     </div>
   );
 }
@@ -783,8 +935,8 @@ function DataPanel({
   setSourceOpen,
   addSource,
   deleteSource,
-  prepareSource,
   setProfileSourceId,
+  setPrepareSourceId,
 }: Readonly<{
   workspaceId?: string;
   sources: DashboardDataSource[];
@@ -792,11 +944,11 @@ function DataPanel({
   setSourceOpen: (value: boolean) => void;
   addSource: ReturnType<typeof useAddDashboardSource>;
   deleteSource: ReturnType<typeof useDeleteDashboardSource>;
-  prepareSource: ReturnType<typeof usePrepareDashboardSource>;
   setProfileSourceId: (id: string) => void;
+  setPrepareSourceId: (id: string) => void;
 }>) {
   return (
-    <aside className="border-r bg-background p-4">
+    <aside className="max-h-[42vh] overflow-y-auto border-b bg-background p-4 xl:max-h-none xl:border-r xl:border-b-0">
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold">Data sources</h2>
@@ -868,10 +1020,10 @@ function DataPanel({
                 size="sm"
                 variant="ghost"
                 className="h-7 text-xs"
-                onClick={() => prepareSource.mutate(source.id)}
+                onClick={() => setPrepareSourceId(source.id)}
               >
                 <Sparkles className="mr-1 h-3 w-3" />
-                Clean
+                Prepare
               </Button>
             </div>
           </div>
@@ -890,6 +1042,8 @@ function DataPanel({
 }
 
 function VisualPanel({
+  dashboardId,
+  workspaceId,
   inspectorWidth,
   setInspectorWidth,
   selected,
@@ -904,6 +1058,8 @@ function VisualPanel({
   moveWidget,
   infographic,
 }: Readonly<{
+  dashboardId: string;
+  workspaceId?: string;
   inspectorWidth: number;
   setInspectorWidth: (width: number) => void;
   selected?: DashboardWidget;
@@ -986,6 +1142,24 @@ function VisualPanel({
   const calculatedMeasureFields = (query.calculated_fields ?? []).filter(
     (field) => field.name.trim().length > 0
   );
+  const includedSourceIds = [
+    selected.source_id,
+    ...(query.source_ids ?? []),
+  ].filter(Boolean) as string[];
+  const analysisFields =
+    includedSourceIds.length > 1
+      ? sources
+          .filter((item) => includedSourceIds.includes(item.id))
+          .flatMap((item) =>
+            item.schema.map((field) => ({
+              ...field,
+              name: `${item.id}::${field.name}`,
+            }))
+          )
+      : (source?.schema ?? []);
+  const analysisSource = source
+    ? { ...source, schema: analysisFields }
+    : undefined;
   const setMeasure = (
     index: number,
     patch: Partial<DashboardQuery['measures'][number]>
@@ -996,7 +1170,7 @@ function VisualPanel({
       ),
     });
   return (
-    <aside className="relative min-w-0 border-l bg-background">
+    <aside className="relative min-w-0 border-t bg-background xl:border-t-0 xl:border-l">
       {resizeHandle}
       <div className="flex items-start justify-between gap-2 border-b p-4">
         <div>
@@ -1077,6 +1251,42 @@ function VisualPanel({
               onChange={(event) => updateWidget({ text: event.target.value })}
             />
           </Field>
+        ) : selected.type === 'image' ? (
+          <>
+            <Field label="Image URL">
+              <Input
+                type="url"
+                value={selected.config?.imageUrl ?? ''}
+                onChange={(event) =>
+                  updateWidget({
+                    config: {
+                      ...selected.config,
+                      imageUrl: event.target.value,
+                    },
+                  })
+                }
+                placeholder="https://example.org/image.png"
+              />
+            </Field>
+            <Field label="Accessible description">
+              <Input
+                value={selected.config?.imageAlt ?? ''}
+                onChange={(event) =>
+                  updateWidget({
+                    config: {
+                      ...selected.config,
+                      imageAlt: event.target.value,
+                    },
+                  })
+                }
+              />
+            </Field>
+          </>
+        ) : selected.type === 'shape' ? (
+          <p className="rounded-lg border border-dashed p-4 text-xs text-muted-foreground">
+            Shapes inherit the dashboard accent colour and can be used to group
+            or emphasise content.
+          </p>
         ) : (
           <>
             <div className="border-t pt-4">
@@ -1104,6 +1314,24 @@ function VisualPanel({
                   </SelectContent>
                 </Select>
               </Field>
+              <Field label="Related sources">
+                <Picker
+                  multi
+                  items={sources
+                    .filter(
+                      (item) =>
+                        item.status === 'ready' &&
+                        item.id !== selected.source_id
+                    )
+                    .map((item) => ({ value: item.id, label: item.name }))}
+                  value={query.source_ids ?? []}
+                  onChange={(source_ids) =>
+                    updateQuery({ source_ids: [...source_ids] })
+                  }
+                  placeholder="Use the data model"
+                  emptyMessage="No other ready sources"
+                />
+              </Field>
               <div className="mb-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Group by</Label>
@@ -1115,7 +1343,7 @@ function VisualPanel({
                       updateQuery({
                         dimensions: [
                           ...query.dimensions,
-                          source?.schema.find(
+                          analysisFields.find(
                             (field) => !query.dimensions.includes(field.name)
                           )?.name ?? '',
                         ],
@@ -1142,7 +1370,7 @@ function VisualPanel({
                         <SelectValue placeholder="Choose field" />
                       </SelectTrigger>
                       <SelectContent>
-                        {source?.schema.map((field) => (
+                        {analysisFields.map((field) => (
                           <SelectItem key={field.name} value={field.name}>
                             {field.name}
                           </SelectItem>
@@ -1170,10 +1398,92 @@ function VisualPanel({
                   </p>
                 )}
               </div>
+              {!!analysisFields.some((field) => field.type === 'date') && (
+                <div className="mb-3 grid grid-cols-2 gap-2 rounded-lg border p-2">
+                  <Field label="Date grouping">
+                    <Select
+                      value={query.dimension_specs?.[0]?.column ?? '__none'}
+                      onValueChange={(column) =>
+                        updateQuery({
+                          dimensions:
+                            column === '__none'
+                              ? query.dimensions
+                              : query.dimensions.filter(
+                                  (dimension) => dimension !== column
+                                ),
+                          dimension_specs:
+                            column === '__none'
+                              ? []
+                              : [
+                                  {
+                                    column,
+                                    label: `${column} (${query.dimension_specs?.[0]?.date_grain ?? 'month'})`,
+                                    date_grain:
+                                      query.dimension_specs?.[0]?.date_grain ??
+                                      'month',
+                                  },
+                                ],
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none">None</SelectItem>
+                        {analysisFields
+                          .filter((field) => field.type === 'date')
+                          .map((field) => (
+                            <SelectItem key={field.name} value={field.name}>
+                              {field.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Period">
+                    <Select
+                      value={query.dimension_specs?.[0]?.date_grain ?? 'month'}
+                      disabled={!query.dimension_specs?.length}
+                      onValueChange={(date_grain) => {
+                        const current = query.dimension_specs?.[0];
+                        if (current)
+                          updateQuery({
+                            dimension_specs: [
+                              {
+                                ...current,
+                                date_grain: date_grain as
+                                  | 'year'
+                                  | 'quarter'
+                                  | 'month'
+                                  | 'week'
+                                  | 'day',
+                                label: `${current.column} (${date_grain})`,
+                              },
+                            ],
+                          });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['year', 'quarter', 'month', 'week', 'day'].map(
+                          (grain) => (
+                            <SelectItem key={grain} value={grain}>
+                              {grain}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              )}
               <CalculatedFields
                 comfortable={inspectorWidth >= 400}
                 query={query}
-                source={source}
+                source={analysisSource}
                 updateQuery={updateQuery}
               />
               <div className="mt-4 space-y-2">
@@ -1221,12 +1531,12 @@ function VisualPanel({
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="__rows">Rows</SelectItem>
-                          {!!source?.schema.length && (
+                          {!!analysisFields.length && (
                             <>
                               <SelectSeparator />
                               <SelectGroup>
                                 <SelectLabel>Dataset fields</SelectLabel>
-                                {source.schema.map((field) => (
+                                {analysisFields.map((field) => (
                                   <SelectItem
                                     key={field.name}
                                     value={field.name}
@@ -1307,9 +1617,91 @@ function VisualPanel({
                   </p>
                 )}
               </div>
+              {!!query.measures.length && (
+                <div className="mt-4 grid grid-cols-2 gap-2 rounded-lg border p-2">
+                  <Field label="Table calculation">
+                    <Select
+                      value={
+                        query.table_calculations?.[0]?.operation ?? '__none'
+                      }
+                      onValueChange={(operation) =>
+                        updateQuery({
+                          table_calculations:
+                            operation === '__none'
+                              ? []
+                              : [
+                                  {
+                                    column:
+                                      query.measures[0].label ||
+                                      `${query.measures[0].operation}_${query.measures[0].column ?? 'rows'}`,
+                                    operation: operation as
+                                      | 'running_total'
+                                      | 'rank'
+                                      | 'percent_of_total'
+                                      | 'moving_average',
+                                    label: `${operation.replaceAll('_', ' ')} · ${query.measures[0].label ?? 'measure'}`,
+                                    window: 3,
+                                  },
+                                ],
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none">None</SelectItem>
+                        <SelectItem value="running_total">
+                          Running total
+                        </SelectItem>
+                        <SelectItem value="rank">Rank</SelectItem>
+                        <SelectItem value="percent_of_total">
+                          Percent of total
+                        </SelectItem>
+                        <SelectItem value="moving_average">
+                          Moving average
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Based on">
+                    <Select
+                      value={
+                        query.table_calculations?.[0]?.column ??
+                        query.measures[0].label ??
+                        ''
+                      }
+                      disabled={!query.table_calculations?.length}
+                      onValueChange={(column) => {
+                        const current = query.table_calculations?.[0];
+                        if (current)
+                          updateQuery({
+                            table_calculations: [{ ...current, column }],
+                          });
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {query.measures.map((measure, index) => {
+                          const value =
+                            measure.label ||
+                            `${measure.operation}_${measure.column ?? 'rows'}`;
+                          return (
+                            <SelectItem key={`${value}-${index}`} value={value}>
+                              {value}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              )}
               <Filters
                 query={query}
-                source={source}
+                source={analysisSource}
                 updateQuery={updateQuery}
               />
               <div className="grid grid-cols-2 gap-2">
@@ -1353,9 +1745,75 @@ function VisualPanel({
                   </Select>
                 </Field>
               </div>
+              {selected.type === 'map' && (
+                <div className="grid grid-cols-2 gap-2">
+                  <Field label="Latitude field">
+                    <Select
+                      value={selected.config?.latitude}
+                      onValueChange={(latitude) =>
+                        updateWidget({
+                          config: { ...selected.config, latitude },
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Latitude" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {analysisFields
+                          .filter((field) => field.type === 'number')
+                          .map((field) => (
+                            <SelectItem key={field.name} value={field.name}>
+                              {field.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Longitude field">
+                    <Select
+                      value={selected.config?.longitude}
+                      onValueChange={(longitude) =>
+                        updateWidget({
+                          config: { ...selected.config, longitude },
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Longitude" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {analysisFields
+                          .filter((field) => field.type === 'number')
+                          .map((field) => (
+                            <SelectItem key={field.name} value={field.name}>
+                              {field.name}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                </div>
+              )}
+              {selected.type === 'gauge' && (
+                <Field label="Target value">
+                  <Input
+                    type="number"
+                    value={selected.config?.target ?? 100}
+                    onChange={(event) =>
+                      updateWidget({
+                        config: {
+                          ...selected.config,
+                          target: Number(event.target.value),
+                        },
+                      })
+                    }
+                  />
+                </Field>
+              )}
               <Button
                 className="mt-3 w-full"
-                onClick={() => void run()}
+                onClick={() => void run().catch(() => undefined)}
                 disabled={!selected.source_id || analysing}
               >
                 {analysing ? (
@@ -1365,6 +1823,30 @@ function VisualPanel({
                 )}
                 Run analysis
               </Button>
+              {selected.source_id && selected.query && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {(['csv', 'xlsx'] as const).map((format) => (
+                    <Button
+                      key={format}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        void exportDashboardAnalysis(
+                          dashboardId,
+                          selected.source_id!,
+                          selected.query!,
+                          format,
+                          workspaceId
+                        )
+                      }
+                    >
+                      <Download className="mr-1.5 h-4 w-4" />
+                      {format.toUpperCase()}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -1625,6 +2107,22 @@ function CalculatedFields({
             >
               <X className="h-3.5 w-3.5" />
             </Button>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[11px]">
+              Formula (optional advanced mode)
+            </Label>
+            <Input
+              value={field.expression ?? ''}
+              onChange={(event) =>
+                update(index, { expression: event.target.value || undefined })
+              }
+              placeholder="e.g. ([spent] / [allocated]) * 100"
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Reference columns in square brackets. Leave blank to use the
+              guided calculation below.
+            </p>
           </div>
           <div
             className={`grid gap-2 ${
