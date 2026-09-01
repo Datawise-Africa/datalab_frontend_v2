@@ -23,11 +23,16 @@ import {
   Scatter,
   ScatterChart,
   Tooltip,
+  Treemap,
+  Funnel,
+  FunnelChart,
+  LabelList,
   XAxis,
   YAxis,
 } from 'recharts';
 import { BarChart3, FilterX } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+import { StudioGeoMap } from './studio-geo-map';
 import type {
   DashboardDefinition,
   DashboardWidget,
@@ -111,6 +116,28 @@ function Chart({
         {widget.text || 'Add a narrative, interpretation or methodology note.'}
       </div>
     );
+  if (widget.type === 'image')
+    return widget.config?.imageUrl ? (
+      <img
+        src={widget.config.imageUrl}
+        alt={widget.config.imageAlt || widget.title}
+        className="h-full max-h-[640px] w-full rounded-lg object-contain"
+      />
+    ) : (
+      <p className="text-sm text-muted-foreground">
+        Add an image URL and accessible description.
+      </p>
+    );
+  if (widget.type === 'shape')
+    return (
+      <div className="h-full min-h-32 rounded-2xl bg-primary/15 ring-1 ring-primary/25" />
+    );
+  if (widget.type === 'filter')
+    return (
+      <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+        Viewer filter · {widget.config?.x || 'Choose a field'}
+      </p>
+    );
   if (widget.type === 'kpi') {
     const key = requestedY ?? series[0] ?? x;
     return (
@@ -180,6 +207,131 @@ function Chart({
         <span className="text-sm">Configure the fields, then run analysis</span>
       </div>
     );
+  if (widget.type === 'map')
+    return (
+      <StudioGeoMap
+        rows={rows}
+        latitude={widget.config?.latitude}
+        longitude={widget.config?.longitude}
+        label={x}
+        value={series[0]}
+      />
+    );
+  if (widget.type === 'heatmap') {
+    const values = rows.flatMap((row) =>
+      series.slice(0, 6).map((key) => Number(row[key]) || 0)
+    );
+    const maximum = Math.max(...values.map(Math.abs), 1);
+    return (
+      <div className="overflow-auto" style={{ maxHeight: height }}>
+        <div
+          className="grid gap-1"
+          style={{
+            gridTemplateColumns: `minmax(110px,auto) repeat(${Math.min(series.length, 6)}, minmax(70px,1fr))`,
+          }}
+        >
+          <span />
+          {series.slice(0, 6).map((key) => (
+            <strong key={key} className="truncate p-1 text-center text-[10px]">
+              {key}
+            </strong>
+          ))}
+          {rows.slice(0, 40).flatMap((row, rowIndex) => [
+            <span key={`label-${rowIndex}`} className="truncate p-1 text-xs">
+              {String(row[x])}
+            </span>,
+            ...series.slice(0, 6).map((key) => {
+              const value = Number(row[key]) || 0;
+              return (
+                <span
+                  key={`${rowIndex}-${key}`}
+                  title={`${row[x]} · ${key}: ${value}`}
+                  className="rounded p-2 text-center text-xs"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, var(--chart-1) ${Math.max(8, (Math.abs(value) / maximum) * 90)}%, transparent)`,
+                  }}
+                >
+                  {formatValue(value, widget)}
+                </span>
+              );
+            }),
+          ])}
+        </div>
+      </div>
+    );
+  }
+  if (widget.type === 'treemap')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <Treemap
+          data={rows}
+          dataKey={series[0]}
+          nameKey={x}
+          fill={palette[0]}
+          stroke="var(--background)"
+        >
+          <Tooltip formatter={(value) => formatValue(value, widget)} />
+        </Treemap>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'funnel')
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <FunnelChart>
+          <Tooltip formatter={(value) => formatValue(value, widget)} />
+          <Funnel data={rows} dataKey={series[0]} nameKey={x} fill={palette[0]}>
+            <LabelList position="right" fill="currentColor" dataKey={x} />
+          </Funnel>
+        </FunnelChart>
+      </ResponsiveContainer>
+    );
+  if (widget.type === 'gauge') {
+    const value = Number(rows[0]?.[series[0]]) || 0;
+    const target = widget.config?.target || 100;
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <div className="relative h-36 w-72 overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-72 rounded-full border-[28px] border-muted" />
+          <div
+            className="absolute inset-x-0 top-0 h-72 rounded-full border-[28px] border-primary"
+            style={{
+              clipPath: `polygon(0 0, ${Math.min(100, Math.max(0, (value / target) * 100))}% 0, ${Math.min(100, Math.max(0, (value / target) * 100))}% 50%, 0 50%)`,
+            }}
+          />
+        </div>
+        <strong className="-mt-8 text-4xl">{formatValue(value, widget)}</strong>
+        <span className="text-xs text-muted-foreground">
+          Target {formatValue(target, widget)}
+        </span>
+      </div>
+    );
+  }
+  if (widget.type === 'box_plot') {
+    const values = rows
+      .map((row) => Number(row[series[0]]))
+      .filter(Number.isFinite)
+      .sort((a, b) => a - b);
+    const quantile = (ratio: number) =>
+      values[
+        Math.min(values.length - 1, Math.floor((values.length - 1) * ratio))
+      ];
+    return (
+      <div className="grid h-full grid-cols-5 items-center gap-2 text-center">
+        {[
+          ['Min', quantile(0)],
+          ['Q1', quantile(0.25)],
+          ['Median', quantile(0.5)],
+          ['Q3', quantile(0.75)],
+          ['Max', quantile(1)],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="rounded-lg border p-3">
+            <span className="block text-xs text-muted-foreground">{label}</span>
+            <strong>{formatValue(value, widget)}</strong>
+          </div>
+        ))}
+      </div>
+    );
+  }
   const grid =
     widget.config?.showGrid === false ? null : (
       <CartesianGrid strokeDasharray="3 3" opacity={0.18} />
@@ -351,6 +503,31 @@ function Chart({
         </ComposedChart>
       </ResponsiveContainer>
     );
+  if (widget.type === 'waterfall') {
+    let running = 0;
+    const waterfallRows = rows.map((row) => {
+      const value = Number(row[series[0]]) || 0;
+      const item = { ...row, __base: running, __change: value };
+      running += value;
+      return item;
+    });
+    return (
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={waterfallRows}>
+          {axes}
+          <Bar dataKey="__base" stackId="waterfall" fill="transparent" />
+          <Bar dataKey="__change" stackId="waterfall" radius={[5, 5, 0, 0]}>
+            {waterfallRows.map((row, index) => (
+              <Cell
+                key={`${widget.id}-waterfall-${index}`}
+                fill={Number(row.__change) >= 0 ? palette[0] : palette[1]}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
   const horizontal = widget.type === 'horizontal_bar';
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -397,6 +574,9 @@ export function DashboardRenderer({
   activePageId,
   onPageChange,
   hidePageTabs = false,
+  onCrossFilter,
+  loading = false,
+  errors = {},
 }: Readonly<{
   definition: DashboardDefinition;
   interactive?: boolean;
@@ -405,6 +585,9 @@ export function DashboardRenderer({
   activePageId?: string;
   onPageChange?: (id: string) => void;
   hidePageTabs?: boolean;
+  onCrossFilter?: (column: string, value: unknown) => void;
+  loading?: boolean;
+  errors?: Record<string, string>;
 }>) {
   const [internalPageId, setInternalPageId] = useState(definition.pages[0]?.id);
   const [crossFilter, setCrossFilter] = useState<{
@@ -421,7 +604,7 @@ export function DashboardRenderer({
   const widgets = useMemo(
     () =>
       (page?.widgets ?? []).map((widget) =>
-        crossFilter && widget.data
+        crossFilter && !onCrossFilter && widget.data
           ? {
               ...widget,
               data: {
@@ -435,7 +618,7 @@ export function DashboardRenderer({
             }
           : widget
       ),
-    [page, crossFilter]
+    [page, crossFilter, onCrossFilter]
   );
   const changePage = (id: string) => {
     setInternalPageId(id);
@@ -450,7 +633,7 @@ export function DashboardRenderer({
     );
   return (
     <div
-      className="space-y-4 rounded-xl p-1"
+      className="relative space-y-4 rounded-xl p-1"
       style={{ background: definition.theme?.background || undefined }}
     >
       {!hidePageTabs && (
@@ -479,6 +662,11 @@ export function DashboardRenderer({
           )}
         </div>
       )}
+      {loading && (
+        <div className="absolute inset-x-0 top-0 z-10 h-1 overflow-hidden rounded-full bg-primary/15">
+          <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         {widgets.map((widget) => (
           <section
@@ -492,8 +680,9 @@ export function DashboardRenderer({
                   }
                 : undefined
             }
-            role="button"
-            tabIndex={0}
+            role={onSelect ? 'button' : 'region'}
+            aria-label={widget.title}
+            tabIndex={onSelect ? 0 : -1}
             className={`border bg-card p-5 shadow-sm transition ${WIDTH_CLASS[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
             style={{
               minHeight: widget.layout?.height ?? 360,
@@ -511,8 +700,16 @@ export function DashboardRenderer({
             <Chart
               widget={widget}
               interactive={interactive}
-              onFilter={(column, value) => setCrossFilter({ column, value })}
+              onFilter={(column, value) => {
+                if (onCrossFilter) onCrossFilter(column, value);
+                else setCrossFilter({ column, value });
+              }}
             />
+            {errors[widget.id] && (
+              <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+                {errors[widget.id]}
+              </p>
+            )}
           </section>
         ))}
       </div>

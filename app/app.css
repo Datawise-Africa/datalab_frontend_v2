@@ -237,3 +237,26 @@ body {
     background: var(--color-muted-foreground);
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  [data-dashboard-print],
+  [data-dashboard-print] * {
+    visibility: visible;
+  }
+  [data-dashboard-print] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    background: white;
+  }
+  [data-dashboard-toolbar] {
+    display: none !important;
+  }
+  [data-dashboard-print] section {
+    break-inside: avoid;
+    box-shadow: none !important;
+  }
+}

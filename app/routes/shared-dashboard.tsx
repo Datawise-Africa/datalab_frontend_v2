@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router';
 import { LockKeyhole, Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import { DashboardRenderer } from '~/components/dashboard-studio/dashboard-renderer';
+import { LiveDashboard } from '~/components/dashboard-studio/live-dashboard';
 import { apiClient } from '~/lib/api/client';
 import type { Dashboard } from '~/lib/types/dashboard';
 import { extractError } from '~/lib/utils/extract-error';
@@ -51,8 +51,10 @@ export default function SharedDashboardPage() {
               <Link to="/dashboards">Explore Datalab</Link>
             </Button>
           </div>
-          <DashboardRenderer
-            definition={dashboard.definition}
+          <LiveDashboard
+            dashboard={dashboard}
+            endpoint={`/shared-dashboards/${token}/`}
+            password={password}
             interactive={access === 'interact'}
           />
         </div>

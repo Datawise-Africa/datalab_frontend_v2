@@ -5,6 +5,10 @@ import type {
   DashboardShareLink,
   DashboardRevision,
   DashboardSourceProfile,
+  DashboardSemanticModel,
+  DashboardRefreshRun,
+  DashboardAlert,
+  DashboardComment,
 } from '~/lib/types/dashboard';
 import { dashboardStudioKeys } from './query-keys';
 import type { Paginated } from '~/lib/types';
@@ -113,5 +117,53 @@ export function useDashboardShareLinks(id: string, workspaceId?: string) {
     queryFn: async () =>
       (await apiClient.get<DashboardShareLink[]>(`${base}/${id}/share-links/`))
         .data,
+  });
+}
+
+export function useDashboardSemanticModel(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useQuery({
+    queryKey: [...dashboardStudioKeys.sources(base, id), 'semantic-model'],
+    enabled: Boolean(id),
+    queryFn: async () =>
+      (
+        await apiClient.get<DashboardSemanticModel>(
+          `${base}/${id}/semantic-model/`
+        )
+      ).data,
+  });
+}
+
+export function useDashboardRefreshRuns(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useQuery({
+    queryKey: [...dashboardStudioKeys.sources(base, id), 'refresh-runs'],
+    enabled: Boolean(id),
+    queryFn: async () =>
+      (
+        await apiClient.get<DashboardRefreshRun[]>(
+          `${base}/${id}/refresh-runs/`
+        )
+      ).data,
+  });
+}
+
+export function useDashboardAlerts(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useQuery({
+    queryKey: [...dashboardStudioKeys.sources(base, id), 'alerts'],
+    enabled: Boolean(id),
+    queryFn: async () =>
+      (await apiClient.get<DashboardAlert[]>(`${base}/${id}/alerts/`)).data,
+  });
+}
+
+export function useDashboardComments(id: string, workspaceId?: string) {
+  const base = dashboardApiBase(workspaceId);
+  return useQuery({
+    queryKey: [...dashboardStudioKeys.sources(base, id), 'comments'],
+    enabled: Boolean(id),
+    queryFn: async () =>
+      (await apiClient.get<DashboardComment[]>(`${base}/${id}/comments/`)).data,
   });
 }

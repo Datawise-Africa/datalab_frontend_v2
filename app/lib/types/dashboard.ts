@@ -17,7 +17,18 @@ export type DashboardWidgetType =
   | 'radar'
   | 'radial'
   | 'table'
-  | 'text';
+  | 'text'
+  | 'map'
+  | 'heatmap'
+  | 'waterfall'
+  | 'treemap'
+  | 'funnel'
+  | 'gauge'
+  | 'histogram'
+  | 'box_plot'
+  | 'filter'
+  | 'image'
+  | 'shape';
 
 export interface DashboardColumn {
   name: string;
@@ -46,8 +57,19 @@ export interface DashboardQuery {
   dimensions: string[];
   measures: Array<{
     column?: string;
-    operation: 'sum' | 'average' | 'min' | 'max' | 'count' | 'count_distinct';
+    operation:
+      | 'sum'
+      | 'average'
+      | 'min'
+      | 'max'
+      | 'count'
+      | 'count_distinct'
+      | 'median'
+      | 'stddev'
+      | 'variance'
+      | 'percentile';
     label?: string;
+    percentile?: number;
   }>;
   filters?: Array<{
     column: string;
@@ -56,12 +78,16 @@ export interface DashboardQuery {
       | 'not_equals'
       | 'contains'
       | 'not_contains'
+      | 'starts_with'
+      | 'ends_with'
       | 'gt'
       | 'gte'
       | 'lt'
       | 'lte'
       | 'is_null'
       | 'not_null'
+      | 'between'
+      | 'date_between'
       | 'in';
     value: string | number | string[];
   }>;
@@ -73,6 +99,20 @@ export interface DashboardQuery {
     operator: 'add' | 'subtract' | 'multiply' | 'divide' | 'percent';
     right?: string;
     right_value?: number;
+    expression?: string;
+  }>;
+  source_ids?: string[];
+  dimension_specs?: Array<{
+    column: string;
+    label?: string;
+    date_grain?: 'year' | 'quarter' | 'month' | 'week' | 'day';
+  }>;
+  table_calculations?: Array<{
+    column: string;
+    operation: 'running_total' | 'rank' | 'percent_of_total' | 'moving_average';
+    label?: string;
+    window?: number;
+    direction?: 'asc' | 'desc';
   }>;
 }
 export interface DashboardAnalysis {
@@ -81,6 +121,8 @@ export interface DashboardAnalysis {
   row_count: number;
   truncated: boolean;
   source_row_count?: number;
+  source_freshness?: Record<string, string | null>;
+  cached?: boolean;
 }
 export interface DashboardWidget {
   id: string;
@@ -105,6 +147,17 @@ export interface DashboardWidget {
     decimals?: number;
     currency?: string;
     description?: string;
+    target?: number;
+    conditionalRules?: Array<{
+      operator: 'gt' | 'gte' | 'lt' | 'lte' | 'equals';
+      value: number;
+      color: string;
+    }>;
+    latitude?: string;
+    longitude?: string;
+    geography?: string;
+    imageUrl?: string;
+    imageAlt?: string;
   };
   layout?: { width: 3 | 4 | 6 | 8 | 9 | 12; height: number };
 }
@@ -130,6 +183,94 @@ export interface DashboardDefinition {
     showDescriptions?: boolean;
     compact?: boolean;
   };
+  filters?: DashboardGlobalFilter[];
+}
+
+export interface DashboardGlobalFilter {
+  id: string;
+  label: string;
+  column: string;
+  operator: NonNullable<DashboardQuery['filters']>[number]['operator'];
+  value?: string | number | string[];
+  sourceIds?: string[];
+}
+
+export interface DashboardRelationship {
+  id: string;
+  left_source: string;
+  left_key: string;
+  right_source: string;
+  right_key: string;
+  join_type: 'left' | 'right' | 'inner' | 'outer';
+  cardinality?: 'one_to_one' | 'one_to_many' | 'many_to_one' | 'many_to_many';
+  enabled?: boolean;
+}
+
+export interface DashboardSemanticModel {
+  version: number;
+  relationships: DashboardRelationship[];
+  unions?: Array<Record<string, unknown>>;
+  dimensions?: Array<{
+    name: string;
+    column: string;
+    source_id: string;
+    description?: string;
+  }>;
+  measures?: Array<{
+    name: string;
+    column?: string;
+    source_id: string;
+    operation: DashboardQuery['measures'][number]['operation'];
+    description?: string;
+  }>;
+}
+
+export interface DashboardRefreshPolicy {
+  enabled: boolean;
+  frequency: 'manual' | 'hourly' | 'daily' | 'weekly';
+  timezone: string;
+}
+
+export interface DashboardRefreshRun {
+  id: string;
+  status: 'queued' | 'running' | 'succeeded' | 'failed';
+  trigger: 'manual' | 'scheduled' | 'source_update';
+  source_count: number;
+  refreshed_count: number;
+  error?: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  created_at: string;
+}
+
+export interface DashboardAlert {
+  id: string;
+  name: string;
+  widget_id: string;
+  operator: 'gt' | 'gte' | 'lt' | 'lte' | 'equals';
+  threshold: number;
+  recipients: string[];
+  is_active: boolean;
+  last_value?: number | null;
+  last_evaluated_at?: string | null;
+  last_triggered_at?: string | null;
+}
+
+export interface DashboardComment {
+  id: string;
+  page_id?: string;
+  widget_id?: string;
+  body: string;
+  author: string;
+  author_name: string;
+  resolved_at?: string | null;
+  created_at: string;
+}
+
+export interface DashboardExecution {
+  results: Record<string, DashboardAnalysis>;
+  errors: Record<string, string>;
+  generated_at: string;
 }
 
 export interface DashboardSourceProfileColumn extends DashboardColumn {
@@ -184,6 +325,9 @@ export interface Dashboard {
   dashboard_url?: string;
   builder_mode: DashboardBuilderMode;
   definition: DashboardDefinition;
+  semantic_model: DashboardSemanticModel;
+  refresh_policy: DashboardRefreshPolicy;
+  last_refreshed_at?: string | null;
   data_sources?: DashboardDataSource[];
   infographic_count?: number;
   category: DashboardCategory | null;
@@ -214,6 +358,8 @@ export interface CreateDashboardInput {
   dashboard_url?: string;
   builder_mode?: DashboardBuilderMode;
   definition?: DashboardDefinition;
+  semantic_model?: DashboardSemanticModel;
+  refresh_policy?: DashboardRefreshPolicy;
   category?: string | null;
   workspace?: string | null;
   is_public?: boolean;
