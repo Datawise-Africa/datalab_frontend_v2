@@ -351,6 +351,24 @@ export function useCreateDashboardComment(id: string, workspaceId?: string) {
   });
 }
 
+export function useResolveDashboardComment(id: string, workspaceId?: string) {
+  const client = useQueryClient();
+  const base = dashboardApiBase(workspaceId);
+  return useMutation({
+    mutationFn: async (commentId: string) =>
+      (
+        await apiClient.post<DashboardComment>(
+          `${base}/${id}/comments/${commentId}/resolve/`
+        )
+      ).data,
+    onSuccess: () =>
+      client.invalidateQueries({
+        queryKey: [...dashboardStudioKeys.sources(base, id), 'comments'],
+      }),
+    onError: (error) => toastUtils.error('Resolve failed', extractError(error)),
+  });
+}
+
 export async function exportDashboardAnalysis(
   id: string,
   sourceId: string,
