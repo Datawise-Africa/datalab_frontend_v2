@@ -49,6 +49,7 @@ import { formatBytes } from '~/lib/utils/format';
 import type { MyDatasetInterface } from '~/features/my-datasets';
 import { getWorkspaceId, getWorkspaceName } from '~/features/my-datasets/types';
 import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
+import { DatasetDataPreview } from '~/components/dataset-preview/dataset-data-preview';
 import { toastUtils } from '~/lib/utils/toast';
 
 /** Server-side fetch so meta() has real data for SEO. */
@@ -281,7 +282,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 {dataset.dataset_type}
               </span>
               <span className="capitalize">
-                Access: {dataset.access.access_type}
+                Access: {dataset.access?.access_type ?? 'unspecified'}
               </span>
             </div>
 
@@ -313,6 +314,7 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                 <TabsList>
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
                   <TabsTrigger value="schema">Schema</TabsTrigger>
                   <TabsTrigger value="versions">Versions</TabsTrigger>
                   <TabsTrigger value="authors">Authors</TabsTrigger>
@@ -386,13 +388,13 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
                   </div>
                 )}
 
-                {dataset.access.access_instructions && (
+                {dataset.access?.access_instructions && (
                   <div className="rounded-md border p-3">
                     <p className="text-sm font-medium mb-1">
                       Access Instructions
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {dataset.access.access_instructions}
+                      {dataset.access?.access_instructions}
                     </p>
                   </div>
                 )}
@@ -401,6 +403,13 @@ export default function DatasetDetail({ params }: Route.ComponentProps) {
               {/* Datasheet tab */}
               <TabsContent value="datasheet" className="mt-4">
                 <DatasheetTab datasheet={dataset.datasheet} />
+              </TabsContent>
+
+              <TabsContent value="preview" className="mt-4">
+                <DatasetDataPreview
+                  preview={dataset.preview}
+                  schema={dataset.schema}
+                />
               </TabsContent>
 
               {/* Schema tab */}
@@ -623,7 +632,7 @@ function SidebarContent({
             Category: {dataset.category.name}
           </p>
           <p className="text-muted-foreground capitalize">
-            Access: {dataset.access.access_type}
+            Access: {dataset.access?.access_type ?? 'unspecified'}
           </p>
           {dataset.license && (
             <p className="text-muted-foreground">

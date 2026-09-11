@@ -55,6 +55,20 @@ export interface DatasetSchema {
   schema_json: DatasetSchemaFile[];
 }
 
+/** One file's sample, written by the backend `generate_preview` task. */
+export interface DatasetPreviewEntry {
+  file: string;
+  rows?: Record<string, unknown>[];
+  /** Set instead of `rows` when the file could not be read. */
+  error?: string;
+}
+
+export interface DatasetPreview {
+  id: string;
+  preview_rows: DatasetPreviewEntry[];
+  created_at: string;
+}
+
 export type MyDatasetInterface = {
   id: string;
   name: string;
@@ -94,10 +108,11 @@ export type MyDatasetInterface = {
   is_premium: boolean;
   is_private: boolean;
   price: number | null;
+  /** Null when no access record exists (e.g. older or seeded datasets). */
   access: {
     access_type: string;
     access_instructions: string;
-  };
+  } | null;
   datasheet: Nullable<{
     id: string;
     motivation: string;
@@ -114,6 +129,7 @@ export type MyDatasetInterface = {
   downloads_count: number;
   dataset_image?: string | null;
   schema?: DatasetSchema | null;
+  preview?: DatasetPreview | null;
   doi: string | null;
   doi_url: string | null;
   citation: string | null;

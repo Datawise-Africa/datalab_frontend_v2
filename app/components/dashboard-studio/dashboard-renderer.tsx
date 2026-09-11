@@ -161,7 +161,8 @@ function Chart({
     const key = requestedY ?? series[0] ?? x;
     return (
       <div className="flex h-full flex-col justify-center">
-        <div className="text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+        {/* Scales with the card (container query) so long values never spill. */}
+        <div className="text-[clamp(1.5rem,18cqi,3rem)] leading-tight font-bold tracking-tight text-foreground tabular-nums">
           {widget.config?.prefix}
           {formatValue(rows[0]?.[key ?? ''], widget)}
           {widget.config?.suffix}
@@ -183,14 +184,20 @@ function Chart({
   }
   if (widget.type === 'table')
     return (
-      <div className="overflow-auto" style={{ maxHeight: height }}>
-        <table className="w-full text-sm">
+      <div
+        className="scrollbar-thin overflow-auto"
+        style={{ maxHeight: height }}
+      >
+        <table className="w-max min-w-full text-sm">
           <thead>
             <tr>
               {widget.data?.columns.map((column) => (
                 <th
                   key={column.name}
-                  className="sticky top-0 border-b bg-card p-2.5 text-left font-medium"
+                  className={cn(
+                    'sticky top-0 border-b bg-card p-2.5 font-medium whitespace-nowrap',
+                    column.type === 'number' ? 'text-right' : 'text-left'
+                  )}
                 >
                   {column.name}
                 </th>
@@ -204,7 +211,13 @@ function Chart({
                 className="border-b last:border-0 hover:bg-muted/40"
               >
                 {widget.data?.columns.map((column) => (
-                  <td key={column.name} className="p-2.5">
+                  <td
+                    key={column.name}
+                    className={cn(
+                      'p-2.5 whitespace-nowrap',
+                      column.type === 'number' && 'text-right tabular-nums'
+                    )}
+                  >
                     {column.type === 'number'
                       ? formatValue(row[column.name], widget)
                       : String(row[column.name] ?? '')}
@@ -357,7 +370,13 @@ function Chart({
     );
   const legend =
     widget.config?.showLegend === false ? null : (
-      <Legend wrapperStyle={{ fontSize: 12 }} />
+      <Legend
+        iconSize={8}
+        wrapperStyle={{ fontSize: 11, maxHeight: 72, overflowY: 'auto' }}
+        formatter={(value) => (
+          <span style={{ color: 'var(--muted-foreground)' }}>{value}</span>
+        )}
+      />
     );
   const tooltip = (
     <Tooltip
@@ -365,19 +384,25 @@ function Chart({
       contentStyle={{ borderRadius: 10, borderColor: 'var(--border)' }}
     />
   );
+  // Show every category label when there are few; angle them when crowded.
+  const categoryAxis = {
+    dataKey: x,
+    tick: { fontSize: 11 },
+    interval: rows.length <= 12 ? 0 : ('preserveStartEnd' as const),
+    angle: rows.length > 6 ? -30 : 0,
+    textAnchor: rows.length > 6 ? ('end' as const) : ('middle' as const),
+    height: rows.length > 6 ? 56 : 30,
+  };
+  const compactTicks = (value: unknown) =>
+    formatValue(value, {
+      ...widget,
+      config: { ...widget.config, numberFormat: 'compact' },
+    });
   const axes = (
     <>
       {grid}
-      <XAxis dataKey={x} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-      <YAxis
-        tick={{ fontSize: 11 }}
-        tickFormatter={(value) =>
-          formatValue(value, {
-            ...widget,
-            config: { ...widget.config, numberFormat: 'compact' },
-          })
-        }
-      />
+      <XAxis {...categoryAxis} />
+      <YAxis tick={{ fontSize: 11 }} tickFormatter={compactTicks} />
       {tooltip}
       {legend}
     </>
@@ -554,18 +579,23 @@ function Chart({
         {grid}
         {horizontal ? (
           <>
-            <XAxis type="number" tick={{ fontSize: 11 }} />
+            <XAxis
+              type="number"
+              tick={{ fontSize: 11 }}
+              tickFormatter={compactTicks}
+            />
             <YAxis
               type="category"
               dataKey={x}
               width={100}
+              interval={0}
               tick={{ fontSize: 11 }}
             />
           </>
         ) : (
           <>
-            <XAxis dataKey={x} tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} />
+            <XAxis {...categoryAxis} />
+            <YAxis tick={{ fontSize: 11 }} tickFormatter={compactTicks} />
           </>
         )}
         {tooltip}
@@ -786,7 +816,7 @@ export function DashboardRenderer({
           widget={widget}
           onSelect={onSelect}
           className={cn(
-            'group relative transition',
+            'group @container relative transition',
             preset.card,
             compact ? 'p-3' : 'p-5',
             widgetWidthClass[widget.layout?.width ?? 6],

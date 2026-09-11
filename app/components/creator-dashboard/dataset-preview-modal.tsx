@@ -151,17 +151,19 @@ function PreviewContent({
           <BookOpen className="h-3.5 w-3.5" />
           Category: {dataset.category.name}
         </span>
-        <span className="capitalize">Access: {dataset.access.access_type}</span>
+        <span className="capitalize">
+          Access: {dataset.access?.access_type ?? 'unspecified'}
+        </span>
         {getWorkspaceName(dataset.workspace) && (
           <span>Workspace: {getWorkspaceName(dataset.workspace)}</span>
         )}
       </div>
 
-      {dataset.access.access_instructions && (
+      {dataset.access?.access_instructions && (
         <div className="rounded-md border p-3">
           <p className="text-xs font-medium mb-1">Access Instructions</p>
           <p className="text-xs text-muted-foreground">
-            {dataset.access.access_instructions}
+            {dataset.access?.access_instructions}
           </p>
         </div>
       )}
