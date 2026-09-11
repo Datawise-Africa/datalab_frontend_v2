@@ -3,6 +3,7 @@ import {
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query';
+import axios, { type AxiosError } from 'axios';
 import { apiClient } from '~/lib/api/client';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
@@ -143,6 +144,13 @@ export function useRunDashboardAnalysis(id: string, workspaceId?: string) {
     onError: (e) => toastUtils.error('Analysis failed', extractError(e)),
   });
 }
+/** 409 from a definition save: changed elsewhere; body has the stored `definition_version`. */
+export function isDefinitionConflict(
+  error: unknown
+): error is AxiosError<{ definition_version: string }> {
+  return axios.isAxiosError(error) && error.response?.status === 409;
+}
+
 export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
   const client = useQueryClient();
   const base = dashboardApiBase(workspaceId);
@@ -150,22 +158,30 @@ export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
     mutationFn: async ({
       definition,
       note,
+      baseVersion,
     }: {
       definition: DashboardDefinition;
       note?: string;
+      /** Rejected with 409 if the stored definition changed since. */
+      baseVersion?: string;
       silent?: boolean;
     }) =>
       (
         await apiClient.patch<Dashboard>(`${base}/${id}/definition/`, {
           definition,
           note,
+          base_version: baseVersion,
         })
       ).data,
     onSuccess: (data, { silent }) => {
       patchCachedDashboard(client, id, workspaceId, data);
       if (!silent) toastUtils.success('Dashboard saved');
     },
-    onError: (e) => toastUtils.error('Save failed', extractError(e)),
+    onError: (e) => {
+      // Conflicts are resolved in the studio's conflict dialog instead.
+      if (!isDefinitionConflict(e))
+        toastUtils.error('Save failed', extractError(e));
+    },
   });
 }
 export function useCreateDashboardShare(id: string, workspaceId?: string) {

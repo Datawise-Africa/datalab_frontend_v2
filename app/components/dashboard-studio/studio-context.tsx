@@ -20,6 +20,7 @@ import {
   useRestoreDashboardRevision,
   useRunDashboardAnalysis,
   useSaveDashboardDefinition,
+  isDefinitionConflict,
 } from '~/features/dashboard-studio';
 import { getVisual } from './registry/visuals';
 import type {
@@ -90,6 +91,10 @@ type StudioContextValue = {
   saving: boolean;
   save: (automatic?: boolean) => Promise<void>;
   restore: (revisionId: string) => Promise<void>;
+  /** Saving was refused: the definition changed elsewhere (another tab or editor). */
+  conflict: boolean;
+  /** Load the stored definition (dropping local edits) or overwrite it with ours. */
+  resolveConflict: (choice: 'reload' | 'overwrite') => Promise<void>;
 
   activePage?: DashboardPage;
   setActivePageId: (id?: string) => void;
@@ -162,14 +167,20 @@ export function StudioProvider({
   const redoStack = useRef<DashboardDefinition[]>([]);
   const currentRef = useRef<DashboardDefinition | undefined>(undefined);
   const hydratedRef = useRef(false);
+  // Version of the stored definition this editor is based on; saves send it so
+  // edits made elsewhere since are never silently overwritten.
+  const versionRef = useRef<string | undefined>(undefined);
+  const [conflictVersion, setConflictVersion] = useState<string>();
 
+  const load = (source: Dashboard) => {
+    const normalized = normalizeDefinition(source.definition);
+    setDefinition(normalized);
+    setActivePageId(normalized.pages[0].id);
+    currentRef.current = normalized;
+    versionRef.current = source.definition_version;
+  };
   useEffect(() => {
-    if (dashboard && !definition) {
-      const normalized = normalizeDefinition(dashboard.definition);
-      setDefinition(normalized);
-      setActivePageId(normalized.pages[0].id);
-      currentRef.current = normalized;
-    }
+    if (dashboard && !definition) load(dashboard);
   }, [dashboard, definition]);
   useEffect(() => {
     currentRef.current = definition;
@@ -198,19 +209,44 @@ export function StudioProvider({
     setDefinition(next);
     setDirty(true);
   };
-  const save = async (automatic = false) => {
+  const persist = async (automatic: boolean, baseVersion?: string) => {
     if (!definition) return;
     const snapshot = structuredClone(definition);
-    await saveDefinition.mutateAsync({
-      definition: snapshot,
-      note: automatic ? 'Studio autosave' : 'Saved from Dashboard Studio',
-      silent: automatic,
-    });
+    try {
+      const saved = await saveDefinition.mutateAsync({
+        definition: snapshot,
+        note: automatic ? 'Studio autosave' : 'Saved from Dashboard Studio',
+        baseVersion,
+        silent: automatic,
+      });
+      versionRef.current = saved.definition_version;
+    } catch (error) {
+      if (isDefinitionConflict(error))
+        setConflictVersion(error.response?.data.definition_version ?? '?');
+      throw error;
+    }
     if (JSON.stringify(currentRef.current) === JSON.stringify(snapshot))
       setDirty(false);
   };
+  const save = async (automatic = false) => {
+    // Paused until the conflict dialog is answered.
+    if (conflictVersion) throw new Error('Dashboard changed elsewhere');
+    await persist(automatic, versionRef.current);
+  };
+  const resolveConflict = async (choice: 'reload' | 'overwrite') => {
+    const stored = conflictVersion;
+    setConflictVersion(undefined);
+    if (choice === 'overwrite') return persist(false, stored);
+    const fresh = (await (workspaceId ? workspace : personal).refetch()).data;
+    if (!fresh) return;
+    undoStack.current = [];
+    redoStack.current = [];
+    load(fresh);
+    setSelectedId(undefined);
+    setDirty(false);
+  };
   useEffect(() => {
-    if (!dirty || !definition) return;
+    if (!dirty || !definition || conflictVersion) return;
     const timeout = globalThis.setTimeout(
       () => void save(true).catch(() => undefined),
       12000
@@ -218,7 +254,7 @@ export function StudioProvider({
     return () => globalThis.clearTimeout(timeout);
     // Save is intentionally triggered from the latest definition snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dirty, definition]);
+  }, [dirty, definition, conflictVersion]);
 
   const activePage =
     definition?.pages.find((page) => page.id === activePageId) ??
@@ -370,6 +406,7 @@ export function StudioProvider({
   const restore = async (revisionId: string) => {
     const result = await restoreRevision.mutateAsync(revisionId);
     const restored = normalizeDefinition(result.definition);
+    versionRef.current = result.definition_version;
     setDefinition(restored);
     setActivePageId(restored.pages[0].id);
     setSelectedId(undefined);
@@ -417,6 +454,8 @@ export function StudioProvider({
     saving: saveDefinition.isPending,
     save,
     restore,
+    conflict: Boolean(conflictVersion),
+    resolveConflict,
     activePage,
     setActivePageId,
     addPage,

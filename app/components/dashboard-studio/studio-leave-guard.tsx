@@ -51,8 +51,13 @@ export function StudioLeaveGuard() {
             <Button
               disabled={saving}
               onClick={async () => {
-                await save(false);
-                blocker.proceed?.();
+                try {
+                  await save(false);
+                  blocker.proceed?.();
+                } catch {
+                  // Stay; a conflict opens its own dialog, other errors toast.
+                  blocker.reset?.();
+                }
               }}
             >
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
