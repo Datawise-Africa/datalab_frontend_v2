@@ -44,6 +44,8 @@ type StudioUiContextValue = {
   aside: StudioAsidePanel;
   /** Toggle an activity panel: right column on wide screens, sheet otherwise. */
   toggleActivity: (panel: StudioActivityPanel) => void;
+  /** Like `toggleActivity`, but never closes an already open panel. */
+  openActivity: (panel: StudioActivityPanel) => void;
   showProperties: () => void;
   /** Show the visual palette: left panel on wide screens, a sheet otherwise. */
   openInsert: () => void;
@@ -172,6 +174,11 @@ export function StudioUiProvider({
       if (!isWide) return setDialog(panel);
       setRightOpen(true);
       setAside((current) => (current === panel ? 'properties' : panel));
+    },
+    openActivity: (panel) => {
+      if (!isWide) return setDialog(panel);
+      setRightOpen(true);
+      setAside(panel);
     },
     showProperties: () => setAside('properties'),
     openInsert: () => (isWide ? setLeftOpen(true) : setDialog('insert')),

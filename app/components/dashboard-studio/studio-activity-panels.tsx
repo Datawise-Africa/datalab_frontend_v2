@@ -3,9 +3,10 @@
  * column on wide screens, in a right-hand sheet otherwise (see `StudioAside`
  * and `StudioDialogs`). Content only — the frame supplies the title bar.
  */
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import {
   FormNumberField,
   FormPickerField,
@@ -21,6 +22,7 @@ import {
   useDashboardAlerts,
   useDashboardComments,
   useDashboardRevisions,
+  useResolveDashboardComment,
 } from '~/features/dashboard-studio';
 import { alertConditionOptions } from '~/lib/constants/dashboard-studio';
 import {
@@ -30,6 +32,7 @@ import {
   type CommentFormValues,
 } from '~/lib/schema/dashboard-studio-schema';
 import type { DashboardAlert } from '~/lib/types/dashboard';
+import { cn } from '~/lib/utils';
 import { useStudio } from './studio-context';
 
 export function HistoryPanel({
@@ -90,6 +93,15 @@ export function CommentsPanel() {
     workspaceId
   );
   const create = useCreateDashboardComment(dashboardId, workspaceId);
+  const resolve = useResolveDashboardComment(dashboardId, workspaceId);
+  // Selecting a visual (or clicking its pin) narrows the list to its thread.
+  const [showAll, setShowAll] = useState(false);
+  const [showResolved, setShowResolved] = useState(false);
+  const [threadId, setThreadId] = useState(selected?.id);
+  if (threadId !== selected?.id) {
+    setThreadId(selected?.id);
+    setShowAll(false);
+  }
   const form = useForm<CommentFormValues>({
     resolver: zodResolver(commentSchema),
     defaultValues: { body: '' },
@@ -106,6 +118,14 @@ export function CommentsPanel() {
     definition.pages
       .flatMap((page) => page.widgets)
       .find((widget) => widget.id === id)?.title;
+  const thread =
+    selected && !showAll
+      ? comments.filter((comment) => comment.widget_id === selected.id)
+      : comments;
+  const resolvedCount = thread.filter((comment) => comment.resolved_at).length;
+  const visible = showResolved
+    ? thread
+    : thread.filter((comment) => !comment.resolved_at);
 
   return (
     <div className="space-y-4">
@@ -127,9 +147,37 @@ export function CommentsPanel() {
           </Button>
         </form>
       </Form>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+        {selected ? (
+          <button
+            type="button"
+            onClick={() => setShowAll(!showAll)}
+            className="text-primary hover:underline"
+          >
+            {showAll ? `Only “${selected.title}”` : 'All comments'}
+          </button>
+        ) : (
+          <span className="text-muted-foreground">All comments</span>
+        )}
+        {resolvedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowResolved(!showResolved)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            {showResolved ? 'Hide' : 'Show'} {resolvedCount} resolved
+          </button>
+        )}
+      </div>
       <div className="space-y-2">
-        {comments.map((comment) => (
-          <article key={comment.id} className="rounded-lg border p-3">
+        {visible.map((comment) => (
+          <article
+            key={comment.id}
+            className={cn(
+              'rounded-lg border p-3',
+              comment.resolved_at && 'bg-muted/40 opacity-70'
+            )}
+          >
             <div className="flex items-baseline justify-between gap-2 text-xs">
               <strong className="truncate">
                 {comment.author_name || 'Team member'}
@@ -144,11 +192,29 @@ export function CommentsPanel() {
               </p>
             )}
             <p className="mt-2 text-sm whitespace-pre-wrap">{comment.body}</p>
+            <div className="mt-2 flex justify-end">
+              {comment.resolved_at ? (
+                <Badge variant="secondary">Resolved</Badge>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs"
+                  disabled={resolve.isPending}
+                  onClick={() => resolve.mutate(comment.id)}
+                >
+                  <Check className="mr-1 h-3.5 w-3.5" />
+                  Resolve
+                </Button>
+              )}
+            </div>
           </article>
         ))}
-        {!comments.length && (
+        {!visible.length && (
           <p className="py-6 text-center text-sm text-muted-foreground">
-            No comments yet.
+            {selected && !showAll
+              ? 'No open comments on this visual.'
+              : 'No open comments.'}
           </p>
         )}
       </div>

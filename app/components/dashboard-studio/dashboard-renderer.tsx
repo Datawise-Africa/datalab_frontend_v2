@@ -735,6 +735,7 @@ export function DashboardRenderer({
   selectedActions,
   onReorder,
   onResize,
+  widgetOverlay,
   showGridGuides = false,
 }: Readonly<{
   definition: DashboardDefinition;
@@ -753,6 +754,8 @@ export function DashboardRenderer({
   onReorder?: (sourceId: string, targetId: string) => void;
   /** Shows a snap-to-grid resize handle on the selected visual. */
   onResize?: (id: string, layout: WidgetLayout) => void;
+  /** Extra content rendered inside each card (e.g. studio comment pins). */
+  widgetOverlay?: (widget: DashboardWidget) => ReactNode;
   /** Studio aid: dashed 12-column guides behind the visuals. */
   showGridGuides?: boolean;
 }>) {
@@ -849,6 +852,7 @@ export function DashboardRenderer({
             }}
           >
             {selected && selectedActions}
+            {widgetOverlay?.(widget)}
             {selected && onResize && (
               <WidgetResizeHandle
                 title={widget.title}

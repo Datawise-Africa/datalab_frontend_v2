@@ -1,7 +1,8 @@
-import { useEffect, useEffectEvent, useRef } from 'react';
-import { LayoutDashboard, Plug, Plus } from 'lucide-react';
+import { useEffect, useEffectEvent, useMemo, useRef } from 'react';
+import { LayoutDashboard, MessageSquare, Plug, Plus } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { useDashboardComments } from '~/features/dashboard-studio';
 import { canvasFrames } from '~/lib/constants/dashboard-studio';
 import { cn } from '~/lib/utils';
 import { DashboardRenderer } from './dashboard-renderer';
@@ -25,6 +26,8 @@ export function StudioCanvas() {
     sources,
     reorderWidget,
     updateWidget,
+    dashboardId,
+    workspaceId,
   } = useStudio();
   const {
     preview,
@@ -33,12 +36,25 @@ export function StudioCanvas() {
     isWide,
     leftOpen,
     showProperties,
+    openActivity,
     zoom,
     setZoom,
     frame,
     showGrid,
   } = useStudioUi();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { data: comments = [] } = useDashboardComments(
+    dashboardId,
+    workspaceId
+  );
+  // Open (unresolved) comments per visual, shown as pins on the cards.
+  const openComments = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const comment of comments)
+      if (comment.widget_id && !comment.resolved_at)
+        counts[comment.widget_id] = (counts[comment.widget_id] ?? 0) + 1;
+    return counts;
+  }, [comments]);
   const frameWidth = canvasFrames.find((item) => item.value === frame)?.width;
   // Zoom and frames are editing aids; Preview shows the page as viewers see it.
   const scale = preview ? 1 : zoom;
@@ -153,6 +169,27 @@ export function StudioCanvas() {
             // Only the selected visual shows a handle, so updateWidget targets it.
             onResize={
               preview ? undefined : (_id, layout) => updateWidget({ layout })
+            }
+            widgetOverlay={
+              preview
+                ? undefined
+                : (widget) =>
+                    openComments[widget.id] ? (
+                      <button
+                        type="button"
+                        aria-label={`${openComments[widget.id]} open comment${openComments[widget.id] === 1 ? '' : 's'} on ${widget.title}`}
+                        title="Open comments"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelectedId(widget.id);
+                          openActivity('comments');
+                        }}
+                        className="absolute -top-3 -left-3 z-10 flex h-7 min-w-7 items-center justify-center gap-1 rounded-full rounded-bl-none bg-primary px-2 text-xs font-medium text-primary-foreground shadow-md ring-2 ring-background transition hover:scale-105"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        {openComments[widget.id]}
+                      </button>
+                    ) : null
             }
             showGridGuides={!preview && showGrid}
           />
