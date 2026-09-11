@@ -124,7 +124,7 @@ export function StudioTopBar() {
           onClick={undo}
           disabled={!canUndo}
           aria-label="Undo"
-          title="Undo"
+          title="Undo (Ctrl/⌘+Z)"
         >
           <Undo2 className="h-4 w-4" />
         </Button>
@@ -134,7 +134,7 @@ export function StudioTopBar() {
           onClick={redo}
           disabled={!canRedo}
           aria-label="Redo"
-          title="Redo"
+          title="Redo (Ctrl/⌘+Shift+Z)"
         >
           <Redo2 className="h-4 w-4" />
         </Button>
@@ -223,6 +223,7 @@ export function StudioTopBar() {
           onClick={() => void save(false).catch(() => undefined)}
           disabled={!dirty || saving}
           aria-label="Save"
+          title="Save (Ctrl/⌘+S)"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin sm:mr-1.5" />

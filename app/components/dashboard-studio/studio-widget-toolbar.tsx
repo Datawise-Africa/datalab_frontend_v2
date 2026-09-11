@@ -6,6 +6,7 @@ import { useStudioUi } from './studio-ui-context';
 
 type Tool = {
   label: string;
+  hint?: string;
   icon: ComponentType<{ className?: string }>;
   onClick: () => void;
   destructive?: boolean;
@@ -18,7 +19,12 @@ export function StudioWidgetToolbar() {
   const tools: Tool[] = [
     { label: 'Move earlier', icon: ArrowUp, onClick: () => moveWidget(-1) },
     { label: 'Move later', icon: ArrowDown, onClick: () => moveWidget(1) },
-    { label: 'Duplicate', icon: Copy, onClick: duplicateWidget },
+    {
+      label: 'Duplicate',
+      hint: 'Ctrl/⌘+D',
+      icon: Copy,
+      onClick: duplicateWidget,
+    },
     {
       label: 'Create infographic',
       icon: ImageDown,
@@ -26,6 +32,7 @@ export function StudioWidgetToolbar() {
     },
     {
       label: 'Delete visual',
+      hint: 'Delete',
       icon: Trash2,
       onClick: removeWidget,
       destructive: true,
@@ -43,7 +50,7 @@ export function StudioWidgetToolbar() {
           key={tool.label}
           type="button"
           aria-label={tool.label}
-          title={tool.label}
+          title={tool.hint ? `${tool.label} (${tool.hint})` : tool.label}
           onClick={(event: MouseEvent) => {
             event.stopPropagation();
             tool.onClick();

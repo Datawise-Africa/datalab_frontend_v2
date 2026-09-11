@@ -6,13 +6,7 @@ import { activityPanels } from './studio-aside';
 import { StudioSettingsSheet } from './studio-settings-sheet';
 import { StudioInsertPanel } from './studio-insert-panel';
 import { StudioInspector } from './studio-inspector';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '~/components/ui/sheet';
+import { AppSheet } from '~/components/ui/app-sheet';
 import { useStudio } from './studio-context';
 import { useStudioUi } from './studio-ui-context';
 
@@ -45,55 +39,41 @@ export function StudioDialogs() {
   return (
     <>
       <StudioSettingsSheet />
-      <Sheet {...dialogProps('insert')}>
-        <SheetContent side="left" className="w-full gap-0 p-0 sm:max-w-sm">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Insert a visual</SheetTitle>
-            <SheetDescription>
-              Pick a visual to add to this page.
-            </SheetDescription>
-          </SheetHeader>
-          <StudioInsertPanel onInserted={() => openDialog(null)} />
-        </SheetContent>
-      </Sheet>
+      <AppSheet
+        {...dialogProps('insert')}
+        side="left"
+        size="sm"
+        title="Insert a visual"
+        description="Pick a visual to add to this page."
+        hideHeader
+        bodyClassName="overflow-hidden p-0"
+      >
+        <StudioInsertPanel onInserted={() => openDialog(null)} />
+      </AppSheet>
       {!isWide && !preview && (
-        <Sheet
+        <AppSheet
           open={Boolean(selected)}
           onOpenChange={(open) => !open && setSelectedId(undefined)}
+          side="bottom"
+          title="Visual properties"
+          description="Edit the selected visual's data, analysis and formatting."
+          hideHeader
+          className="h-[85dvh]"
+          bodyClassName="overflow-hidden p-0"
         >
-          <SheetContent
-            side="bottom"
-            className="flex h-[85dvh] flex-col gap-0 rounded-t-xl p-0"
-          >
-            <SheetHeader className="sr-only">
-              <SheetTitle>Visual properties</SheetTitle>
-              <SheetDescription>
-                Edit the selected visual's data, analysis and formatting.
-              </SheetDescription>
-            </SheetHeader>
-            <StudioInspector variant="sheet" />
-          </SheetContent>
-        </Sheet>
+          <StudioInspector variant="sheet" />
+        </AppSheet>
       )}
       {!isWide &&
         (['history', 'comments', 'alerts'] as const).map((id) => (
-          <Sheet key={id} {...dialogProps(id)}>
-            <SheetContent
-              side="right"
-              className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
-            >
-              <SheetHeader className="border-b px-4 py-3">
-                <SheetTitle>{activityPanels[id].title}</SheetTitle>
-                <SheetDescription className="sr-only">
-                  {activityPanels[id].title} for this dashboard
-                </SheetDescription>
-              </SheetHeader>
-              <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-4">
-                {dialog === id &&
-                  activityPanels[id].render(() => openDialog(null))}
-              </div>
-            </SheetContent>
-          </Sheet>
+          <AppSheet
+            key={id}
+            {...dialogProps(id)}
+            title={activityPanels[id].title}
+            closeMode={id === 'history' ? 'auto' : 'explicit'}
+          >
+            {dialog === id && activityPanels[id].render(() => openDialog(null))}
+          </AppSheet>
         ))}
       {profileSourceId && (
         <SourceProfileDialog
