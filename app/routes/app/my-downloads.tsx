@@ -12,14 +12,7 @@ import { Card, CardContent } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Textarea } from '~/components/ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import {
   Empty,
   EmptyHeader,
@@ -224,68 +217,17 @@ function ReviewDialog({
   };
 
   return (
-    <Dialog
+    <AppDialog
       open={!!record}
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
-    >
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Review dataset</DialogTitle>
-          <DialogDescription className="line-clamp-2">
-            {record?.dataset.name}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-              Rating
-            </p>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  className="p-0.5"
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                  onClick={() => setRating(star)}
-                >
-                  <Star
-                    className={cn(
-                      'h-6 w-6 transition-colors',
-                      (hoverRating || rating) >= star
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-muted-foreground/30'
-                    )}
-                  />
-                </button>
-              ))}
-              {rating > 0 && (
-                <span className="ml-2 text-xs text-muted-foreground">
-                  {rating}/5
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-              Comment
-            </p>
-            <Textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Share your thoughts about this dataset..."
-              rows={4}
-              className="text-sm"
-            />
-          </div>
-        </div>
-
-        <DialogFooter>
+      title="Review dataset"
+      description={<span className="line-clamp-2">{record?.dataset.name}</span>}
+      size="sm"
+      closeMode="explicit"
+      footer={
+        <>
           <Button
             variant="ghost"
             onClick={handleClose}
@@ -300,8 +242,55 @@ function ReviewDialog({
           >
             {reviewDownload.isPending ? 'Submitting...' : 'Submit Review'}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div>
+          <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+            Rating
+          </p>
+          <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                className="p-0.5"
+                onMouseEnter={() => setHoverRating(star)}
+                onMouseLeave={() => setHoverRating(0)}
+                onClick={() => setRating(star)}
+              >
+                <Star
+                  className={cn(
+                    'h-6 w-6 transition-colors',
+                    (hoverRating || rating) >= star
+                      ? 'fill-amber-400 text-amber-400'
+                      : 'text-muted-foreground/30'
+                  )}
+                />
+              </button>
+            ))}
+            {rating > 0 && (
+              <span className="ml-2 text-xs text-muted-foreground">
+                {rating}/5
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+            Comment
+          </p>
+          <Textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Share your thoughts about this dataset..."
+            rows={4}
+            className="text-sm"
+          />
+        </div>
+      </div>
+    </AppDialog>
   );
 }

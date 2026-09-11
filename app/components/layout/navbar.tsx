@@ -15,14 +15,8 @@ import {
 
 import { Logo } from '~/components/layout/logo';
 import { Button } from '~/components/ui/button';
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '~/components/ui/sheet';
+import { AppSheet } from '~/components/ui/app-sheet';
+import { SheetClose } from '~/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -272,38 +266,40 @@ export default function Navbar() {
           <ThemeToggle className="h-8 w-8 lg:hidden" />
 
           {/* Mobile Menu */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
+          <AppSheet
+            open={mobileOpen}
+            onOpenChange={setMobileOpen}
+            side="right"
+            className="w-80 sm:max-w-80"
+            bodyClassName="flex flex-col gap-4 p-0"
+            title={
+              <>
+                <Logo className="h-7" />
+                <span className="sr-only">Datalab</span>
+              </>
+            }
+            trigger={
               <Button variant="ghost" size="icon" className="lg:hidden">
                 <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle menu</span>
               </Button>
-            </SheetTrigger>
+            }
+          >
+            <nav className="mt-4 flex flex-col gap-1 px-1">
+              {navLinks.map((link) => (
+                <SheetClose key={link.to} asChild>
+                  <Link
+                    to={link.to}
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                </SheetClose>
+              ))}
+            </nav>
 
-            <SheetContent side="right" className="w-80 overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle>
-                  <Logo className="h-7" />
-                  <span className="sr-only">Datalab</span>
-                </SheetTitle>
-              </SheetHeader>
-
-              <nav className="mt-4 flex flex-col gap-1 px-1">
-                {navLinks.map((link) => (
-                  <SheetClose key={link.to} asChild>
-                    <Link
-                      to={link.to}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-primary/5 hover:text-primary"
-                    >
-                      {link.label}
-                    </Link>
-                  </SheetClose>
-                ))}
-              </nav>
-
-              <MobileAuthSection />
-            </SheetContent>
-          </Sheet>
+            <MobileAuthSection />
+          </AppSheet>
         </div>
       </div>
     </header>

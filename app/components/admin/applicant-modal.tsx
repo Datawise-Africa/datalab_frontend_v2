@@ -1,11 +1,5 @@
 import moment from 'moment';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
@@ -57,98 +51,15 @@ export function ApplicantModal({
   const isRejected = application.status === 'rejected';
 
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Application Details</DialogTitle>
-          <DialogDescription>Review this creator application</DialogDescription>
-        </DialogHeader>
-
-        {/* ── Applicant header ── */}
-        <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <User className="h-6 w-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base">{application.user_name}</p>
-          </div>
-          <Badge className={`shrink-0 gap-1.5 ${badge.className}`}>
-            <StatusIcon className="h-3.5 w-3.5" />
-            {badge.label}
-          </Badge>
-        </div>
-
-        <Separator />
-
-        {/* ── Details grid ── */}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <DetailItem
-            icon={Building2}
-            label="Affiliation"
-            value={application.affiliation}
-          />
-          <DetailItem
-            icon={Briefcase}
-            label="Expertise"
-            value={application.expertise}
-          />
-          <DetailItem
-            icon={Calendar}
-            label="Applied"
-            value={moment(application.created_at).format('MMM D, YYYY')}
-          />
-          {application.approved_at && (
-            <DetailItem
-              icon={CheckCircle}
-              label="Approved"
-              value={moment(application.approved_at).format('MMM D, YYYY')}
-            />
-          )}
-        </div>
-
-        {/* ── Reason ── */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            <p className="text-sm font-medium">Reason for Joining</p>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed rounded-lg bg-muted/30 p-3">
-            {application.reason_for_joining}
-          </p>
-        </div>
-
-        {/* ── Past work files ── */}
-        {/* {application.past_work_files.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <p className="text-sm font-medium">
-                Past Work ({application.past_work_files.length} file
-                {application.past_work_files.length !== 1 ? 's' : ''})
-              </p>
-            </div>
-            <div className="space-y-2">
-              {application.past_work_files.map((file) => (
-                <a
-                  key={file.id}
-                  href={file.file}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted"
-                >
-                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="flex-1 truncate">Attachment {file.id}</span>
-                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                </a>
-              ))}
-            </div>
-          </div>
-        )} */}
-
-        <Separator />
-
-        {/* ── Actions ── */}
-        <div className="flex gap-2">
+    <AppDialog
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title="Application Details"
+      description="Review this creator application"
+      size="md"
+      bodyClassName="space-y-4"
+      footer={
+        <>
           {isPending && (
             <>
               <Button
@@ -202,9 +113,92 @@ export function ApplicantModal({
           <Button variant="outline" className="flex-1" onClick={onClose}>
             Close
           </Button>
+        </>
+      }
+    >
+      {/* ── Applicant header ── */}
+      <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <User className="h-6 w-6" />
         </div>
-      </DialogContent>
-    </Dialog>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-base">{application.user_name}</p>
+        </div>
+        <Badge className={`shrink-0 gap-1.5 ${badge.className}`}>
+          <StatusIcon className="h-3.5 w-3.5" />
+          {badge.label}
+        </Badge>
+      </div>
+
+      <Separator />
+
+      {/* ── Details grid ── */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <DetailItem
+          icon={Building2}
+          label="Affiliation"
+          value={application.affiliation}
+        />
+        <DetailItem
+          icon={Briefcase}
+          label="Expertise"
+          value={application.expertise}
+        />
+        <DetailItem
+          icon={Calendar}
+          label="Applied"
+          value={moment(application.created_at).format('MMM D, YYYY')}
+        />
+        {application.approved_at && (
+          <DetailItem
+            icon={CheckCircle}
+            label="Approved"
+            value={moment(application.approved_at).format('MMM D, YYYY')}
+          />
+        )}
+      </div>
+
+      {/* ── Reason ── */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          <p className="text-sm font-medium">Reason for Joining</p>
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed rounded-lg bg-muted/30 p-3">
+          {application.reason_for_joining}
+        </p>
+      </div>
+
+      {/* ── Past work files ── */}
+      {/* {application.past_work_files.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm font-medium">
+                Past Work ({application.past_work_files.length} file
+                {application.past_work_files.length !== 1 ? 's' : ''})
+              </p>
+            </div>
+            <div className="space-y-2">
+              {application.past_work_files.map((file) => (
+                <a
+                  key={file.id}
+                  href={file.file}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors hover:bg-muted"
+                >
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="flex-1 truncate">Attachment {file.id}</span>
+                  <ExternalLink className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                </a>
+              ))}
+            </div>
+          </div>
+        )} */}
+
+      <Separator />
+    </AppDialog>
   );
 }
 

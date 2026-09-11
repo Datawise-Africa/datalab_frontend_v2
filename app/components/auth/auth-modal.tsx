@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import {
   openModal,
   useAppModal,
@@ -108,66 +102,65 @@ export function AuthModal() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md" dismissible={false}>
-        <DialogHeader>
-          {(tab === 'forgot' || tab === 'reset') && (
-            <button
-              type="button"
-              className="mb-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground self-start"
-              onClick={() => setTab('login')}
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to sign in
-            </button>
+    <AppDialog
+      open={isOpen}
+      onOpenChange={(open) => !open && handleClose()}
+      title={titles[tab].title}
+      description={titles[tab].description}
+      size="sm"
+      closeMode="explicit"
+      bodyClassName="space-y-4"
+    >
+      {(tab === 'forgot' || tab === 'reset') && (
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          onClick={() => setTab('login')}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to sign in
+        </button>
+      )}
+
+      {tab === 'login' && (
+        <LoginForm
+          onSuccess={handleAuthSuccess}
+          onForgot={() => setTab('forgot')}
+        />
+      )}
+      {tab === 'signup' && <SignupForm onSuccess={handleAuthSuccess} />}
+      {tab === 'forgot' && <ForgotPasswordForm onOtpSent={handleOtpSent} />}
+      {tab === 'reset' && (
+        <ResetPasswordForm email={resetEmail} onSuccess={handleResetComplete} />
+      )}
+
+      {(tab === 'login' || tab === 'signup') && (
+        <div className="text-center text-sm text-muted-foreground">
+          {tab === 'login' ? (
+            <>
+              Don&apos;t have an account?{' '}
+              <button
+                type="button"
+                className="font-medium text-primary hover:underline"
+                onClick={() => setTab('signup')}
+              >
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{' '}
+              <button
+                type="button"
+                className="font-medium text-primary hover:underline"
+                onClick={() => setTab('login')}
+              >
+                Sign in
+              </button>
+            </>
           )}
-          <DialogTitle>{titles[tab].title}</DialogTitle>
-          <DialogDescription>{titles[tab].description}</DialogDescription>
-        </DialogHeader>
-
-        {tab === 'login' && (
-          <LoginForm
-            onSuccess={handleAuthSuccess}
-            onForgot={() => setTab('forgot')}
-          />
-        )}
-        {tab === 'signup' && <SignupForm onSuccess={handleAuthSuccess} />}
-        {tab === 'forgot' && <ForgotPasswordForm onOtpSent={handleOtpSent} />}
-        {tab === 'reset' && (
-          <ResetPasswordForm
-            email={resetEmail}
-            onSuccess={handleResetComplete}
-          />
-        )}
-
-        {(tab === 'login' || tab === 'signup') && (
-          <div className="text-center text-sm text-muted-foreground">
-            {tab === 'login' ? (
-              <>
-                Don&apos;t have an account?{' '}
-                <button
-                  type="button"
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => setTab('signup')}
-                >
-                  Sign up
-                </button>
-              </>
-            ) : (
-              <>
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  className="font-medium text-primary hover:underline"
-                  onClick={() => setTab('login')}
-                >
-                  Sign in
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
+        </div>
+      )}
+    </AppDialog>
   );
 }

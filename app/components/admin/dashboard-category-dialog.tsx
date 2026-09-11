@@ -3,14 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { Form } from '~/components/ui/form';
 import { FormTextField, FormTextareaField } from '~/components/form-fields';
 import {
@@ -83,56 +76,60 @@ export function DashboardCategoryDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {isEdit ? 'Edit category' : 'New dashboard category'}
-          </DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? 'Update the category name or description.'
-              : 'Group dashboards under a category for easier discovery.'}
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 mt-1"
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={isEdit ? 'Edit category' : 'New dashboard category'}
+      description={
+        isEdit
+          ? 'Update the category name or description.'
+          : 'Group dashboards under a category for easier discovery.'
+      }
+      size="sm"
+      closeMode="explicit"
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isPending}
           >
-            <FormTextField
-              control={form.control}
-              name="name"
-              label="Name"
-              placeholder="e.g. Health, Education"
-              required
-            />
-            <FormTextareaField
-              control={form.control}
-              name="description"
-              label="Description"
-              placeholder="Short summary of what this category covers"
-              rows={3}
-            />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEdit ? 'Save changes' : 'Create category'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="dashboard-category-form"
+            disabled={isPending}
+          >
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEdit ? 'Save changes' : 'Create category'}
+          </Button>
+        </>
+      }
+    >
+      <Form {...form}>
+        <form
+          id="dashboard-category-form"
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 mt-1"
+        >
+          <FormTextField
+            control={form.control}
+            name="name"
+            label="Name"
+            placeholder="e.g. Health, Education"
+            required
+          />
+          <FormTextareaField
+            control={form.control}
+            name="description"
+            label="Description"
+            placeholder="Short summary of what this category covers"
+            rows={3}
+          />
+        </form>
+      </Form>
+    </AppDialog>
   );
 }
