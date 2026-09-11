@@ -67,3 +67,46 @@ export const infographicSchema = z.object({
   accent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
 });
 export type InfographicFormValues = z.infer<typeof infographicSchema>;
+
+export const shareLinkSchema = z.object({
+  access: z.enum(['view', 'interact']),
+  password: z.string().max(128),
+  expires_at: z.string(),
+});
+export type ShareLinkFormValues = z.infer<typeof shareLinkSchema>;
+
+const sourceName = z
+  .string()
+  .trim()
+  .min(2, 'Name this source')
+  .max(255, 'Keep the name under 255 characters');
+
+export const fileSourceSchema = z.object({
+  kind: z.literal('file_upload'),
+  name: sourceName,
+  file: z.custom<File>(
+    (value) => typeof File !== 'undefined' && value instanceof File,
+    'Choose a file to upload'
+  ),
+});
+
+export const datalabSourceSchema = z.object({
+  kind: z.literal('datalab_dataset'),
+  name: sourceName,
+  dataset: z.string().trim().min(1, 'Choose or paste a dataset'),
+});
+
+export const apiSourceSchema = z.object({
+  kind: z.literal('public_api'),
+  name: sourceName,
+  api_url: z.url({ protocol: /^https$/, error: 'Use a public HTTPS URL' }),
+  records_path: z.string().trim(),
+});
+
+export const connectSourceSchema = z.discriminatedUnion('kind', [
+  fileSourceSchema,
+  datalabSourceSchema,
+  apiSourceSchema,
+]);
+export type ConnectSourceFormValues = z.infer<typeof connectSourceSchema>;
+export type DataSourceKind = ConnectSourceFormValues['kind'];

@@ -18,13 +18,8 @@ import {
   type InfographicFormValues,
 } from '~/lib/schema/dashboard-studio-schema';
 import type { DashboardWidget } from '~/lib/types/dashboard';
+import { infographicSizes } from '~/lib/constants/dashboard-studio';
 import { useCreateInfographic } from '~/features/dashboard-studio';
-
-const sizes = {
-  portrait: { width: 1080, height: 1350 },
-  square: { width: 1080, height: 1080 },
-  landscape: { width: 1350, height: 1080 },
-};
 
 export function InfographicBuilder({
   open,
@@ -54,7 +49,7 @@ export function InfographicBuilder({
     },
   });
   const values = form.watch();
-  const size = sizes[values.format];
+  const size = infographicSizes[values.format];
   const chart = useMemo(() => {
     const rows = widget?.data?.rows ?? [];
     const columns = widget?.data?.columns.map((column) => column.name) ?? [];
@@ -106,7 +101,7 @@ export function InfographicBuilder({
         version: 1,
         widget,
         design: formValues,
-        size: sizes[formValues.format],
+        size: infographicSizes[formValues.format],
       },
       is_public: false,
     });

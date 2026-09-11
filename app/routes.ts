@@ -25,6 +25,15 @@ export default [
 
   route('shared-dashboards/:token', 'routes/shared-dashboard.tsx'),
 
+  // Dashboard Studio (full-screen editor, outside the app shell)
+  layout('routes/app/studio-layout.tsx', [
+    route('app/my-dashboards/:id/studio', 'routes/app/dashboard-studio.tsx'),
+    route(
+      'app/workspaces/:id/dashboards/:dashboardId/studio',
+      'routes/app/workspace/dashboard-studio.tsx'
+    ),
+  ]),
+
   // Dashboard routes (isolated layout, no header/footer)
   layout('routes/app/dashboard-layout.tsx', [
     route('app', 'routes/app/overview.tsx'),
@@ -55,7 +64,6 @@ export default [
     route('app/my-dashboards/new', 'routes/app/my-dashboard-create.tsx'),
     route('app/my-dashboards/:id', 'routes/app/my-dashboard-detail.tsx'),
     route('app/my-dashboards/:id/edit', 'routes/app/my-dashboard-edit.tsx'),
-    route('app/my-dashboards/:id/studio', 'routes/app/dashboard-studio.tsx'),
     route('app/workspaces', 'routes/app/workspaces.tsx'),
     route('app/workspaces/new', 'routes/app/workspace-create.tsx'),
     route('app/workspaces/:id', 'routes/app/workspace/layout.tsx', [
@@ -77,10 +85,6 @@ export default [
       route(
         'dashboards/:dashboardId/edit',
         'routes/app/workspace/edit-dashboard.tsx'
-      ),
-      route(
-        'dashboards/:dashboardId/studio',
-        'routes/app/workspace/dashboard-studio.tsx'
       ),
       route('reports', 'routes/app/workspace/reports.tsx'),
       route('reports/new', 'routes/app/workspace/report-create.tsx'),

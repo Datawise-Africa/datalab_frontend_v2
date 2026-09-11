@@ -40,3 +40,11 @@ global.IntersectionObserver = class IntersectionObserver {
   }
   unobserve() {}
 } as unknown as typeof IntersectionObserver;
+
+// Radix popovers and cmdk need these jsdom gaps filled
+global.ResizeObserver = class ResizeObserver {
+  disconnect() {}
+  observe() {}
+  unobserve() {}
+} as unknown as typeof ResizeObserver;
+Element.prototype.scrollIntoView = vi.fn();

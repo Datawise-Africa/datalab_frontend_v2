@@ -17,6 +17,10 @@
  *      The component debounces the query and calls the loader; the parent owns
  *      the fetch (reuse its API client, abort signals, caching).
  *
+ * Items with a `group` render under that heading (in first-seen order). Dense
+ * UIs can use `size="sm"`; short fixed lists can drop the search box with
+ * `searchable={false}`; required selects can pass `clearable={false}`.
+ *
  * Built on Radix Popover + cmdk, so keyboard nav, focus management and
  * accessibility come for free.
  */
@@ -46,6 +50,8 @@ export interface PickerItem {
   readonly description?: string;
   /** Marks the item unselectable but still rendered. */
   readonly disabled?: boolean;
+  /** Heading the item is listed under. Ungrouped items render first. */
+  readonly group?: string;
 }
 
 interface BaseProps {
@@ -79,6 +85,15 @@ interface BaseProps {
   readonly name?: string;
   /** id forwarded to the trigger for label `htmlFor`. */
   readonly id?: string;
+  /**
+   * Allow emptying the selection (✕ button, re-picking the selected item).
+   * Default true. Turn off for required selects.
+   */
+  readonly clearable?: boolean;
+  /** Show the search input. Default true; turn off for short fixed lists. */
+  readonly searchable?: boolean;
+  /** Trigger density. `sm` suits inspectors and toolbars. Default `default`. */
+  readonly size?: 'sm' | 'default';
 }
 
 interface StaticItemsProps extends BaseProps {
@@ -151,6 +166,9 @@ export function Picker(props: Readonly<PickerProps>) {
     'aria-label': ariaLabel,
     name,
     id,
+    clearable = true,
+    searchable = true,
+    size = 'default',
   } = props;
 
   // Narrow the union via a runtime check — TS can't peer through
@@ -234,7 +252,7 @@ export function Picker(props: Readonly<PickerProps>) {
   function commitSingle(next: string | null) {
     if (readOnly) return;
     if (!props.multi) {
-      props.onChange(next);
+      if (next !== null || clearable) props.onChange(next);
       setOpen(false);
     }
   }
@@ -279,6 +297,20 @@ export function Picker(props: Readonly<PickerProps>) {
   })();
 
   const hasSelection = selectedValues.length > 0;
+
+  // Preserve first-seen group order; ungrouped items come first.
+  const groups = items.reduce<Array<{ heading?: string; items: PickerItem[] }>>(
+    (acc, it) => {
+      const group = acc.find((g) => g.heading === it.group);
+      if (group) group.items.push(it);
+      else acc.push({ heading: it.group, items: [it] });
+      return acc;
+    },
+    []
+  );
+  groups.sort(
+    (a, b) => Number(a.heading !== undefined) - Number(b.heading !== undefined)
+  );
 
   const optionStyle = props.multi ? (props.optionStyle ?? 'check') : 'check';
   const selectedDisplay = props.multi
@@ -387,20 +419,26 @@ export function Picker(props: Readonly<PickerProps>) {
   }
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn('w-full min-w-0', className)}>
       {props.multi && allSelected.length > 0 ? (
         selectedDisplay === 'inline' ? (
-          <div className="mb-1.5 text-xs text-muted-foreground">
+          <div
+            className="mb-1.5 line-clamp-2 text-xs break-words text-muted-foreground"
+            title={allSelected.map((it) => it.label).join(', ')}
+          >
             {allSelected.map((it) => it.label).join(', ')}
           </div>
         ) : (
-          <div className="mb-1.5 flex flex-wrap gap-1">
+          // Many selections wrap, then scroll inside a capped box; long labels
+          // truncate — the chip row never pushes its container wider.
+          <div className="mb-1.5 flex max-h-24 min-w-0 flex-wrap gap-1 overflow-y-auto">
             {visibleChips.map((it) => (
               <span
                 key={it.value}
-                className="inline-flex items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 text-xs text-secondary-foreground"
+                title={it.label}
+                className="inline-flex max-w-full min-w-0 items-center gap-1 rounded-md bg-secondary px-1.5 py-0.5 text-xs text-secondary-foreground"
               >
-                {it.label}
+                <span className="truncate">{it.label}</span>
                 {readOnly ? null : (
                   <button
                     type="button"
@@ -409,7 +447,7 @@ export function Picker(props: Readonly<PickerProps>) {
                       e.stopPropagation();
                       commitMulti(it.value);
                     }}
-                    className="hover:text-foreground"
+                    className="shrink-0 hover:text-foreground"
                   >
                     <IconX className="size-3" />
                   </button>
@@ -448,7 +486,8 @@ export function Picker(props: Readonly<PickerProps>) {
             aria-haspopup="listbox"
             aria-readonly={readOnly || undefined}
             className={cn(
-              'flex min-h-9 w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-xs ring-offset-background focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+              'flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background shadow-xs ring-offset-background focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+              size === 'sm' ? 'min-h-8 px-2.5 text-xs' : 'min-h-9 px-3 text-sm',
               readOnly && 'pointer-events-none bg-muted/50',
               triggerClassName
             )}
@@ -456,7 +495,7 @@ export function Picker(props: Readonly<PickerProps>) {
             {buttonLabel}
             {readOnly ? null : (
               <div className="flex items-center gap-1">
-                {hasSelection && !disabled ? (
+                {hasSelection && clearable && !disabled ? (
                   // A span, not a button — the Radix Trigger renders this whole
                   // control AS a button via asChild, and a nested button is
                   // invalid HTML. tabIndex=-1 keeps it out of the tab order.
@@ -498,11 +537,19 @@ export function Picker(props: Readonly<PickerProps>) {
           )}
         >
           <Command shouldFilter={!('onSearch' in props)}>
+            {/*
+             * Always mounted: cmdk needs its input for focus + keyboard nav, and
+             * the popover hangs the page without it. `searchable={false}` only
+             * hides it (typing still jumps to matching options).
+             */}
             <CommandInput
               value={query}
               onValueChange={setQuery}
               placeholder={searchPlaceholder}
-              className="min-h-9 w-full border-b bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
+              className={cn(
+                'min-h-9 w-full border-b bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground',
+                !searchable && !isRemote && 'sr-only'
+              )}
             />
             <CommandList className="max-h-64 overflow-y-auto p-1">
               {loading ? (
@@ -514,51 +561,59 @@ export function Picker(props: Readonly<PickerProps>) {
                 <span>{emptyState}</span>
                 {emptyAction ? <div className="mt-2">{emptyAction}</div> : null}
               </CommandEmpty>
-              <CommandGroup>
-                {items.map((it) => {
-                  const isSelected = selectedValues.includes(it.value);
-                  return (
-                    <CommandItem
-                      key={it.value}
-                      value={it.value}
-                      keywords={[it.label, it.description ?? ''].filter(
-                        Boolean
-                      )}
-                      disabled={it.disabled}
-                      onSelect={() => {
-                        if (it.disabled) return;
-                        if (props.multi) commitMulti(it.value);
-                        else commitSingle(isSelected ? null : it.value);
-                      }}
-                      className="flex min-h-9 cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50"
-                    >
-                      {optionStyle === 'checkbox' ? (
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => {}}
-                          tabIndex={-1}
-                          className="mt-0.5 shrink-0"
-                        />
-                      ) : (
-                        <IconCheck
-                          className={cn(
-                            'mt-0.5 size-3.5 shrink-0',
-                            isSelected ? 'text-foreground' : 'text-transparent'
-                          )}
-                        />
-                      )}
-                      <div className="min-w-0">
-                        <div className="truncate">{it.label}</div>
-                        {it.description ? (
-                          <div className="truncate text-xs text-muted-foreground">
-                            {it.description}
-                          </div>
-                        ) : null}
-                      </div>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
+              {groups.map((group) => (
+                <CommandGroup
+                  key={group.heading ?? ''}
+                  heading={group.heading}
+                  className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
+                >
+                  {group.items.map((it) => {
+                    const isSelected = selectedValues.includes(it.value);
+                    return (
+                      <CommandItem
+                        key={it.value}
+                        value={it.value}
+                        keywords={[it.label, it.description ?? ''].filter(
+                          Boolean
+                        )}
+                        disabled={it.disabled}
+                        onSelect={() => {
+                          if (it.disabled) return;
+                          if (props.multi) commitMulti(it.value);
+                          else commitSingle(isSelected ? null : it.value);
+                        }}
+                        className="flex min-h-9 cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-50"
+                      >
+                        {optionStyle === 'checkbox' ? (
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => {}}
+                            tabIndex={-1}
+                            className="mt-0.5 shrink-0"
+                          />
+                        ) : (
+                          <IconCheck
+                            className={cn(
+                              'mt-0.5 size-3.5 shrink-0',
+                              isSelected
+                                ? 'text-foreground'
+                                : 'text-transparent'
+                            )}
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <div className="truncate">{it.label}</div>
+                          {it.description ? (
+                            <div className="truncate text-xs text-muted-foreground">
+                              {it.description}
+                            </div>
+                          ) : null}
+                        </div>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              ))}
             </CommandList>
           </Command>
         </PopoverPrimitive.Content>

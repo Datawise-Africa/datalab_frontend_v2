@@ -26,6 +26,12 @@ interface CommonProps<TFieldValues extends FieldValues> {
   disabled?: boolean;
   /** Shows the selection but blocks interaction, without dimming the label. */
   readOnly?: boolean;
+  /** Allow emptying the selection. Default true. */
+  clearable?: boolean;
+  /** Show the search input. Default true. */
+  searchable?: boolean;
+  /** Trigger density. Default `default`. */
+  size?: 'sm' | 'default';
   /** Coerce each selected string value before setting it on the form field. */
   valueAs?: ValueAs;
   /** Side-channel notification with the raw (uncoerced) string value(s). */
@@ -107,6 +113,9 @@ export function FormPickerField<TFieldValues extends FieldValues>({
   required = false,
   disabled = false,
   readOnly = false,
+  clearable,
+  searchable,
+  size,
   valueAs = 'string',
   onValueChange,
   ...rest
@@ -122,6 +131,9 @@ export function FormPickerField<TFieldValues extends FieldValues>({
     loading,
     disabled,
     readOnly,
+    clearable,
+    searchable,
+    size,
     'aria-label': label,
   } as const;
 

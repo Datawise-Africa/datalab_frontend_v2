@@ -128,6 +128,7 @@ export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
     }: {
       definition: DashboardDefinition;
       note?: string;
+      silent?: boolean;
     }) =>
       (
         await apiClient.patch<Dashboard>(`${base}/${id}/definition/`, {
@@ -135,7 +136,9 @@ export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
           note,
         })
       ).data,
-    onSuccess: () => toastUtils.success('Dashboard saved'),
+    onSuccess: (_data, { silent }) => {
+      if (!silent) toastUtils.success('Dashboard saved');
+    },
     onError: (e) => toastUtils.error('Save failed', extractError(e)),
   });
 }

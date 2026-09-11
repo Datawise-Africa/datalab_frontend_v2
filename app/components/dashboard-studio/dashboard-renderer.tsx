@@ -37,22 +37,10 @@ import type {
   DashboardDefinition,
   DashboardWidget,
 } from '~/lib/types/dashboard';
-
-const DATALAB_PALETTE = [
-  'var(--chart-1)',
-  'var(--chart-2)',
-  'var(--chart-3)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-];
-const WIDTH_CLASS: Record<number, string> = {
-  3: 'lg:col-span-3',
-  4: 'lg:col-span-4',
-  6: 'lg:col-span-6',
-  8: 'lg:col-span-8',
-  9: 'lg:col-span-9',
-  12: 'lg:col-span-12',
-};
+import {
+  chartPalette,
+  widgetWidthClass,
+} from '~/lib/constants/dashboard-studio';
 
 function formatValue(value: unknown, widget: DashboardWidget) {
   const number = Number(value);
@@ -106,7 +94,7 @@ function Chart({
     : yKeys;
   const palette = widget.config?.palette?.length
     ? widget.config.palette
-    : DATALAB_PALETTE;
+    : chartPalette;
   const height = Math.max(150, (widget.layout?.height ?? 360) - 105);
   const click = (row: unknown) =>
     interactive && x && onFilter(x, datumValue(row, x));
@@ -683,7 +671,7 @@ export function DashboardRenderer({
             role={onSelect ? 'button' : 'region'}
             aria-label={widget.title}
             tabIndex={onSelect ? 0 : -1}
-            className={`border bg-card p-5 shadow-sm transition ${WIDTH_CLASS[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
+            className={`border bg-card p-5 shadow-sm transition ${widgetWidthClass[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
             style={{
               minHeight: widget.layout?.height ?? 360,
               borderRadius: definition.theme?.radius ?? 12,

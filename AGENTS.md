@@ -268,6 +268,7 @@ Auth is client-side by design. Understand this before touching route protection.
 - **File naming**: kebab-case for files, PascalCase for components
 - **Tests**: colocated with source (e.g., `query-keys.test.ts`), Vitest globals enabled
 - **Readonly props**: all component props must be wrapped with `Readonly<>` (e.g., `({ title, count }: Readonly<MyProps>)`)
+- **Constants**: static data (option lists, presets, palettes, lookup maps) lives in `app/lib/constants/` (e.g., `dashboard-studio.ts`) — never define it inside components
 
 ## Forms — React Hook Form + Zod + Reusable Field Components
 
@@ -285,6 +286,7 @@ All forms must use **React Hook Form** with **Zod** validation via `zodResolver`
 | `FormOtpField`      | OTP code inputs                                        |
 | `FormCheckboxField` | Booleans; `label` accepts nodes, so it can embed links |
 | `FormTagInputField` | Tag / chip list inputs                                 |
+| `FormFileField`     | Single file via `DropZone` + `useFileUpload` (`File`)  |
 
 ### `FormPickerField` — the one select field
 
