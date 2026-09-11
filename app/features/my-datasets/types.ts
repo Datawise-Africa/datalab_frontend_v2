@@ -71,6 +71,8 @@ export interface DatasetPreview {
 
 export type MyDatasetInterface = {
   id: string;
+  /** Readable URL key; the dataset detail endpoint accepts it or the id. */
+  slug?: string;
   name: string;
   description: string;
   dataset_type: UploadDatasetFormValues['dataset_type'];

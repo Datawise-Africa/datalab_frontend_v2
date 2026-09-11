@@ -1,4 +1,5 @@
 import { useEffect, useEffectEvent } from 'react';
+import { canvasZoom } from '~/lib/constants/dashboard-studio';
 import { useStudio } from './studio-context';
 import { useStudioUi } from './studio-ui-context';
 
@@ -18,7 +19,7 @@ export function ownsKeyboard(target: EventTarget | null) {
 /**
  * Studio keyboard shortcuts:
  * Ctrl/⌘+S save · Ctrl/⌘+Z undo · Ctrl/⌘+Shift+Z or Ctrl/⌘+Y redo ·
- * Ctrl/⌘+D duplicate visual · Alt+↑/↓ move visual ·
+ * Ctrl/⌘+D duplicate visual · Alt+↑/↓ move visual · Ctrl/⌘ +/−/0 zoom ·
  * Delete/Backspace remove visual · Esc deselect.
  */
 export function StudioShortcuts() {
@@ -33,14 +34,26 @@ export function StudioShortcuts() {
     moveWidget,
     setSelectedId,
   } = useStudio();
-  const { preview, view } = useStudioUi();
+  const { preview, view, zoom, setZoom } = useStudioUi();
 
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
     const mod = event.metaKey || event.ctrlKey;
-    const key = event.key.toLowerCase();
+    // Autofill fires keydown events without a key.
+    const key = event.key?.toLowerCase() ?? '';
     if (mod && key === 's') {
       event.preventDefault();
       if (dirty) void save(false).catch(() => undefined);
+      return;
+    }
+    // Canvas zoom replaces browser page zoom inside the studio.
+    if (mod && (key === '=' || key === '+' || key === '-' || key === '0')) {
+      if (preview || view === 'model') return;
+      event.preventDefault();
+      setZoom(
+        key === '0'
+          ? 1
+          : zoom + (key === '-' ? -canvasZoom.step : canvasZoom.step)
+      );
       return;
     }
     // The model diagram has its own keyboard handling (Delete removes lines).
