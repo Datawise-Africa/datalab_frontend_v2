@@ -335,3 +335,13 @@ export const dataSourceKindOptions: Array<{
 ];
 
 export const dataSourceFileAccept = '.csv,.tsv,.xlsx,.xls,.json,.parquet';
+
+export const alertConditionOptions: Option<
+  'gt' | 'gte' | 'lt' | 'lte' | 'equals'
+>[] = [
+  { value: 'gt', label: 'Greater than' },
+  { value: 'gte', label: 'At least' },
+  { value: 'lt', label: 'Less than' },
+  { value: 'lte', label: 'At most' },
+  { value: 'equals', label: 'Equals' },
+];

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Area,
   AreaChart,
@@ -565,6 +565,7 @@ export function DashboardRenderer({
   onCrossFilter,
   loading = false,
   errors = {},
+  selectedActions,
 }: Readonly<{
   definition: DashboardDefinition;
   interactive?: boolean;
@@ -576,6 +577,8 @@ export function DashboardRenderer({
   onCrossFilter?: (column: string, value: unknown) => void;
   loading?: boolean;
   errors?: Record<string, string>;
+  /** Rendered inside the selected widget (e.g. the studio's floating toolbar). */
+  selectedActions?: ReactNode;
 }>) {
   const [internalPageId, setInternalPageId] = useState(definition.pages[0]?.id);
   const [crossFilter, setCrossFilter] = useState<{
@@ -671,12 +674,13 @@ export function DashboardRenderer({
             role={onSelect ? 'button' : 'region'}
             aria-label={widget.title}
             tabIndex={onSelect ? 0 : -1}
-            className={`border bg-card p-5 shadow-sm transition ${widgetWidthClass[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
+            className={`relative border bg-card p-5 shadow-sm transition ${widgetWidthClass[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
             style={{
               minHeight: widget.layout?.height ?? 360,
               borderRadius: definition.theme?.radius ?? 12,
             }}
           >
+            {selectedId === widget.id && selectedActions}
             <div className="mb-3">
               <h3 className="font-semibold text-foreground">{widget.title}</h3>
               {widget.config?.description && widget.type !== 'kpi' && (

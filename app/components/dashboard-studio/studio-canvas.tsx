@@ -4,6 +4,7 @@ import { Input } from '~/components/ui/input';
 import { DashboardRenderer } from './dashboard-renderer';
 import { useStudio } from './studio-context';
 import { useStudioUi } from './studio-ui-context';
+import { StudioWidgetToolbar } from './studio-widget-toolbar';
 
 export function StudioCanvas() {
   const {
@@ -16,11 +17,18 @@ export function StudioCanvas() {
     rendering,
     sources,
   } = useStudio();
-  const { preview, openInsert, openSettings, isWide, leftOpen } = useStudioUi();
+  const {
+    preview,
+    openInsert,
+    openSettings,
+    isWide,
+    leftOpen,
+    showProperties,
+  } = useStudioUi();
 
   return (
-    <main className="min-w-0 overflow-auto p-4 lg:p-6">
-      <div className="mx-auto max-w-[1800px]">
+    <main className="scrollbar-thin min-w-0 overflow-auto p-4 lg:p-6">
+      <div className="mx-auto max-w-450">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             {!preview ? (
@@ -72,8 +80,16 @@ export function StudioCanvas() {
           onPageChange={setActivePageId}
           hidePageTabs
           selectedId={preview ? undefined : selected?.id}
-          onSelect={preview ? undefined : setSelectedId}
+          onSelect={
+            preview
+              ? undefined
+              : (id) => {
+                  setSelectedId(id);
+                  showProperties();
+                }
+          }
           loading={rendering}
+          selectedActions={<StudioWidgetToolbar />}
         />
         {!activePage?.widgets.length && (
           <button

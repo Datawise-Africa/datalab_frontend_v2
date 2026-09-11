@@ -6,7 +6,7 @@ import { StudioUiProvider, useStudioUi } from './studio-ui-context';
 import { StudioTopBar } from './studio-top-bar';
 import { StudioLeftRail } from './studio-left-rail';
 import { StudioCanvas } from './studio-canvas';
-import { StudioInspector } from './studio-inspector';
+import { StudioAside } from './studio-aside';
 import { StudioBottomBar } from './studio-bottom-bar';
 import { StudioDialogs } from './studio-dialogs';
 
@@ -41,7 +41,7 @@ function StudioEditor() {
       <StudioTopBar />
       <div
         className={cn(
-          'grid min-h-0 flex-1 grid-cols-1',
+          'scrollbar-thin grid min-h-0 flex-1 grid-cols-1',
           preview
             ? 'grid-rows-[minmax(0,1fr)]'
             : 'overflow-y-auto xl:grid-cols-[var(--studio-left-width)_minmax(0,1fr)_var(--studio-inspector-width)] xl:grid-rows-[minmax(0,1fr)] xl:overflow-y-hidden'
@@ -53,7 +53,7 @@ function StudioEditor() {
         {!preview &&
           isWide &&
           (rightOpen ? (
-            <StudioInspector />
+            <StudioAside />
           ) : (
             <aside className="border-l bg-background pt-4 text-center">
               <Settings2 className="mx-auto h-4 w-4 text-muted-foreground" />

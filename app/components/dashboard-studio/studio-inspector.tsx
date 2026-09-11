@@ -233,7 +233,7 @@ export function StudioInspector({
           </Button>
         </div>
       </div>
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+      <div className="scrollbar-thin min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
         <Field label="Title">
           <Input
             value={selected.title}
@@ -850,48 +850,50 @@ export function StudioInspector({
             </Field>
           </div>
         </div>
-        <div className="grid grid-cols-5 gap-1 border-t pt-4">
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => moveWidget(-1)}
-            title="Move earlier"
-          >
-            <ArrowUp className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={() => moveWidget(1)}
-            title="Move later"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={duplicateWidget}
-            title="Duplicate"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={infographic}
-            title="Create infographic"
-          >
-            <ImageDown className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="destructive"
-            onClick={removeWidget}
-            title="Delete"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+        {inSheet && (
+          <div className="grid grid-cols-5 gap-1 border-t pt-4">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => moveWidget(-1)}
+              title="Move earlier"
+            >
+              <ArrowUp className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => moveWidget(1)}
+              title="Move later"
+            >
+              <ArrowDown className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={duplicateWidget}
+              title="Duplicate"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={infographic}
+              title="Create infographic"
+            >
+              <ImageDown className="h-4 w-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="destructive"
+              onClick={removeWidget}
+              title="Delete"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </aside>
   );

@@ -14,7 +14,6 @@ import {
   RefreshCw,
   Save,
   Settings,
-  Share2,
   Undo2,
 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
@@ -27,10 +26,11 @@ import {
 } from '~/components/ui/dropdown-menu';
 import { cn } from '~/lib/utils';
 import { useStudio } from './studio-context';
-import { useStudioUi, type StudioDialog } from './studio-ui-context';
+import { SharePopover } from './studio-share-popover';
+import { useStudioUi, type StudioActivityPanel } from './studio-ui-context';
 
 type Action = {
-  id: StudioDialog;
+  id: 'refresh' | StudioActivityPanel;
   label: string;
   icon: ComponentType<{ className?: string }>;
 };
@@ -65,7 +65,11 @@ export function StudioTopBar() {
     isWide,
     rightOpen,
     setRightOpen,
+    aside,
+    toggleActivity,
   } = useStudioUi();
+  const runAction = (id: Action['id']) =>
+    id === 'refresh' ? openDialog('refresh') : toggleActivity(id);
   const back = workspaceId
     ? `/app/workspaces/${workspaceId}/dashboards/${dashboardId}`
     : `/app/my-dashboards/${dashboardId}`;
@@ -140,8 +144,17 @@ export function StudioTopBar() {
             key={action.id}
             variant="ghost"
             size="icon"
-            className="hidden md:inline-flex"
-            onClick={() => openDialog(action.id)}
+            className={cn(
+              'hidden md:inline-flex',
+              isWide &&
+                rightOpen &&
+                aside === action.id &&
+                'bg-primary/10 text-primary'
+            )}
+            onClick={() => runAction(action.id)}
+            aria-pressed={
+              action.id === 'refresh' ? undefined : aside === action.id
+            }
             aria-label={action.label}
             title={action.label}
           >
@@ -185,7 +198,7 @@ export function StudioTopBar() {
               <DropdownMenuItem
                 key={action.id}
                 className="md:hidden"
-                onSelect={() => openDialog(action.id)}
+                onSelect={() => runAction(action.id)}
               >
                 <action.icon className="h-4 w-4" />
                 {action.label}
@@ -203,15 +216,7 @@ export function StudioTopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
         <span className="mx-1 h-5 w-px bg-border" />
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => openDialog('share')}
-          aria-label="Share"
-        >
-          <Share2 className="h-4 w-4 sm:mr-1.5" />
-          <span className="hidden sm:inline">Share</span>
-        </Button>
+        <SharePopover />
         <Button
           size="sm"
           className="ml-1"

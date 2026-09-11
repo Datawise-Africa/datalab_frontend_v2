@@ -28,7 +28,7 @@ export function StudioBottomBar() {
       aria-label="Pages"
       className="flex h-10 shrink-0 items-center gap-1 border-t bg-background px-2"
     >
-      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+      <div className="scrollbar-hide flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
         {definition.pages.map((page) => {
           const active = page.id === activePage?.id;
           return (
