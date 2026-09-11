@@ -18,7 +18,8 @@ export function ownsKeyboard(target: EventTarget | null) {
 /**
  * Studio keyboard shortcuts:
  * Ctrl/⌘+S save · Ctrl/⌘+Z undo · Ctrl/⌘+Shift+Z or Ctrl/⌘+Y redo ·
- * Ctrl/⌘+D duplicate visual · Delete/Backspace remove visual · Esc deselect.
+ * Ctrl/⌘+D duplicate visual · Alt+↑/↓ move visual ·
+ * Delete/Backspace remove visual · Esc deselect.
  */
 export function StudioShortcuts() {
   const {
@@ -29,6 +30,7 @@ export function StudioShortcuts() {
     selected,
     removeWidget,
     duplicateWidget,
+    moveWidget,
     setSelectedId,
   } = useStudio();
   const { preview } = useStudioUi();
@@ -54,7 +56,13 @@ export function StudioShortcuts() {
       return;
     }
     if (!selected) return;
-    if (mod && key === 'd') {
+    if (event.altKey && (key === 'arrowup' || key === 'arrowleft')) {
+      event.preventDefault();
+      moveWidget(-1);
+    } else if (event.altKey && (key === 'arrowdown' || key === 'arrowright')) {
+      event.preventDefault();
+      moveWidget(1);
+    } else if (mod && key === 'd') {
       event.preventDefault();
       duplicateWidget();
     } else if (key === 'delete' || key === 'backspace') {

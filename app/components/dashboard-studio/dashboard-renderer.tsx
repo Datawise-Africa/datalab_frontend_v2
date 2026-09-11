@@ -1,4 +1,27 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type Announcements,
+} from '@dnd-kit/core';
+import {
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import {
   Area,
   AreaChart,
@@ -30,7 +53,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { BarChart3, FilterX } from 'lucide-react';
+import { BarChart3, FilterX, GripVertical } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { StudioGeoMap } from './studio-geo-map';
@@ -562,6 +585,111 @@ function Chart({
   );
 }
 
+type ShellProps = {
+  widget: DashboardWidget;
+  onSelect?: (id: string) => void;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+};
+
+function WidgetShell({
+  widget,
+  onSelect,
+  className,
+  style,
+  children,
+  nodeRef,
+  handle,
+}: Readonly<
+  ShellProps & {
+    nodeRef?: (node: HTMLElement | null) => void;
+    handle?: ReactNode;
+  }
+>) {
+  return (
+    <section
+      ref={nodeRef}
+      onClick={onSelect ? () => onSelect(widget.id) : undefined}
+      onKeyDown={
+        onSelect
+          ? (event) => {
+              if (
+                event.target === event.currentTarget &&
+                (event.key === 'Enter' || event.key === ' ')
+              )
+                onSelect(widget.id);
+            }
+          : undefined
+      }
+      role={onSelect ? 'button' : 'region'}
+      aria-label={widget.title}
+      tabIndex={onSelect ? 0 : -1}
+      className={className}
+      style={style}
+    >
+      {handle}
+      {children}
+    </section>
+  );
+}
+
+/** Card with a dnd-kit drag handle (pointer, touch and keyboard). */
+function SortableWidgetShell(props: Readonly<ShellProps>) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.widget.id });
+  return (
+    <WidgetShell
+      {...props}
+      nodeRef={setNodeRef}
+      className={cn(props.className, isDragging && 'z-20 opacity-70 shadow-xl')}
+      style={{
+        ...props.style,
+        transform: CSS.Translate.toString(transform),
+        transition,
+      }}
+      handle={
+        <button
+          ref={setActivatorNodeRef}
+          type="button"
+          {...attributes}
+          {...listeners}
+          aria-label={`Reorder ${props.widget.title}`}
+          onClick={(event) => event.stopPropagation()}
+          className="absolute top-4 left-2 z-10 flex h-7 w-5 cursor-grab touch-none items-center justify-center rounded text-muted-foreground opacity-40 transition group-hover:opacity-100 hover:bg-muted focus-visible:opacity-100 active:cursor-grabbing"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      }
+    />
+  );
+}
+
+/** Screen-reader messages that name the visuals being moved. */
+function reorderAnnouncements(widgets: DashboardWidget[]): Announcements {
+  const title = (id: string | number) =>
+    widgets.find((widget) => widget.id === String(id))?.title ?? 'visual';
+  return {
+    onDragStart: ({ active }) => `Picked up ${title(active.id)}.`,
+    onDragOver: ({ active, over }) =>
+      over
+        ? `${title(active.id)} is over ${title(over.id)}.`
+        : `${title(active.id)} is no longer over another visual.`,
+    onDragEnd: ({ active, over }) =>
+      over
+        ? `${title(active.id)} moved to where ${title(over.id)} was.`
+        : `${title(active.id)} dropped.`,
+    onDragCancel: ({ active }) => `Reordering ${title(active.id)} cancelled.`,
+  };
+}
+
 export function DashboardRenderer({
   definition,
   interactive = true,
@@ -574,6 +702,7 @@ export function DashboardRenderer({
   loading = false,
   errors = {},
   selectedActions,
+  onReorder,
 }: Readonly<{
   definition: DashboardDefinition;
   interactive?: boolean;
@@ -587,8 +716,18 @@ export function DashboardRenderer({
   errors?: Record<string, string>;
   /** Rendered inside the selected widget (e.g. the studio's floating toolbar). */
   selectedActions?: ReactNode;
+  /** Enables drag-and-drop reordering (studio edit mode). */
+  onReorder?: (sourceId: string, targetId: string) => void;
 }>) {
   const [internalPageId, setInternalPageId] = useState(definition.pages[0]?.id);
+  const dndId = useId();
+  const sensors = useSensors(
+    // Small distance so a click still selects instead of starting a drag.
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   const [crossFilter, setCrossFilter] = useState<{
     column: string;
     value: unknown;
@@ -633,6 +772,69 @@ export function DashboardRenderer({
   const preset = themePresetStyles[definition.theme?.preset ?? 'datalab'];
   const settings = definition.settings ?? {};
   const compact = settings.compact === true;
+  const Shell = onReorder ? SortableWidgetShell : WidgetShell;
+  const grid = (
+    <div
+      className={cn(
+        'grid grid-cols-1 lg:grid-cols-12',
+        compact ? 'gap-2' : 'gap-4'
+      )}
+    >
+      {widgets.map((widget) => (
+        <Shell
+          key={widget.id}
+          widget={widget}
+          onSelect={onSelect}
+          className={cn(
+            'group relative transition',
+            preset.card,
+            compact ? 'p-3' : 'p-5',
+            widgetWidthClass[widget.layout?.width ?? 6],
+            selectedId === widget.id
+              ? 'ring-2 ring-primary ring-offset-2'
+              : 'hover:shadow-md'
+          )}
+          style={{
+            minHeight: widget.layout?.height ?? 360,
+            borderRadius: definition.theme?.radius ?? 12,
+          }}
+        >
+          {selectedId === widget.id && selectedActions}
+          {(settings.showTitles !== false ||
+            settings.showDescriptions !== false) && (
+            <div className={cn(compact ? 'mb-2' : 'mb-3', onReorder && 'pl-6')}>
+              {settings.showTitles !== false && (
+                <h3 className="font-semibold text-foreground">
+                  {widget.title}
+                </h3>
+              )}
+              {settings.showDescriptions !== false &&
+                widget.config?.description &&
+                widget.type !== 'kpi' && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {widget.config.description}
+                  </p>
+                )}
+            </div>
+          )}
+          <Chart
+            widget={widget}
+            interactive={interactive}
+            themePalette={preset.palette}
+            onFilter={(column, value) => {
+              if (onCrossFilter) onCrossFilter(column, value);
+              else setCrossFilter({ column, value });
+            }}
+          />
+          {errors[widget.id] && (
+            <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+              {errors[widget.id]}
+            </p>
+          )}
+        </Shell>
+      ))}
+    </div>
+  );
   return (
     <div
       className={cn('relative space-y-4 rounded-xl p-1', preset.canvas)}
@@ -669,76 +871,27 @@ export function DashboardRenderer({
           <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
         </div>
       )}
-      <div
-        className={cn(
-          'grid grid-cols-1 lg:grid-cols-12',
-          compact ? 'gap-2' : 'gap-4'
-        )}
-      >
-        {widgets.map((widget) => (
-          <section
-            key={widget.id}
-            onClick={onSelect ? () => onSelect(widget.id) : undefined}
-            onKeyDown={
-              onSelect
-                ? (event) => {
-                    if (event.key === 'Enter' || event.key === ' ')
-                      onSelect(widget.id);
-                  }
-                : undefined
-            }
-            role={onSelect ? 'button' : 'region'}
-            aria-label={widget.title}
-            tabIndex={onSelect ? 0 : -1}
-            className={cn(
-              'relative transition',
-              preset.card,
-              compact ? 'p-3' : 'p-5',
-              widgetWidthClass[widget.layout?.width ?? 6],
-              selectedId === widget.id
-                ? 'ring-2 ring-primary ring-offset-2'
-                : 'hover:shadow-md'
-            )}
-            style={{
-              minHeight: widget.layout?.height ?? 360,
-              borderRadius: definition.theme?.radius ?? 12,
-            }}
+      {onReorder ? (
+        <DndContext
+          id={dndId}
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          accessibility={{ announcements: reorderAnnouncements(widgets) }}
+          onDragEnd={({ active, over }) => {
+            if (over && active.id !== over.id)
+              onReorder(String(active.id), String(over.id));
+          }}
+        >
+          <SortableContext
+            items={widgets.map((widget) => widget.id)}
+            strategy={rectSortingStrategy}
           >
-            {selectedId === widget.id && selectedActions}
-            {(settings.showTitles !== false ||
-              settings.showDescriptions !== false) && (
-              <div className={compact ? 'mb-2' : 'mb-3'}>
-                {settings.showTitles !== false && (
-                  <h3 className="font-semibold text-foreground">
-                    {widget.title}
-                  </h3>
-                )}
-                {settings.showDescriptions !== false &&
-                  widget.config?.description &&
-                  widget.type !== 'kpi' && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {widget.config.description}
-                    </p>
-                  )}
-              </div>
-            )}
-            <Chart
-              widget={widget}
-              interactive={interactive}
-              themePalette={preset.palette}
-              onFilter={(column, value) => {
-                if (onCrossFilter) onCrossFilter(column, value);
-                else setCrossFilter({ column, value });
-              }}
-            />
-            {errors[widget.id] && (
-              <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
-                {errors[widget.id]}
-              </p>
-            )}
-          </section>
-        ))}
-      </div>
+            {grid}
+          </SortableContext>
+        </DndContext>
+      ) : (
+        grid
+      )}
     </div>
   );
 }
