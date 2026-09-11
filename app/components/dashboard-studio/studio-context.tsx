@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Link } from 'react-router';
+import { arrayMove } from '@dnd-kit/sortable';
 import { Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { useMyDashboard } from '~/features/my-dashboards';
@@ -103,6 +104,7 @@ type StudioContextValue = {
   removeWidget: () => void;
   duplicateWidget: () => void;
   moveWidget: (direction: -1 | 1) => void;
+  reorderWidget: (sourceId: string, targetId: string) => void;
 
   run: () => Promise<void>;
   analysing: boolean;
@@ -284,6 +286,15 @@ export function StudioProvider({
       if (index >= 0 && target >= 0 && target < widgets.length)
         [widgets[index], widgets[target]] = [widgets[target], widgets[index]];
     });
+  const reorderWidget = (sourceId: string, targetId: string) =>
+    change((draft) => {
+      const page = draft.pages.find((item) => item.id === activePage?.id);
+      if (!page) return;
+      const from = page.widgets.findIndex((widget) => widget.id === sourceId);
+      const to = page.widgets.findIndex((widget) => widget.id === targetId);
+      if (from >= 0 && to >= 0)
+        page.widgets = arrayMove(page.widgets, from, to);
+    });
   const run = async () => {
     if (!selected?.source_id || !selected.query) return;
     const data = await runAnalysis.mutateAsync({
@@ -404,6 +415,7 @@ export function StudioProvider({
     removeWidget,
     duplicateWidget,
     moveWidget,
+    reorderWidget,
     run,
     analysing: runAnalysis.isPending,
     hydrate,

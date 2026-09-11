@@ -17,8 +17,18 @@ export function StudioWidgetToolbar() {
   const { moveWidget, duplicateWidget, removeWidget } = useStudio();
   const { openDialog } = useStudioUi();
   const tools: Tool[] = [
-    { label: 'Move earlier', icon: ArrowUp, onClick: () => moveWidget(-1) },
-    { label: 'Move later', icon: ArrowDown, onClick: () => moveWidget(1) },
+    {
+      label: 'Move earlier',
+      hint: 'Alt+↑',
+      icon: ArrowUp,
+      onClick: () => moveWidget(-1),
+    },
+    {
+      label: 'Move later',
+      hint: 'Alt+↓',
+      icon: ArrowDown,
+      onClick: () => moveWidget(1),
+    },
     {
       label: 'Duplicate',
       hint: 'Ctrl/⌘+D',

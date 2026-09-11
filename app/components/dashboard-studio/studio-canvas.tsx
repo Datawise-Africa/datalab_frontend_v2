@@ -16,6 +16,7 @@ export function StudioCanvas() {
     setSelectedId,
     rendering,
     sources,
+    reorderWidget,
   } = useStudio();
   const {
     preview,
@@ -90,6 +91,7 @@ export function StudioCanvas() {
           }
           loading={rendering}
           selectedActions={<StudioWidgetToolbar />}
+          onReorder={preview ? undefined : reorderWidget}
         />
         {!activePage?.widgets.length && (
           <button
