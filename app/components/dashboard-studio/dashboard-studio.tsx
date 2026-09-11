@@ -13,6 +13,7 @@ import { StudioDialogs } from './studio-dialogs';
 // React Flow only downloads when someone opens the data model.
 const StudioModelView = lazy(() => import('./studio-model-view'));
 import { StudioShortcuts } from './studio-shortcuts';
+import { StudioConflictDialog } from './studio-conflict-dialog';
 import { StudioLeaveGuard } from './studio-leave-guard';
 
 export function DashboardStudio({
@@ -83,6 +84,7 @@ function StudioEditor() {
       <StudioDialogs />
       <StudioShortcuts />
       <StudioLeaveGuard />
+      <StudioConflictDialog />
     </div>
   );
 }

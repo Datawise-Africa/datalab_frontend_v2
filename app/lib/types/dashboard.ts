@@ -350,6 +350,8 @@ export interface Dashboard {
   total_bookmarks?: number | string;
   created_at: string;
   updated_at: string;
+  /** Token for the stored definition; echo as `base_version` when saving. */
+  definition_version?: string;
 }
 
 export interface CreateDashboardInput {
