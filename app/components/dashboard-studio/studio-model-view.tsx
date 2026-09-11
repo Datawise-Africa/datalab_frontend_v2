@@ -9,7 +9,6 @@ import {
   Background,
   Controls,
   Handle,
-  MarkerType,
   Position,
   ReactFlow,
   useNodesState,
@@ -18,7 +17,14 @@ import {
   type Node,
   type NodeProps,
 } from '@xyflow/react';
-import { ArrowLeft, Database, Loader2, Plug, Trash2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Database,
+  KeyRound,
+  Loader2,
+  Plug,
+  Trash2,
+} from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Label } from '~/components/ui/label';
@@ -29,6 +35,7 @@ import {
   cardinalityOptions,
   joinTypeOptions,
   joinTypeShortLabels,
+  modelTableColors,
 } from '~/lib/constants/dashboard-studio';
 import { cn } from '~/lib/utils';
 import { useAppSelector } from '~/store';
@@ -39,43 +46,71 @@ import type {
 import { useStudio } from './studio-context';
 import { useStudioUi } from './studio-ui-context';
 
-type SourceNodeData = { source: DashboardDataSource };
+type SourceNodeData = {
+  source: DashboardDataSource;
+  color: string;
+  /** Fields used as join keys, marked with a key icon. */
+  keys: string[];
+};
 type SourceNode = Node<SourceNodeData, 'source'>;
 
-const COLUMN_WIDTH = 420;
+const COLUMN_WIDTH = 340;
 const handleId = (field: string, side: 'in' | 'out') => `${field}::${side}`;
 const fieldOf = (handle?: string | null) => handle?.split('::')[0] ?? '';
+// Field dots sit on the card edges (so the card must not clip them); they
+// turn primary when the table is hovered.
+const handleClass =
+  '!h-2 !w-2 !min-w-0 !border !border-card !bg-muted-foreground/50 transition-colors group-hover:!bg-primary';
 
+/** DrawSQL-style table: coloured header band, compact typed rows. */
 function SourceCard({ data }: Readonly<NodeProps<SourceNode>>) {
-  const { source } = data;
+  const { source, color, keys } = data;
   return (
-    <div className="w-64 overflow-hidden rounded-lg border bg-card text-xs shadow-sm">
-      <div className="flex items-center gap-2 border-b bg-muted/50 px-3 py-2">
-        <Database className="h-3.5 w-3.5 shrink-0 text-primary" />
-        <span className="truncate font-semibold">{source.name}</span>
-        <span className="ml-auto shrink-0 text-muted-foreground">
+    <div
+      className="group w-60 rounded-md border bg-card text-[11px] shadow-sm"
+      style={{ borderTop: `3px solid ${color}` }}
+    >
+      <div
+        className="flex items-center gap-1.5 rounded-t-[3px] px-2.5 py-1.5"
+        style={{
+          background: `color-mix(in oklab, ${color} 14%, var(--card))`,
+        }}
+      >
+        <Database className="h-3 w-3 shrink-0" style={{ color }} />
+        <span className="truncate text-xs font-semibold">{source.name}</span>
+        <span className="ml-auto shrink-0 text-[10px] text-muted-foreground">
           {source.row_count.toLocaleString()} rows
         </span>
       </div>
-      <ul>
+      <ul className="py-0.5">
         {source.schema.map((field) => (
           <li
             key={field.name}
-            className="relative flex items-center justify-between gap-2 border-b px-3 py-1.5 last:border-b-0"
+            className="relative flex h-6 items-center gap-1.5 px-2.5 hover:bg-muted/60"
           >
             <Handle
               type="target"
               id={handleId(field.name, 'in')}
               position={Position.Left}
-              className="!h-2.5 !w-2.5 !border-primary !bg-background"
+              className={handleClass}
             />
-            <span className="truncate">{field.name}</span>
-            <span className="shrink-0 text-muted-foreground">{field.type}</span>
+            <span className="flex w-3 shrink-0 justify-center">
+              {keys.includes(field.name) && (
+                <KeyRound
+                  className="h-3 w-3 text-amber-500"
+                  aria-label="Join key"
+                />
+              )}
+            </span>
+            <span className="min-w-0 flex-1 truncate">{field.name}</span>
+            <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+              {field.type}
+            </span>
             <Handle
               type="source"
               id={handleId(field.name, 'out')}
               position={Position.Right}
-              className="!h-2.5 !w-2.5 !border-primary !bg-primary"
+              className={handleClass}
             />
           </li>
         ))}
@@ -86,13 +121,71 @@ function SourceCard({ data }: Readonly<NodeProps<SourceNode>>) {
 
 const nodeTypes = { source: SourceCard };
 
-function layout(sources: DashboardDataSource[]): SourceNode[] {
+function layout(
+  sources: DashboardDataSource[],
+  relationships: DashboardRelationship[]
+): SourceNode[] {
   return sources.map((source, index) => ({
     id: source.id,
     type: 'source',
-    position: { x: (index % 3) * COLUMN_WIDTH, y: Math.floor(index / 3) * 360 },
-    data: { source },
+    position: { x: (index % 3) * COLUMN_WIDTH, y: Math.floor(index / 3) * 320 },
+    data: {
+      source,
+      color: modelTableColors[index % modelTableColors.length],
+      keys: relationships.flatMap((item) => [
+        ...(item.left_source === source.id ? [item.left_key] : []),
+        ...(item.right_source === source.id ? [item.right_key] : []),
+      ]),
+    },
   }));
+}
+
+/** Crow's-foot ends: "many" fans out at the table, "one" is a bar. */
+const endMarker = (cardinality: string | undefined, end: 'left' | 'right') => {
+  const [left, , right] = (cardinality ?? 'many_to_one').split('_');
+  return (end === 'left' ? left : right) === 'many' ? 'erd-many' : 'erd-one';
+};
+
+function ErdMarkers() {
+  const stroke = {
+    stroke: 'var(--muted-foreground)',
+    strokeWidth: 1.25,
+    fill: 'none',
+  };
+  return (
+    <svg aria-hidden className="absolute h-0 w-0">
+      <defs>
+        {/* auto-start-reverse: the same glyph faces the table at either end. */}
+        <marker
+          id="erd-many"
+          viewBox="0 0 14 14"
+          refX="14"
+          refY="7"
+          markerWidth="14"
+          markerHeight="14"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path
+            d="M2,7 L14,1 M2,7 L14,7 M2,7 L14,13 M2,2 L2,12"
+            style={stroke}
+          />
+        </marker>
+        <marker
+          id="erd-one"
+          viewBox="0 0 14 14"
+          refX="14"
+          refY="7"
+          markerWidth="14"
+          markerHeight="14"
+          markerUnits="userSpaceOnUse"
+          orient="auto-start-reverse"
+        >
+          <path d="M0,7 L14,7 M6,2 L6,12 M10,2 L10,12" style={stroke} />
+        </marker>
+      </defs>
+    </svg>
+  );
 }
 
 export default function StudioModelView() {
@@ -117,7 +210,7 @@ export default function StudioModelView() {
   const sourceKey = readySources.map((source) => source.id).join();
   const syncNodes = useEffectEvent(() =>
     setNodes((current) =>
-      layout(readySources).map((node) => ({
+      layout(readySources, relationships).map((node) => ({
         ...node,
         position:
           current.find((item) => item.id === node.id)?.position ??
@@ -125,11 +218,18 @@ export default function StudioModelView() {
       }))
     )
   );
+  // Key icons follow the relationships, so re-sync when they change too.
+  const keysKey = relationships
+    .map(
+      (item) =>
+        `${item.left_source}.${item.left_key}>${item.right_source}.${item.right_key}`
+    )
+    .join();
   useEffect(() => {
     syncNodes();
     // syncNodes is a useEffectEvent — intentionally excluded per React docs.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sourceKey]);
+  }, [sourceKey, keysKey]);
   const selected = relationships.find((item) => item.id === selectedId);
   const nameOf = (id: string) =>
     sources.find((source) => source.id === id)?.name ?? 'Unknown source';
@@ -143,8 +243,14 @@ export default function StudioModelView() {
         target: relationship.right_source,
         targetHandle: handleId(relationship.right_key, 'in'),
         selected: relationship.id === selectedId,
+        type: 'smoothstep',
+        pathOptions: { borderRadius: 6 },
         label: joinTypeShortLabels[relationship.join_type],
-        markerEnd: { type: MarkerType.ArrowClosed },
+        labelStyle: { fontSize: 10 },
+        labelBgPadding: [4, 2] as [number, number],
+        labelBgBorderRadius: 4,
+        markerStart: endMarker(relationship.cardinality, 'left'),
+        markerEnd: endMarker(relationship.cardinality, 'right'),
         style: relationship.enabled === false ? { opacity: 0.4 } : undefined,
       })),
     [relationships, selectedId]
@@ -214,6 +320,7 @@ export default function StudioModelView() {
   return (
     <div className="flex min-h-[70dvh] flex-col xl:col-span-2 xl:min-h-0 xl:flex-row">
       <div className="relative min-h-[60dvh] flex-1 xl:min-h-0">
+        <ErdMarkers />
         <ReactFlow
           nodes={nodes}
           edges={edges}

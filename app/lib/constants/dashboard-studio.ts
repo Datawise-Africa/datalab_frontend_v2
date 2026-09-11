@@ -416,6 +416,16 @@ export const joinTypeOptions: Option<DashboardRelationship['join_type']>[] = [
   { value: 'outer', label: 'Keep everything' },
 ];
 
+/** Header colours for data model tables, assigned by source order. */
+export const modelTableColors = [
+  '#10b981',
+  '#3b82f6',
+  '#f59e0b',
+  '#8b5cf6',
+  '#ef4444',
+  '#06b6d4',
+];
+
 export const cardinalityOptions: Option<
   NonNullable<DashboardRelationship['cardinality']>
 >[] = [
