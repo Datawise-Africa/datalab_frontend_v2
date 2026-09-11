@@ -1,14 +1,8 @@
 import { InfographicBuilder } from './infographic-builder';
 import { SourcePreparationDialog } from './source-preparation-dialog';
 import { SourceProfileDialog } from './source-profile-dialog';
-import {
-  AlertsDialog,
-  CommentsDialog,
-  DataModelDialog,
-  RefreshDialog,
-} from './studio-management-dialogs';
-import { HistoryDialog } from './studio-history-dialog';
-import { ShareDialog } from './studio-share-dialog';
+import { DataModelDialog, RefreshDialog } from './studio-management-dialogs';
+import { activityPanels } from './studio-aside';
 import { StudioSettingsSheet } from './studio-settings-sheet';
 import { StudioInsertPanel } from './studio-insert-panel';
 import { StudioInspector } from './studio-inspector';
@@ -31,12 +25,9 @@ export function StudioDialogs() {
     dashboardId,
     workspaceId,
     dashboard,
-    definition,
     sources,
-    activePage,
     selected,
     setSelectedId,
-    restore,
   } = useStudio();
   const {
     dialog,
@@ -84,6 +75,26 @@ export function StudioDialogs() {
           </SheetContent>
         </Sheet>
       )}
+      {!isWide &&
+        (['history', 'comments', 'alerts'] as const).map((id) => (
+          <Sheet key={id} {...dialogProps(id)}>
+            <SheetContent
+              side="right"
+              className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
+            >
+              <SheetHeader className="border-b px-4 py-3">
+                <SheetTitle>{activityPanels[id].title}</SheetTitle>
+                <SheetDescription className="sr-only">
+                  {activityPanels[id].title} for this dashboard
+                </SheetDescription>
+              </SheetHeader>
+              <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto p-4">
+                {dialog === id &&
+                  activityPanels[id].render(() => openDialog(null))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        ))}
       {profileSourceId && (
         <SourceProfileDialog
           {...ids}
@@ -100,17 +111,6 @@ export function StudioDialogs() {
           onOpenChange={(open) => !open && setPrepareSourceId(undefined)}
         />
       )}
-      {dialog === 'share' && <ShareDialog {...ids} {...dialogProps('share')} />}
-      {dialog === 'history' && (
-        <HistoryDialog
-          {...ids}
-          {...dialogProps('history')}
-          restore={async (revisionId) => {
-            await restore(revisionId);
-            openDialog(null);
-          }}
-        />
-      )}
       {dialog === 'model' && (
         <DataModelDialog
           {...ids}
@@ -124,21 +124,6 @@ export function StudioDialogs() {
           {...ids}
           {...dialogProps('refresh')}
           initialFrequency={dashboard.refresh_policy?.frequency}
-        />
-      )}
-      {dialog === 'alerts' && (
-        <AlertsDialog
-          {...ids}
-          {...dialogProps('alerts')}
-          definition={definition}
-        />
-      )}
-      {dialog === 'comments' && (
-        <CommentsDialog
-          {...ids}
-          {...dialogProps('comments')}
-          pageId={activePage?.id}
-          widgetId={selected?.id}
         />
       )}
       {dialog === 'infographic' && (

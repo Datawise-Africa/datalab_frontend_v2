@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-  Bell,
-  Loader2,
-  MessageSquare,
-  Network,
-  Play,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
+import { Loader2, Network, Play, RefreshCw, Trash2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import {
   Dialog,
@@ -19,32 +11,20 @@ import {
 } from '~/components/ui/dialog';
 import { Form } from '~/components/ui/form';
 import { FormTextField } from '~/components/form-fields/form-text-field';
-import { FormNumberField } from '~/components/form-fields/form-number-field';
 import { FormPickerField } from '~/components/form-fields/form-picker-field';
-import { FormTextareaField } from '~/components/form-fields/form-textarea-field';
 import { Badge } from '~/components/ui/badge';
 import type {
-  DashboardAlert,
   DashboardDataSource,
-  DashboardDefinition,
   DashboardRelationship,
   DashboardSemanticModel,
 } from '~/lib/types/dashboard';
 import {
-  alertSchema,
-  commentSchema,
   refreshPolicySchema,
   relationshipSchema,
-  type AlertFormValues,
-  type CommentFormValues,
   type RefreshPolicyFormValues,
   type RelationshipFormValues,
 } from '~/lib/schema/dashboard-studio-schema';
 import {
-  useCreateDashboardAlert,
-  useCreateDashboardComment,
-  useDashboardAlerts,
-  useDashboardComments,
   useDashboardRefreshRuns,
   useRefreshDashboard,
   useSaveRefreshPolicy,
@@ -339,198 +319,6 @@ export function RefreshDialog({
               {run.error && (
                 <p className="mt-1 text-destructive">{run.error}</p>
               )}
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export function AlertsDialog({
-  open,
-  onOpenChange,
-  dashboardId,
-  workspaceId,
-  definition,
-}: Readonly<{
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  dashboardId: string;
-  workspaceId?: string;
-  definition: DashboardDefinition;
-}>) {
-  const { data: alerts = [] } = useDashboardAlerts(dashboardId, workspaceId);
-  const create = useCreateDashboardAlert(dashboardId, workspaceId);
-  const widgets = definition.pages.flatMap((page) =>
-    page.widgets
-      .filter((widget) => widget.type !== 'text')
-      .map((widget) => ({
-        value: widget.id,
-        label: `${page.title} · ${widget.title}`,
-      }))
-  );
-  const form = useForm<AlertFormValues>({
-    resolver: zodResolver(alertSchema),
-    defaultValues: {
-      name: '',
-      widget_id: '',
-      operator: 'gte',
-      threshold: 0,
-      recipients: '',
-    },
-  });
-  const submit = form.handleSubmit(async (values) => {
-    await create.mutateAsync({
-      ...values,
-      recipients: values.recipients
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean),
-      is_active: true,
-    } as Omit<DashboardAlert, 'id'>);
-    form.reset();
-  });
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Bell className="h-5 w-5" /> Data alerts
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form
-            onSubmit={submit}
-            className="grid gap-3 rounded-xl border p-4 sm:grid-cols-2"
-          >
-            <FormTextField
-              control={form.control}
-              name="name"
-              label="Alert name"
-              required
-            />
-            <FormPickerField
-              control={form.control}
-              name="widget_id"
-              label="Visual"
-              options={widgets}
-              required
-            />
-            <FormPickerField
-              control={form.control}
-              name="operator"
-              label="Condition"
-              options={[
-                { value: 'gt', label: 'Greater than' },
-                { value: 'gte', label: 'At least' },
-                { value: 'lt', label: 'Less than' },
-                { value: 'lte', label: 'At most' },
-                { value: 'equals', label: 'Equals' },
-              ]}
-            />
-            <FormNumberField
-              control={form.control}
-              name="threshold"
-              label="Threshold"
-              required
-            />
-            <div className="sm:col-span-2">
-              <FormTextField
-                control={form.control}
-                name="recipients"
-                label="Recipients"
-                placeholder="name@example.org, team@example.org"
-                required
-              />
-            </div>
-            <Button type="submit" className="sm:col-span-2">
-              Create alert
-            </Button>
-          </form>
-        </Form>
-        <div className="space-y-2">
-          {alerts.map((alert) => (
-            <div key={alert.id} className="rounded-xl border p-3 text-sm">
-              <div className="flex justify-between">
-                <strong>{alert.name}</strong>
-                <Badge variant={alert.is_active ? 'success' : 'secondary'}>
-                  {alert.is_active ? 'Active' : 'Paused'}
-                </Badge>
-              </div>
-              <p className="mt-1 text-muted-foreground">
-                {alert.operator} {alert.threshold} · Last value{' '}
-                {alert.last_value ?? 'not evaluated'}
-              </p>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-export function CommentsDialog({
-  open,
-  onOpenChange,
-  dashboardId,
-  workspaceId,
-  pageId,
-  widgetId,
-}: Readonly<{
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  dashboardId: string;
-  workspaceId?: string;
-  pageId?: string;
-  widgetId?: string;
-}>) {
-  const { data: comments = [] } = useDashboardComments(
-    dashboardId,
-    workspaceId
-  );
-  const create = useCreateDashboardComment(dashboardId, workspaceId);
-  const form = useForm<CommentFormValues>({
-    resolver: zodResolver(commentSchema),
-    defaultValues: { body: '' },
-  });
-  const submit = form.handleSubmit(async (values) => {
-    await create.mutateAsync({
-      ...values,
-      page_id: pageId,
-      widget_id: widgetId,
-    });
-    form.reset();
-  });
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" /> Review comments
-          </DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={submit} className="space-y-3">
-            <FormTextareaField
-              control={form.control}
-              name="body"
-              label="Add a comment"
-              placeholder="Describe the question, decision or change needed"
-            />
-            <Button type="submit">Post comment</Button>
-          </form>
-        </Form>
-        <div className="max-h-80 space-y-2 overflow-y-auto">
-          {comments.map((comment) => (
-            <div key={comment.id} className="rounded-xl border p-3">
-              <div className="flex justify-between text-xs">
-                <strong>{comment.author_name || 'Team member'}</strong>
-                <span className="text-muted-foreground">
-                  {new Date(comment.created_at).toLocaleString()}
-                </span>
-              </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm">{comment.body}</p>
             </div>
           ))}
         </div>

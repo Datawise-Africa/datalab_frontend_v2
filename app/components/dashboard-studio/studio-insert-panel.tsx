@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '~/components/ui/accordion';
 import { Input } from '~/components/ui/input';
 import { visualGroups } from '~/lib/constants/dashboard-studio';
 import type { DashboardWidgetType } from '~/lib/types/dashboard';
@@ -12,6 +18,10 @@ export function StudioInsertPanel({
 }: Readonly<{ onInserted?: () => void }>) {
   const { addWidget } = useStudio();
   const [query, setQuery] = useState('');
+  // First two groups open by default; searching opens every matching group.
+  const [openGroups, setOpenGroups] = useState<string[]>(
+    visualGroups.slice(0, 2)
+  );
   const needle = query.trim().toLowerCase();
   const matches = visuals.filter(
     (item) =>
@@ -19,6 +29,9 @@ export function StudioInsertPanel({
       item.label.toLowerCase().includes(needle) ||
       item.description.toLowerCase().includes(needle) ||
       item.group.toLowerCase().includes(needle)
+  );
+  const matchedGroups = visualGroups.filter((group) =>
+    matches.some((item) => item.group === group)
   );
   const insert = (type: DashboardWidgetType) => {
     addWidget(type);
@@ -40,32 +53,38 @@ export function StudioInsertPanel({
           />
         </div>
       </div>
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-3">
-        {visualGroups.map((group) => {
-          const items = matches.filter((item) => item.group === group);
-          if (!items.length) return null;
-          return (
-            <section key={group}>
-              <h3 className="mb-1.5 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+        <Accordion
+          type="multiple"
+          value={needle ? matchedGroups : openGroups}
+          onValueChange={(value) => !needle && setOpenGroups(value)}
+        >
+          {matchedGroups.map((group) => (
+            <AccordionItem key={group} value={group} className="border-b-0">
+              <AccordionTrigger className="py-2 text-[11px] font-medium tracking-wide text-muted-foreground uppercase hover:no-underline">
                 {group}
-              </h3>
-              <div className="grid grid-cols-2 gap-1.5">
-                {items.map((item) => (
-                  <button
-                    key={item.value}
-                    type="button"
-                    title={item.description}
-                    onClick={() => insert(item.value)}
-                    className="flex min-w-0 items-center gap-2 rounded-lg border bg-background px-2 py-2 text-left text-xs transition hover:border-primary hover:bg-primary/5"
-                  >
-                    <item.icon className="h-4 w-4 shrink-0 text-primary" />
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            </section>
-          );
-        })}
+              </AccordionTrigger>
+              <AccordionContent className="pb-2">
+                <div className="grid grid-cols-2 gap-1.5">
+                  {matches
+                    .filter((item) => item.group === group)
+                    .map((item) => (
+                      <button
+                        key={item.value}
+                        type="button"
+                        title={item.description}
+                        onClick={() => insert(item.value)}
+                        className="flex min-w-0 items-center gap-2 rounded-lg border bg-background px-2 py-2 text-left text-xs transition hover:border-primary hover:bg-primary/5"
+                      >
+                        <item.icon className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="truncate">{item.label}</span>
+                      </button>
+                    ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
         {!matches.length && (
           <p className="py-6 text-center text-xs text-muted-foreground">
             No visuals match “{query}”.

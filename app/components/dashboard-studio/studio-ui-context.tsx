@@ -10,7 +10,6 @@ import { useMediaQuery } from '~/hooks/use-media-query';
 export type StudioDialog =
   | 'settings'
   | 'insert'
-  | 'share'
   | 'history'
   | 'model'
   | 'refresh'
@@ -19,6 +18,10 @@ export type StudioDialog =
   | 'infographic';
 
 export type StudioSettingsTab = 'general' | 'integrations';
+
+/** Panels that can take over the right column (or a sheet on narrow screens). */
+export type StudioActivityPanel = 'history' | 'comments' | 'alerts';
+export type StudioAsidePanel = 'properties' | StudioActivityPanel;
 
 type StudioUiContextValue = {
   dialog: StudioDialog | null;
@@ -34,6 +37,10 @@ type StudioUiContextValue = {
   setProfileSourceId: (id?: string) => void;
   prepareSourceId?: string;
   setPrepareSourceId: (id?: string) => void;
+  aside: StudioAsidePanel;
+  /** Toggle an activity panel: right column on wide screens, sheet otherwise. */
+  toggleActivity: (panel: StudioActivityPanel) => void;
+  showProperties: () => void;
   /** Show the visual palette: left panel on wide screens, a sheet otherwise. */
   openInsert: () => void;
   /** `xl` and up — the editor shows its rail and side columns. */
@@ -68,6 +75,7 @@ export function StudioUiProvider({
   const [prepareSourceId, setPrepareSourceId] = useState<string>();
   const [preview, setPreview] = useState(false);
   const [leftOpen, setLeftOpen] = useState(true);
+  const [aside, setAside] = useState<StudioAsidePanel>('properties');
   // Matches the `xl` breakpoint where the editor shows its side columns.
   const isWide = useMediaQuery('(min-width: 1280px)');
   const [rightOpen, setRightOpen] = useState(true);
@@ -114,6 +122,13 @@ export function StudioUiProvider({
     setProfileSourceId,
     prepareSourceId,
     setPrepareSourceId,
+    aside,
+    toggleActivity: (panel) => {
+      if (!isWide) return setDialog(panel);
+      setRightOpen(true);
+      setAside((current) => (current === panel ? 'properties' : panel));
+    },
+    showProperties: () => setAside('properties'),
     openInsert: () => (isWide ? setLeftOpen(true) : setDialog('insert')),
     isWide,
     leftOpen,
