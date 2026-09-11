@@ -19,14 +19,7 @@ import {
   EmptyDescription,
   EmptyContent,
 } from '~/components/ui/empty';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetClose,
-} from '~/components/ui/sheet';
+import { AppSheet } from '~/components/ui/app-sheet';
 import { Picker } from '~/components/ui/picker';
 import { DatasetCard } from '~/components/dataset-card';
 import {
@@ -425,8 +418,13 @@ function MobileFilterSheet({
   const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>
+    <AppSheet
+      open={open}
+      onOpenChange={setOpen}
+      side="bottom"
+      title="Filters"
+      bodyClassName="space-y-6"
+      trigger={
         <Button variant="outline" size="sm" className="h-9 shrink-0 md:hidden">
           <SlidersHorizontal className="mr-1.5 h-4 w-4" />
           Filters
@@ -436,71 +434,9 @@ function MobileFilterSheet({
             </Badge>
           )}
         </Button>
-      </SheetTrigger>
-      <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
-        <SheetHeader className="pb-4">
-          <SheetTitle>Filters</SheetTitle>
-        </SheetHeader>
-
-        <div className="space-y-6">
-          {facets.map((facet) => {
-            const selected = filter.tags[facet.key] ?? [];
-            return (
-              <div key={facet.key}>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  {facet.label}
-                </p>
-                <div
-                  className="flex flex-wrap gap-2"
-                  aria-busy={
-                    facet.loading && facet.options.length === 0
-                      ? 'true'
-                      : undefined
-                  }
-                >
-                  {facet.loading && facet.options.length === 0
-                    ? Array.from({ length: 4 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className="h-8 w-20 animate-pulse rounded-full bg-muted"
-                        />
-                      ))
-                    : null}
-                  {facet.options.map((opt) => {
-                    const isActive = selected.includes(opt.value);
-                    return (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        className={cn(
-                          'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors',
-                          isActive
-                            ? 'border-primary bg-primary text-white'
-                            : 'border-border bg-background text-foreground hover:bg-muted'
-                        )}
-                        onClick={() => {
-                          if (facet.single) {
-                            filter.setTag(
-                              facet.key,
-                              isActive ? [] : [opt.value]
-                            );
-                          } else {
-                            filter.toggleTagValue(facet.key, opt.value);
-                          }
-                        }}
-                      >
-                        {isActive && <Check className="h-3 w-3" />}
-                        {opt.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 flex gap-3">
+      }
+      footer={
+        <div className="flex gap-3">
           {filter.activeTagCount > 0 && (
             <Button
               variant="outline"
@@ -510,14 +446,66 @@ function MobileFilterSheet({
               Clear all
             </Button>
           )}
-          <SheetClose asChild>
-            <Button className="flex-1 bg-primary hover:bg-primary/90">
-              Show results
-            </Button>
-          </SheetClose>
+          <Button
+            className="flex-1 bg-primary hover:bg-primary/90"
+            onClick={() => setOpen(false)}
+          >
+            Show results
+          </Button>
         </div>
-      </SheetContent>
-    </Sheet>
+      }
+    >
+      {facets.map((facet) => {
+        const selected = filter.tags[facet.key] ?? [];
+        return (
+          <div key={facet.key}>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {facet.label}
+            </p>
+            <div
+              className="flex flex-wrap gap-2"
+              aria-busy={
+                facet.loading && facet.options.length === 0 ? 'true' : undefined
+              }
+            >
+              {facet.loading && facet.options.length === 0
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-8 w-20 animate-pulse rounded-full bg-muted"
+                    />
+                  ))
+                : null}
+              {facet.options.map((opt) => {
+                const isActive = selected.includes(opt.value);
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors',
+                      isActive
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-border bg-background text-foreground hover:bg-muted'
+                    )}
+                    onClick={() => {
+                      if (facet.single) {
+                        filter.setTag(facet.key, isActive ? [] : [opt.value]);
+                      } else {
+                        filter.toggleTagValue(facet.key, opt.value);
+                      }
+                    }}
+                  >
+                    {isActive && <Check className="h-3 w-3" />}
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </AppSheet>
   );
 }
 

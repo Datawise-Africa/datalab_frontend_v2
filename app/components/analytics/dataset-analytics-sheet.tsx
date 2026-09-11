@@ -1,11 +1,5 @@
 import { useDataset } from '~/features/datasets';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '~/components/ui/sheet';
+import { AppSheet } from '~/components/ui/app-sheet';
 import { DatasetAnalyticsPanels } from './dataset-analytics-panels';
 
 interface Props {
@@ -21,22 +15,21 @@ export function DatasetAnalyticsSheet({
   const open = !!datasetId;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="w-full overflow-y-auto p-6 sm:max-w-3xl sm:p-8"
-      >
-        <SheetHeader className="mb-6">
-          <SheetTitle className="truncate text-lg">
-            {dataset?.name ?? 'Dataset analytics'}
-          </SheetTitle>
-          <SheetDescription>
-            Views, downloads, geography and intended uses for this dataset.
-          </SheetDescription>
-        </SheetHeader>
-
-        {datasetId && <DatasetAnalyticsPanels datasetId={datasetId} />}
-      </SheetContent>
-    </Sheet>
+    <AppSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      side="right"
+      size="lg"
+      className="sm:max-w-3xl"
+      bodyClassName="p-6 sm:p-8"
+      title={
+        <span className="block truncate text-lg">
+          {dataset?.name ?? 'Dataset analytics'}
+        </span>
+      }
+      description="Views, downloads, geography and intended uses for this dataset."
+    >
+      {datasetId && <DatasetAnalyticsPanels datasetId={datasetId} />}
+    </AppSheet>
   );
 }

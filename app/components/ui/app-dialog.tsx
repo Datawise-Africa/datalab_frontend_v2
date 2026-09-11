@@ -45,6 +45,8 @@ export function closeGuards(mode: CloseMode) {
 type AppDialogProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** `false` lets pointer events reach third-party overlays (e.g. a payment iframe). */
+  modal?: boolean;
   /** Element that opens the dialog (rendered with `asChild`). */
   trigger?: ReactNode;
   title: ReactNode;
@@ -73,6 +75,7 @@ type AppDialogProps = {
 export function AppDialog({
   open,
   onOpenChange,
+  modal,
   trigger,
   title,
   description,
@@ -86,7 +89,7 @@ export function AppDialog({
   children,
 }: Readonly<AppDialogProps>) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={modal}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent
         showCloseButton={closeMode !== 'none'}

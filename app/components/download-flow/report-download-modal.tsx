@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { isAxiosError } from 'axios';
 import { FileText, Loader2, RefreshCw } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { Button } from '~/components/ui/button';
 import { DownloadReadyFiles } from '~/components/download-flow/download-ready-files';
 import { useAppModal } from '~/store/slices/modal-slice';
@@ -155,15 +150,13 @@ export function ReportDownloadModal() {
   };
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-xl p-6 sm:p-8" dismissible={false}>
-        <DialogHeader className="mb-2">
-          <DialogTitle className="text-lg">
-            Download: {data.reportName}
-          </DialogTitle>
-        </DialogHeader>
-        {renderBody()}
-      </DialogContent>
-    </Dialog>
+    <AppDialog
+      open={isOpen}
+      title={`Download: ${data.reportName}`}
+      size="md"
+      closeMode="none"
+    >
+      {renderBody()}
+    </AppDialog>
   );
 }

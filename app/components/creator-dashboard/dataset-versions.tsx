@@ -7,13 +7,7 @@ import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Progress } from '~/components/ui/progress';
 import { DropZone } from '~/components/ui/drop-zone';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import {
   Loader2,
   Plus,
@@ -206,65 +200,71 @@ function CreateVersionDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create Version</DialogTitle>
-          <DialogDescription>
-            Create a new version for this dataset. You can upload files after
-            creating the version.
-          </DialogDescription>
-        </DialogHeader>
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="sm"
+      closeMode="explicit"
+      title="Create Version"
+      description="Create a new version for this dataset. You can upload files after creating the version."
+      footer={
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="create-version-form"
+            disabled={createVersion.isPending}
+          >
+            {createVersion.isPending ? (
+              <>
+                <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Create'
+            )}
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="create-version-form"
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
+        <div className="space-y-2">
+          <label htmlFor="version-input" className="text-sm font-medium">
+            Version <span className="text-destructive">*</span>
+          </label>
+          <Input
+            id="version-input"
+            value={version}
+            onChange={(e) => setVersion(e.target.value)}
+            placeholder="e.g. 1.0.0"
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="version-input" className="text-sm font-medium">
-              Version <span className="text-destructive">*</span>
-            </label>
-            <Input
-              id="version-input"
-              value={version}
-              onChange={(e) => setVersion(e.target.value)}
-              placeholder="e.g. 1.0.0"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="description-input" className="text-sm font-medium">
-              Description
-            </label>
-            <Textarea
-              id="description-input"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what changed in this version..."
-              rows={3}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createVersion.isPending}>
-              {createVersion.isPending ? (
-                <>
-                  <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create'
-              )}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <div className="space-y-2">
+          <label htmlFor="description-input" className="text-sm font-medium">
+            Description
+          </label>
+          <Textarea
+            id="description-input"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe what changed in this version..."
+            rows={3}
+          />
+        </div>
+      </form>
+    </AppDialog>
   );
 }
 
@@ -465,98 +465,16 @@ function UploadFilesDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={isUploading ? undefined : handleClose}>
-      <DialogContent
-        className="sm:max-w-lg"
-        dismissible={!isUploading}
-        showCloseButton={!isUploading}
-      >
-        <DialogHeader>
-          <DialogTitle>Upload Files</DialogTitle>
-          <DialogDescription>
-            Add files to this version. Files will be uploaded to storage.
-          </DialogDescription>
-        </DialogHeader>
-
-        <DropZone
-          onFiles={handleAddFiles}
-          disabled={isUploading}
-          hint="Drag & drop files or click to browse"
-        />
-
-        {items.length > 0 && (
-          <div className="space-y-2 max-h-60 overflow-y-auto">
-            {items.map((item, i) => (
-              <div
-                key={`${item.file.name}-${i}`}
-                className="flex items-center gap-3 rounded-md border px-3 py-2"
-              >
-                <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">
-                    {item.file.name}
-                  </p>
-                  {item.status === 'uploading' && (
-                    <Progress value={item.progress} className="mt-1 h-1.5" />
-                  )}
-                  {item.status === 'error' && (
-                    <p className="text-xs text-destructive mt-0.5">
-                      {item.error}
-                    </p>
-                  )}
-                </div>
-                <div className="shrink-0">
-                  {item.status === 'pending' && !isUploading && (
-                    <button
-                      type="button"
-                      onClick={() => removeFile(i)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                  {item.status === 'uploading' && (
-                    <span className="text-xs text-muted-foreground">
-                      {item.progress}%
-                    </span>
-                  )}
-                  {item.status === 'done' && (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                  )}
-                  {item.status === 'error' &&
-                    item.presignedEntry &&
-                    !isUploading && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const presigned = item.presignedEntry;
-                          if (!presigned) return;
-                          (async () => {
-                            setIsUploading(true);
-                            try {
-                              await uploadFiles([{ item, presigned }]);
-                            } finally {
-                              setIsUploading(false);
-                            }
-                          })();
-                        }}
-                        className="text-muted-foreground hover:text-primary"
-                        title="Retry upload"
-                      >
-                        <RotateCw className="h-4 w-4" />
-                      </button>
-                    )}
-                  {item.status === 'error' &&
-                    (!item.presignedEntry || isUploading) && (
-                      <AlertCircle className="h-4 w-4 text-destructive" />
-                    )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex justify-end gap-2">
+    <AppDialog
+      open={open}
+      onOpenChange={isUploading ? undefined : handleClose}
+      size="md"
+      closeMode={isUploading ? 'none' : 'explicit'}
+      title="Upload Files"
+      description="Add files to this version. Files will be uploaded to storage."
+      bodyClassName="space-y-4"
+      footer={
+        <>
           <Button
             variant="outline"
             onClick={handleClose}
@@ -590,8 +508,84 @@ function UploadFilesDialog({
               )}
             </Button>
           )}
+        </>
+      }
+    >
+      <DropZone
+        onFiles={handleAddFiles}
+        disabled={isUploading}
+        hint="Drag & drop files or click to browse"
+      />
+
+      {items.length > 0 && (
+        <div className="space-y-2 max-h-60 overflow-y-auto">
+          {items.map((item, i) => (
+            <div
+              key={`${item.file.name}-${i}`}
+              className="flex items-center gap-3 rounded-md border px-3 py-2"
+            >
+              <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate">{item.file.name}</p>
+                {item.status === 'uploading' && (
+                  <Progress value={item.progress} className="mt-1 h-1.5" />
+                )}
+                {item.status === 'error' && (
+                  <p className="text-xs text-destructive mt-0.5">
+                    {item.error}
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0">
+                {item.status === 'pending' && !isUploading && (
+                  <button
+                    type="button"
+                    onClick={() => removeFile(i)}
+                    className="text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+                {item.status === 'uploading' && (
+                  <span className="text-xs text-muted-foreground">
+                    {item.progress}%
+                  </span>
+                )}
+                {item.status === 'done' && (
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                )}
+                {item.status === 'error' &&
+                  item.presignedEntry &&
+                  !isUploading && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const presigned = item.presignedEntry;
+                        if (!presigned) return;
+                        (async () => {
+                          setIsUploading(true);
+                          try {
+                            await uploadFiles([{ item, presigned }]);
+                          } finally {
+                            setIsUploading(false);
+                          }
+                        })();
+                      }}
+                      className="text-muted-foreground hover:text-primary"
+                      title="Retry upload"
+                    >
+                      <RotateCw className="h-4 w-4" />
+                    </button>
+                  )}
+                {item.status === 'error' &&
+                  (!item.presignedEntry || isUploading) && (
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                  )}
+              </div>
+            </div>
+          ))}
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AppDialog>
   );
 }

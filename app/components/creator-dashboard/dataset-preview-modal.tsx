@@ -1,10 +1,5 @@
 import moment from 'moment';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { cn } from '~/lib/utils';
@@ -31,33 +26,34 @@ export function DatasetPreviewModal({
   const { data: dataset, isLoading } = useDataset(datasetId ?? '');
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-primary" />
-            Dataset Preview
-          </DialogTitle>
-        </DialogHeader>
+    <AppDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      size="lg"
+      title={
+        <>
+          <Eye className="h-5 w-5 text-primary" />
+          Dataset Preview
+        </>
+      }
+    >
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="ml-2 text-sm text-muted-foreground">
+            Loading preview...
+          </span>
+        </div>
+      )}
 
-        {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="ml-2 text-sm text-muted-foreground">
-              Loading preview...
-            </span>
-          </div>
-        )}
+      {!isLoading && !dataset && (
+        <div className="py-12 text-center text-muted-foreground">
+          Dataset not found.
+        </div>
+      )}
 
-        {!isLoading && !dataset && (
-          <div className="py-12 text-center text-muted-foreground">
-            Dataset not found.
-          </div>
-        )}
-
-        {dataset && <PreviewContent dataset={dataset} />}
-      </DialogContent>
-    </Dialog>
+      {dataset && <PreviewContent dataset={dataset} />}
+    </AppDialog>
   );
 }
 

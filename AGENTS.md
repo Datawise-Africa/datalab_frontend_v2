@@ -293,6 +293,8 @@ Use `AppDialog` (`~/components/ui/app-dialog`) and `AppSheet` (`~/components/ui/
 - `closeMode`: `auto` (Esc, outside click, ✕), `explicit` (only ✕ or your buttons — use for forms and important info so a stray click can't lose work), `none` (no ✕; only footer actions — critical confirmations).
 - Size classes override every breakpoint; a plain `max-w-*` on `DialogContent` loses to its built-in `sm:`/`lg:`/`xl:` caps.
 - `hideHeader` keeps the title for screen readers when the content brings its own header; `bodyClassName="overflow-hidden p-0"` when the content manages its own scrolling.
+- `modal={false}` on `AppDialog` lets clicks reach third-party overlays opened above it (e.g. the Paystack iframe in `download-modal.tsx`).
+- Submit buttons in `footer` sit outside the `<form>`: give the form an `id` and the button `form="<id>"`.
 - Drop to the primitives only for layouts the wrappers can't express.
 
 ## Forms — React Hook Form + Zod + Reusable Field Components
