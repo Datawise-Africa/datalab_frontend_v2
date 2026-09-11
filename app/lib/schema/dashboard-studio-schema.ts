@@ -1,20 +1,5 @@
 import { z } from 'zod';
 
-export const relationshipSchema = z.object({
-  left_source: z.string().min(1, 'Choose the first source'),
-  left_key: z.string().min(1, 'Choose its matching field'),
-  right_source: z.string().min(1, 'Choose the second source'),
-  right_key: z.string().min(1, 'Choose its matching field'),
-  join_type: z.enum(['left', 'right', 'inner', 'outer']),
-  cardinality: z.enum([
-    'one_to_one',
-    'one_to_many',
-    'many_to_one',
-    'many_to_many',
-  ]),
-});
-export type RelationshipFormValues = z.infer<typeof relationshipSchema>;
-
 export const alertSchema = z.object({
   name: z.string().min(2).max(255),
   widget_id: z.string().min(1, 'Choose a KPI or visual'),

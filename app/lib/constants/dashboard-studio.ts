@@ -1,5 +1,6 @@
 import type {
   DashboardDefinition,
+  DashboardRelationship,
   DashboardQuery,
   DashboardWidget,
   DashboardWidgetType,
@@ -405,3 +406,30 @@ export const dashboardSettingOptions: Array<{
     description: 'Tighter spacing between and inside visuals.',
   },
 ];
+
+export const joinTypeOptions: Option<DashboardRelationship['join_type']>[] = [
+  { value: 'left', label: 'Keep all from first source' },
+  { value: 'inner', label: 'Matches only' },
+  { value: 'right', label: 'Keep all from second source' },
+  { value: 'outer', label: 'Keep everything' },
+];
+
+export const cardinalityOptions: Option<
+  NonNullable<DashboardRelationship['cardinality']>
+>[] = [
+  { value: 'one_to_one', label: 'One to one' },
+  { value: 'one_to_many', label: 'One to many' },
+  { value: 'many_to_one', label: 'Many to one' },
+  { value: 'many_to_many', label: 'Many to many' },
+];
+
+/** Compact join labels for relationship lines in the model diagram. */
+export const joinTypeShortLabels: Record<
+  DashboardRelationship['join_type'],
+  string
+> = {
+  left: 'Left join',
+  inner: 'Inner join',
+  right: 'Right join',
+  outer: 'Full join',
+};

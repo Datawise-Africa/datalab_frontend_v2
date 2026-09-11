@@ -11,13 +11,13 @@ export type StudioDialog =
   | 'settings'
   | 'insert'
   | 'history'
-  | 'model'
   | 'refresh'
   | 'alerts'
   | 'comments'
   | 'infographic';
 
 export type StudioSettingsTab = 'general' | 'integrations';
+export type StudioView = 'canvas' | 'model';
 
 /** Panels that can take over the right column (or a sheet on narrow screens). */
 export type StudioActivityPanel = 'history' | 'comments' | 'alerts';
@@ -37,6 +37,9 @@ type StudioUiContextValue = {
   setProfileSourceId: (id?: string) => void;
   prepareSourceId?: string;
   setPrepareSourceId: (id?: string) => void;
+  /** Main area: the dashboard canvas or the data model diagram. */
+  view: StudioView;
+  setView: (view: StudioView) => void;
   aside: StudioAsidePanel;
   /** Toggle an activity panel: right column on wide screens, sheet otherwise. */
   toggleActivity: (panel: StudioActivityPanel) => void;
@@ -76,6 +79,7 @@ export function StudioUiProvider({
   const [preview, setPreview] = useState(false);
   const [leftOpen, setLeftOpen] = useState(true);
   const [aside, setAside] = useState<StudioAsidePanel>('properties');
+  const [view, setView] = useState<StudioView>('canvas');
   // Matches the `xl` breakpoint where the editor shows its side columns.
   const isWide = useMediaQuery('(min-width: 1280px)');
   const [rightOpen, setRightOpen] = useState(true);
@@ -122,6 +126,8 @@ export function StudioUiProvider({
     setProfileSourceId,
     prepareSourceId,
     setPrepareSourceId,
+    view,
+    setView,
     aside,
     toggleActivity: (panel) => {
       if (!isWide) return setDialog(panel);

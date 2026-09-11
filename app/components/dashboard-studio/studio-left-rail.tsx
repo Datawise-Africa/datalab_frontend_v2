@@ -14,20 +14,24 @@ type RailItem = {
 
 /** `xl` left edge: tool rail + the Insert palette it toggles. */
 export function StudioLeftRail() {
-  const { leftOpen, setLeftOpen, openDialog, openSettings } = useStudioUi();
+  const { leftOpen, setLeftOpen, openSettings, view, setView } = useStudioUi();
   const items: RailItem[] = [
     {
       id: 'insert',
       label: 'Insert',
       icon: Plus,
-      active: leftOpen,
-      onClick: () => setLeftOpen(!leftOpen),
+      active: view === 'canvas' && leftOpen,
+      onClick: () => {
+        setView('canvas');
+        setLeftOpen(view === 'model' ? true : !leftOpen);
+      },
     },
     {
       id: 'model',
       label: 'Data model',
       icon: Network,
-      onClick: () => openDialog('model'),
+      active: view === 'model',
+      onClick: () => setView(view === 'model' ? 'canvas' : 'model'),
     },
     {
       id: 'settings',
@@ -60,7 +64,7 @@ export function StudioLeftRail() {
           </button>
         ))}
       </nav>
-      {leftOpen && (
+      {leftOpen && view === 'canvas' && (
         <div className="min-w-0 flex-1">
           <StudioInsertPanel />
         </div>

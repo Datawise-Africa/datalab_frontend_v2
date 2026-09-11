@@ -67,6 +67,7 @@ export function StudioTopBar() {
     setRightOpen,
     aside,
     toggleActivity,
+    setView,
   } = useStudioUi();
   const runAction = (id: Action['id']) =>
     id === 'refresh' ? openDialog('refresh') : toggleActivity(id);
@@ -205,7 +206,7 @@ export function StudioTopBar() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator className="md:hidden" />
-            <DropdownMenuItem onSelect={() => openDialog('model')}>
+            <DropdownMenuItem onSelect={() => setView('model')}>
               <Network className="h-4 w-4" />
               Data model
             </DropdownMenuItem>

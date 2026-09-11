@@ -28,6 +28,7 @@ import type {
   DashboardDefinition,
   DashboardPage,
   DashboardQuery,
+  DashboardRelationship,
   DashboardWidget,
   DashboardWidgetType,
 } from '~/lib/types/dashboard';
@@ -106,6 +107,14 @@ type StudioContextValue = {
   moveWidget: (direction: -1 | 1) => void;
   reorderWidget: (sourceId: string, targetId: string) => void;
 
+  /** Relationships as edited in the model view (draft survives view switches). */
+  modelRelationships: DashboardRelationship[];
+  setModelRelationships: (
+    update: (current: DashboardRelationship[]) => DashboardRelationship[]
+  ) => void;
+  modelDirty: boolean;
+  discardModel: () => void;
+
   run: () => Promise<void>;
   analysing: boolean;
   hydrate: () => Promise<void>;
@@ -148,6 +157,7 @@ export function StudioProvider({
   const [activePageId, setActivePageId] = useState<string>();
   const [selectedId, setSelectedId] = useState<string>();
   const [dirty, setDirty] = useState(false);
+  const [modelDraft, setModelDraft] = useState<DashboardRelationship[]>();
   const undoStack = useRef<DashboardDefinition[]>([]);
   const redoStack = useRef<DashboardDefinition[]>([]);
   const currentRef = useRef<DashboardDefinition | undefined>(undefined);
@@ -295,6 +305,11 @@ export function StudioProvider({
       if (from >= 0 && to >= 0)
         page.widgets = arrayMove(page.widgets, from, to);
     });
+  const savedRelationships = dashboard?.semantic_model?.relationships ?? [];
+  const modelRelationships = modelDraft ?? savedRelationships;
+  const modelDirty =
+    modelDraft !== undefined &&
+    JSON.stringify(modelDraft) !== JSON.stringify(savedRelationships);
   const run = async () => {
     if (!selected?.source_id || !selected.query) return;
     const data = await runAnalysis.mutateAsync({
@@ -416,6 +431,11 @@ export function StudioProvider({
     duplicateWidget,
     moveWidget,
     reorderWidget,
+    modelRelationships,
+    setModelRelationships: (update) =>
+      setModelDraft((current) => update(current ?? savedRelationships)),
+    modelDirty,
+    discardModel: () => setModelDraft(undefined),
     run,
     analysing: runAnalysis.isPending,
     hydrate,
