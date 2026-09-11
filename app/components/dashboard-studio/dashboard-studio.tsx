@@ -1,5 +1,5 @@
-import type { CSSProperties } from 'react';
-import { Settings2 } from 'lucide-react';
+import { lazy, Suspense, type CSSProperties } from 'react';
+import { Loader2, Settings2 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { StudioProvider } from './studio-context';
 import { StudioUiProvider, useStudioUi } from './studio-ui-context';
@@ -9,6 +9,9 @@ import { StudioCanvas } from './studio-canvas';
 import { StudioAside } from './studio-aside';
 import { StudioBottomBar } from './studio-bottom-bar';
 import { StudioDialogs } from './studio-dialogs';
+
+// React Flow only downloads when someone opens the data model.
+const StudioModelView = lazy(() => import('./studio-model-view'));
 import { StudioShortcuts } from './studio-shortcuts';
 import { StudioLeaveGuard } from './studio-leave-guard';
 
@@ -31,10 +34,11 @@ export function DashboardStudio({
  * the inspector opens as a bottom sheet when a visual is selected.
  */
 function StudioEditor() {
-  const { preview, leftOpen, rightOpen, inspectorWidth, isWide } =
+  const { preview, leftOpen, rightOpen, inspectorWidth, isWide, view } =
     useStudioUi();
+  const modelView = view === 'model' && !preview;
   const studioGridStyle = {
-    '--studio-left-width': leftOpen ? '308px' : '48px',
+    '--studio-left-width': leftOpen && !modelView ? '308px' : '48px',
     '--studio-inspector-width': rightOpen ? `${inspectorWidth}px` : '48px',
   } as CSSProperties;
 
@@ -51,8 +55,21 @@ function StudioEditor() {
         style={preview ? undefined : studioGridStyle}
       >
         {!preview && <StudioLeftRail />}
-        <StudioCanvas />
+        {modelView ? (
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center xl:col-span-2">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            }
+          >
+            <StudioModelView />
+          </Suspense>
+        ) : (
+          <StudioCanvas />
+        )}
         {!preview &&
+          !modelView &&
           isWide &&
           (rightOpen ? (
             <StudioAside />
@@ -62,7 +79,7 @@ function StudioEditor() {
             </aside>
           ))}
       </div>
-      <StudioBottomBar />
+      {!modelView && <StudioBottomBar />}
       <StudioDialogs />
       <StudioShortcuts />
       <StudioLeaveGuard />

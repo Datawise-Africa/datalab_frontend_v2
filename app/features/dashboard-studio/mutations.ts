@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { extractError } from '~/lib/utils/extract-error';
 import { toastUtils } from '~/lib/utils/toast';
@@ -18,6 +22,26 @@ import type {
 } from '~/lib/types/dashboard';
 import { dashboardApiBase } from './queries';
 import { dashboardStudioKeys } from './query-keys';
+import { workspaceKeys } from '~/features/workspaces/query-keys';
+import { myDashboardKeys } from '~/features/my-dashboards/query-keys';
+
+/**
+ * Keep the cached dashboard (used by the studio and detail pages) in step with
+ * what the server just returned, without a refetch.
+ */
+function patchCachedDashboard(
+  client: QueryClient,
+  id: string,
+  workspaceId: string | undefined,
+  patch: Partial<Dashboard>
+) {
+  const key = workspaceId
+    ? workspaceKeys.dashboardDetail(workspaceId, id)
+    : myDashboardKeys.detail(id);
+  client.setQueryData<Dashboard>(key, (current) =>
+    current ? { ...current, ...patch } : current
+  );
+}
 
 export function useAddDashboardSource(id: string, workspaceId?: string) {
   const client = useQueryClient();
@@ -120,6 +144,7 @@ export function useRunDashboardAnalysis(id: string, workspaceId?: string) {
   });
 }
 export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
+  const client = useQueryClient();
   const base = dashboardApiBase(workspaceId);
   return useMutation({
     mutationFn: async ({
@@ -136,7 +161,8 @@ export function useSaveDashboardDefinition(id: string, workspaceId?: string) {
           note,
         })
       ).data,
-    onSuccess: (_data, { silent }) => {
+    onSuccess: (data, { silent }) => {
+      patchCachedDashboard(client, id, workspaceId, data);
       if (!silent) toastUtils.success('Dashboard saved');
     },
     onError: (e) => toastUtils.error('Save failed', extractError(e)),
@@ -207,7 +233,8 @@ export function useRestoreDashboardRevision(id: string, workspaceId?: string) {
           `${base}/${id}/revisions/${revisionId}/restore/`
         )
       ).data,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      patchCachedDashboard(client, id, workspaceId, data);
       client.invalidateQueries({
         queryKey: dashboardStudioKeys.revisions(base, id),
       });
@@ -243,7 +270,8 @@ export function useSaveSemanticModel(id: string, workspaceId?: string) {
           model
         )
       ).data,
-    onSuccess: () => {
+    onSuccess: (semantic_model) => {
+      patchCachedDashboard(client, id, workspaceId, { semantic_model });
       client.invalidateQueries({
         queryKey: dashboardStudioKeys.sources(base, id),
       });

@@ -33,7 +33,7 @@ export function StudioShortcuts() {
     moveWidget,
     setSelectedId,
   } = useStudio();
-  const { preview } = useStudioUi();
+  const { preview, view } = useStudioUi();
 
   const onKeyDown = useEffectEvent((event: KeyboardEvent) => {
     const mod = event.metaKey || event.ctrlKey;
@@ -43,7 +43,8 @@ export function StudioShortcuts() {
       if (dirty) void save(false).catch(() => undefined);
       return;
     }
-    if (preview || ownsKeyboard(event.target)) return;
+    // The model diagram has its own keyboard handling (Delete removes lines).
+    if (preview || view === 'model' || ownsKeyboard(event.target)) return;
     if (mod && key === 'z') {
       event.preventDefault();
       if (event.shiftKey) redo();

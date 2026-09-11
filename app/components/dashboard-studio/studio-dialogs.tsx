@@ -1,7 +1,7 @@
 import { InfographicBuilder } from './infographic-builder';
 import { SourcePreparationDialog } from './source-preparation-dialog';
 import { SourceProfileDialog } from './source-profile-dialog';
-import { DataModelDialog, RefreshDialog } from './studio-management-dialogs';
+import { RefreshDialog } from './studio-management-dialogs';
 import { activityPanels } from './studio-aside';
 import { StudioSettingsSheet } from './studio-settings-sheet';
 import { StudioInsertPanel } from './studio-insert-panel';
@@ -89,14 +89,6 @@ export function StudioDialogs() {
           source={sources.find((item) => item.id === prepareSourceId)}
           open
           onOpenChange={(open) => !open && setPrepareSourceId(undefined)}
-        />
-      )}
-      {dialog === 'model' && (
-        <DataModelDialog
-          {...ids}
-          {...dialogProps('model')}
-          sources={sources}
-          initialModel={dashboard.semantic_model}
         />
       )}
       {dialog === 'refresh' && (

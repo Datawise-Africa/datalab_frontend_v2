@@ -10,7 +10,8 @@ import { useStudio } from './studio-context';
  * changes, the browser's own prompt for reloads and tab closes.
  */
 export function StudioLeaveGuard() {
-  const { dirty, save, saving } = useStudio();
+  const { dirty: definitionDirty, modelDirty, save, saving } = useStudio();
+  const dirty = definitionDirty || modelDirty;
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
       dirty && currentLocation.pathname !== nextLocation.pathname
@@ -31,7 +32,11 @@ export function StudioLeaveGuard() {
       open={blocked}
       onOpenChange={(open) => !open && blocker.reset?.()}
       title="Unsaved changes"
-      description="Your latest edits haven't been saved yet. Save them before leaving the studio?"
+      description={
+        modelDirty
+          ? "Your data model changes haven't been saved and will be lost if you leave."
+          : "Your latest edits haven't been saved yet. Save them before leaving the studio?"
+      }
       size="sm"
       closeMode="none"
       footer={
@@ -42,16 +47,18 @@ export function StudioLeaveGuard() {
           <Button variant="outline" onClick={() => blocker.proceed?.()}>
             Leave without saving
           </Button>
-          <Button
-            disabled={saving}
-            onClick={async () => {
-              await save(false);
-              blocker.proceed?.();
-            }}
-          >
-            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save and leave
-          </Button>
+          {definitionDirty && (
+            <Button
+              disabled={saving}
+              onClick={async () => {
+                await save(false);
+                blocker.proceed?.();
+              }}
+            >
+              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save and leave
+            </Button>
+          )}
         </>
       }
     />
