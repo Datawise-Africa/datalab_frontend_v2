@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useMediaQuery } from '~/hooks/use-media-query';
+import { canvasZoom, type CanvasFrame } from '~/lib/constants/dashboard-studio';
 
 export type StudioDialog =
   | 'settings'
@@ -56,9 +57,20 @@ type StudioUiContextValue = {
   setRightOpen: (open: boolean) => void;
   inspectorWidth: number;
   setInspectorWidth: (width: number) => void;
+  /** Canvas zoom (1 = 100%), clamped to `canvasZoom`. */
+  zoom: number;
+  setZoom: (zoom: number) => void;
+  frame: CanvasFrame;
+  setFrame: (frame: CanvasFrame) => void;
+  showGrid: boolean;
+  setShowGrid: (show: boolean) => void;
 };
 
 const INSPECTOR_WIDTH_KEY = 'datalab-studio-inspector-width';
+const CANVAS_KEY = 'datalab-studio-canvas';
+const clampZoom = (zoom: number) =>
+  Math.round(Math.min(canvasZoom.max, Math.max(canvasZoom.min, zoom)) * 100) /
+  100;
 
 const StudioUiContext = createContext<StudioUiContextValue | null>(null);
 
@@ -84,6 +96,33 @@ export function StudioUiProvider({
   const isWide = useMediaQuery('(min-width: 1280px)');
   const [rightOpen, setRightOpen] = useState(true);
   const [inspectorWidth, setInspectorWidth] = useState(420);
+  const [zoom, setZoomState] = useState(1);
+  const [frame, setFrame] = useState<CanvasFrame>('fill');
+  const [showGrid, setShowGrid] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(
+        globalThis.localStorage?.getItem(CANVAS_KEY) ?? '{}'
+      );
+      if (typeof saved.zoom === 'number') setZoomState(clampZoom(saved.zoom));
+      if (typeof saved.frame === 'string') setFrame(saved.frame);
+      if (typeof saved.showGrid === 'boolean') setShowGrid(saved.showGrid);
+    } catch {
+      // Canvas preferences are a convenience; defaults are fine without them.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      globalThis.localStorage?.setItem(
+        CANVAS_KEY,
+        JSON.stringify({ zoom, frame, showGrid })
+      );
+    } catch {
+      // Storage unavailable — keep in-memory preferences.
+    }
+  }, [zoom, frame, showGrid]);
 
   useEffect(() => {
     try {
@@ -145,6 +184,12 @@ export function StudioUiProvider({
     setRightOpen,
     inspectorWidth,
     setInspectorWidth,
+    zoom,
+    setZoom: (next) => setZoomState(clampZoom(next)),
+    frame,
+    setFrame,
+    showGrid,
+    setShowGrid,
   };
 
   return (

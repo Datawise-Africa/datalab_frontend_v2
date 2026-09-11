@@ -283,13 +283,15 @@ export const chartPalette = [
 ];
 
 // Full class strings so Tailwind can detect them.
+// Container-query spans: the dashboard responds to its own width (studio
+// device frames, embeds), not the browser's. Pairs with `@2xl:grid-cols-12`.
 export const widgetWidthClass: Record<number, string> = {
-  3: 'lg:col-span-3',
-  4: 'lg:col-span-4',
-  6: 'lg:col-span-6',
-  8: 'lg:col-span-8',
-  9: 'lg:col-span-9',
-  12: 'lg:col-span-12',
+  3: '@2xl:col-span-3',
+  4: '@2xl:col-span-4',
+  6: '@2xl:col-span-6',
+  8: '@2xl:col-span-8',
+  9: '@2xl:col-span-9',
+  12: '@2xl:col-span-12',
 };
 
 export const infographicSizes = {
@@ -433,3 +435,14 @@ export const joinTypeShortLabels: Record<
   right: 'Right join',
   outer: 'Full join',
 };
+
+/** Canvas frame widths (px) for previewing a page at different screen sizes. */
+export const canvasFrames = [
+  { value: 'fill', label: 'Fill', width: null },
+  { value: 'desktop', label: 'Desktop', width: 1280 },
+  { value: 'tablet', label: 'Tablet', width: 768 },
+  { value: 'mobile', label: 'Mobile', width: 390 },
+] as const;
+export type CanvasFrame = (typeof canvasFrames)[number]['value'];
+
+export const canvasZoom = { min: 0.25, max: 2, step: 0.1 } as const;

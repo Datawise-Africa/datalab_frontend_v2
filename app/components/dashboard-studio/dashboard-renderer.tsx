@@ -57,6 +57,7 @@ import { BarChart3, FilterX, GripVertical } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { cn } from '~/lib/utils';
 import { StudioGeoMap } from './studio-geo-map';
+import { WidgetResizeHandle, type WidgetLayout } from './widget-resize-handle';
 import type {
   DashboardDefinition,
   DashboardWidget,
@@ -733,6 +734,8 @@ export function DashboardRenderer({
   errors = {},
   selectedActions,
   onReorder,
+  onResize,
+  showGridGuides = false,
 }: Readonly<{
   definition: DashboardDefinition;
   interactive?: boolean;
@@ -748,8 +751,17 @@ export function DashboardRenderer({
   selectedActions?: ReactNode;
   /** Enables drag-and-drop reordering (studio edit mode). */
   onReorder?: (sourceId: string, targetId: string) => void;
+  /** Shows a snap-to-grid resize handle on the selected visual. */
+  onResize?: (id: string, layout: WidgetLayout) => void;
+  /** Studio aid: dashed 12-column guides behind the visuals. */
+  showGridGuides?: boolean;
 }>) {
   const [internalPageId, setInternalPageId] = useState(definition.pages[0]?.id);
+  // Live size while a resize handle is dragged; committed once on release.
+  const [resizing, setResizing] = useState<{
+    id: string;
+    layout: WidgetLayout;
+  } | null>(null);
   const dndId = useId();
   const sensors = useSensors(
     // Small distance so a click still selects instead of starting a drag.
@@ -806,68 +818,93 @@ export function DashboardRenderer({
   const grid = (
     <div
       className={cn(
-        'grid grid-cols-1 lg:grid-cols-12',
+        'grid grid-cols-1 @2xl:grid-cols-12',
         compact ? 'gap-2' : 'gap-4'
       )}
     >
-      {widgets.map((widget) => (
-        <Shell
-          key={widget.id}
-          widget={widget}
-          onSelect={onSelect}
-          className={cn(
-            'group @container relative transition',
-            preset.card,
-            compact ? 'p-3' : 'p-5',
-            widgetWidthClass[widget.layout?.width ?? 6],
-            selectedId === widget.id
-              ? 'ring-2 ring-primary ring-offset-2'
-              : 'hover:shadow-md'
-          )}
-          style={{
-            minHeight: widget.layout?.height ?? 360,
-            borderRadius: definition.theme?.radius ?? 12,
-          }}
-        >
-          {selectedId === widget.id && selectedActions}
-          {(settings.showTitles !== false ||
-            settings.showDescriptions !== false) && (
-            <div className={cn(compact ? 'mb-2' : 'mb-3', onReorder && 'pl-6')}>
-              {settings.showTitles !== false && (
-                <h3 className="font-semibold text-foreground">
-                  {widget.title}
-                </h3>
-              )}
-              {settings.showDescriptions !== false &&
-                widget.config?.description &&
-                widget.type !== 'kpi' && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {widget.config.description}
-                  </p>
-                )}
-            </div>
-          )}
-          <Chart
+      {widgets.map((widget) => {
+        const layout =
+          resizing?.id === widget.id
+            ? resizing.layout
+            : {
+                width: widget.layout?.width ?? 6,
+                height: widget.layout?.height ?? 360,
+              };
+        const selected = selectedId === widget.id;
+        return (
+          <Shell
+            key={widget.id}
             widget={widget}
-            interactive={interactive}
-            themePalette={preset.palette}
-            onFilter={(column, value) => {
-              if (onCrossFilter) onCrossFilter(column, value);
-              else setCrossFilter({ column, value });
+            onSelect={onSelect}
+            className={cn(
+              'group @container relative transition',
+              preset.card,
+              compact ? 'p-3' : 'p-5',
+              widgetWidthClass[layout.width],
+              selected ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'
+            )}
+            style={{
+              minHeight: layout.height,
+              borderRadius: definition.theme?.radius ?? 12,
             }}
-          />
-          {errors[widget.id] && (
-            <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
-              {errors[widget.id]}
-            </p>
-          )}
-        </Shell>
-      ))}
+          >
+            {selected && selectedActions}
+            {selected && onResize && (
+              <WidgetResizeHandle
+                title={widget.title}
+                layout={layout}
+                onPreview={(next) =>
+                  setResizing(next && { id: widget.id, layout: next })
+                }
+                onCommit={(next) => onResize(widget.id, next)}
+              />
+            )}
+            {(settings.showTitles !== false ||
+              settings.showDescriptions !== false) && (
+              <div
+                className={cn(compact ? 'mb-2' : 'mb-3', onReorder && 'pl-6')}
+              >
+                {settings.showTitles !== false && (
+                  <h3 className="font-semibold text-foreground">
+                    {widget.title}
+                  </h3>
+                )}
+                {settings.showDescriptions !== false &&
+                  widget.config?.description &&
+                  widget.type !== 'kpi' && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {widget.config.description}
+                    </p>
+                  )}
+              </div>
+            )}
+            <Chart
+              widget={
+                resizing?.id === widget.id ? { ...widget, layout } : widget
+              }
+              interactive={interactive}
+              themePalette={preset.palette}
+              onFilter={(column, value) => {
+                if (onCrossFilter) onCrossFilter(column, value);
+                else setCrossFilter({ column, value });
+              }}
+            />
+            {errors[widget.id] && (
+              <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+                {errors[widget.id]}
+              </p>
+            )}
+          </Shell>
+        );
+      })}
     </div>
   );
   return (
     <div
-      className={cn('relative space-y-4 rounded-xl p-1', preset.canvas)}
+      className={cn(
+        '@container relative space-y-4 rounded-xl p-1',
+        preset.canvas
+      )}
       style={{ background: definition.theme?.background || undefined }}
     >
       {!hidePageTabs && (
@@ -899,6 +936,24 @@ export function DashboardRenderer({
       {loading && (
         <div className="absolute inset-x-0 top-0 z-10 h-1 overflow-hidden rounded-full bg-primary/15">
           <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
+        </div>
+      )}
+      {showGridGuides && (
+        // Same columns and gap as the grid below, so the guides line up.
+        <div
+          aria-hidden
+          className={cn(
+            'pointer-events-none absolute inset-x-1 bottom-1 hidden @2xl:grid @2xl:grid-cols-12',
+            hidePageTabs ? 'top-1' : 'top-14',
+            compact ? 'gap-2' : 'gap-4'
+          )}
+        >
+          {Array.from({ length: 12 }, (_, index) => (
+            <div
+              key={index}
+              className="rounded-sm bg-primary/[0.04] outline-1 outline-primary/25 outline-dashed"
+            />
+          ))}
         </div>
       )}
       {onReorder ? (
