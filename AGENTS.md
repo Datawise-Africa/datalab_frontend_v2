@@ -270,6 +270,31 @@ Auth is client-side by design. Understand this before touching route protection.
 - **Readonly props**: all component props must be wrapped with `Readonly<>` (e.g., `({ title, count }: Readonly<MyProps>)`)
 - **Constants**: static data (option lists, presets, palettes, lookup maps) lives in `app/lib/constants/` (e.g., `dashboard-studio.ts`) — never define it inside components
 
+## Dialogs & Sheets — `AppDialog` / `AppSheet`
+
+Use `AppDialog` (`~/components/ui/app-dialog`) and `AppSheet` (`~/components/ui/app-sheet`) instead of composing `Dialog*` / `Sheet*` primitives. One import; title, description, icon, footer, trigger and a scrolling body are built in.
+
+```tsx
+<AppDialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Data model"
+  icon={Network}
+  size="lg"            // sm | md | lg | xl — applied at every breakpoint
+  closeMode="explicit" // auto | explicit | none
+  footer={<Button onClick={save}>Save</Button>}
+>
+  …
+</AppDialog>
+
+<AppSheet {...props} side="right" size="md" title="Settings">…</AppSheet>
+```
+
+- `closeMode`: `auto` (Esc, outside click, ✕), `explicit` (only ✕ or your buttons — use for forms and important info so a stray click can't lose work), `none` (no ✕; only footer actions — critical confirmations).
+- Size classes override every breakpoint; a plain `max-w-*` on `DialogContent` loses to its built-in `sm:`/`lg:`/`xl:` caps.
+- `hideHeader` keeps the title for screen readers when the content brings its own header; `bodyClassName="overflow-hidden p-0"` when the content manages its own scrolling.
+- Drop to the primitives only for layouts the wrappers can't express.
+
 ## Forms — React Hook Form + Zod + Reusable Field Components
 
 All forms must use **React Hook Form** with **Zod** validation via `zodResolver`. Use the reusable field components from `app/components/form-fields/` instead of inline `FormField` renders.

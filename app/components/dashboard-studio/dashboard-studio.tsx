@@ -9,6 +9,8 @@ import { StudioCanvas } from './studio-canvas';
 import { StudioAside } from './studio-aside';
 import { StudioBottomBar } from './studio-bottom-bar';
 import { StudioDialogs } from './studio-dialogs';
+import { StudioShortcuts } from './studio-shortcuts';
+import { StudioLeaveGuard } from './studio-leave-guard';
 
 export function DashboardStudio({
   dashboardId,
@@ -62,6 +64,8 @@ function StudioEditor() {
       </div>
       <StudioBottomBar />
       <StudioDialogs />
+      <StudioShortcuts />
+      <StudioLeaveGuard />
     </div>
   );
 }
