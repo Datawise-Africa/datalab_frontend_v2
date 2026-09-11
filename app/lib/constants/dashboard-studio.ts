@@ -345,3 +345,63 @@ export const alertConditionOptions: Option<
   { value: 'lte', label: 'At most' },
   { value: 'equals', label: 'Equals' },
 ];
+
+/**
+ * What each theme preset changes when a dashboard renders. Class strings are
+ * written out in full so Tailwind picks them up; colours stay token-based where
+ * possible so presets follow the app's light/dark mode.
+ */
+export const themePresetStyles: Record<
+  ThemePreset,
+  { canvas: string; card: string; palette: string[] }
+> = {
+  datalab: {
+    canvas: '',
+    card: 'border bg-card shadow-sm',
+    palette: chartPalette,
+  },
+  light: {
+    canvas: 'bg-background',
+    card: 'border bg-background shadow-none',
+    palette: ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b', '#8b5cf6'],
+  },
+  soft: {
+    canvas: 'bg-muted/60 p-3',
+    card: 'border border-transparent bg-card shadow-md',
+    palette: ['#6ea8fe', '#a78bfa', '#f472b6', '#4ade80', '#fbbf24'],
+  },
+  contrast: {
+    canvas: '',
+    card: 'border-2 border-foreground bg-card shadow-none',
+    palette: ['var(--foreground)', '#d00000', '#0057ff', '#e69500', '#00875a'],
+  },
+};
+
+export const cornerRadiusOptions: Option<string>[] = [
+  { value: '0', label: 'Square' },
+  { value: '6', label: 'Subtle' },
+  { value: '12', label: 'Rounded' },
+  { value: '20', label: 'Pill' },
+];
+
+export const dashboardSettingOptions: Array<{
+  key: 'showTitles' | 'showDescriptions' | 'compact';
+  label: string;
+  description: string;
+}> = [
+  {
+    key: 'showTitles',
+    label: 'Show visual titles',
+    description: 'Title above every visual.',
+  },
+  {
+    key: 'showDescriptions',
+    label: 'Show descriptions',
+    description: 'Optional context line under the title.',
+  },
+  {
+    key: 'compact',
+    label: 'Compact layout',
+    description: 'Tighter spacing between and inside visuals.',
+  },
+];

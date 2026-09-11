@@ -32,13 +32,14 @@ import {
 } from 'recharts';
 import { BarChart3, FilterX } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+import { cn } from '~/lib/utils';
 import { StudioGeoMap } from './studio-geo-map';
 import type {
   DashboardDefinition,
   DashboardWidget,
 } from '~/lib/types/dashboard';
 import {
-  chartPalette,
+  themePresetStyles,
   widgetWidthClass,
 } from '~/lib/constants/dashboard-studio';
 
@@ -76,10 +77,12 @@ function Chart({
   widget,
   interactive,
   onFilter,
+  themePalette,
 }: Readonly<{
   widget: DashboardWidget;
   interactive: boolean;
   onFilter: (column: string, value: unknown) => void;
+  themePalette: string[];
 }>) {
   const rows = widget.data?.rows ?? [];
   const columns = widget.data?.columns.map((item) => item.name) ?? [];
@@ -92,9 +95,14 @@ function Chart({
   const series = requestedY
     ? [requestedY, ...yKeys.filter((key) => key !== requestedY)]
     : yKeys;
-  const palette = widget.config?.palette?.length
+  const basePalette = widget.config?.palette?.length
     ? widget.config.palette
-    : chartPalette;
+    : themePalette;
+  // Repeat so series beyond the palette length still get a colour.
+  const palette = Array.from(
+    { length: Math.max(20, basePalette.length) },
+    (_, index) => basePalette[index % basePalette.length]
+  );
   const height = Math.max(150, (widget.layout?.height ?? 360) - 105);
   const click = (row: unknown) =>
     interactive && x && onFilter(x, datumValue(row, x));
@@ -622,9 +630,12 @@ export function DashboardRenderer({
         This dashboard has no pages yet.
       </div>
     );
+  const preset = themePresetStyles[definition.theme?.preset ?? 'datalab'];
+  const settings = definition.settings ?? {};
+  const compact = settings.compact === true;
   return (
     <div
-      className="relative space-y-4 rounded-xl p-1"
+      className={cn('relative space-y-4 rounded-xl p-1', preset.canvas)}
       style={{ background: definition.theme?.background || undefined }}
     >
       {!hidePageTabs && (
@@ -658,7 +669,12 @@ export function DashboardRenderer({
           <div className="h-full w-1/3 animate-pulse rounded-full bg-primary" />
         </div>
       )}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+      <div
+        className={cn(
+          'grid grid-cols-1 lg:grid-cols-12',
+          compact ? 'gap-2' : 'gap-4'
+        )}
+      >
         {widgets.map((widget) => (
           <section
             key={widget.id}
@@ -674,24 +690,42 @@ export function DashboardRenderer({
             role={onSelect ? 'button' : 'region'}
             aria-label={widget.title}
             tabIndex={onSelect ? 0 : -1}
-            className={`relative border bg-card p-5 shadow-sm transition ${widgetWidthClass[widget.layout?.width ?? 6]} ${selectedId === widget.id ? 'ring-2 ring-primary ring-offset-2' : 'hover:shadow-md'}`}
+            className={cn(
+              'relative transition',
+              preset.card,
+              compact ? 'p-3' : 'p-5',
+              widgetWidthClass[widget.layout?.width ?? 6],
+              selectedId === widget.id
+                ? 'ring-2 ring-primary ring-offset-2'
+                : 'hover:shadow-md'
+            )}
             style={{
               minHeight: widget.layout?.height ?? 360,
               borderRadius: definition.theme?.radius ?? 12,
             }}
           >
             {selectedId === widget.id && selectedActions}
-            <div className="mb-3">
-              <h3 className="font-semibold text-foreground">{widget.title}</h3>
-              {widget.config?.description && widget.type !== 'kpi' && (
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {widget.config.description}
-                </p>
-              )}
-            </div>
+            {(settings.showTitles !== false ||
+              settings.showDescriptions !== false) && (
+              <div className={compact ? 'mb-2' : 'mb-3'}>
+                {settings.showTitles !== false && (
+                  <h3 className="font-semibold text-foreground">
+                    {widget.title}
+                  </h3>
+                )}
+                {settings.showDescriptions !== false &&
+                  widget.config?.description &&
+                  widget.type !== 'kpi' && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {widget.config.description}
+                    </p>
+                  )}
+              </div>
+            )}
             <Chart
               widget={widget}
               interactive={interactive}
+              themePalette={preset.palette}
               onFilter={(column, value) => {
                 if (onCrossFilter) onCrossFilter(column, value);
                 else setCrossFilter({ column, value });
