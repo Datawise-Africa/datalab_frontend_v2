@@ -39,6 +39,7 @@ import {
 } from '~/features/my-datasets/types';
 import { VersionsTab } from '~/components/creator-dashboard/dataset-versions';
 import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
+import { DatasetDataPreview } from './dataset-data-preview';
 import {
   backHrefFor,
   editHrefFor,
@@ -153,6 +154,7 @@ function DatasetContent({
           <Tabs defaultValue="versions">
             <TabsList>
               <TabsTrigger value="versions">Versions</TabsTrigger>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="schema">Schema</TabsTrigger>
               <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
               <TabsTrigger value="authors">Authors</TabsTrigger>
@@ -164,6 +166,13 @@ function DatasetContent({
 
             <TabsContent value="versions" className="mt-4">
               <VersionsTab datasetId={dataset.id} />
+            </TabsContent>
+
+            <TabsContent value="preview" className="mt-4">
+              <DatasetDataPreview
+                preview={dataset.preview}
+                schema={dataset.schema}
+              />
             </TabsContent>
 
             <TabsContent value="schema" className="mt-4">
@@ -256,7 +265,7 @@ function AboutCard({
       <dl className="space-y-2.5 text-xs">
         <Field label="Category">{dataset.category.name}</Field>
         <Field label="Access" className="capitalize">
-          {dataset.access.access_type}
+          {dataset.access?.access_type ?? 'unspecified'}
         </Field>
         {(workspaceName || workspaceId) && (
           <Field label="Workspace">
@@ -292,12 +301,12 @@ function AboutCard({
         </Field>
       </dl>
 
-      {dataset.access.access_instructions && (
+      {dataset.access?.access_instructions && (
         <>
           <Separator className="my-3" />
           <p className="mb-1 text-xs font-medium">Access instructions</p>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {dataset.access.access_instructions}
+            {dataset.access?.access_instructions}
           </p>
         </>
       )}
