@@ -100,11 +100,14 @@ function datumValue(row: unknown, key: string) {
 function Chart({
   widget,
   interactive,
+  editing,
   onFilter,
   themePalette,
 }: Readonly<{
   widget: DashboardWidget;
   interactive: boolean;
+  /** Studio edit mode: empty states hint at configuring the visual. */
+  editing: boolean;
   onFilter: (column: string, value: unknown) => void;
   themePalette: string[];
 }>) {
@@ -237,7 +240,11 @@ function Chart({
         style={{ height }}
       >
         <BarChart3 className="mb-2 h-8 w-8 opacity-35" />
-        <span className="text-sm">Configure the fields, then run analysis</span>
+        <span className="text-sm">
+          {editing
+            ? 'Configure the fields, then run analysis'
+            : 'No data to show'}
+        </span>
       </div>
     );
   if (widget.type === 'map')
@@ -459,21 +466,19 @@ function Chart({
     return (
       <ResponsiveContainer width="100%" height={height}>
         <RadialBarChart
-          data={rows.slice(0, 8)}
+          // `name` labels the legend; `fill` colours each bar and legend icon.
+          data={rows.slice(0, 8).map((row, index) => ({
+            ...row,
+            name: String(row[x] ?? ''),
+            fill: palette[index % palette.length],
+          }))}
           innerRadius="20%"
           outerRadius="92%"
           startAngle={90}
           endAngle={-270}
         >
           <PolarAngleAxis type="number" domain={[0, 'dataMax']} tick={false} />
-          <RadialBar dataKey={series[0]} background cornerRadius={8}>
-            {rows.slice(0, 8).map((_, index) => (
-              <Cell
-                key={`${widget.id}-${index}`}
-                fill={palette[index % palette.length]}
-              />
-            ))}
-          </RadialBar>
+          <RadialBar dataKey={series[0]} background cornerRadius={8} />
           {tooltip}
           {legend}
         </RadialBarChart>
@@ -887,6 +892,7 @@ export function DashboardRenderer({
                 resizing?.id === widget.id ? { ...widget, layout } : widget
               }
               interactive={interactive}
+              editing={Boolean(onSelect)}
               themePalette={preset.palette}
               onFilter={(column, value) => {
                 if (onCrossFilter) onCrossFilter(column, value);
@@ -894,7 +900,7 @@ export function DashboardRenderer({
               }}
             />
             {errors[widget.id] && (
-              <p className="mt-3 rounded-lg bg-destructive/10 p-2 text-xs text-destructive">
+              <p className="mt-3 line-clamp-3 rounded-lg bg-destructive/10 p-2 text-xs break-words text-destructive">
                 {errors[widget.id]}
               </p>
             )}
