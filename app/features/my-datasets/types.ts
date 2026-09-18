@@ -1,11 +1,29 @@
 import type { UploadDatasetFormValues } from '~/components/upload-dataset-steps';
 import type { Nullable } from '~/lib/types';
+import type { ProductValidation } from '~/lib/types/validation';
 
 /**
  * Backend returns workspace either as a plain ID string (list/detail endpoints)
  * or as a populated object on some endpoints. Normalize via `getWorkspaceId`.
  */
-export type DatasetWorkspaceRef = string | { id: string; name: string } | null;
+export type DatasetWorkspaceRef =
+  | string
+  | {
+      id: string;
+      name: string;
+      workspace_type?: 'internal' | 'external';
+    }
+  | null;
+
+export function isInternalDatasetWorkspace(
+  workspace: DatasetWorkspaceRef | undefined
+): boolean {
+  return (
+    !!workspace &&
+    typeof workspace !== 'string' &&
+    workspace.workspace_type === 'internal'
+  );
+}
 
 export function getWorkspaceId(
   workspace: DatasetWorkspaceRef | undefined
@@ -37,8 +55,24 @@ export interface DatasetSchema {
   schema_json: DatasetSchemaFile[];
 }
 
+/** One file's sample, written by the backend `generate_preview` task. */
+export interface DatasetPreviewEntry {
+  file: string;
+  rows?: Record<string, unknown>[];
+  /** Set instead of `rows` when the file could not be read. */
+  error?: string;
+}
+
+export interface DatasetPreview {
+  id: string;
+  preview_rows: DatasetPreviewEntry[];
+  created_at: string;
+}
+
 export type MyDatasetInterface = {
   id: string;
+  /** Readable URL key; the dataset detail endpoint accepts it or the id. */
+  slug?: string;
   name: string;
   description: string;
   dataset_type: UploadDatasetFormValues['dataset_type'];
@@ -76,10 +110,11 @@ export type MyDatasetInterface = {
   is_premium: boolean;
   is_private: boolean;
   price: number | null;
+  /** Null when no access record exists (e.g. older or seeded datasets). */
   access: {
     access_type: string;
     access_instructions: string;
-  };
+  } | null;
   datasheet: Nullable<{
     id: string;
     motivation: string;
@@ -96,6 +131,24 @@ export type MyDatasetInterface = {
   downloads_count: number;
   dataset_image?: string | null;
   schema?: DatasetSchema | null;
+  preview?: DatasetPreview | null;
+  doi: string | null;
+  doi_url: string | null;
+  citation: string | null;
+  doi_option: 'none' | 'existing' | 'datalab';
+  doi_source: 'external' | 'datalab' | null;
+  doi_status:
+    | 'external'
+    | 'requested'
+    | 'draft'
+    | 'registered'
+    | 'findable'
+    | 'failed'
+    | 'hidden'
+    | null;
+  doi_error: string | null;
+  verification_status: 'PE' | 'IR' | 'CR' | 'AP' | 'RE';
+  validation: ProductValidation | null;
   created_at: string;
   updated_at: string;
 };

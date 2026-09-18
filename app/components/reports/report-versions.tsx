@@ -4,14 +4,7 @@ import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { DropZone } from '~/components/ui/drop-zone';
 import { useFileUpload } from '~/hooks/use-file-upload';
 import {
@@ -193,70 +186,17 @@ export function ReportVersions({ reportId }: Readonly<ReportVersionsProps>) {
         </ul>
       )}
 
-      <Dialog
+      <AppDialog
         open={dialogOpen}
         onOpenChange={(open) =>
           !uploading && (open ? setDialogOpen(true) : reset())
         }
-      >
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>New version</DialogTitle>
-            <DialogDescription>
-              Give the version a label and attach its files.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="report-version-label">Version</Label>
-              <Input
-                id="report-version-label"
-                value={versionLabel}
-                onChange={(e) => setVersionLabel(e.target.value)}
-                placeholder="e.g. 1.0"
-                disabled={uploading}
-              />
-            </div>
-
-            {/* Server accepts PDF and DOCX only — anything else 400s on request-upload. */}
-            <DropZone
-              onFiles={addFiles}
-              accept={REPORT_ACCEPT_ATTR}
-              multiple
-              disabled={uploading}
-            />
-            <p className="text-xs text-muted-foreground">PDF or DOCX only.</p>
-
-            {managedFiles.length > 0 && (
-              <ul className="space-y-1">
-                {managedFiles.map((managed, index) => (
-                  <li
-                    key={managed.key}
-                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
-                  >
-                    <span className="truncate">{managed.name}</span>
-                    <span className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {formatBytes(managed.file.size)}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeAt(index)}
-                        disabled={uploading}
-                        aria-label={`Remove ${managed.name}`}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <DialogFooter>
+        title="New version"
+        description="Give the version a label and attach its files."
+        size="md"
+        closeMode="explicit"
+        footer={
+          <>
             <Button variant="outline" onClick={reset} disabled={uploading}>
               Cancel
             </Button>
@@ -267,22 +207,70 @@ export function ReportVersions({ reportId }: Readonly<ReportVersionsProps>) {
               {uploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Upload version
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="report-version-label">Version</Label>
+            <Input
+              id="report-version-label"
+              value={versionLabel}
+              onChange={(e) => setVersionLabel(e.target.value)}
+              placeholder="e.g. 1.0"
+              disabled={uploading}
+            />
+          </div>
 
-      <Dialog
+          {/* Server accepts PDF and DOCX only — anything else 400s on request-upload. */}
+          <DropZone
+            onFiles={addFiles}
+            accept={REPORT_ACCEPT_ATTR}
+            multiple
+            disabled={uploading}
+          />
+          <p className="text-xs text-muted-foreground">PDF or DOCX only.</p>
+
+          {managedFiles.length > 0 && (
+            <ul className="space-y-1">
+              {managedFiles.map((managed, index) => (
+                <li
+                  key={managed.key}
+                  className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                >
+                  <span className="truncate">{managed.name}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {formatBytes(managed.file.size)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeAt(index)}
+                      disabled={uploading}
+                      aria-label={`Remove ${managed.name}`}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </AppDialog>
+
+      <AppDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete version?</DialogTitle>
-            <DialogDescription>
-              This permanently removes v{deleteTarget?.version} and its files.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
+        title="Delete version?"
+        description={
+          <>This permanently removes v{deleteTarget?.version} and its files.</>
+        }
+        size="sm"
+        closeMode="explicit"
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => setDeleteTarget(null)}
@@ -300,9 +288,9 @@ export function ReportVersions({ reportId }: Readonly<ReportVersionsProps>) {
               )}
               Delete
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      />
     </section>
   );
 }

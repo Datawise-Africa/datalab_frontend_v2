@@ -18,6 +18,7 @@ export interface WorkspaceMember {
 export interface Workspace {
   id: string;
   name: string;
+  workspace_type: 'internal' | 'external';
   description: string;
   owner: {
     id: string;

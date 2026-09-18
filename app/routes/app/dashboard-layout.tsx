@@ -23,17 +23,12 @@ import {
   Mail,
   PanelLeftClose,
   PanelLeftOpen,
+  ShieldCheck,
 } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Logo } from '~/components/layout/logo';
 import { Button } from '~/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '~/components/ui/sheet';
+import { AppSheet } from '~/components/ui/app-sheet';
 import { Avatar, AvatarFallback } from '~/components/ui/avatar';
 import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
@@ -166,6 +161,11 @@ function buildAppSections({
       links: [
         { label: 'Overview', to: '/app/admin', icon: LayoutDashboard },
         { label: 'Applications', to: '/app/applications', icon: Users },
+        {
+          label: 'Publication Reviews',
+          to: '/app/validations',
+          icon: ShieldCheck,
+        },
         {
           label: 'Approved Creators',
           to: '/app/approved-creators',
@@ -531,8 +531,15 @@ export default function DashboardLayout() {
             <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-card px-4">
               {/* Mobile menu trigger */}
               {isClient && (
-                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-                  <SheetTrigger asChild>
+                <AppSheet
+                  open={mobileOpen}
+                  onOpenChange={setMobileOpen}
+                  side="left"
+                  title="Navigation"
+                  hideHeader
+                  className="w-64 sm:max-w-64"
+                  bodyClassName="p-0"
+                  trigger={
                     <Button
                       variant="ghost"
                       size="icon"
@@ -541,14 +548,10 @@ export default function DashboardLayout() {
                       <Menu className="h-5 w-5" />
                       <span className="sr-only">Open menu</span>
                     </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-64 p-0">
-                    <SheetHeader className="sr-only">
-                      <SheetTitle>Navigation</SheetTitle>
-                    </SheetHeader>
-                    <SidebarContent onNavigate={() => setMobileOpen(false)} />
-                  </SheetContent>
-                </Sheet>
+                  }
+                >
+                  <SidebarContent onNavigate={() => setMobileOpen(false)} />
+                </AppSheet>
               )}
 
               {/* Search trigger */}

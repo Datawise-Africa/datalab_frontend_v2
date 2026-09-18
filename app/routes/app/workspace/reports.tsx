@@ -2,14 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { Loader2, Plus } from 'lucide-react';
 import { Button } from '~/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { ReportList } from '~/components/reports/report-list';
 import { PaginationControls } from '~/components/dataset-catalog/pagination-controls';
 import {
@@ -107,22 +100,23 @@ export default function WorkspaceReportsPage() {
         </>
       )}
 
-      <Dialog
+      <AppDialog
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete report?</DialogTitle>
-            <DialogDescription>
-              This will permanently remove{' '}
-              <span className="font-medium text-foreground">
-                {deleteTarget?.title}
-              </span>{' '}
-              and all of its versions and files.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
+        title="Delete report?"
+        description={
+          <>
+            This will permanently remove{' '}
+            <span className="font-medium text-foreground">
+              {deleteTarget?.title}
+            </span>{' '}
+            and all of its versions and files.
+          </>
+        }
+        size="sm"
+        closeMode="explicit"
+        footer={
+          <>
             <Button
               variant="outline"
               onClick={() => setDeleteTarget(null)}
@@ -140,9 +134,9 @@ export default function WorkspaceReportsPage() {
               )}
               Delete
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </>
+        }
+      />
     </div>
   );
 }

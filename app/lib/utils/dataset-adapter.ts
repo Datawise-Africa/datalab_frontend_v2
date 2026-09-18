@@ -52,7 +52,8 @@ export function normalizeMyDataset(
 
   return {
     id: dataset.id,
-    slug: dataset.id,
+    // Readable URLs once the API sends slugs; ids keep working either way.
+    slug: dataset.slug ?? dataset.id,
     name: dataset.name,
     description: dataset.description,
     image: dataset.dataset_image ?? null,

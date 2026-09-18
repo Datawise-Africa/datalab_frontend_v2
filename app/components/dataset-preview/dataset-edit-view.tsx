@@ -81,6 +81,8 @@ function mapDatasetToFormValues(
           maintenance: dataset.datasheet.maintenance ?? '',
         }
       : undefined,
+    doi: dataset.doi ?? '',
+    doi_option: dataset.doi_option ?? (dataset.doi ? 'existing' : 'none'),
   };
 }
 

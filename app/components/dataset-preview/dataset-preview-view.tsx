@@ -30,6 +30,7 @@ import {
   useUpdateWorkspaceDatasetStatus,
 } from '~/features/workspaces';
 import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import { isInternalDatasetWorkspace } from '~/features/my-datasets/types';
 import {
   DATASET_STATUS_LABELS,
   DATASET_STATUS_VARIANTS,
@@ -38,12 +39,14 @@ import {
 } from '~/features/my-datasets/types';
 import { VersionsTab } from '~/components/creator-dashboard/dataset-versions';
 import { DatasetSchemaTab } from '~/components/creator-dashboard/dataset-schema-tab';
+import { DatasetDataPreview } from './dataset-data-preview';
 import {
   backHrefFor,
   editHrefFor,
   type PreviewContext,
 } from './preview-context';
 import { DatasetDangerZone } from './dataset-danger-zone';
+import { ValidationStatusPanel } from '~/components/validation/validation-status-panel';
 
 type Props = Readonly<{
   datasetId: string;
@@ -138,12 +141,20 @@ function DatasetContent({
   return (
     <div className="space-y-6">
       <DatasetHero dataset={dataset} />
+      {dataset.status === 'PB' && (
+        <ValidationStatusPanel
+          verificationStatus={dataset.verification_status}
+          validation={dataset.validation}
+          validationRequired={!isInternalDatasetWorkspace(dataset.workspace)}
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <main className="space-y-6 lg:col-span-2">
           <Tabs defaultValue="versions">
             <TabsList>
               <TabsTrigger value="versions">Versions</TabsTrigger>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
               <TabsTrigger value="schema">Schema</TabsTrigger>
               <TabsTrigger value="datasheet">Datasheet</TabsTrigger>
               <TabsTrigger value="authors">Authors</TabsTrigger>
@@ -155,6 +166,13 @@ function DatasetContent({
 
             <TabsContent value="versions" className="mt-4">
               <VersionsTab datasetId={dataset.id} />
+            </TabsContent>
+
+            <TabsContent value="preview" className="mt-4">
+              <DatasetDataPreview
+                preview={dataset.preview}
+                schema={dataset.schema}
+              />
             </TabsContent>
 
             <TabsContent value="schema" className="mt-4">
@@ -247,7 +265,7 @@ function AboutCard({
       <dl className="space-y-2.5 text-xs">
         <Field label="Category">{dataset.category.name}</Field>
         <Field label="Access" className="capitalize">
-          {dataset.access.access_type}
+          {dataset.access?.access_type ?? 'unspecified'}
         </Field>
         {(workspaceName || workspaceId) && (
           <Field label="Workspace">
@@ -283,12 +301,12 @@ function AboutCard({
         </Field>
       </dl>
 
-      {dataset.access.access_instructions && (
+      {dataset.access?.access_instructions && (
         <>
           <Separator className="my-3" />
           <p className="mb-1 text-xs font-medium">Access instructions</p>
           <p className="text-xs leading-relaxed text-muted-foreground">
-            {dataset.access.access_instructions}
+            {dataset.access?.access_instructions}
           </p>
         </>
       )}
@@ -414,7 +432,9 @@ function StatusActions({
             ) : (
               <Globe className="mr-1.5 h-4 w-4" />
             )}
-            Publish
+            {isInternalDatasetWorkspace(dataset.workspace)
+              ? 'Publish'
+              : 'Submit for review'}
           </Button>
           <Button
             size="sm"

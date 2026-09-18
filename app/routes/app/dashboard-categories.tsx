@@ -13,14 +13,7 @@ import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { DataTable } from '~/components/data-table';
 import { DashboardCategoryDialog } from '~/components/admin/dashboard-category-dialog';
 import { useUrlFilter } from '~/hooks/use-url-filter';
@@ -212,22 +205,23 @@ export default function DashboardCategoriesAdmin() {
           category={editing}
         />
 
-        <Dialog
+        <AppDialog
           open={!!deleteTarget}
           onOpenChange={(open) => !open && setDeleteTarget(null)}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Delete category?</DialogTitle>
-              <DialogDescription>
-                This will permanently remove{' '}
-                <span className="font-medium text-foreground">
-                  {deleteTarget?.name}
-                </span>
-                . Dashboards already in this category will become uncategorized.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
+          title="Delete category?"
+          description={
+            <>
+              This will permanently remove{' '}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.name}
+              </span>
+              . Dashboards already in this category will become uncategorized.
+            </>
+          }
+          size="sm"
+          closeMode="explicit"
+          footer={
+            <>
               <Button
                 variant="outline"
                 onClick={() => setDeleteTarget(null)}
@@ -245,9 +239,9 @@ export default function DashboardCategoriesAdmin() {
                 )}
                 Delete
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </>
+          }
+        />
       </div>
     </Protect>
   );

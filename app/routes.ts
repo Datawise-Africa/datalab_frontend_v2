@@ -23,6 +23,17 @@ export default [
     route('terms-of-service', 'routes/terms-of-service.tsx'),
   ]),
 
+  route('shared-dashboards/:token', 'routes/shared-dashboard.tsx'),
+
+  // Dashboard Studio (full-screen editor, outside the app shell)
+  layout('routes/app/studio-layout.tsx', [
+    route('app/my-dashboards/:id/studio', 'routes/app/dashboard-studio.tsx'),
+    route(
+      'app/workspaces/:id/dashboards/:dashboardId/studio',
+      'routes/app/workspace/dashboard-studio.tsx'
+    ),
+  ]),
+
   // Dashboard routes (isolated layout, no header/footer)
   layout('routes/app/dashboard-layout.tsx', [
     route('app', 'routes/app/overview.tsx'),
@@ -45,6 +56,7 @@ export default [
     route('app/admin', 'routes/app/admin-overview.tsx'),
     route('app/applications', 'routes/app/applications.tsx'),
     route('app/approved-creators', 'routes/app/approved-creators.tsx'),
+    route('app/validations', 'routes/app/product-validations.tsx'),
     route('app/dashboard-categories', 'routes/app/dashboard-categories.tsx'),
     route('app/report-categories', 'routes/app/report-categories.tsx'),
     route('app/invitations', 'routes/app/invitations.tsx'),

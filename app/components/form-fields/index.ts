@@ -6,3 +6,4 @@ export { FormPickerField } from './form-picker-field';
 export { FormCheckboxField } from './form-checkbox-field';
 export { FormOtpField } from './form-otp-field';
 export { FormTagInputField } from './form-tag-input-field';
+export { FormFileField } from './form-file-field';

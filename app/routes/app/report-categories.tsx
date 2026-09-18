@@ -5,14 +5,7 @@ import type { Route } from './+types/report-categories';
 import { generateSEOTags } from '~/lib/utils/seo';
 import { Protect } from '~/components/auth/protect';
 import { Button } from '~/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+import { AppDialog } from '~/components/ui/app-dialog';
 import { DataTable } from '~/components/data-table';
 import { ReportCategoryDialog } from '~/components/admin/report-category-dialog';
 import {
@@ -174,22 +167,23 @@ export default function ReportCategoriesAdmin() {
           category={editing}
         />
 
-        <Dialog
+        <AppDialog
           open={!!deleteTarget}
           onOpenChange={(open) => !open && setDeleteTarget(null)}
-        >
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Delete category?</DialogTitle>
-              <DialogDescription>
-                This will permanently remove{' '}
-                <span className="font-medium text-foreground">
-                  {deleteTarget?.name}
-                </span>
-                . Reports already in this category will become uncategorized.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
+          title="Delete category?"
+          description={
+            <>
+              This will permanently remove{' '}
+              <span className="font-medium text-foreground">
+                {deleteTarget?.name}
+              </span>
+              . Reports already in this category will become uncategorized.
+            </>
+          }
+          size="sm"
+          closeMode="explicit"
+          footer={
+            <>
               <Button
                 variant="outline"
                 onClick={() => setDeleteTarget(null)}
@@ -207,9 +201,9 @@ export default function ReportCategoriesAdmin() {
                 )}
                 Delete
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+            </>
+          }
+        />
       </div>
     </Protect>
   );

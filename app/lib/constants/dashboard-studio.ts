@@ -1,0 +1,458 @@
+import type {
+  DashboardDefinition,
+  DashboardRelationship,
+  DashboardQuery,
+  DashboardWidget,
+  DashboardWidgetType,
+} from '~/lib/types/dashboard';
+
+type Option<T> = { value: T; label: string };
+type MeasureOperation = DashboardQuery['measures'][number]['operation'];
+type FilterOperator = NonNullable<
+  DashboardQuery['filters']
+>[number]['operator'];
+type DateGrain = NonNullable<
+  NonNullable<DashboardQuery['dimension_specs']>[number]['date_grain']
+>;
+type ThemePreset = NonNullable<
+  NonNullable<DashboardDefinition['theme']>['preset']
+>;
+type NumberFormat = NonNullable<
+  NonNullable<DashboardWidget['config']>['numberFormat']
+>;
+type WidgetWidth = NonNullable<DashboardWidget['layout']>['width'];
+
+export const visualGroups = [
+  'Metrics',
+  'Comparison',
+  'Trend',
+  'Composition',
+  'Distribution',
+  'Tables & maps',
+  'Content',
+  'Controls',
+] as const;
+export type VisualGroup = (typeof visualGroups)[number];
+
+export const visualTypes: Array<{
+  value: DashboardWidgetType;
+  label: string;
+  description: string;
+  group: VisualGroup;
+}> = [
+  {
+    value: 'kpi',
+    label: 'KPI',
+    description: 'A headline metric',
+    group: 'Metrics',
+  },
+  {
+    value: 'gauge',
+    label: 'Gauge',
+    description: 'Progress against target',
+    group: 'Metrics',
+  },
+  {
+    value: 'bar',
+    label: 'Column',
+    description: 'Compare categories',
+    group: 'Comparison',
+  },
+  {
+    value: 'horizontal_bar',
+    label: 'Bar',
+    description: 'Rank categories',
+    group: 'Comparison',
+  },
+  {
+    value: 'stacked_bar',
+    label: 'Stacked',
+    description: 'Part-to-whole comparison',
+    group: 'Comparison',
+  },
+  {
+    value: 'combo',
+    label: 'Combo',
+    description: 'Columns and lines',
+    group: 'Comparison',
+  },
+  {
+    value: 'radar',
+    label: 'Radar',
+    description: 'Multi-metric profiles',
+    group: 'Comparison',
+  },
+  {
+    value: 'waterfall',
+    label: 'Waterfall',
+    description: 'Metric contributions',
+    group: 'Comparison',
+  },
+  {
+    value: 'line',
+    label: 'Line',
+    description: 'Trends over time',
+    group: 'Trend',
+  },
+  {
+    value: 'area',
+    label: 'Area',
+    description: 'Volume and trends',
+    group: 'Trend',
+  },
+  {
+    value: 'pie',
+    label: 'Pie',
+    description: 'Simple composition',
+    group: 'Composition',
+  },
+  {
+    value: 'donut',
+    label: 'Donut',
+    description: 'Composition with focus',
+    group: 'Composition',
+  },
+  {
+    value: 'radial',
+    label: 'Radial',
+    description: 'Progress and rankings',
+    group: 'Composition',
+  },
+  {
+    value: 'treemap',
+    label: 'Treemap',
+    description: 'Hierarchical composition',
+    group: 'Composition',
+  },
+  {
+    value: 'funnel',
+    label: 'Funnel',
+    description: 'Stage conversion',
+    group: 'Composition',
+  },
+  {
+    value: 'scatter',
+    label: 'Scatter',
+    description: 'Relationships and outliers',
+    group: 'Distribution',
+  },
+  {
+    value: 'heatmap',
+    label: 'Heatmap',
+    description: 'Intensity matrix',
+    group: 'Distribution',
+  },
+  {
+    value: 'histogram',
+    label: 'Histogram',
+    description: 'Numeric distribution',
+    group: 'Distribution',
+  },
+  {
+    value: 'box_plot',
+    label: 'Box plot',
+    description: 'Spread and outliers',
+    group: 'Distribution',
+  },
+  {
+    value: 'table',
+    label: 'Table',
+    description: 'Detailed values',
+    group: 'Tables & maps',
+  },
+  {
+    value: 'map',
+    label: 'Map',
+    description: 'Geographic patterns',
+    group: 'Tables & maps',
+  },
+  {
+    value: 'text',
+    label: 'Narrative',
+    description: 'Context and interpretation',
+    group: 'Content',
+  },
+  {
+    value: 'image',
+    label: 'Image',
+    description: 'Photos and branding',
+    group: 'Content',
+  },
+  {
+    value: 'shape',
+    label: 'Shape',
+    description: 'Grouping and emphasis',
+    group: 'Content',
+  },
+  {
+    value: 'filter',
+    label: 'Filter control',
+    description: 'Viewer filtering',
+    group: 'Controls',
+  },
+];
+
+export const measureOperations: MeasureOperation[] = [
+  'count',
+  'count_distinct',
+  'sum',
+  'average',
+  'min',
+  'max',
+  'median',
+  'stddev',
+  'variance',
+  'percentile',
+];
+
+export const filterOperators: FilterOperator[] = [
+  'equals',
+  'not_equals',
+  'contains',
+  'not_contains',
+  'starts_with',
+  'ends_with',
+  'gt',
+  'gte',
+  'lt',
+  'lte',
+  'between',
+  'date_between',
+  'in',
+  'is_null',
+  'not_null',
+];
+
+export const dateGrains: DateGrain[] = [
+  'year',
+  'quarter',
+  'month',
+  'week',
+  'day',
+];
+
+export const tableCalculationOptions: Option<
+  NonNullable<DashboardQuery['table_calculations']>[number]['operation']
+>[] = [
+  { value: 'running_total', label: 'Running total' },
+  { value: 'rank', label: 'Rank' },
+  { value: 'percent_of_total', label: 'Percent of total' },
+  { value: 'moving_average', label: 'Moving average' },
+];
+
+export const calculatedFieldOperators: Option<
+  'add' | 'subtract' | 'multiply' | 'divide' | 'percent'
+>[] = [
+  { value: 'add', label: 'Add (+)' },
+  { value: 'subtract', label: 'Subtract (−)' },
+  { value: 'multiply', label: 'Multiply (×)' },
+  { value: 'divide', label: 'Divide (÷)' },
+  { value: 'percent', label: 'Percent of' },
+];
+
+export const themePresetOptions: Option<ThemePreset>[] = [
+  { value: 'datalab', label: 'Datalab' },
+  { value: 'light', label: 'Clean light' },
+  { value: 'soft', label: 'Soft canvas' },
+  { value: 'contrast', label: 'High contrast' },
+];
+
+export const numberFormatOptions: Option<NumberFormat>[] = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'compact', label: 'Compact' },
+  { value: 'currency', label: 'Currency' },
+  { value: 'percent', label: 'Percent' },
+];
+
+export const widgetWidths: WidgetWidth[] = [3, 4, 6, 8, 9, 12];
+export const widgetHeights = [220, 300, 360, 440, 520, 640];
+export const decimalPlaces = [0, 1, 2, 3];
+
+export const inspectorWidthPresets: Option<number>[] = [
+  { value: 320, label: 'Compact' },
+  { value: 420, label: 'Comfortable' },
+  { value: 560, label: 'Wide' },
+];
+
+export const chartPalette = [
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+];
+
+// Full class strings so Tailwind can detect them.
+// Container-query spans: the dashboard responds to its own width (studio
+// device frames, embeds), not the browser's. Pairs with `@2xl:grid-cols-12`.
+export const widgetWidthClass: Record<number, string> = {
+  3: '@2xl:col-span-3',
+  4: '@2xl:col-span-4',
+  6: '@2xl:col-span-6',
+  8: '@2xl:col-span-8',
+  9: '@2xl:col-span-9',
+  12: '@2xl:col-span-12',
+};
+
+export const infographicSizes = {
+  portrait: { width: 1080, height: 1350 },
+  square: { width: 1080, height: 1080 },
+  landscape: { width: 1350, height: 1080 },
+};
+
+export const shareAccessOptions: Option<'view' | 'interact'>[] = [
+  { value: 'interact', label: 'View and interact' },
+  { value: 'view', label: 'View only' },
+];
+
+export const sortDirectionOptions: Option<'asc' | 'desc'>[] = [
+  { value: 'desc', label: 'Descending' },
+  { value: 'asc', label: 'Ascending' },
+];
+
+/** Picker value for "count rows" in the measure field list. */
+export const ROWS_MEASURE = '__rows';
+/** Picker value for "fixed number" as a calculated field's second operand. */
+export const FIXED_NUMBER = '__constant';
+
+export const dataSourceKindOptions: Array<{
+  value: 'file_upload' | 'datalab_dataset' | 'public_api';
+  label: string;
+  description: string;
+}> = [
+  {
+    value: 'file_upload',
+    label: 'File',
+    description: 'CSV, TSV, Excel, JSON or Parquet',
+  },
+  {
+    value: 'datalab_dataset',
+    label: 'Datalab',
+    description: 'Workspace, personal or approved public datasets',
+  },
+  {
+    value: 'public_api',
+    label: 'API',
+    description: 'Public HTTPS endpoint returning JSON',
+  },
+];
+
+export const dataSourceFileAccept = '.csv,.tsv,.xlsx,.xls,.json,.parquet';
+
+export const alertConditionOptions: Option<
+  'gt' | 'gte' | 'lt' | 'lte' | 'equals'
+>[] = [
+  { value: 'gt', label: 'Greater than' },
+  { value: 'gte', label: 'At least' },
+  { value: 'lt', label: 'Less than' },
+  { value: 'lte', label: 'At most' },
+  { value: 'equals', label: 'Equals' },
+];
+
+/**
+ * What each theme preset changes when a dashboard renders. Class strings are
+ * written out in full so Tailwind picks them up; colours stay token-based where
+ * possible so presets follow the app's light/dark mode.
+ */
+export const themePresetStyles: Record<
+  ThemePreset,
+  { canvas: string; card: string; palette: string[] }
+> = {
+  datalab: {
+    canvas: '',
+    card: 'border bg-card shadow-sm',
+    palette: chartPalette,
+  },
+  light: {
+    canvas: 'bg-background',
+    card: 'border bg-background shadow-none',
+    palette: ['#2563eb', '#0ea5e9', '#14b8a6', '#f59e0b', '#8b5cf6'],
+  },
+  soft: {
+    canvas: 'bg-muted/60 p-3',
+    card: 'border border-transparent bg-card shadow-md',
+    palette: ['#6ea8fe', '#a78bfa', '#f472b6', '#4ade80', '#fbbf24'],
+  },
+  contrast: {
+    canvas: '',
+    card: 'border-2 border-foreground bg-card shadow-none',
+    palette: ['var(--foreground)', '#d00000', '#0057ff', '#e69500', '#00875a'],
+  },
+};
+
+export const cornerRadiusOptions: Option<string>[] = [
+  { value: '0', label: 'Square' },
+  { value: '6', label: 'Subtle' },
+  { value: '12', label: 'Rounded' },
+  { value: '20', label: 'Pill' },
+];
+
+export const dashboardSettingOptions: Array<{
+  key: 'showTitles' | 'showDescriptions' | 'compact';
+  label: string;
+  description: string;
+}> = [
+  {
+    key: 'showTitles',
+    label: 'Show visual titles',
+    description: 'Title above every visual.',
+  },
+  {
+    key: 'showDescriptions',
+    label: 'Show descriptions',
+    description: 'Optional context line under the title.',
+  },
+  {
+    key: 'compact',
+    label: 'Compact layout',
+    description: 'Tighter spacing between and inside visuals.',
+  },
+];
+
+export const joinTypeOptions: Option<DashboardRelationship['join_type']>[] = [
+  { value: 'left', label: 'Keep all from first source' },
+  { value: 'inner', label: 'Matches only' },
+  { value: 'right', label: 'Keep all from second source' },
+  { value: 'outer', label: 'Keep everything' },
+];
+
+/** Header colours for data model tables, assigned by source order. */
+export const modelTableColors = [
+  '#10b981',
+  '#3b82f6',
+  '#f59e0b',
+  '#8b5cf6',
+  '#ef4444',
+  '#06b6d4',
+];
+
+export const cardinalityOptions: Option<
+  NonNullable<DashboardRelationship['cardinality']>
+>[] = [
+  { value: 'one_to_one', label: 'One to one' },
+  { value: 'one_to_many', label: 'One to many' },
+  { value: 'many_to_one', label: 'Many to one' },
+  { value: 'many_to_many', label: 'Many to many' },
+];
+
+/** Compact join labels for relationship lines in the model diagram. */
+export const joinTypeShortLabels: Record<
+  DashboardRelationship['join_type'],
+  string
+> = {
+  left: 'Left join',
+  inner: 'Inner join',
+  right: 'Right join',
+  outer: 'Full join',
+};
+
+/** Canvas frame widths (px) for previewing a page at different screen sizes. */
+export const canvasFrames = [
+  { value: 'fill', label: 'Fill', width: null },
+  { value: 'desktop', label: 'Desktop', width: 1280 },
+  { value: 'tablet', label: 'Tablet', width: 768 },
+  { value: 'mobile', label: 'Mobile', width: 390 },
+] as const;
+export type CanvasFrame = (typeof canvasFrames)[number]['value'];
+
+export const canvasZoom = { min: 0.25, max: 2, step: 0.1 } as const;

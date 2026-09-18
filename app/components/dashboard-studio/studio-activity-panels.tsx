@@ -1,0 +1,332 @@
+/**
+ * Collaboration / document panels shown beside the canvas: in the right
+ * column on wide screens, in a right-hand sheet otherwise (see `StudioAside`
+ * and `StudioDialogs`). Content only — the frame supplies the title bar.
+ */
+import { useState } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { Check, Loader2 } from 'lucide-react';
+import {
+  FormNumberField,
+  FormPickerField,
+  FormTextareaField,
+  FormTextField,
+} from '~/components/form-fields';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
+import { Form } from '~/components/ui/form';
+import {
+  useCreateDashboardAlert,
+  useCreateDashboardComment,
+  useDashboardAlerts,
+  useDashboardComments,
+  useDashboardRevisions,
+  useResolveDashboardComment,
+} from '~/features/dashboard-studio';
+import { alertConditionOptions } from '~/lib/constants/dashboard-studio';
+import {
+  alertSchema,
+  commentSchema,
+  type AlertFormValues,
+  type CommentFormValues,
+} from '~/lib/schema/dashboard-studio-schema';
+import type { DashboardAlert } from '~/lib/types/dashboard';
+import { cn } from '~/lib/utils';
+import { useStudio } from './studio-context';
+
+export function HistoryPanel({
+  onRestored,
+}: Readonly<{ onRestored?: () => void }>) {
+  const { dashboardId, workspaceId, restore } = useStudio();
+  const { data: revisions = [], isLoading } = useDashboardRevisions(
+    dashboardId,
+    workspaceId
+  );
+  if (isLoading)
+    return (
+      <Loader2 className="mx-auto my-12 h-6 w-6 animate-spin text-primary" />
+    );
+  return (
+    <ol className="space-y-2">
+      {revisions.map((revision, index) => (
+        <li
+          key={revision.id}
+          className="flex items-center justify-between gap-2 rounded-lg border p-3"
+        >
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">
+              {revision.note || 'Dashboard revision'}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {new Date(revision.created_at).toLocaleString()}
+              {index === 0 && ' · Latest'}
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="shrink-0"
+            onClick={async () => {
+              await restore(revision.id);
+              onRestored?.();
+            }}
+          >
+            Restore
+          </Button>
+        </li>
+      ))}
+      {!revisions.length && (
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          History will appear after the first save.
+        </p>
+      )}
+    </ol>
+  );
+}
+
+export function CommentsPanel() {
+  const { dashboardId, workspaceId, activePage, selected, definition } =
+    useStudio();
+  const { data: comments = [] } = useDashboardComments(
+    dashboardId,
+    workspaceId
+  );
+  const create = useCreateDashboardComment(dashboardId, workspaceId);
+  const resolve = useResolveDashboardComment(dashboardId, workspaceId);
+  // Selecting a visual (or clicking its pin) narrows the list to its thread.
+  const [showAll, setShowAll] = useState(false);
+  const [showResolved, setShowResolved] = useState(false);
+  const [threadId, setThreadId] = useState(selected?.id);
+  if (threadId !== selected?.id) {
+    setThreadId(selected?.id);
+    setShowAll(false);
+  }
+  const form = useForm<CommentFormValues>({
+    resolver: zodResolver(commentSchema),
+    defaultValues: { body: '' },
+  });
+  const submit = form.handleSubmit(async (values) => {
+    await create.mutateAsync({
+      ...values,
+      page_id: activePage?.id,
+      widget_id: selected?.id,
+    });
+    form.reset();
+  });
+  const widgetTitle = (id?: string) =>
+    definition.pages
+      .flatMap((page) => page.widgets)
+      .find((widget) => widget.id === id)?.title;
+  const thread =
+    selected && !showAll
+      ? comments.filter((comment) => comment.widget_id === selected.id)
+      : comments;
+  const resolvedCount = thread.filter((comment) => comment.resolved_at).length;
+  const visible = showResolved
+    ? thread
+    : thread.filter((comment) => !comment.resolved_at);
+
+  return (
+    <div className="space-y-4">
+      <Form {...form}>
+        <form onSubmit={submit} className="space-y-2">
+          <FormTextareaField
+            control={form.control}
+            name="body"
+            label={
+              selected
+                ? `Comment on “${selected.title}”`
+                : `Comment on “${activePage?.title ?? 'this page'}”`
+            }
+            placeholder="Describe the question, decision or change needed"
+            rows={3}
+          />
+          <Button type="submit" size="sm" disabled={create.isPending}>
+            Post comment
+          </Button>
+        </form>
+      </Form>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+        {selected ? (
+          <button
+            type="button"
+            onClick={() => setShowAll(!showAll)}
+            className="text-primary hover:underline"
+          >
+            {showAll ? `Only “${selected.title}”` : 'All comments'}
+          </button>
+        ) : (
+          <span className="text-muted-foreground">All comments</span>
+        )}
+        {resolvedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowResolved(!showResolved)}
+            className="text-muted-foreground hover:text-foreground"
+          >
+            {showResolved ? 'Hide' : 'Show'} {resolvedCount} resolved
+          </button>
+        )}
+      </div>
+      <div className="space-y-2">
+        {visible.map((comment) => (
+          <article
+            key={comment.id}
+            className={cn(
+              'rounded-lg border p-3',
+              comment.resolved_at && 'bg-muted/40 opacity-70'
+            )}
+          >
+            <div className="flex items-baseline justify-between gap-2 text-xs">
+              <strong className="truncate">
+                {comment.author_name || 'Team member'}
+              </strong>
+              <time className="shrink-0 text-muted-foreground">
+                {new Date(comment.created_at).toLocaleString()}
+              </time>
+            </div>
+            {widgetTitle(comment.widget_id) && (
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                On {widgetTitle(comment.widget_id)}
+              </p>
+            )}
+            <p className="mt-2 text-sm whitespace-pre-wrap">{comment.body}</p>
+            <div className="mt-2 flex justify-end">
+              {comment.resolved_at ? (
+                <Badge variant="secondary">Resolved</Badge>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-xs"
+                  disabled={resolve.isPending}
+                  onClick={() => resolve.mutate(comment.id)}
+                >
+                  <Check className="mr-1 h-3.5 w-3.5" />
+                  Resolve
+                </Button>
+              )}
+            </div>
+          </article>
+        ))}
+        {!visible.length && (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            {selected && !showAll
+              ? 'No open comments on this visual.'
+              : 'No open comments.'}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function AlertsPanel() {
+  const { dashboardId, workspaceId, definition } = useStudio();
+  const { data: alerts = [] } = useDashboardAlerts(dashboardId, workspaceId);
+  const create = useCreateDashboardAlert(dashboardId, workspaceId);
+  const widgets = definition.pages.flatMap((page) =>
+    page.widgets
+      .filter((widget) => widget.type !== 'text')
+      .map((widget) => ({
+        value: widget.id,
+        label: widget.title,
+        group: page.title,
+      }))
+  );
+  const form = useForm<AlertFormValues>({
+    resolver: zodResolver(alertSchema),
+    defaultValues: {
+      name: '',
+      widget_id: '',
+      operator: 'gte',
+      threshold: 0,
+      recipients: '',
+    },
+  });
+  const submit = form.handleSubmit(async (values) => {
+    await create.mutateAsync({
+      ...values,
+      recipients: values.recipients
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean),
+      is_active: true,
+    } as Omit<DashboardAlert, 'id'>);
+    form.reset();
+  });
+
+  return (
+    <div className="space-y-4">
+      <Form {...form}>
+        <form onSubmit={submit} className="space-y-3 rounded-lg border p-3">
+          <FormTextField
+            control={form.control}
+            name="name"
+            label="Alert name"
+            required
+          />
+          <FormPickerField
+            control={form.control}
+            name="widget_id"
+            label="Visual"
+            options={widgets}
+            emptyMessage="Add a visual first."
+            required
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <FormPickerField
+              control={form.control}
+              name="operator"
+              label="Condition"
+              options={alertConditionOptions}
+              clearable={false}
+              searchable={false}
+            />
+            <FormNumberField
+              control={form.control}
+              name="threshold"
+              label="Threshold"
+              required
+            />
+          </div>
+          <FormTextField
+            control={form.control}
+            name="recipients"
+            label="Recipients"
+            placeholder="name@example.org, team@example.org"
+            required
+          />
+          <Button type="submit" size="sm" disabled={create.isPending}>
+            Create alert
+          </Button>
+        </form>
+      </Form>
+      <div className="space-y-2">
+        {alerts.map((alert) => (
+          <div key={alert.id} className="rounded-lg border p-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <strong className="truncate">{alert.name}</strong>
+              <Badge variant={alert.is_active ? 'success' : 'secondary'}>
+                {alert.is_active ? 'Active' : 'Paused'}
+              </Badge>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {alertConditionOptions.find(
+                (option) => option.value === alert.operator
+              )?.label ?? alert.operator}{' '}
+              {alert.threshold} · Last value{' '}
+              {alert.last_value ?? 'not evaluated'}
+            </p>
+          </div>
+        ))}
+        {!alerts.length && (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            No alerts yet.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
