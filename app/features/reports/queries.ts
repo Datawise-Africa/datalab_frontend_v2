@@ -1,11 +1,11 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
-import type { Report, ReportVersion } from '~/lib/types/report';
+import type { Report, ReportSummary, ReportVersion } from '~/lib/types/report';
 import type { Paginated } from '~/lib/types/pagination';
 import { reportKeys } from './query-keys';
 
 /**
- * GET /reports/ accepts `page` and `limit` only — no search, category or ordering,
+ * GET /reports/ accepts `page`, `limit` and opt-in `summary` — no search, category or ordering,
  * unlike /datasets/. Do not add filter params here until the backend supports them;
  * they are silently ignored.
  *
@@ -19,12 +19,17 @@ interface ReportListParams {
 }
 
 export function useReports(params?: ReportListParams) {
+  const requestParams = { ...params, summary: true };
   return useQuery({
-    queryKey: reportKeys.list(params),
-    queryFn: async (): Promise<Paginated<Report>> => {
-      const { data } = await apiClient.get<Paginated<Report>>('/reports/', {
-        params,
-      });
+    queryKey: reportKeys.list(requestParams),
+    queryFn: async ({ signal }): Promise<Paginated<ReportSummary>> => {
+      const { data } = await apiClient.get<Paginated<ReportSummary>>(
+        '/reports/',
+        {
+          params: requestParams,
+          signal,
+        }
+      );
       return data;
     },
     placeholderData: keepPreviousData,
@@ -36,8 +41,10 @@ export function useReports(params?: ReportListParams) {
 export function useReport(id: string) {
   return useQuery({
     queryKey: reportKeys.detail(id),
-    queryFn: async (): Promise<Report> => {
-      const { data } = await apiClient.get<Report>(`/reports/${id}/`);
+    queryFn: async ({ signal }): Promise<Report> => {
+      const { data } = await apiClient.get<Report>(`/reports/${id}/`, {
+        signal,
+      });
       return data;
     },
     enabled: !!id,
@@ -66,7 +73,7 @@ export function useReportVersions(reportId: string) {
 export interface BookmarkedReport {
   id: string;
   user: string;
-  report: Report;
+  report: ReportSummary;
 }
 
 /**
@@ -83,12 +90,13 @@ export function useBookmarkedReports(
   params?: ReportListParams,
   isAuthenticated: boolean = false
 ) {
+  const requestParams = { ...params, summary: true };
   return useQuery({
-    queryKey: [...reportKeys.bookmarks(), params],
-    queryFn: async (): Promise<BookmarkedReport[]> => {
+    queryKey: [...reportKeys.bookmarks(), requestParams],
+    queryFn: async ({ signal }): Promise<BookmarkedReport[]> => {
       const { data } = await apiClient.get<BookmarkedReport[]>(
         '/reports/my-bookmarks/',
-        { params }
+        { params: requestParams, signal }
       );
       return data;
     },

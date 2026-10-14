@@ -153,6 +153,12 @@ export type MyDatasetInterface = {
   updated_at: string;
 };
 
+/** Public catalog cards omit the large detail and moderation payloads. */
+export type DatasetSummary = Omit<
+  MyDatasetInterface,
+  'schema' | 'preview' | 'validation'
+>;
+
 export const DATASET_STATUS_LABELS: Record<
   MyDatasetInterface['status'],
   string

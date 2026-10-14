@@ -15,7 +15,7 @@ import { getWorkspaceName } from '~/features/my-datasets/types';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
 import { cn } from '~/lib/utils';
 import { useAppSelector } from '~/store';
-import type { Report } from '~/lib/types/report';
+import type { ReportSummary } from '~/lib/types/report';
 
 const reportTypeLabels: Record<string, string> = {
   research_paper: 'Research Paper',
@@ -28,7 +28,7 @@ const reportTypeLabels: Record<string, string> = {
 };
 
 interface ReportCardProps {
-  report: Report;
+  report: ReportSummary;
   className?: string;
 }
 

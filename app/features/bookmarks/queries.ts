@@ -1,8 +1,7 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { bookmarkKeys } from './query-keys';
-import type { Paginated } from '~/lib/types';
-import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import type { DatasetSummary } from '~/features/my-datasets/types';
 
 interface BookmarkListParams {
   page?: number;
@@ -13,7 +12,7 @@ interface BookmarkListParams {
 
 export interface BookmarkedDataset {
   id: string;
-  dataset: MyDatasetInterface;
+  dataset: DatasetSummary;
   created_at: string;
 }
 
@@ -21,12 +20,13 @@ export const useBookmarkedDatasets = (
   params?: BookmarkListParams,
   isAuthenticated: boolean = false
 ) => {
+  const requestParams = { ...params, summary: true };
   return useQuery({
-    queryKey: bookmarkKeys.list(params),
-    queryFn: async () => {
+    queryKey: bookmarkKeys.list(requestParams),
+    queryFn: async ({ signal }) => {
       const { data } = await apiClient.get<BookmarkedDataset[]>(
         '/datasets/my-bookmarks/',
-        { params }
+        { params: requestParams, signal }
       );
       return data;
     },

@@ -354,6 +354,17 @@ export interface Dashboard {
   definition_version?: string;
 }
 
+/** Listing responses; the viewer/editor fetches the complete Dashboard. */
+export type DashboardSummary = Omit<
+  Dashboard,
+  | 'definition'
+  | 'definition_version'
+  | 'semantic_model'
+  | 'refresh_policy'
+  | 'data_sources'
+  | 'validation'
+>;
+
 export interface CreateDashboardInput {
   title: string;
   description?: string;
