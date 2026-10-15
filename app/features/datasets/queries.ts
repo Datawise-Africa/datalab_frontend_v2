@@ -2,7 +2,10 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiClient } from '~/lib/api/client';
 import { datasetKeys } from './query-keys';
 import type { Paginated } from '~/lib/types';
-import type { MyDatasetInterface } from '~/features/my-datasets/types';
+import type {
+  DatasetSummary,
+  MyDatasetInterface,
+} from '~/features/my-datasets/types';
 import type { DatasetVersion } from '~/lib/types/dataset-version';
 
 interface DatasetListParams {
@@ -20,12 +23,13 @@ interface DatasetListParams {
 
 /** Fetch paginated datasets with optional filters. */
 export const useDatasets = (params?: DatasetListParams) => {
+  const requestParams = { ...params, summary: true };
   return useQuery({
-    queryKey: datasetKeys.list(params),
-    queryFn: async (): Promise<Paginated<MyDatasetInterface>> => {
-      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+    queryKey: datasetKeys.list(requestParams),
+    queryFn: async ({ signal }): Promise<Paginated<DatasetSummary>> => {
+      const { data } = await apiClient.get<Paginated<DatasetSummary>>(
         '/datasets/',
-        { params }
+        { params: requestParams, signal }
       );
       return data;
     },
@@ -39,9 +43,10 @@ export const useDatasets = (params?: DatasetListParams) => {
 export const useDataset = (id: string) => {
   return useQuery({
     queryKey: datasetKeys.detail(id),
-    queryFn: async (): Promise<MyDatasetInterface> => {
+    queryFn: async ({ signal }): Promise<MyDatasetInterface> => {
       const { data } = await apiClient.get<MyDatasetInterface>(
-        `/datasets/${id}/`
+        `/datasets/${id}/`,
+        { signal }
       );
       return data;
     },
@@ -54,10 +59,10 @@ export const useDataset = (id: string) => {
 export const useSearchDatasets = (query: string) => {
   return useQuery({
     queryKey: datasetKeys.search(query),
-    queryFn: async (): Promise<Paginated<MyDatasetInterface>> => {
-      const { data } = await apiClient.get<Paginated<MyDatasetInterface>>(
+    queryFn: async ({ signal }): Promise<Paginated<DatasetSummary>> => {
+      const { data } = await apiClient.get<Paginated<DatasetSummary>>(
         '/datasets/',
-        { params: { search: query } }
+        { params: { search: query, summary: true }, signal }
       );
       return data;
     },

@@ -9,7 +9,9 @@
 export const readonlyProps = {
   meta: {
     type: 'problem',
-    docs: { description: 'Require component props to be wrapped in Readonly<>' },
+    docs: {
+      description: 'Require component props to be wrapped in Readonly<>',
+    },
     messages: {
       notReadonly:
         'Component props must be wrapped in Readonly<> (e.g. `Readonly<{{name}}>`).',

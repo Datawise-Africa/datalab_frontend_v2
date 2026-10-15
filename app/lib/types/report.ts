@@ -108,6 +108,8 @@ export interface Report {
   updated_at: string;
 }
 
+export type ReportSummary = Omit<Report, 'validation'>;
+
 /**
  * One presigned file from POST /reports/{id}/request-download/. Identical to the
  * dataset download entry shape, which is why the ready-state rendering is shared

@@ -1,4 +1,5 @@
 import type { MyDatasetInterface } from '~/features/my-datasets';
+import type { DatasetSummary } from '~/features/my-datasets/types';
 import { getWorkspaceId, getWorkspaceName } from '~/features/my-datasets/types';
 
 /**
@@ -37,7 +38,7 @@ export interface NormalizedDataset {
  * Normalize a MyDatasetInterface into the card's expected shape.
  */
 export function normalizeMyDataset(
-  dataset: MyDatasetInterface
+  dataset: MyDatasetInterface | DatasetSummary
 ): NormalizedDataset {
   const authorName =
     dataset.authors.length > 0

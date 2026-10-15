@@ -11,10 +11,10 @@ import {
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardFooter } from '~/components/ui/card';
 import { resolveMediaUrl } from '~/lib/utils/media-url';
-import type { Dashboard } from '~/lib/types/dashboard';
+import type { DashboardSummary } from '~/lib/types/dashboard';
 
 interface Props {
-  dashboard: Dashboard;
+  dashboard: DashboardSummary;
 }
 
 export function PublicDashboardCard({ dashboard }: Readonly<Props>) {
